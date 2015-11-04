@@ -167,82 +167,132 @@ func (x *EntityDTO_EntityType) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Names for communicating the number of various types of disks.
+type EntityDTO_NumDiskNames int32
+
+const (
+	// Number of discovered solid state drives.
+	EntityDTO_NUM_SSD EntityDTO_NumDiskNames = 1
+	// Number of discovered 7200 RPM disks.
+	EntityDTO_NUM_7200_DISKS EntityDTO_NumDiskNames = 2
+	// Number of discovered 10000 RPM disks.
+	EntityDTO_NUM_10K_DISKS EntityDTO_NumDiskNames = 3
+	// Number of discovered 15000 RPM disks.
+	EntityDTO_NUM_15K_DISKS EntityDTO_NumDiskNames = 4
+	// Number of discovered VSeries disks.
+	EntityDTO_NUM_VSERIES_DISKS EntityDTO_NumDiskNames = 5
+)
+
+var EntityDTO_NumDiskNames_name = map[int32]string{
+	1: "NUM_SSD",
+	2: "NUM_7200_DISKS",
+	3: "NUM_10K_DISKS",
+	4: "NUM_15K_DISKS",
+	5: "NUM_VSERIES_DISKS",
+}
+var EntityDTO_NumDiskNames_value = map[string]int32{
+	"NUM_SSD":           1,
+	"NUM_7200_DISKS":    2,
+	"NUM_10K_DISKS":     3,
+	"NUM_15K_DISKS":     4,
+	"NUM_VSERIES_DISKS": 5,
+}
+
+func (x EntityDTO_NumDiskNames) Enum() *EntityDTO_NumDiskNames {
+	p := new(EntityDTO_NumDiskNames)
+	*p = x
+	return p
+}
+func (x EntityDTO_NumDiskNames) String() string {
+	return proto.EnumName(EntityDTO_NumDiskNames_name, int32(x))
+}
+func (x *EntityDTO_NumDiskNames) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(EntityDTO_NumDiskNames_value, data, "EntityDTO_NumDiskNames")
+	if err != nil {
+		return err
+	}
+	*x = EntityDTO_NumDiskNames(value)
+	return nil
+}
+
 type CommodityDTO_CommodityType int32
 
 const (
-	CommodityDTO_CLUSTER                  CommodityDTO_CommodityType = 0
-	CommodityDTO_THREADS                  CommodityDTO_CommodityType = 1
-	CommodityDTO_CPU_ALLOCATION           CommodityDTO_CommodityType = 2
-	CommodityDTO_NUMBER_CONSUMERS         CommodityDTO_CommodityType = 3
-	CommodityDTO_FLOW_ALLOCATION          CommodityDTO_CommodityType = 4
-	CommodityDTO_Q1_VCPU                  CommodityDTO_CommodityType = 5
-	CommodityDTO_STORAGE_PROVISIONED      CommodityDTO_CommodityType = 6
-	CommodityDTO_LICENSE_COMMODITY        CommodityDTO_CommodityType = 7
-	CommodityDTO_STORAGE_AMOUNT           CommodityDTO_CommodityType = 8
-	CommodityDTO_Q16_VCPU                 CommodityDTO_CommodityType = 9
-	CommodityDTO_Q32_VCPU                 CommodityDTO_CommodityType = 10
-	CommodityDTO_SAME_CLUSTER_MOVE_SVC    CommodityDTO_CommodityType = 11
-	CommodityDTO_Q3_VCPU                  CommodityDTO_CommodityType = 12
-	CommodityDTO_SLA_COMMODITY            CommodityDTO_CommodityType = 13
-	CommodityDTO_CROSS_CLUSTER_MOVE_SVC   CommodityDTO_CommodityType = 14
-	CommodityDTO_NUMBER_CONSUMERS_PM      CommodityDTO_CommodityType = 15
-	CommodityDTO_STORAGE_ALLOCATION       CommodityDTO_CommodityType = 16
-	CommodityDTO_Q8_VCPU                  CommodityDTO_CommodityType = 17
-	CommodityDTO_SPACE                    CommodityDTO_CommodityType = 18
-	CommodityDTO_Q6_VCPU                  CommodityDTO_CommodityType = 19
-	CommodityDTO_POWER                    CommodityDTO_CommodityType = 20
-	CommodityDTO_MEM                      CommodityDTO_CommodityType = 21
-	CommodityDTO_STORAGE_LATENCY          CommodityDTO_CommodityType = 22
-	CommodityDTO_Q7_VCPU                  CommodityDTO_CommodityType = 23
-	CommodityDTO_COOLING                  CommodityDTO_CommodityType = 24
-	CommodityDTO_PORT_CHANEL              CommodityDTO_CommodityType = 25
-	CommodityDTO_VCPU                     CommodityDTO_CommodityType = 26
-	CommodityDTO_QN_VCPU                  CommodityDTO_CommodityType = 27
-	CommodityDTO_CPU_PROVISIONED          CommodityDTO_CommodityType = 28
-	CommodityDTO_RIGHT_SIZE_SVC           CommodityDTO_CommodityType = 29
-	CommodityDTO_MOVE                     CommodityDTO_CommodityType = 30
-	CommodityDTO_Q2_VCPU                  CommodityDTO_CommodityType = 31
-	CommodityDTO_Q5_VCPU                  CommodityDTO_CommodityType = 32
-	CommodityDTO_SWAPPING                 CommodityDTO_CommodityType = 33
-	CommodityDTO_SEGMENTATION             CommodityDTO_CommodityType = 34
-	CommodityDTO_FLOW                     CommodityDTO_CommodityType = 35
-	CommodityDTO_DATASTORE                CommodityDTO_CommodityType = 36
-	CommodityDTO_CROSS_CLOUD_MOVE_SVC     CommodityDTO_CommodityType = 37
-	CommodityDTO_RIGHT_SIZE_DOWN          CommodityDTO_CommodityType = 38
-	CommodityDTO_IO_THROUGHPUT            CommodityDTO_CommodityType = 39
-	CommodityDTO_CPU                      CommodityDTO_CommodityType = 40
-	CommodityDTO_BALLOONING               CommodityDTO_CommodityType = 41
-	CommodityDTO_VDC                      CommodityDTO_CommodityType = 42
-	CommodityDTO_Q64_VCPU                 CommodityDTO_CommodityType = 43
-	CommodityDTO_CONNECTION               CommodityDTO_CommodityType = 44
-	CommodityDTO_MEM_PROVISIONED          CommodityDTO_CommodityType = 45
-	CommodityDTO_NUMBER_CONSUMERS_VM      CommodityDTO_CommodityType = 46
-	CommodityDTO_STORAGE                  CommodityDTO_CommodityType = 47
-	CommodityDTO_NET_THROUGHPUT           CommodityDTO_CommodityType = 48
-	CommodityDTO_NUMBER_CONSUMERS_STORAGE CommodityDTO_CommodityType = 49
-	CommodityDTO_TRANSACTION              CommodityDTO_CommodityType = 50
-	CommodityDTO_MEM_ALLOCATION           CommodityDTO_CommodityType = 51
-	CommodityDTO_DSPM_ACCESS              CommodityDTO_CommodityType = 52
-	CommodityDTO_RESPONSE_TIME            CommodityDTO_CommodityType = 53
-	CommodityDTO_VMEM                     CommodityDTO_CommodityType = 54
-	CommodityDTO_ACTION_PERMIT            CommodityDTO_CommodityType = 55
-	CommodityDTO_DATACENTER               CommodityDTO_CommodityType = 56
-	CommodityDTO_APPLICATION              CommodityDTO_CommodityType = 57
-	CommodityDTO_NETWORK                  CommodityDTO_CommodityType = 58
-	CommodityDTO_Q4_VCPU                  CommodityDTO_CommodityType = 59
-	CommodityDTO_STORAGE_CLUSTER          CommodityDTO_CommodityType = 60
-	CommodityDTO_EXTENT                   CommodityDTO_CommodityType = 61
-	CommodityDTO_ACCESS                   CommodityDTO_CommodityType = 62
-	CommodityDTO_RIGHT_SIZE_UP            CommodityDTO_CommodityType = 63
-	CommodityDTO_VAPP_ACCESS              CommodityDTO_CommodityType = 64
-	CommodityDTO_STORAGE_ACCESS           CommodityDTO_CommodityType = 65
-	CommodityDTO_VSTORAGE                 CommodityDTO_CommodityType = 66
-	CommodityDTO_DRS_SEGMENTATION         CommodityDTO_CommodityType = 67
-	CommodityDTO_DB_MEM                   CommodityDTO_CommodityType = 68
-	CommodityDTO_TRANSACTION_LOG          CommodityDTO_CommodityType = 69
-	CommodityDTO_DB_CACHE_HIT_RATE        CommodityDTO_CommodityType = 70
-	CommodityDTO_HOT_STORAGE              CommodityDTO_CommodityType = 71
-	CommodityDTO_UNKNOWN                  CommodityDTO_CommodityType = 72
+	CommodityDTO_CLUSTER                    CommodityDTO_CommodityType = 0
+	CommodityDTO_THREADS                    CommodityDTO_CommodityType = 1
+	CommodityDTO_CPU_ALLOCATION             CommodityDTO_CommodityType = 2
+	CommodityDTO_NUMBER_CONSUMERS           CommodityDTO_CommodityType = 3
+	CommodityDTO_FLOW_ALLOCATION            CommodityDTO_CommodityType = 4
+	CommodityDTO_Q1_VCPU                    CommodityDTO_CommodityType = 5
+	CommodityDTO_STORAGE_PROVISIONED        CommodityDTO_CommodityType = 6
+	CommodityDTO_LICENSE_COMMODITY          CommodityDTO_CommodityType = 7
+	CommodityDTO_STORAGE_AMOUNT             CommodityDTO_CommodityType = 8
+	CommodityDTO_Q16_VCPU                   CommodityDTO_CommodityType = 9
+	CommodityDTO_Q32_VCPU                   CommodityDTO_CommodityType = 10
+	CommodityDTO_SAME_CLUSTER_MOVE_SVC      CommodityDTO_CommodityType = 11
+	CommodityDTO_Q3_VCPU                    CommodityDTO_CommodityType = 12
+	CommodityDTO_SLA_COMMODITY              CommodityDTO_CommodityType = 13
+	CommodityDTO_CROSS_CLUSTER_MOVE_SVC     CommodityDTO_CommodityType = 14
+	CommodityDTO_NUMBER_CONSUMERS_PM        CommodityDTO_CommodityType = 15
+	CommodityDTO_STORAGE_ALLOCATION         CommodityDTO_CommodityType = 16
+	CommodityDTO_Q8_VCPU                    CommodityDTO_CommodityType = 17
+	CommodityDTO_SPACE                      CommodityDTO_CommodityType = 18
+	CommodityDTO_Q6_VCPU                    CommodityDTO_CommodityType = 19
+	CommodityDTO_POWER                      CommodityDTO_CommodityType = 20
+	CommodityDTO_MEM                        CommodityDTO_CommodityType = 21
+	CommodityDTO_STORAGE_LATENCY            CommodityDTO_CommodityType = 22
+	CommodityDTO_Q7_VCPU                    CommodityDTO_CommodityType = 23
+	CommodityDTO_COOLING                    CommodityDTO_CommodityType = 24
+	CommodityDTO_PORT_CHANEL                CommodityDTO_CommodityType = 25
+	CommodityDTO_VCPU                       CommodityDTO_CommodityType = 26
+	CommodityDTO_QN_VCPU                    CommodityDTO_CommodityType = 27
+	CommodityDTO_CPU_PROVISIONED            CommodityDTO_CommodityType = 28
+	CommodityDTO_RIGHT_SIZE_SVC             CommodityDTO_CommodityType = 29
+	CommodityDTO_MOVE                       CommodityDTO_CommodityType = 30
+	CommodityDTO_Q2_VCPU                    CommodityDTO_CommodityType = 31
+	CommodityDTO_Q5_VCPU                    CommodityDTO_CommodityType = 32
+	CommodityDTO_SWAPPING                   CommodityDTO_CommodityType = 33
+	CommodityDTO_SEGMENTATION               CommodityDTO_CommodityType = 34
+	CommodityDTO_FLOW                       CommodityDTO_CommodityType = 35
+	CommodityDTO_DATASTORE                  CommodityDTO_CommodityType = 36
+	CommodityDTO_CROSS_CLOUD_MOVE_SVC       CommodityDTO_CommodityType = 37
+	CommodityDTO_RIGHT_SIZE_DOWN            CommodityDTO_CommodityType = 38
+	CommodityDTO_IO_THROUGHPUT              CommodityDTO_CommodityType = 39
+	CommodityDTO_CPU                        CommodityDTO_CommodityType = 40
+	CommodityDTO_BALLOONING                 CommodityDTO_CommodityType = 41
+	CommodityDTO_VDC                        CommodityDTO_CommodityType = 42
+	CommodityDTO_Q64_VCPU                   CommodityDTO_CommodityType = 43
+	CommodityDTO_CONNECTION                 CommodityDTO_CommodityType = 44
+	CommodityDTO_MEM_PROVISIONED            CommodityDTO_CommodityType = 45
+	CommodityDTO_STORAGE                    CommodityDTO_CommodityType = 46
+	CommodityDTO_NET_THROUGHPUT             CommodityDTO_CommodityType = 47
+	CommodityDTO_NUMBER_CONSUMERS_STORAGE   CommodityDTO_CommodityType = 48
+	CommodityDTO_TRANSACTION                CommodityDTO_CommodityType = 49
+	CommodityDTO_MEM_ALLOCATION             CommodityDTO_CommodityType = 50
+	CommodityDTO_DSPM_ACCESS                CommodityDTO_CommodityType = 51
+	CommodityDTO_RESPONSE_TIME              CommodityDTO_CommodityType = 52
+	CommodityDTO_VMEM                       CommodityDTO_CommodityType = 53
+	CommodityDTO_ACTION_PERMIT              CommodityDTO_CommodityType = 54
+	CommodityDTO_DATACENTER                 CommodityDTO_CommodityType = 55
+	CommodityDTO_APPLICATION                CommodityDTO_CommodityType = 56
+	CommodityDTO_NETWORK                    CommodityDTO_CommodityType = 57
+	CommodityDTO_Q4_VCPU                    CommodityDTO_CommodityType = 58
+	CommodityDTO_STORAGE_CLUSTER            CommodityDTO_CommodityType = 59
+	CommodityDTO_EXTENT                     CommodityDTO_CommodityType = 60
+	CommodityDTO_ACCESS                     CommodityDTO_CommodityType = 61
+	CommodityDTO_RIGHT_SIZE_UP              CommodityDTO_CommodityType = 62
+	CommodityDTO_VAPP_ACCESS                CommodityDTO_CommodityType = 63
+	CommodityDTO_STORAGE_ACCESS             CommodityDTO_CommodityType = 64
+	CommodityDTO_VSTORAGE                   CommodityDTO_CommodityType = 65
+	CommodityDTO_DRS_SEGMENTATION           CommodityDTO_CommodityType = 66
+	CommodityDTO_DB_MEM                     CommodityDTO_CommodityType = 67
+	CommodityDTO_TRANSACTION_LOG            CommodityDTO_CommodityType = 68
+	CommodityDTO_DB_CACHE_HIT_RATE          CommodityDTO_CommodityType = 69
+	CommodityDTO_HOT_STORAGE                CommodityDTO_CommodityType = 70
+	CommodityDTO_COLLECTION_TIME            CommodityDTO_CommodityType = 71
+	CommodityDTO_BUFFER_COMMODITY           CommodityDTO_CommodityType = 72
+	CommodityDTO_SOFTWARE_LICENSE_COMMODITY CommodityDTO_CommodityType = 73
+	CommodityDTO_UNKNOWN                    CommodityDTO_CommodityType = 74
 )
 
 var CommodityDTO_CommodityType_name = map[int32]string{
@@ -292,108 +342,112 @@ var CommodityDTO_CommodityType_name = map[int32]string{
 	43: "Q64_VCPU",
 	44: "CONNECTION",
 	45: "MEM_PROVISIONED",
-	46: "NUMBER_CONSUMERS_VM",
-	47: "STORAGE",
-	48: "NET_THROUGHPUT",
-	49: "NUMBER_CONSUMERS_STORAGE",
-	50: "TRANSACTION",
-	51: "MEM_ALLOCATION",
-	52: "DSPM_ACCESS",
-	53: "RESPONSE_TIME",
-	54: "VMEM",
-	55: "ACTION_PERMIT",
-	56: "DATACENTER",
-	57: "APPLICATION",
-	58: "NETWORK",
-	59: "Q4_VCPU",
-	60: "STORAGE_CLUSTER",
-	61: "EXTENT",
-	62: "ACCESS",
-	63: "RIGHT_SIZE_UP",
-	64: "VAPP_ACCESS",
-	65: "STORAGE_ACCESS",
-	66: "VSTORAGE",
-	67: "DRS_SEGMENTATION",
-	68: "DB_MEM",
-	69: "TRANSACTION_LOG",
-	70: "DB_CACHE_HIT_RATE",
-	71: "HOT_STORAGE",
-	72: "UNKNOWN",
+	46: "STORAGE",
+	47: "NET_THROUGHPUT",
+	48: "NUMBER_CONSUMERS_STORAGE",
+	49: "TRANSACTION",
+	50: "MEM_ALLOCATION",
+	51: "DSPM_ACCESS",
+	52: "RESPONSE_TIME",
+	53: "VMEM",
+	54: "ACTION_PERMIT",
+	55: "DATACENTER",
+	56: "APPLICATION",
+	57: "NETWORK",
+	58: "Q4_VCPU",
+	59: "STORAGE_CLUSTER",
+	60: "EXTENT",
+	61: "ACCESS",
+	62: "RIGHT_SIZE_UP",
+	63: "VAPP_ACCESS",
+	64: "STORAGE_ACCESS",
+	65: "VSTORAGE",
+	66: "DRS_SEGMENTATION",
+	67: "DB_MEM",
+	68: "TRANSACTION_LOG",
+	69: "DB_CACHE_HIT_RATE",
+	70: "HOT_STORAGE",
+	71: "COLLECTION_TIME",
+	72: "BUFFER_COMMODITY",
+	73: "SOFTWARE_LICENSE_COMMODITY",
+	74: "UNKNOWN",
 }
 var CommodityDTO_CommodityType_value = map[string]int32{
-	"CLUSTER":                  0,
-	"THREADS":                  1,
-	"CPU_ALLOCATION":           2,
-	"NUMBER_CONSUMERS":         3,
-	"FLOW_ALLOCATION":          4,
-	"Q1_VCPU":                  5,
-	"STORAGE_PROVISIONED":      6,
-	"LICENSE_COMMODITY":        7,
-	"STORAGE_AMOUNT":           8,
-	"Q16_VCPU":                 9,
-	"Q32_VCPU":                 10,
-	"SAME_CLUSTER_MOVE_SVC":    11,
-	"Q3_VCPU":                  12,
-	"SLA_COMMODITY":            13,
-	"CROSS_CLUSTER_MOVE_SVC":   14,
-	"NUMBER_CONSUMERS_PM":      15,
-	"STORAGE_ALLOCATION":       16,
-	"Q8_VCPU":                  17,
-	"SPACE":                    18,
-	"Q6_VCPU":                  19,
-	"POWER":                    20,
-	"MEM":                      21,
-	"STORAGE_LATENCY":          22,
-	"Q7_VCPU":                  23,
-	"COOLING":                  24,
-	"PORT_CHANEL":              25,
-	"VCPU":                     26,
-	"QN_VCPU":                  27,
-	"CPU_PROVISIONED":          28,
-	"RIGHT_SIZE_SVC":           29,
-	"MOVE":                     30,
-	"Q2_VCPU":                  31,
-	"Q5_VCPU":                  32,
-	"SWAPPING":                 33,
-	"SEGMENTATION":             34,
-	"FLOW":                     35,
-	"DATASTORE":                36,
-	"CROSS_CLOUD_MOVE_SVC":     37,
-	"RIGHT_SIZE_DOWN":          38,
-	"IO_THROUGHPUT":            39,
-	"CPU":                      40,
-	"BALLOONING":               41,
-	"VDC":                      42,
-	"Q64_VCPU":                 43,
-	"CONNECTION":               44,
-	"MEM_PROVISIONED":          45,
-	"NUMBER_CONSUMERS_VM":      46,
-	"STORAGE":                  47,
-	"NET_THROUGHPUT":           48,
-	"NUMBER_CONSUMERS_STORAGE": 49,
-	"TRANSACTION":              50,
-	"MEM_ALLOCATION":           51,
-	"DSPM_ACCESS":              52,
-	"RESPONSE_TIME":            53,
-	"VMEM":                     54,
-	"ACTION_PERMIT":            55,
-	"DATACENTER":               56,
-	"APPLICATION":              57,
-	"NETWORK":                  58,
-	"Q4_VCPU":                  59,
-	"STORAGE_CLUSTER":          60,
-	"EXTENT":                   61,
-	"ACCESS":                   62,
-	"RIGHT_SIZE_UP":            63,
-	"VAPP_ACCESS":              64,
-	"STORAGE_ACCESS":           65,
-	"VSTORAGE":                 66,
-	"DRS_SEGMENTATION":         67,
-	"DB_MEM":                   68,
-	"TRANSACTION_LOG":          69,
-	"DB_CACHE_HIT_RATE":        70,
-	"HOT_STORAGE":              71,
-	"UNKNOWN":                  72,
+	"CLUSTER":                    0,
+	"THREADS":                    1,
+	"CPU_ALLOCATION":             2,
+	"NUMBER_CONSUMERS":           3,
+	"FLOW_ALLOCATION":            4,
+	"Q1_VCPU":                    5,
+	"STORAGE_PROVISIONED":        6,
+	"LICENSE_COMMODITY":          7,
+	"STORAGE_AMOUNT":             8,
+	"Q16_VCPU":                   9,
+	"Q32_VCPU":                   10,
+	"SAME_CLUSTER_MOVE_SVC":      11,
+	"Q3_VCPU":                    12,
+	"SLA_COMMODITY":              13,
+	"CROSS_CLUSTER_MOVE_SVC":     14,
+	"NUMBER_CONSUMERS_PM":        15,
+	"STORAGE_ALLOCATION":         16,
+	"Q8_VCPU":                    17,
+	"SPACE":                      18,
+	"Q6_VCPU":                    19,
+	"POWER":                      20,
+	"MEM":                        21,
+	"STORAGE_LATENCY":            22,
+	"Q7_VCPU":                    23,
+	"COOLING":                    24,
+	"PORT_CHANEL":                25,
+	"VCPU":                       26,
+	"QN_VCPU":                    27,
+	"CPU_PROVISIONED":            28,
+	"RIGHT_SIZE_SVC":             29,
+	"MOVE":                       30,
+	"Q2_VCPU":                    31,
+	"Q5_VCPU":                    32,
+	"SWAPPING":                   33,
+	"SEGMENTATION":               34,
+	"FLOW":                       35,
+	"DATASTORE":                  36,
+	"CROSS_CLOUD_MOVE_SVC":       37,
+	"RIGHT_SIZE_DOWN":            38,
+	"IO_THROUGHPUT":              39,
+	"CPU":                        40,
+	"BALLOONING":                 41,
+	"VDC":                        42,
+	"Q64_VCPU":                   43,
+	"CONNECTION":                 44,
+	"MEM_PROVISIONED":            45,
+	"STORAGE":                    46,
+	"NET_THROUGHPUT":             47,
+	"NUMBER_CONSUMERS_STORAGE":   48,
+	"TRANSACTION":                49,
+	"MEM_ALLOCATION":             50,
+	"DSPM_ACCESS":                51,
+	"RESPONSE_TIME":              52,
+	"VMEM":                       53,
+	"ACTION_PERMIT":              54,
+	"DATACENTER":                 55,
+	"APPLICATION":                56,
+	"NETWORK":                    57,
+	"Q4_VCPU":                    58,
+	"STORAGE_CLUSTER":            59,
+	"EXTENT":                     60,
+	"ACCESS":                     61,
+	"RIGHT_SIZE_UP":              62,
+	"VAPP_ACCESS":                63,
+	"STORAGE_ACCESS":             64,
+	"VSTORAGE":                   65,
+	"DRS_SEGMENTATION":           66,
+	"DB_MEM":                     67,
+	"TRANSACTION_LOG":            68,
+	"DB_CACHE_HIT_RATE":          69,
+	"HOT_STORAGE":                70,
+	"COLLECTION_TIME":            71,
+	"BUFFER_COMMODITY":           72,
+	"SOFTWARE_LICENSE_COMMODITY": 73,
+	"UNKNOWN":                    74,
 }
 
 func (x CommodityDTO_CommodityType) Enum() *CommodityDTO_CommodityType {
@@ -422,7 +476,7 @@ const (
 	GroupDTO_BUYER_BUYER_AFFINITY       GroupDTO_ConstraintType = 2
 	GroupDTO_BUYER_BUYER_ANTI_AFFINITY  GroupDTO_ConstraintType = 3
 	GroupDTO_CLUSTER                    GroupDTO_ConstraintType = 4
-	GroupDTO_GROUP                      GroupDTO_ConstraintType = 5
+	GroupDTO_MERGE                      GroupDTO_ConstraintType = 5
 )
 
 var GroupDTO_ConstraintType_name = map[int32]string{
@@ -431,7 +485,7 @@ var GroupDTO_ConstraintType_name = map[int32]string{
 	2: "BUYER_BUYER_AFFINITY",
 	3: "BUYER_BUYER_ANTI_AFFINITY",
 	4: "CLUSTER",
-	5: "GROUP",
+	5: "MERGE",
 }
 var GroupDTO_ConstraintType_value = map[string]int32{
 	"BUYER_SELLER_AFFINITY":      0,
@@ -439,7 +493,7 @@ var GroupDTO_ConstraintType_value = map[string]int32{
 	"BUYER_BUYER_AFFINITY":       2,
 	"BUYER_BUYER_ANTI_AFFINITY":  3,
 	"CLUSTER":                    4,
-	"GROUP":                      5,
+	"MERGE":                      5,
 }
 
 func (x GroupDTO_ConstraintType) Enum() *GroupDTO_ConstraintType {
@@ -578,16 +632,17 @@ type EntityDTO struct {
 	// For a group entity, a list of the uuid's of the entities that are members of this group.
 	Members []string `protobuf:"bytes,9,rep,name=members" json:"members,omitempty"`
 	// Entity properties in free (string <-> string) form, used for user-defined values.
-	EntityProperties           []*EntityDTO_EntityProperty           `protobuf:"bytes,10,rep,name=entityProperties" json:"entityProperties,omitempty"`
-	StorageData                *EntityDTO_StorageData                `protobuf:"bytes,500,opt,name=storage_data" json:"storage_data,omitempty"`
-	DiskArrayData              *EntityDTO_DiskArrayData              `protobuf:"bytes,501,opt,name=disk_array_data" json:"disk_array_data,omitempty"`
-	ApplicationData            *EntityDTO_ApplicationData            `protobuf:"bytes,502,opt,name=application_data" json:"application_data,omitempty"`
-	VirtualMachineData         *EntityDTO_VirtualMachineData         `protobuf:"bytes,503,opt,name=virtual_machine_data" json:"virtual_machine_data,omitempty"`
-	PhysicalMachineData        *EntityDTO_PhysicalMachineData        `protobuf:"bytes,504,opt,name=physical_machine_data" json:"physical_machine_data,omitempty"`
-	VirtualDatacenterData      *EntityDTO_VirtualDatacenterData      `protobuf:"bytes,505,opt,name=virtual_datacenter_data" json:"virtual_datacenter_data,omitempty"`
-	VirtualMachineRelatedData  *EntityDTO_VirtualMachineRelatedData  `protobuf:"bytes,1000,opt,name=virtual_machine_related_data" json:"virtual_machine_related_data,omitempty"`
-	PhysicalMachineRelatedData *EntityDTO_PhysicalMachineRelatedData `protobuf:"bytes,1001,opt,name=physical_machine_related_data" json:"physical_machine_related_data,omitempty"`
-	XXX_unrecognized           []byte                                `json:"-"`
+	EntityProperties             []*EntityDTO_EntityProperty             `protobuf:"bytes,10,rep,name=entityProperties" json:"entityProperties,omitempty"`
+	StorageData                  *EntityDTO_StorageData                  `protobuf:"bytes,500,opt,name=storage_data" json:"storage_data,omitempty"`
+	DiskArrayData                *EntityDTO_DiskArrayData                `protobuf:"bytes,501,opt,name=disk_array_data" json:"disk_array_data,omitempty"`
+	ApplicationData              *EntityDTO_ApplicationData              `protobuf:"bytes,502,opt,name=application_data" json:"application_data,omitempty"`
+	VirtualMachineData           *EntityDTO_VirtualMachineData           `protobuf:"bytes,503,opt,name=virtual_machine_data" json:"virtual_machine_data,omitempty"`
+	PhysicalMachineData          *EntityDTO_PhysicalMachineData          `protobuf:"bytes,504,opt,name=physical_machine_data" json:"physical_machine_data,omitempty"`
+	VirtualDatacenterData        *EntityDTO_VirtualDatacenterData        `protobuf:"bytes,505,opt,name=virtual_datacenter_data" json:"virtual_datacenter_data,omitempty"`
+	VirtualMachineRelatedData    *EntityDTO_VirtualMachineRelatedData    `protobuf:"bytes,1000,opt,name=virtual_machine_related_data" json:"virtual_machine_related_data,omitempty"`
+	PhysicalMachineRelatedData   *EntityDTO_PhysicalMachineRelatedData   `protobuf:"bytes,1001,opt,name=physical_machine_related_data" json:"physical_machine_related_data,omitempty"`
+	StorageControllerRelatedData *EntityDTO_StorageControllerRelatedData `protobuf:"bytes,1002,opt,name=storage_controller_related_data" json:"storage_controller_related_data,omitempty"`
+	XXX_unrecognized             []byte                                  `json:"-"`
 }
 
 func (m *EntityDTO) Reset()         { *m = EntityDTO{} }
@@ -720,6 +775,13 @@ func (m *EntityDTO) GetPhysicalMachineRelatedData() *EntityDTO_PhysicalMachineRe
 	return nil
 }
 
+func (m *EntityDTO) GetStorageControllerRelatedData() *EntityDTO_StorageControllerRelatedData {
+	if m != nil {
+		return m.StorageControllerRelatedData
+	}
+	return nil
+}
+
 type EntityDTO_CommodityBought struct {
 	// ID of the provider entity
 	ProviderId *string `protobuf:"bytes,1,req,name=providerId" json:"providerId,omitempty"`
@@ -811,8 +873,10 @@ func (m *EntityDTO_StorageData) GetWwn() string {
 }
 
 type EntityDTO_DiskArrayData struct {
-	StorageId        []string `protobuf:"bytes,1,rep,name=storageId" json:"storageId,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	StorageId        []string                 `protobuf:"bytes,1,rep,name=storageId" json:"storageId,omitempty"`
+	IopsCapacity     *int64                   `protobuf:"varint,2,opt,name=iopsCapacity" json:"iopsCapacity,omitempty"`
+	DiskCounts       *EntityDTO_DiskCountData `protobuf:"bytes,3,opt,name=diskCounts" json:"diskCounts,omitempty"`
+	XXX_unrecognized []byte                   `json:"-"`
 }
 
 func (m *EntityDTO_DiskArrayData) Reset()         { *m = EntityDTO_DiskArrayData{} }
@@ -822,6 +886,20 @@ func (*EntityDTO_DiskArrayData) ProtoMessage()    {}
 func (m *EntityDTO_DiskArrayData) GetStorageId() []string {
 	if m != nil {
 		return m.StorageId
+	}
+	return nil
+}
+
+func (m *EntityDTO_DiskArrayData) GetIopsCapacity() int64 {
+	if m != nil && m.IopsCapacity != nil {
+		return *m.IopsCapacity
+	}
+	return 0
+}
+
+func (m *EntityDTO_DiskArrayData) GetDiskCounts() *EntityDTO_DiskCountData {
+	if m != nil {
+		return m.DiskCounts
 	}
 	return nil
 }
@@ -931,7 +1009,7 @@ func (m *EntityDTO_EntityProperty) GetValue() string {
 }
 
 type EntityDTO_VirtualMachineRelatedData struct {
-	MemoryCapacity   *float64                   `protobuf:"fixed64,1,opt,name=memoryCapacity" json:"memoryCapacity,omitempty"`
+	Memory           *EntityDTO_MemoryData      `protobuf:"bytes,1,opt,name=memory" json:"memory,omitempty"`
 	Processor        []*EntityDTO_ProcessorData `protobuf:"bytes,2,rep,name=processor" json:"processor,omitempty"`
 	XXX_unrecognized []byte                     `json:"-"`
 }
@@ -940,11 +1018,11 @@ func (m *EntityDTO_VirtualMachineRelatedData) Reset()         { *m = EntityDTO_V
 func (m *EntityDTO_VirtualMachineRelatedData) String() string { return proto.CompactTextString(m) }
 func (*EntityDTO_VirtualMachineRelatedData) ProtoMessage()    {}
 
-func (m *EntityDTO_VirtualMachineRelatedData) GetMemoryCapacity() float64 {
-	if m != nil && m.MemoryCapacity != nil {
-		return *m.MemoryCapacity
+func (m *EntityDTO_VirtualMachineRelatedData) GetMemory() *EntityDTO_MemoryData {
+	if m != nil {
+		return m.Memory
 	}
-	return 0
+	return nil
 }
 
 func (m *EntityDTO_VirtualMachineRelatedData) GetProcessor() []*EntityDTO_ProcessorData {
@@ -955,7 +1033,7 @@ func (m *EntityDTO_VirtualMachineRelatedData) GetProcessor() []*EntityDTO_Proces
 }
 
 type EntityDTO_PhysicalMachineRelatedData struct {
-	MemoryCapacity   *float64                   `protobuf:"fixed64,1,opt,name=memoryCapacity" json:"memoryCapacity,omitempty"`
+	Memory           *EntityDTO_MemoryData      `protobuf:"bytes,1,opt,name=memory" json:"memory,omitempty"`
 	Processor        []*EntityDTO_ProcessorData `protobuf:"bytes,2,rep,name=processor" json:"processor,omitempty"`
 	Io               []*EntityDTO_IoData        `protobuf:"bytes,3,rep,name=io" json:"io,omitempty"`
 	XXX_unrecognized []byte                     `json:"-"`
@@ -965,11 +1043,11 @@ func (m *EntityDTO_PhysicalMachineRelatedData) Reset()         { *m = EntityDTO_
 func (m *EntityDTO_PhysicalMachineRelatedData) String() string { return proto.CompactTextString(m) }
 func (*EntityDTO_PhysicalMachineRelatedData) ProtoMessage()    {}
 
-func (m *EntityDTO_PhysicalMachineRelatedData) GetMemoryCapacity() float64 {
-	if m != nil && m.MemoryCapacity != nil {
-		return *m.MemoryCapacity
+func (m *EntityDTO_PhysicalMachineRelatedData) GetMemory() *EntityDTO_MemoryData {
+	if m != nil {
+		return m.Memory
 	}
-	return 0
+	return nil
 }
 
 func (m *EntityDTO_PhysicalMachineRelatedData) GetProcessor() []*EntityDTO_ProcessorData {
@@ -986,40 +1064,121 @@ func (m *EntityDTO_PhysicalMachineRelatedData) GetIo() []*EntityDTO_IoData {
 	return nil
 }
 
+type EntityDTO_StorageControllerRelatedData struct {
+	Memory           *EntityDTO_MemoryData      `protobuf:"bytes,1,opt,name=memory" json:"memory,omitempty"`
+	Processor        []*EntityDTO_ProcessorData `protobuf:"bytes,2,rep,name=processor" json:"processor,omitempty"`
+	XXX_unrecognized []byte                     `json:"-"`
+}
+
+func (m *EntityDTO_StorageControllerRelatedData) Reset() {
+	*m = EntityDTO_StorageControllerRelatedData{}
+}
+func (m *EntityDTO_StorageControllerRelatedData) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_StorageControllerRelatedData) ProtoMessage()    {}
+
+func (m *EntityDTO_StorageControllerRelatedData) GetMemory() *EntityDTO_MemoryData {
+	if m != nil {
+		return m.Memory
+	}
+	return nil
+}
+
+func (m *EntityDTO_StorageControllerRelatedData) GetProcessor() []*EntityDTO_ProcessorData {
+	if m != nil {
+		return m.Processor
+	}
+	return nil
+}
+
+type EntityDTO_MemoryData struct {
+	Id               *string  `protobuf:"bytes,1,req,name=id" json:"id,omitempty"`
+	DisplayName      *string  `protobuf:"bytes,2,opt,name=displayName" json:"displayName,omitempty"`
+	Capacity         *float64 `protobuf:"fixed64,3,opt,name=capacity" json:"capacity,omitempty"`
+	XXX_unrecognized []byte   `json:"-"`
+}
+
+func (m *EntityDTO_MemoryData) Reset()         { *m = EntityDTO_MemoryData{} }
+func (m *EntityDTO_MemoryData) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_MemoryData) ProtoMessage()    {}
+
+func (m *EntityDTO_MemoryData) GetId() string {
+	if m != nil && m.Id != nil {
+		return *m.Id
+	}
+	return ""
+}
+
+func (m *EntityDTO_MemoryData) GetDisplayName() string {
+	if m != nil && m.DisplayName != nil {
+		return *m.DisplayName
+	}
+	return ""
+}
+
+func (m *EntityDTO_MemoryData) GetCapacity() float64 {
+	if m != nil && m.Capacity != nil {
+		return *m.Capacity
+	}
+	return 0
+}
+
 type EntityDTO_ProcessorData struct {
-	Name             *string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-	Capacity         []float64 `protobuf:"fixed64,2,rep,name=capacity" json:"capacity,omitempty"`
-	XXX_unrecognized []byte    `json:"-"`
+	Id               *string  `protobuf:"bytes,1,req,name=id" json:"id,omitempty"`
+	DisplayName      *string  `protobuf:"bytes,2,opt,name=displayName" json:"displayName,omitempty"`
+	Capacity         *float64 `protobuf:"fixed64,3,opt,name=capacity" json:"capacity,omitempty"`
+	XXX_unrecognized []byte   `json:"-"`
 }
 
 func (m *EntityDTO_ProcessorData) Reset()         { *m = EntityDTO_ProcessorData{} }
 func (m *EntityDTO_ProcessorData) String() string { return proto.CompactTextString(m) }
 func (*EntityDTO_ProcessorData) ProtoMessage()    {}
 
-func (m *EntityDTO_ProcessorData) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
+func (m *EntityDTO_ProcessorData) GetId() string {
+	if m != nil && m.Id != nil {
+		return *m.Id
 	}
 	return ""
 }
 
-func (m *EntityDTO_ProcessorData) GetCapacity() []float64 {
-	if m != nil {
-		return m.Capacity
+func (m *EntityDTO_ProcessorData) GetDisplayName() string {
+	if m != nil && m.DisplayName != nil {
+		return *m.DisplayName
 	}
-	return nil
+	return ""
+}
+
+func (m *EntityDTO_ProcessorData) GetCapacity() float64 {
+	if m != nil && m.Capacity != nil {
+		return *m.Capacity
+	}
+	return 0
 }
 
 type EntityDTO_IoData struct {
-	Speed            *float64 `protobuf:"fixed64,1,opt,name=speed" json:"speed,omitempty"`
-	MacAddress       *string  `protobuf:"bytes,2,opt,name=macAddress" json:"macAddress,omitempty"`
-	DeviceId         *string  `protobuf:"bytes,3,opt,name=deviceId" json:"deviceId,omitempty"`
+	Id               *string  `protobuf:"bytes,1,req,name=id" json:"id,omitempty"`
+	DisplayName      *string  `protobuf:"bytes,2,opt,name=displayName" json:"displayName,omitempty"`
+	Speed            *float64 `protobuf:"fixed64,3,opt,name=speed" json:"speed,omitempty"`
+	MacAddress       *string  `protobuf:"bytes,4,opt,name=macAddress" json:"macAddress,omitempty"`
 	XXX_unrecognized []byte   `json:"-"`
 }
 
 func (m *EntityDTO_IoData) Reset()         { *m = EntityDTO_IoData{} }
 func (m *EntityDTO_IoData) String() string { return proto.CompactTextString(m) }
 func (*EntityDTO_IoData) ProtoMessage()    {}
+
+func (m *EntityDTO_IoData) GetId() string {
+	if m != nil && m.Id != nil {
+		return *m.Id
+	}
+	return ""
+}
+
+func (m *EntityDTO_IoData) GetDisplayName() string {
+	if m != nil && m.DisplayName != nil {
+		return *m.DisplayName
+	}
+	return ""
+}
 
 func (m *EntityDTO_IoData) GetSpeed() float64 {
 	if m != nil && m.Speed != nil {
@@ -1035,11 +1194,71 @@ func (m *EntityDTO_IoData) GetMacAddress() string {
 	return ""
 }
 
-func (m *EntityDTO_IoData) GetDeviceId() string {
-	if m != nil && m.DeviceId != nil {
-		return *m.DeviceId
+// Represents the counts of various types of disk drives in a disk array.
+// Each count represents the number of discovered disks of that speed.
+type EntityDTO_DiskCountData struct {
+	// If the hybrid flag is present, it modifies how the included disk counts are
+	// used to compute IOPS capacity.
+	Hybrid *bool `protobuf:"varint,1,opt,name=hybrid,def=0" json:"hybrid,omitempty"`
+	// If the flashAvailable flag is present, it modifies how the included disk counts are
+	// used to compute IOPS capacity.
+	FlashAvailable   *bool                  `protobuf:"varint,2,opt,name=flashAvailable,def=0" json:"flashAvailable,omitempty"`
+	Disks            []*EntityDTO_DiskCount `protobuf:"bytes,3,rep,name=disks" json:"disks,omitempty"`
+	XXX_unrecognized []byte                 `json:"-"`
+}
+
+func (m *EntityDTO_DiskCountData) Reset()         { *m = EntityDTO_DiskCountData{} }
+func (m *EntityDTO_DiskCountData) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_DiskCountData) ProtoMessage()    {}
+
+const Default_EntityDTO_DiskCountData_Hybrid bool = false
+const Default_EntityDTO_DiskCountData_FlashAvailable bool = false
+
+func (m *EntityDTO_DiskCountData) GetHybrid() bool {
+	if m != nil && m.Hybrid != nil {
+		return *m.Hybrid
+	}
+	return Default_EntityDTO_DiskCountData_Hybrid
+}
+
+func (m *EntityDTO_DiskCountData) GetFlashAvailable() bool {
+	if m != nil && m.FlashAvailable != nil {
+		return *m.FlashAvailable
+	}
+	return Default_EntityDTO_DiskCountData_FlashAvailable
+}
+
+func (m *EntityDTO_DiskCountData) GetDisks() []*EntityDTO_DiskCount {
+	if m != nil {
+		return m.Disks
+	}
+	return nil
+}
+
+type EntityDTO_DiskCount struct {
+	// Usually derived from the NumDiskNames enum
+	NumDiskName *string `protobuf:"bytes,1,req,name=numDiskName" json:"numDiskName,omitempty"`
+	// The number of discovered disks of this type.
+	NumDisks         *int64 `protobuf:"varint,2,req,name=numDisks" json:"numDisks,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *EntityDTO_DiskCount) Reset()         { *m = EntityDTO_DiskCount{} }
+func (m *EntityDTO_DiskCount) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_DiskCount) ProtoMessage()    {}
+
+func (m *EntityDTO_DiskCount) GetNumDiskName() string {
+	if m != nil && m.NumDiskName != nil {
+		return *m.NumDiskName
 	}
 	return ""
+}
+
+func (m *EntityDTO_DiskCount) GetNumDisks() int64 {
+	if m != nil && m.NumDisks != nil {
+		return *m.NumDisks
+	}
+	return 0
 }
 
 type CommodityDTO struct {
@@ -1052,12 +1271,22 @@ type CommodityDTO struct {
 	// those strings should match).
 	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty"`
 	// Represents how much of this resource is used.
+	// Used is meaningful on both the buying and selling side.
 	Used *float64 `protobuf:"fixed64,3,opt,name=used" json:"used,omitempty"`
 	// Represents the reservation for this resource.
+	// Reservation is only meaningful on the buying side and reserves resources for the buying
+	// entity. For example, a VirtualMachine may only be using 1GB of RAM, but but if the VM
+	// specifies a reservation of 2GB, it ensures the resources are available if its usage spikes.
 	Reservation *float64 `protobuf:"fixed64,4,opt,name=reservation" json:"reservation,omitempty"`
 	// Represents the maximum capacity of this resource.
+	// Capacity should only be given on the selling side and is used to specify the quantity of a commodity
+	// being provided by a given entity.
 	Capacity *float64 `protobuf:"fixed64,5,opt,name=capacity" json:"capacity,omitempty"`
 	// Represents the limit on this resource.
+	// Limit is only meaningful on the selling side and is used to limit the amount of a commodity available
+	// for sale on the market to below the value specified in the capacity. For example, a VM may have
+	// a VMem capacity of 4GB, but 1GB of that is needed by its operating system. In this example, specify
+	// a capacity of 4GB and a limit of 3GB to limit VMem available for sale to applications on the VM.
 	Limit              *float64                         `protobuf:"fixed64,6,opt,name=limit" json:"limit,omitempty"`
 	Peak               *float64                         `protobuf:"fixed64,7,opt,name=peak" json:"peak,omitempty"`
 	StorageLatencyData *CommodityDTO_StorageLatencyData `protobuf:"bytes,500,opt,name=storage_latency_data" json:"storage_latency_data,omitempty"`
@@ -1190,6 +1419,7 @@ type GroupDTO struct {
 	ConstraintInfo    *GroupDTO_ConstraintInfo    `protobuf:"bytes,4,opt,name=constraint_info" json:"constraint_info,omitempty"`
 	SelectionSpecList *GroupDTO_SelectionSpecList `protobuf:"bytes,5,opt,name=selection_spec_list" json:"selection_spec_list,omitempty"`
 	MemberList        *GroupDTO_MembersList       `protobuf:"bytes,6,opt,name=member_list" json:"member_list,omitempty"`
+	SourceGroupId     *string                     `protobuf:"bytes,7,opt,name=source_group_id" json:"source_group_id,omitempty"`
 	XXX_unrecognized  []byte                      `json:"-"`
 }
 
@@ -1239,6 +1469,13 @@ func (m *GroupDTO) GetMemberList() *GroupDTO_MembersList {
 	return nil
 }
 
+func (m *GroupDTO) GetSourceGroupId() string {
+	if m != nil && m.SourceGroupId != nil {
+		return *m.SourceGroupId
+	}
+	return ""
+}
+
 // ConstraintInfo contains all necessary information specific for Group associated with Constraint
 type GroupDTO_ConstraintInfo struct {
 	// Constraint type associated with this group.
@@ -1248,10 +1485,12 @@ type GroupDTO_ConstraintInfo struct {
 	ConstraintId *string `protobuf:"bytes,2,req,name=constraint_id" json:"constraint_id,omitempty"`
 	// Notify if this group is for buyers
 	IsBuyer *bool `protobuf:"varint,3,opt,name=is_buyer,def=0" json:"is_buyer,omitempty"`
+	// Notify the type of the seller if it is the buyer group.
+	BuyerMetaData *GroupDTO_BuyerMetaData `protobuf:"bytes,4,opt,name=buyer_meta_data" json:"buyer_meta_data,omitempty"`
 	// Notify if this group is for creating complementary group
-	NeedComplementary *bool `protobuf:"varint,4,opt,name=need_complementary,def=0" json:"need_complementary,omitempty"`
+	NeedComplementary *bool `protobuf:"varint,5,opt,name=need_complementary,def=0" json:"need_complementary,omitempty"`
 	// Name for the constraint
-	ConstraintName   *string `protobuf:"bytes,5,req,name=constraint_name" json:"constraint_name,omitempty"`
+	ConstraintName   *string `protobuf:"bytes,6,req,name=constraint_name" json:"constraint_name,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
@@ -1281,6 +1520,13 @@ func (m *GroupDTO_ConstraintInfo) GetIsBuyer() bool {
 		return *m.IsBuyer
 	}
 	return Default_GroupDTO_ConstraintInfo_IsBuyer
+}
+
+func (m *GroupDTO_ConstraintInfo) GetBuyerMetaData() *GroupDTO_BuyerMetaData {
+	if m != nil {
+		return m.BuyerMetaData
+	}
+	return nil
 }
 
 func (m *GroupDTO_ConstraintInfo) GetNeedComplementary() bool {
@@ -1329,6 +1575,32 @@ func (m *GroupDTO_MembersList) GetMember() []string {
 		return m.Member
 	}
 	return nil
+}
+
+type GroupDTO_BuyerMetaData struct {
+	SellerType       *EntityDTO_EntityType `protobuf:"varint,1,opt,name=seller_type,enum=common_dto.EntityDTO_EntityType" json:"seller_type,omitempty"`
+	AtMost           *int32                `protobuf:"zigzag32,2,opt,name=at_most,def=-1" json:"at_most,omitempty"`
+	XXX_unrecognized []byte                `json:"-"`
+}
+
+func (m *GroupDTO_BuyerMetaData) Reset()         { *m = GroupDTO_BuyerMetaData{} }
+func (m *GroupDTO_BuyerMetaData) String() string { return proto.CompactTextString(m) }
+func (*GroupDTO_BuyerMetaData) ProtoMessage()    {}
+
+const Default_GroupDTO_BuyerMetaData_AtMost int32 = -1
+
+func (m *GroupDTO_BuyerMetaData) GetSellerType() EntityDTO_EntityType {
+	if m != nil && m.SellerType != nil {
+		return *m.SellerType
+	}
+	return EntityDTO_SWITCH
+}
+
+func (m *GroupDTO_BuyerMetaData) GetAtMost() int32 {
+	if m != nil && m.AtMost != nil {
+		return *m.AtMost
+	}
+	return Default_GroupDTO_BuyerMetaData_AtMost
 }
 
 // SelectionSpec is used to select group members by checking their property values
@@ -1428,6 +1700,7 @@ func (m *GroupDTO_SelectionSpec_PropertyDoubleList) GetPropertyValue() []float64
 
 func init() {
 	proto.RegisterEnum("common_dto.EntityDTO_EntityType", EntityDTO_EntityType_name, EntityDTO_EntityType_value)
+	proto.RegisterEnum("common_dto.EntityDTO_NumDiskNames", EntityDTO_NumDiskNames_name, EntityDTO_NumDiskNames_value)
 	proto.RegisterEnum("common_dto.CommodityDTO_CommodityType", CommodityDTO_CommodityType_name, CommodityDTO_CommodityType_value)
 	proto.RegisterEnum("common_dto.GroupDTO_ConstraintType", GroupDTO_ConstraintType_name, GroupDTO_ConstraintType_value)
 	proto.RegisterEnum("common_dto.GroupDTO_SelectionSpec_ExpressionType", GroupDTO_SelectionSpec_ExpressionType_name, GroupDTO_SelectionSpec_ExpressionType_value)

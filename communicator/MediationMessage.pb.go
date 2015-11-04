@@ -20,7 +20,7 @@ type MediationClientMessage struct {
 	ContainerInfo      *ContainerInfo      `protobuf:"bytes,1,opt,name=containerInfo" json:"containerInfo,omitempty"`
 	ValidationResponse *ValidationResponse `protobuf:"bytes,2,opt,name=validationResponse" json:"validationResponse,omitempty"`
 	DiscoveryResponse  *DiscoveryResponse  `protobuf:"bytes,3,opt,name=discoveryResponse" json:"discoveryResponse,omitempty"`
-	DiscoveryKeepAlive *DiscoveryKeepAlive `protobuf:"bytes,4,opt,name=discoveryKeepAlive" json:"discoveryKeepAlive,omitempty"`
+	KeepAlive          *KeepAlive          `protobuf:"bytes,4,opt,name=keepAlive" json:"keepAlive,omitempty"`
 	ActionProgress     *ActionProgress     `protobuf:"bytes,5,opt,name=actionProgress" json:"actionProgress,omitempty"`
 	ActionResponse     *ActionResult       `protobuf:"bytes,6,opt,name=actionResponse" json:"actionResponse,omitempty"`
 	// this is always required in reality. it's optional here because
@@ -55,9 +55,9 @@ func (m *MediationClientMessage) GetDiscoveryResponse() *DiscoveryResponse {
 	return nil
 }
 
-func (m *MediationClientMessage) GetDiscoveryKeepAlive() *DiscoveryKeepAlive {
+func (m *MediationClientMessage) GetKeepAlive() *KeepAlive {
 	if m != nil {
-		return m.DiscoveryKeepAlive
+		return m.KeepAlive
 	}
 	return nil
 }
@@ -286,13 +286,13 @@ func (m *ContainerInfo) GetProbes() []*ProbeInfo {
 	return nil
 }
 
-type DiscoveryKeepAlive struct {
+type KeepAlive struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *DiscoveryKeepAlive) Reset()         { *m = DiscoveryKeepAlive{} }
-func (m *DiscoveryKeepAlive) String() string { return proto.CompactTextString(m) }
-func (*DiscoveryKeepAlive) ProtoMessage()    {}
+func (m *KeepAlive) Reset()         { *m = KeepAlive{} }
+func (m *KeepAlive) String() string { return proto.CompactTextString(m) }
+func (*KeepAlive) ProtoMessage()    {}
 
 type Ack struct {
 	XXX_unrecognized []byte `json:"-"`

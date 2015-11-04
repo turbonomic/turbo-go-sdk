@@ -160,17 +160,21 @@ type AccountDefEntry struct {
 	// regular expression, then the entry is valid.
 	// For example, you can validate that the entered text is only numbers and period characters
 	// for an IP address. To disable validation (allow any text), pass {@code ".*"}.
-	VerificationRegex *string `protobuf:"bytes,4,req,name=verificationRegex" json:"verificationRegex,omitempty"`
+	VerificationRegex *string `protobuf:"bytes,4,opt,name=verificationRegex,def=.*" json:"verificationRegex,omitempty"`
 	// Entry type
-	Type *AccountDefEntry_AccountDefEntryType `protobuf:"varint,5,req,name=type,enum=common_dto.AccountDefEntry_AccountDefEntryType" json:"type,omitempty"`
+	Type *AccountDefEntry_AccountDefEntryType `protobuf:"varint,5,opt,name=type,enum=common_dto.AccountDefEntry_AccountDefEntryType,def=1" json:"type,omitempty"`
 	// Specifies if the value for the entry can be disclosed (in the log file or wherever else).
-	IsSecret         *bool  `protobuf:"varint,6,req,name=isSecret" json:"isSecret,omitempty"`
+	IsSecret         *bool  `protobuf:"varint,6,opt,name=isSecret,def=0" json:"isSecret,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
 }
 
 func (m *AccountDefEntry) Reset()         { *m = AccountDefEntry{} }
 func (m *AccountDefEntry) String() string { return proto.CompactTextString(m) }
 func (*AccountDefEntry) ProtoMessage()    {}
+
+const Default_AccountDefEntry_VerificationRegex string = ".*"
+const Default_AccountDefEntry_Type AccountDefEntry_AccountDefEntryType = AccountDefEntry_MANDATORY
+const Default_AccountDefEntry_IsSecret bool = false
 
 func (m *AccountDefEntry) GetName() string {
 	if m != nil && m.Name != nil {
@@ -197,21 +201,21 @@ func (m *AccountDefEntry) GetVerificationRegex() string {
 	if m != nil && m.VerificationRegex != nil {
 		return *m.VerificationRegex
 	}
-	return ""
+	return Default_AccountDefEntry_VerificationRegex
 }
 
 func (m *AccountDefEntry) GetType() AccountDefEntry_AccountDefEntryType {
 	if m != nil && m.Type != nil {
 		return *m.Type
 	}
-	return AccountDefEntry_OPTIONAL
+	return Default_AccountDefEntry_Type
 }
 
 func (m *AccountDefEntry) GetIsSecret() bool {
 	if m != nil && m.IsSecret != nil {
 		return *m.IsSecret
 	}
-	return false
+	return Default_AccountDefEntry_IsSecret
 }
 
 // Error DTO. Represent some errors, occurred during operations inside the Mediation Container.

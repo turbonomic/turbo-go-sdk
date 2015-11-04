@@ -229,7 +229,9 @@ type ActionItemDTO struct {
 	Progress *int64 `protobuf:"varint,9,opt,name=progress" json:"progress,omitempty"`
 	// CommodityAttribute enum notifying type of changed attribute
 	CommodityAttribute *ActionItemDTO_CommodityAttribute `protobuf:"varint,10,opt,name=commodityAttribute,enum=common_dto.ActionItemDTO_CommodityAttribute" json:"commodityAttribute,omitempty"`
-	XXX_unrecognized   []byte                            `json:"-"`
+	// Information for providers of the targetSE.
+	Providers        []*ActionItemDTO_ProviderInfo `protobuf:"bytes,11,rep,name=providers" json:"providers,omitempty"`
+	XXX_unrecognized []byte                        `json:"-"`
 }
 
 func (m *ActionItemDTO) Reset()         { *m = ActionItemDTO{} }
@@ -304,6 +306,38 @@ func (m *ActionItemDTO) GetCommodityAttribute() ActionItemDTO_CommodityAttribute
 		return *m.CommodityAttribute
 	}
 	return ActionItemDTO_Capacity
+}
+
+func (m *ActionItemDTO) GetProviders() []*ActionItemDTO_ProviderInfo {
+	if m != nil {
+		return m.Providers
+	}
+	return nil
+}
+
+// This message holds provider information for the target SE of this ActionItem.
+type ActionItemDTO_ProviderInfo struct {
+	EntityType       *EntityDTO_EntityType `protobuf:"varint,1,req,name=entityType,enum=common_dto.EntityDTO_EntityType" json:"entityType,omitempty"`
+	Ids              []string              `protobuf:"bytes,2,rep,name=ids" json:"ids,omitempty"`
+	XXX_unrecognized []byte                `json:"-"`
+}
+
+func (m *ActionItemDTO_ProviderInfo) Reset()         { *m = ActionItemDTO_ProviderInfo{} }
+func (m *ActionItemDTO_ProviderInfo) String() string { return proto.CompactTextString(m) }
+func (*ActionItemDTO_ProviderInfo) ProtoMessage()    {}
+
+func (m *ActionItemDTO_ProviderInfo) GetEntityType() EntityDTO_EntityType {
+	if m != nil && m.EntityType != nil {
+		return *m.EntityType
+	}
+	return EntityDTO_SWITCH
+}
+
+func (m *ActionItemDTO_ProviderInfo) GetIds() []string {
+	if m != nil {
+		return m.Ids
+	}
+	return nil
 }
 
 func init() {

@@ -43,8 +43,8 @@ func (cmb *ClientMessageBuilder) SetDiscoveryResponse(discoveryResponse *Discove
 }
 
 // set discovery keep alive
-func (cmb *ClientMessageBuilder) SetDiscoveryKeepAlive(discoveryKeepAlive *DiscoveryKeepAlive) *ClientMessageBuilder {
-	cmb.clientMessage.DiscoveryKeepAlive = discoveryKeepAlive
+func (cmb *ClientMessageBuilder) SetKeepAlive(keepAlive *KeepAlive) *ClientMessageBuilder {
+	cmb.clientMessage.KeepAlive = keepAlive
 	return cmb
 }
 
