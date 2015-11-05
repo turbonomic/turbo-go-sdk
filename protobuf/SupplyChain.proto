@@ -1,0 +1,272 @@
+package common_dto;
+
+option java_package = "com.vmturbo.platform.common.dto";
+option java_outer_classname = "SupplyChain";
+
+// These messages are used by the SDK only
+
+import "CommonDTO.proto";
+
+//
+// The TemplateDTO message represents entity types (templates) that the probe expects to
+// discover in the target. For the probe to load in Operations Manager, it must discover
+// entity types that are valid members of the supply chain, and these entities must have
+// valid buy/sell relationships. Specifying the set of templates for a probe serves to
+// validate that the specific entities the probe discovers and sends to Operations Manager do
+// indeed match the entity descriptions the probe is expected to discover.
+//
+// Specify entity type by setting an EntityType value to the templateClass field.
+//
+// An entity can maintain a list of commodities that it sells.
+//
+// An entity can maintain a map of commodities bought (TemplateCommodity objects). Each map key is
+// an instance of Provider. For each provider, the map entry is a list of the commodities bought
+// from that provider.
+//
+// The templateType can be either {@code Base} or
+// Extension (see TemplateType).
+//
+// A Base template indicates the initial representation
+// of an entity, which means this probe performs the primary discovery of the entity and places it in the market.
+// Note that there can be more than one probe that discovers the same Base entity. The template has a
+// templatePriority setting that resolves such a collision. The template with the highest priority value
+// wins, and discoveries made for the lower-priority template are ignored.
+//
+// An extension template adds data to already discovered entities. This is a way to extend the
+// commodities managed by a base template.
+//
+message TemplateDTO {
+    // The type of entity that the template represents. See EntityType
+    // for the available types.
+    required EntityDTO.EntityType templateClass = 1;
+
+    // The template type (Base or Extension), used during the validation process.
+    required TemplateType templateType = 2;
+
+    // The priority of a Base template. For equivalent Base templates, Operations Manager uses the highest-priority
+    // template, and discards discovered data from lower-priority Base templates.
+    required int32 templatePriority = 3;
+
+    // A boolean where {@code true} indicates that Entities of the type represented by this template DTO will be
+    // created automatically by the supply chain instead of being discovered.
+    required bool autoCreate = 4;
+
+    // This entity's list of {@link TemplateCommodity} items that it provides.
+    repeated TemplateCommodity commoditySold = 5;
+
+    // The commodities bought from the different providers.
+    // This Map contains the commodities bought where:
+    repeated CommBoughtProviderProp commodityBought = 6;
+
+    // A map that defines the entity types that will be providers or consumers for this template entity.
+    // The entry key is an entity type, from the EntityType enumeration. There can only be
+    // one instance of each entity type in this map. The entry value is an instance of
+    // ExternalEntityLink. Each entity link describes an entity type in the supply chain,
+    // and the commodities it buys from or sells to the template entity.
+    repeated ExternalEntityLinkProp externalLink = 7;
+
+    enum TemplateType {
+        BASE = 0;
+        EXTENSION = 1;
+    }
+
+    message CommBoughtProviderProp {
+        // Provider entity type created by the probe
+        required Provider key = 1;
+
+        // The list of commodities bought from the provider specified as key.
+        repeated TemplateCommodity value = 2;
+    }
+
+    message ExternalEntityLinkProp {
+        required EntityDTO.EntityType key = 1;
+        required ExternalEntityLink value = 2;
+    }
+}
+
+
+message TemplateCommodity {
+    required CommodityDTO.CommodityType commodityType = 1;
+    optional string key = 2;
+}
+
+// The Provider class creates a template entity that sells commodities to a
+// consumer template.
+//
+// Each Provider instance has a templateClass to define the entity type, which is expressed
+// as a member of the EntityType enumeration.
+//
+// A provider can have one of two types of relationship with the consumer entity -
+// HOSTING or LAYERED_OVER (see ProviderType):
+//
+// HOSTING is a One Provider/Many Consumers relationship, where the provider contains the consumer.
+// This means that if the provider is removed, then every consumer it contains will also be removed.
+// For example, a PhysicalMachine contains many VirtualMachines. If you remove the PhysicalMachine
+// entity, then its contained VMs will also be removed. You should move VMs off of a host before removing it.
+//
+// LAYERED_OVER is a Many/Many relationship, with no concept of containment. For example, many VMs
+// can share more than one datastore. For LayeredOver relationships, you must specify max and min limits
+// to determine how many providers can be layered over the given type of consumer. These values are set in the
+// cardinalityMax and cardinalityMin members of this class.
+message Provider {
+    // The type of entity that the provider represents. See {@link Entity}
+    // for the available types.
+    required EntityDTO.EntityType templateClass = 1;
+
+    // ProviderType specifies the type of relationship between the provider and the consumer
+    required ProviderType providerType = 2;
+
+    // For LAYERED_OVER providers, the maximum number of providers allowed for the consumer.
+    required int32 cardinalityMax = 3;
+
+    // For LAYERED_OVER providers, the minimum number of providers allowed for the consumer.
+    required int32 cardinalityMin = 4;
+
+    enum ProviderType {
+        // HOSTING is a To One relationship toward the provider, and it enforces containment.
+        // This means that if the provider is removed, then every contained consumer will also be removed.
+        HOSTING = 0;
+        // LAYERED_OVER is a To Many relationship toward the provider, without containment.
+        LAYERED_OVER = 1;
+    }
+}
+
+// ExternalEntityLink is a subclass of {@link EntityLink} that
+// describes the buy/sell relationship between an entity discovered by the probe, and
+// an external entity.
+//
+// An external entity is one that exists in the
+// Operations Manager topology, but has not been discovered by the probe.
+// Operations Manager uses this link to stitch discovered entities into the
+// existing topology that's managed by the Operations Manager market. This external
+// entity can be a provider or a consumer. The ExternalEntityLink object
+// contains a full description of the relationship between the external entity and
+// the node entity.
+// This description includes the entity types for the buyer and seller, the ProviderType
+// (the relationship type for the provider, either HOSTING or LAYERED_OVER}),
+// and the list of commodities bought from the provider.
+//
+// To enable stitching, the external link includes a map of {@code probeEntityDef} items
+// and a list of ServerEntityPropertyDef items. These work together to identify which
+// external entity to stitch together with the probe's discovered entity. The {@code probeEntityDef}
+// items store data to identify the appropriate external entity. For example, a discovered application
+// can store the IP address of the hosting VM.
+//
+// The ServerEntityPropertyDef items
+// tell Operations Manager how to find identifying information in the external entities.
+// For example, the discovered application stores IP address of the hosting VM. Operations Manager
+// will use the ServerEntityPropertyDef to test the current VMs for a matching IP address.
+message ExternalEntityLink {
+    // Consumer entity in the link
+    required EntityDTO.EntityType buyerRef = 1;
+
+    // Provider entity in the link
+    required EntityDTO.EntityType sellerRef = 2;
+
+    // Provider relationship type
+    required Provider.ProviderType relationship = 3;
+
+    // The list of commodities the consumer entity buys from the provider entity.
+    repeated CommodityDTO.CommodityType commodities = 4;
+
+    // Commodity key
+    optional string key = 5;
+
+    // If one of the entity is to be found outside the probe
+    optional bool hasExternalEntity  = 6;
+
+    // Map of the name and description of the property belonging to the entity instances
+    // discovered by the probe.
+    repeated EntityPropertyDef probeEntityPropertyDef = 7;
+
+    // The meta data representing the property definition of the external entity.
+    // The value of the property is used for matching the entity instances.
+    repeated ServerEntityPropDef externalEntityPropertyDefs = 8;
+
+    // The ServerEntityPropDef class provides metadata properties for entities
+    // in the Operations Manager topology that have not been discovered by this probe.
+    // Operations Manager uses these property values to stitch external entities to the
+    // entities discovered by the probe.
+    // An external entity is one that exists in the Operations Manager topology, but has
+    // not been discovered by the probe.
+    //
+    // The link definition identifies:
+    // * The entity type for this external entity
+    // * An attribute of the entity to use to identify it (for example a physical machine's IP address)
+    // * A flag to set whether to fetch the attribute from an entity that is related in the
+    //   Operations Manager topology (for example, use the IP address of a VM's host physical machine)
+    // * Optionally, a handler that can traverse the topology to find the identifying value
+    //
+    // This class includes a set of constants for properties that apply to some of the supported
+    // entity types. Use these constants to create external links with the most common entity
+    // types in the Operations Manager topology. You can also use this class to create
+    // custom external entity link definitions.
+    //
+    // EXAMPLE: Connecting a DiskArray to Storage. To connect storage objects to disk arrays that the probe discovers,
+    // the entity link can use either the LUN ID, WWN, or export path properties. This class includes
+    // the STORAGE_LUNID, STORAGE_WWN, and STORAGE_REMOTE_HOST constants.
+    // You can use one of these constants as the ExternalEntityLinkDef in the
+    // ExternalEntityLink that you create for the discovered disk array.
+    //
+    // EXAMPLE: Connecting an Application to a VM. To connect an application the probe discovers to a VM,
+    // you typically use the VM's IP address. You could also use the VM's unique ID. This class includes
+    // the VM_IP constant for VM IP addresses, and the VM_UUID constant for the VM unique ID.
+    // You can use one of these constants as the ExternalEntityLinkDef in the
+    // ExternalEntityLink that you create for the discovered VM.
+    message ServerEntityPropDef {
+        required EntityDTO.EntityType entity = 1;
+        required string attribute = 2;
+        optional bool useTopoExt = 3;
+        optional PropertyHandler propertyHandler = 4;
+    }
+
+    // Holds a property for the probe's discovered entity that Operations Manager can use to stitch the discovered entity
+    // into the Operations Manager topology. Each property contains a property name and a description.
+    //
+    // The property name specifies which property of the discovered entity you want to match. The discovered
+    // entity's DTO contains the list of properties and values for that entity. This link must include a property that matches a
+    // named property in the DTO. Note that the SDK includes builders for different types of entities.
+    // These builders add properties to the entity DTO, giving them names from the {@link SupplyChainConstants} enumeration.
+    // However, you can use arbitrary names for these properties, so long as the named property is declared in the
+    // entity DTO.
+    //
+    // The properties you create here match the property names in the target DTO.
+    // For example, the {link ApplicationBuilder} adds an IP address as a property named {@code SupplyChainConstants.IP_ADDRESS}.
+    // To match the application IP address in this link, add a property to the link with the same name. By doing that,
+    // the stitching process can access the value that is set in the discovered entity's DTO.
+    //
+    // The property description is an arbitrary string to describe the purpose of this property. This is useful
+    // when you print out the link via a {@code toString()} method.
+    message EntityPropertyDef {
+        // An entity property name
+        required string name = 1;
+
+        // An arbitrary description
+        required string description = 2;
+    }
+
+    // The PropertyHandler class manages handler methods that
+    // Operations Manager can use to traverse the topology to get value(s) of the specified attribute.
+    // The class assembles a linked list of handlers that can be used to inspect multiple
+    // layers of the topology to get properties from different entity types.
+    // Forms LinkedList structure to maintain multiple layers of property names and entity types.
+    // Example:
+    // PropertyHandler ipHandler {
+    //                nextHandler: null
+    //                methodName: "getAddress"
+    //                entity: Entity.IP
+    //                directlyApply: false
+    //                }</pre></code>
+    // ipHandler can be used to retrieve IP address string values from IP object.
+    message PropertyHandler {
+        required string methodName = 1;
+        optional EntityDTO.EntityType entityType = 2;
+
+        // it notifies if the method can be directly applied to what returned from the previous layer
+        // For example, if it's for IP from VM.getUsesEndPoints(), then directlyApply should be false.
+        // Since what returned from VM.getUsesEndPoints() is a list of IPs. So should go to each
+        // instance and apply that method.
+        optional bool directlyApply = 3;
+        optional PropertyHandler next_handler = 4;
+     }
+}

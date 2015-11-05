@@ -1,0 +1,87 @@
+package common_dto;
+
+option java_package = "com.vmturbo.platform.common.dto";
+option java_outer_classname = "Discovery";
+
+// These messages are used by the SDK only
+
+import "CommonDTO.proto";
+
+// ValidateResponse is the response of a ValidateRequest message.
+// It contains the response, and any errors encountered during the target validation attempt.
+message ValidationResponse {
+    // Errors, discovered during external probe operation
+    repeated ErrorDTO errorDTO = 1;
+}
+
+// Mediation container response for target discovery request. Holds both errors and discovered
+// entities. If errors occurred, any entities can be sent nevertheless. Only those entities should
+// be updated in the operations manager.
+//
+// Errors do not prevent anything. They are just displayed to users in the UI
+message DiscoveryResponse {
+    // Errors, discovered during external probe operation
+    repeated ErrorDTO errorDTO = 1;
+
+    // Entities, discovered by external probe.
+    repeated EntityDTO entityDTO = 2;
+
+    // Constraints defined in external probe
+    repeated GroupDTO discoveredGroup = 3;
+}
+
+// The AccountDefinitionEntry class defines a single field that is part of the account credentials
+// a user must specify to connect to a target of this probe type. Note that for every probe, the
+// 'TARGET_IDENTIFIER' is a mandatory field.
+//
+// It's the responsibility of your probe to define the credentials it needs to attach to a target. When adding an associated target to
+// Operations Manager via the REST API, the API call includes parameters for each of the credentials defined here.
+// When attaching via the Operations Manager GUI, the credentials defined here appear in the GUI as individual fields.
+// For a given probe, you define the credentials as a Set of AccountDefinitionEntry objects.
+message AccountDefEntry {
+    // The name of this entry field. The name must be unique for all of the entries you
+    // define for this probe.
+    required string name = 1;
+
+    // The display name of this entry. This is the name that appears in the user interface.
+    required string displayName = 2;
+
+    // Optional description of what this entry represents.
+    required string description = 3;
+
+    // A regular expression to validate a field. If the user's input matches the
+    // regular expression, then the entry is valid.
+    // For example, you can validate that the entered text is only numbers and period characters
+    // for an IP address. To disable validation (allow any text), pass {@code ".*"}.
+     optional string verificationRegex = 4 [default = ".*"];
+
+    // Entry type
+    optional AccountDefEntryType type = 5 [default = MANDATORY];
+
+    // Specifies if the value for the entry can be disclosed (in the log file or wherever else).
+    optional bool isSecret = 6 [default = false];
+
+    enum AccountDefEntryType {
+        OPTIONAL = 0;
+        MANDATORY = 1;
+    }
+}
+
+// Error DTO. Represent some errors, occurred during operations inside the Mediation Container.
+message ErrorDTO {
+    // Error severity. Used to specify the colour of the message, shouwn to the end user.
+    required ErrorSeverity severity = 1;
+
+    // Error description. Should not be null.
+    required string description = 2;
+
+    // UUID of the entity the error is related to, if any.
+    optional string entityUuid = 3;
+
+    // Type of the entity the error is related to, if any.
+    optional string entityType = 4;
+    enum ErrorSeverity {
+        CRITICAL = 0;
+        WARNING = 1;
+    }
+}
