@@ -2,6 +2,17 @@
 // source: CommonDTO.proto
 // DO NOT EDIT!
 
+/*
+Package common_dto is a generated protocol buffer package.
+
+It is generated from these files:
+	CommonDTO.proto
+
+It has these top-level messages:
+	EntityDTO
+	CommodityDTO
+	GroupDTO
+*/
 package sdk
 
 import proto "github.com/golang/protobuf/proto"
@@ -56,7 +67,7 @@ const (
 	EntityDTO_DISTRIBUTED_VIRTUAL_PORTGROUP EntityDTO_EntityType = 39
 	EntityDTO_UNKNOWN                       EntityDTO_EntityType = 40
 	EntityDTO_CONTAINER                     EntityDTO_EntityType = 41
-	EntityDTO_POD                           EntityDTO_EntityType = 42
+	EntityDTO_CONTAINER_POD                 EntityDTO_EntityType = 42
 )
 
 var EntityDTO_EntityType_name = map[int32]string{
@@ -102,7 +113,7 @@ var EntityDTO_EntityType_name = map[int32]string{
 	39: "DISTRIBUTED_VIRTUAL_PORTGROUP",
 	40: "UNKNOWN",
 	41: "CONTAINER",
-	42: "POD",
+	42: "CONTAINER_POD",
 }
 var EntityDTO_EntityType_value = map[string]int32{
 	"SWITCH":                 0,
@@ -147,7 +158,7 @@ var EntityDTO_EntityType_value = map[string]int32{
 	"DISTRIBUTED_VIRTUAL_PORTGROUP": 39,
 	"UNKNOWN":                       40,
 	"CONTAINER":                     41,
-	"POD":                           42,
+	"CONTAINER_POD":                 42,
 }
 
 func (x EntityDTO_EntityType) Enum() *EntityDTO_EntityType {
