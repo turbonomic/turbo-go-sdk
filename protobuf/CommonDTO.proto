@@ -167,9 +167,18 @@ message EntityDTO {
         optional int32 numCPUs = 1;
     }
 
+    // A virtual datacenter may be either a consumer or producer
+    enum VirtualDatacenterRole {
+        CONSUMER = 1;
+        PRODUCER = 2;
+    }
+
     message VirtualDatacenterData {
         repeated string pmUuid = 1;
         repeated string vmUuid = 2;
+        optional bool supportsStorage = 3 [default = true];
+        optional bool supportsNesting = 4 [default = false];
+        optional VirtualDatacenterRole role = 5 [default = CONSUMER];
     }
 
     message EntityProperty {
