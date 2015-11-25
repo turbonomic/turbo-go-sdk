@@ -3,13 +3,15 @@ package sdk
 import (
 	"testing"
 
+	"github.com/vmturbo/vmturbo-go-sdk/util/rand"
+
 	"github.com/stretchr/testify/assert"
 )
 
 func testProviderDTOGetProviderID(t *testing.T) {
 	assert := assert.New(t)
 
-	id := "should be random string"
+	id := rand.String(5)
 
 	providerDto := &ProviderDTO{
 		Id: &id,
