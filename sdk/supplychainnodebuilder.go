@@ -24,7 +24,7 @@ func (scnb *SupplyChainNodeBuilder) Entity(entityType EntityDTO_EntityType) *Sup
 	var commSold []*TemplateCommodity
 	var commBought []*TemplateDTO_CommBoughtProviderProp
 	templateType := TemplateDTO_BASE
-	priority := int32(1)
+	priority := int32(0)
 	autoCreate := false
 	scnb.entityTemplate = &TemplateDTO{
 		TemplateClass:    &entityType,
