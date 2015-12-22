@@ -2,6 +2,8 @@ package sdk
 
 import (
 	"math"
+
+	"github.com/golang/glog"
 )
 
 type SupplyChainNodeBuilder struct {
@@ -159,4 +161,33 @@ func (scnb *SupplyChainNodeBuilder) findCommBoughtProvider(provider *Provider) (
 		}
 	}
 	return nil, false
+}
+
+//Adds an external entity link to the current node.
+func (scnb *SupplyChainNodeBuilder) Link(extEntityLink *ExternalEntityLink) *SupplyChainNodeBuilder {
+	if set := scnb.requireEntityTemplate(); !set {
+		return scnb
+	}
+
+	linkProp := &TemplateDTO_ExternalEntityLinkProp{}
+	if extEntityLink.GetBuyerRef() == scnb.entityTemplate.GetTemplateClass() {
+		seller := extEntityLink.GetSellerRef()
+		linkProp.Key = &seller
+	} else if extEntityLink.GetSellerRef() == scnb.entityTemplate.GetTemplateClass() {
+		buyer := extEntityLink.GetBuyerRef()
+		linkProp.Key = &buyer
+	} else {
+		glog.Errorf("Template entity is not one of the entity in this external link")
+		return scnb
+	}
+	linkProp.Value = extEntityLink
+	scnb.addExternalLinkPropToTemplateEntity(linkProp)
+	return scnb
+
+}
+
+func (scnb *SupplyChainNodeBuilder) addExternalLinkPropToTemplateEntity(extEntityLinkProp *TemplateDTO_ExternalEntityLinkProp) {
+	currentLinks := scnb.entityTemplate.GetExternalLink()
+	currentLinks = append(currentLinks, extEntityLinkProp)
+	scnb.entityTemplate.ExternalLink = currentLinks
 }

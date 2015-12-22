@@ -398,12 +398,15 @@ type ProbeInfo struct {
 	// what their bought and sold commodities are. Any entity instances the probe creates must match
 	// members of this set.
 	SupplyChainDefinitionSet []*sdk.TemplateDTO `protobuf:"bytes,3,rep,name=supplyChainDefinitionSet" json:"supplyChainDefinitionSet,omitempty"`
-	// Map of AccountDefEntry objects that describe the fields users provide as
+	// List of AccountDefEntry objects that describe the fields users provide as
 	// input (i.e. ip, user, pass, ...). These fields appear in the Operations Manager user interface
 	// when users add targets of this probe's type. REST API calls to add targets also provide data
-	// for these fields (i.e. ip, user, password, ...). In the map, each entry is indexed by the name of the field.
-	AccountDefinition []*ProbeInfo_AccountDefProp `protobuf:"bytes,4,rep,name=accountDefinition" json:"accountDefinition,omitempty"`
-	XXX_unrecognized  []byte                      `json:"-"`
+	// for these fields (i.e. ip, user, password, ...).
+	//
+	// Order of elements in the list specifyes the order they appear in the UI.
+	// List must not contain entries with equal "name" field. This is up to client to ensure this.
+	AccountDefinition []*AccountDefEntry `protobuf:"bytes,4,rep,name=accountDefinition" json:"accountDefinition,omitempty"`
+	XXX_unrecognized  []byte             `json:"-"`
 }
 
 func (m *ProbeInfo) Reset()         { *m = ProbeInfo{} }
@@ -431,33 +434,9 @@ func (m *ProbeInfo) GetSupplyChainDefinitionSet() []*sdk.TemplateDTO {
 	return nil
 }
 
-func (m *ProbeInfo) GetAccountDefinition() []*ProbeInfo_AccountDefProp {
+func (m *ProbeInfo) GetAccountDefinition() []*AccountDefEntry {
 	if m != nil {
 		return m.AccountDefinition
-	}
-	return nil
-}
-
-type ProbeInfo_AccountDefProp struct {
-	Key              *string          `protobuf:"bytes,1,req,name=key" json:"key,omitempty"`
-	Value            *AccountDefEntry `protobuf:"bytes,2,req,name=value" json:"value,omitempty"`
-	XXX_unrecognized []byte           `json:"-"`
-}
-
-func (m *ProbeInfo_AccountDefProp) Reset()         { *m = ProbeInfo_AccountDefProp{} }
-func (m *ProbeInfo_AccountDefProp) String() string { return proto.CompactTextString(m) }
-func (*ProbeInfo_AccountDefProp) ProtoMessage()    {}
-
-func (m *ProbeInfo_AccountDefProp) GetKey() string {
-	if m != nil && m.Key != nil {
-		return *m.Key
-	}
-	return ""
-}
-
-func (m *ProbeInfo_AccountDefProp) GetValue() *AccountDefEntry {
-	if m != nil {
-		return m.Value
 	}
 	return nil
 }

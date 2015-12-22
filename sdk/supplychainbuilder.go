@@ -1,5 +1,9 @@
 package sdk
 
+import (
+	"fmt"
+)
+
 type SupplyChainBuilder struct {
 	SupplyChainNodes map[*EntityDTO_EntityType]*SupplyChainNodeBuilder
 	currentNode      *SupplyChainNodeBuilder
@@ -59,4 +63,27 @@ func (scb *SupplyChainBuilder) hasTopNode() bool {
 		return false
 	}
 	return true
+}
+
+// Adds an external entity link to the current node.
+// An external entity is on ethat exists in teh Operations Manager supply chain, but has not been
+// discovered by the probe. Operations Manager uses this link by the Operations Manager market. This
+// external entity can be a provider or a consumer.
+func (scb *SupplyChainBuilder) ConnectsTo(extEntityLink *ExternalEntityLink) *SupplyChainBuilder {
+	err := scb.requireCurrentNode()
+	if err != nil {
+		return scb
+	}
+
+	scb.currentNode = scb.currentNode.Link(extEntityLink)
+
+	return scb
+}
+
+// check if currentNode is set.
+func (scb *SupplyChainBuilder) requireCurrentNode() error {
+	if scb.currentNode == nil {
+		return fmt.Errorf("Illegal state, currentNode is nil")
+	}
+	return nil
 }

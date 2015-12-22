@@ -89,7 +89,7 @@ type ProbeInfoBuilder struct {
 	probeInfo *ProbeInfo
 }
 
-func NewProbeInfoBuilder(probeType, probeCat string, supplyChainSet []*sdk.TemplateDTO, acctDef []*ProbeInfo_AccountDefProp) *ProbeInfoBuilder {
+func NewProbeInfoBuilder(probeType, probeCat string, supplyChainSet []*sdk.TemplateDTO, acctDef []*AccountDefEntry) *ProbeInfoBuilder {
 	probeInfo := &ProbeInfo{
 		ProbeType:                &probeType,
 		ProbeCategory:            &probeCat,

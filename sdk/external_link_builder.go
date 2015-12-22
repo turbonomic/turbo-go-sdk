@@ -1,0 +1,67 @@
+package sdk
+
+type ExternalEntityLinkBuilder struct {
+	entityLink *ExternalEntityLink
+}
+
+func NewExternalEntityLinkBuilder() *ExternalEntityLinkBuilder {
+	link := &ExternalEntityLink{}
+	return &ExternalEntityLinkBuilder{
+		entityLink: link,
+	}
+}
+
+// Initialize the buyer/seller external link that you're building.
+// This method sets the entity types for the buyer and seller, as well as the type of provider
+// relationship HOSTING or code LAYEREDOVER.
+func (this *ExternalEntityLinkBuilder) Link(buyer, seller EntityDTO_EntityType, relationship Provider_ProviderType) *ExternalEntityLinkBuilder {
+	this.entityLink.BuyerRef = &buyer
+	this.entityLink.SellerRef = &seller
+	this.entityLink.Relationship = &relationship
+
+	return this
+}
+
+// Add a single bought commodity to the link.
+func (this *ExternalEntityLinkBuilder) Commodity(comm CommodityDTO_CommodityType) *ExternalEntityLinkBuilder {
+	commodities := this.entityLink.GetCommodities()
+	commodities = append(commodities, comm)
+
+	this.entityLink.Commodities = commodities
+	return this
+}
+
+// Set a property of the discovered entity to the link. Operations Manager will use this property to
+// stitch the discovered entity into the Operations Manager topology. This setting includes the property name
+// and an arbitrary description.
+func (this *ExternalEntityLinkBuilder) ProbeEntityPropertyDef(name, description string) *ExternalEntityLinkBuilder {
+	entityProperty := &ExternalEntityLink_EntityPropertyDef{
+		Name:        &name,
+		Description: &description,
+	}
+	currentProps := this.entityLink.GetProbeEntityPropertyDef()
+	currentProps = append(currentProps, entityProperty)
+	this.entityLink.ProbeEntityPropertyDef = currentProps
+
+	return this
+}
+
+// Set an ServerEntityPropertyDef to the link you're building.
+// The ServerEntityPropertyDef includes metadata for the properties of the
+// external entity. Operations Manager can use the metadata
+// to stitch entities discovered by the probe together with external entities.
+// An external entity is one that exists in the Operations Manager topology, but has
+// not been discovered by the probe.
+func (this *ExternalEntityLinkBuilder) ExternalEntityPropertyDef(propertyDef *ExternalEntityLink_ServerEntityPropDef) *ExternalEntityLinkBuilder {
+	currentExtProps := this.entityLink.GetExternalEntityPropertyDefs()
+	currentExtProps = append(currentExtProps, propertyDef)
+
+	this.entityLink.ExternalEntityPropertyDefs = currentExtProps
+
+	return this
+}
+
+// Get the ExternalEntityLink that you have built.
+func (this *ExternalEntityLinkBuilder) Build() *ExternalEntityLink {
+	return this.entityLink
+}

@@ -2,17 +2,6 @@
 // source: CommonDTO.proto
 // DO NOT EDIT!
 
-/*
-Package common_dto is a generated protocol buffer package.
-
-It is generated from these files:
-	CommonDTO.proto
-
-It has these top-level messages:
-	EntityDTO
-	CommodityDTO
-	GroupDTO
-*/
 package sdk
 
 import proto "github.com/golang/protobuf/proto"
@@ -178,6 +167,80 @@ func (x *EntityDTO_EntityType) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Enum for power state.
+type EntityDTO_PowerState int32
+
+const (
+	EntityDTO_POWERED_ON         EntityDTO_PowerState = 1
+	EntityDTO_POWERED_OFF        EntityDTO_PowerState = 2
+	EntityDTO_SUSPENDED          EntityDTO_PowerState = 3
+	EntityDTO_POWERSTATE_UNKNOWN EntityDTO_PowerState = 4
+)
+
+var EntityDTO_PowerState_name = map[int32]string{
+	1: "POWERED_ON",
+	2: "POWERED_OFF",
+	3: "SUSPENDED",
+	4: "POWERSTATE_UNKNOWN",
+}
+var EntityDTO_PowerState_value = map[string]int32{
+	"POWERED_ON":         1,
+	"POWERED_OFF":        2,
+	"SUSPENDED":          3,
+	"POWERSTATE_UNKNOWN": 4,
+}
+
+func (x EntityDTO_PowerState) Enum() *EntityDTO_PowerState {
+	p := new(EntityDTO_PowerState)
+	*p = x
+	return p
+}
+func (x EntityDTO_PowerState) String() string {
+	return proto.EnumName(EntityDTO_PowerState_name, int32(x))
+}
+func (x *EntityDTO_PowerState) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(EntityDTO_PowerState_value, data, "EntityDTO_PowerState")
+	if err != nil {
+		return err
+	}
+	*x = EntityDTO_PowerState(value)
+	return nil
+}
+
+// A virtual datacenter may be either a consumer or producer
+type EntityDTO_VirtualDatacenterRole int32
+
+const (
+	EntityDTO_CONSUMER EntityDTO_VirtualDatacenterRole = 1
+	EntityDTO_PRODUCER EntityDTO_VirtualDatacenterRole = 2
+)
+
+var EntityDTO_VirtualDatacenterRole_name = map[int32]string{
+	1: "CONSUMER",
+	2: "PRODUCER",
+}
+var EntityDTO_VirtualDatacenterRole_value = map[string]int32{
+	"CONSUMER": 1,
+	"PRODUCER": 2,
+}
+
+func (x EntityDTO_VirtualDatacenterRole) Enum() *EntityDTO_VirtualDatacenterRole {
+	p := new(EntityDTO_VirtualDatacenterRole)
+	*p = x
+	return p
+}
+func (x EntityDTO_VirtualDatacenterRole) String() string {
+	return proto.EnumName(EntityDTO_VirtualDatacenterRole_name, int32(x))
+}
+func (x *EntityDTO_VirtualDatacenterRole) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(EntityDTO_VirtualDatacenterRole_value, data, "EntityDTO_VirtualDatacenterRole")
+	if err != nil {
+		return err
+	}
+	*x = EntityDTO_VirtualDatacenterRole(value)
+	return nil
+}
+
 // Names for communicating the number of various types of disks.
 type EntityDTO_NumDiskNames int32
 
@@ -223,6 +286,46 @@ func (x *EntityDTO_NumDiskNames) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*x = EntityDTO_NumDiskNames(value)
+	return nil
+}
+
+// Specifies the origin of an entity, either DISCOVERED or PROXY
+// DISCOVERED: An entity discovered by the probe that maps to a real resource found
+// when probing the target.
+// PROXY: An entity supplied by the probe to fill out a required part of the supply chain.
+// For example, a probe discovering Virtual Machines may supply a Guestload Application proxy
+// to complete its supply chain.
+// Some proxy entities may be replaced by discovered entities found by another probe."
+type EntityDTO_EntityOrigin int32
+
+const (
+	EntityDTO_DISCOVERED EntityDTO_EntityOrigin = 1
+	EntityDTO_PROXY      EntityDTO_EntityOrigin = 2
+)
+
+var EntityDTO_EntityOrigin_name = map[int32]string{
+	1: "DISCOVERED",
+	2: "PROXY",
+}
+var EntityDTO_EntityOrigin_value = map[string]int32{
+	"DISCOVERED": 1,
+	"PROXY":      2,
+}
+
+func (x EntityDTO_EntityOrigin) Enum() *EntityDTO_EntityOrigin {
+	p := new(EntityDTO_EntityOrigin)
+	*p = x
+	return p
+}
+func (x EntityDTO_EntityOrigin) String() string {
+	return proto.EnumName(EntityDTO_EntityOrigin_name, int32(x))
+}
+func (x *EntityDTO_EntityOrigin) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(EntityDTO_EntityOrigin_value, data, "EntityDTO_EntityOrigin")
+	if err != nil {
+		return err
+	}
+	*x = EntityDTO_EntityOrigin(value)
 	return nil
 }
 
@@ -643,7 +746,19 @@ type EntityDTO struct {
 	// For a group entity, a list of the uuid's of the entities that are members of this group.
 	Members []string `protobuf:"bytes,9,rep,name=members" json:"members,omitempty"`
 	// Entity properties in free (string <-> string) form, used for user-defined values.
-	EntityProperties             []*EntityDTO_EntityProperty             `protobuf:"bytes,10,rep,name=entityProperties" json:"entityProperties,omitempty"`
+	EntityProperties []*EntityDTO_EntityProperty `protobuf:"bytes,10,rep,name=entityProperties" json:"entityProperties,omitempty"`
+	// Specifies the source of the entity (ie DISCOVERED or PROXY).
+	// For further details see the comments for EntityOrigin.
+	Origin *EntityDTO_EntityOrigin `protobuf:"varint,11,opt,name=origin,enum=common_dto.EntityDTO_EntityOrigin,def=1" json:"origin,omitempty"`
+	// Proxy entities may be replaced by entities discovered by another probe.
+	// Some proxy entities are aware of the entity replacing them based on a set of property values.
+	// Before replacing they may also transfer the commodity data to the server entity
+	ReplacementEntityData *EntityDTO_ReplacementEntityMetaData `protobuf:"bytes,12,opt,name=replacementEntityData" json:"replacementEntityData,omitempty"`
+	// Specifies if the entity is monitored or not.
+	// If this field is false, state of the entity will be set to NOT_MONITORED in server.
+	Monitored *bool `protobuf:"varint,13,opt,name=monitored,def=1" json:"monitored,omitempty"`
+	// Specifies the power state of the entity.
+	PowerState                   *EntityDTO_PowerState                   `protobuf:"varint,14,opt,name=powerState,enum=common_dto.EntityDTO_PowerState,def=1" json:"powerState,omitempty"`
 	StorageData                  *EntityDTO_StorageData                  `protobuf:"bytes,500,opt,name=storage_data" json:"storage_data,omitempty"`
 	DiskArrayData                *EntityDTO_DiskArrayData                `protobuf:"bytes,501,opt,name=disk_array_data" json:"disk_array_data,omitempty"`
 	ApplicationData              *EntityDTO_ApplicationData              `protobuf:"bytes,502,opt,name=application_data" json:"application_data,omitempty"`
@@ -659,6 +774,10 @@ type EntityDTO struct {
 func (m *EntityDTO) Reset()         { *m = EntityDTO{} }
 func (m *EntityDTO) String() string { return proto.CompactTextString(m) }
 func (*EntityDTO) ProtoMessage()    {}
+
+const Default_EntityDTO_Origin EntityDTO_EntityOrigin = EntityDTO_DISCOVERED
+const Default_EntityDTO_Monitored bool = true
+const Default_EntityDTO_PowerState EntityDTO_PowerState = EntityDTO_POWERED_ON
 
 func (m *EntityDTO) GetEntityType() EntityDTO_EntityType {
 	if m != nil && m.EntityType != nil {
@@ -728,6 +847,34 @@ func (m *EntityDTO) GetEntityProperties() []*EntityDTO_EntityProperty {
 		return m.EntityProperties
 	}
 	return nil
+}
+
+func (m *EntityDTO) GetOrigin() EntityDTO_EntityOrigin {
+	if m != nil && m.Origin != nil {
+		return *m.Origin
+	}
+	return Default_EntityDTO_Origin
+}
+
+func (m *EntityDTO) GetReplacementEntityData() *EntityDTO_ReplacementEntityMetaData {
+	if m != nil {
+		return m.ReplacementEntityData
+	}
+	return nil
+}
+
+func (m *EntityDTO) GetMonitored() bool {
+	if m != nil && m.Monitored != nil {
+		return *m.Monitored
+	}
+	return Default_EntityDTO_Monitored
+}
+
+func (m *EntityDTO) GetPowerState() EntityDTO_PowerState {
+	if m != nil && m.PowerState != nil {
+		return *m.PowerState
+	}
+	return Default_EntityDTO_PowerState
 }
 
 func (m *EntityDTO) GetStorageData() *EntityDTO_StorageData {
@@ -940,8 +1087,10 @@ func (m *EntityDTO_ApplicationData) GetIpAddress() string {
 }
 
 type EntityDTO_VirtualMachineData struct {
-	IpAddress        []string `protobuf:"bytes,1,rep,name=ipAddress" json:"ipAddress,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	IpAddress []string `protobuf:"bytes,1,rep,name=ipAddress" json:"ipAddress,omitempty"`
+	// Carries specific properties for setting Entity State of this VM.
+	VmState          *EntityDTO_VMState `protobuf:"bytes,2,opt,name=vmState" json:"vmState,omitempty"`
+	XXX_unrecognized []byte             `json:"-"`
 }
 
 func (m *EntityDTO_VirtualMachineData) Reset()         { *m = EntityDTO_VirtualMachineData{} }
@@ -955,9 +1104,37 @@ func (m *EntityDTO_VirtualMachineData) GetIpAddress() []string {
 	return nil
 }
 
-type EntityDTO_PhysicalMachineData struct {
-	NumCPUs          *int32 `protobuf:"varint,1,opt,name=numCPUs" json:"numCPUs,omitempty"`
+func (m *EntityDTO_VirtualMachineData) GetVmState() *EntityDTO_VMState {
+	if m != nil {
+		return m.VmState
+	}
+	return nil
+}
+
+type EntityDTO_VMState struct {
+	// Notifies if the VirtualMachine is connected.
+	Connected        *bool  `protobuf:"varint,1,opt,name=connected,def=1" json:"connected,omitempty"`
 	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *EntityDTO_VMState) Reset()         { *m = EntityDTO_VMState{} }
+func (m *EntityDTO_VMState) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_VMState) ProtoMessage()    {}
+
+const Default_EntityDTO_VMState_Connected bool = true
+
+func (m *EntityDTO_VMState) GetConnected() bool {
+	if m != nil && m.Connected != nil {
+		return *m.Connected
+	}
+	return Default_EntityDTO_VMState_Connected
+}
+
+type EntityDTO_PhysicalMachineData struct {
+	NumCPUs *int32 `protobuf:"varint,1,opt,name=numCPUs" json:"numCPUs,omitempty"`
+	// Carries specific properties for setting Entity State of this PM.
+	PmState          *EntityDTO_PMState `protobuf:"bytes,2,opt,name=pmState" json:"pmState,omitempty"`
+	XXX_unrecognized []byte             `json:"-"`
 }
 
 func (m *EntityDTO_PhysicalMachineData) Reset()         { *m = EntityDTO_PhysicalMachineData{} }
@@ -971,15 +1148,58 @@ func (m *EntityDTO_PhysicalMachineData) GetNumCPUs() int32 {
 	return 0
 }
 
+func (m *EntityDTO_PhysicalMachineData) GetPmState() *EntityDTO_PMState {
+	if m != nil {
+		return m.PmState
+	}
+	return nil
+}
+
+type EntityDTO_PMState struct {
+	// Notifies if the PhysicalMachine is in maintenance.
+	Maintenance *bool `protobuf:"varint,1,opt,name=maintenance,def=0" json:"maintenance,omitempty"`
+	// Notifies if the PhysicalMachine is for failover.
+	Failover         *bool  `protobuf:"varint,2,opt,name=failover,def=0" json:"failover,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *EntityDTO_PMState) Reset()         { *m = EntityDTO_PMState{} }
+func (m *EntityDTO_PMState) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_PMState) ProtoMessage()    {}
+
+const Default_EntityDTO_PMState_Maintenance bool = false
+const Default_EntityDTO_PMState_Failover bool = false
+
+func (m *EntityDTO_PMState) GetMaintenance() bool {
+	if m != nil && m.Maintenance != nil {
+		return *m.Maintenance
+	}
+	return Default_EntityDTO_PMState_Maintenance
+}
+
+func (m *EntityDTO_PMState) GetFailover() bool {
+	if m != nil && m.Failover != nil {
+		return *m.Failover
+	}
+	return Default_EntityDTO_PMState_Failover
+}
+
 type EntityDTO_VirtualDatacenterData struct {
-	PmUuid           []string `protobuf:"bytes,1,rep,name=pmUuid" json:"pmUuid,omitempty"`
-	VmUuid           []string `protobuf:"bytes,2,rep,name=vmUuid" json:"vmUuid,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	PmUuid           []string                         `protobuf:"bytes,1,rep,name=pmUuid" json:"pmUuid,omitempty"`
+	VmUuid           []string                         `protobuf:"bytes,2,rep,name=vmUuid" json:"vmUuid,omitempty"`
+	SupportsStorage  *bool                            `protobuf:"varint,3,opt,name=supportsStorage,def=1" json:"supportsStorage,omitempty"`
+	SupportsNesting  *bool                            `protobuf:"varint,4,opt,name=supportsNesting,def=0" json:"supportsNesting,omitempty"`
+	Role             *EntityDTO_VirtualDatacenterRole `protobuf:"varint,5,opt,name=role,enum=common_dto.EntityDTO_VirtualDatacenterRole,def=1" json:"role,omitempty"`
+	XXX_unrecognized []byte                           `json:"-"`
 }
 
 func (m *EntityDTO_VirtualDatacenterData) Reset()         { *m = EntityDTO_VirtualDatacenterData{} }
 func (m *EntityDTO_VirtualDatacenterData) String() string { return proto.CompactTextString(m) }
 func (*EntityDTO_VirtualDatacenterData) ProtoMessage()    {}
+
+const Default_EntityDTO_VirtualDatacenterData_SupportsStorage bool = true
+const Default_EntityDTO_VirtualDatacenterData_SupportsNesting bool = false
+const Default_EntityDTO_VirtualDatacenterData_Role EntityDTO_VirtualDatacenterRole = EntityDTO_CONSUMER
 
 func (m *EntityDTO_VirtualDatacenterData) GetPmUuid() []string {
 	if m != nil {
@@ -993,6 +1213,27 @@ func (m *EntityDTO_VirtualDatacenterData) GetVmUuid() []string {
 		return m.VmUuid
 	}
 	return nil
+}
+
+func (m *EntityDTO_VirtualDatacenterData) GetSupportsStorage() bool {
+	if m != nil && m.SupportsStorage != nil {
+		return *m.SupportsStorage
+	}
+	return Default_EntityDTO_VirtualDatacenterData_SupportsStorage
+}
+
+func (m *EntityDTO_VirtualDatacenterData) GetSupportsNesting() bool {
+	if m != nil && m.SupportsNesting != nil {
+		return *m.SupportsNesting
+	}
+	return Default_EntityDTO_VirtualDatacenterData_SupportsNesting
+}
+
+func (m *EntityDTO_VirtualDatacenterData) GetRole() EntityDTO_VirtualDatacenterRole {
+	if m != nil && m.Role != nil {
+		return *m.Role
+	}
+	return Default_EntityDTO_VirtualDatacenterData_Role
 }
 
 type EntityDTO_EntityProperty struct {
@@ -1272,6 +1513,44 @@ func (m *EntityDTO_DiskCount) GetNumDisks() int64 {
 	return 0
 }
 
+// Meta data representing the entity that will replace this proxy entity
+type EntityDTO_ReplacementEntityMetaData struct {
+	// Replacement entity is found by matching the values of the specified properties.
+	// The value for the property must be set while building the entity. Specific properties
+	// are pre-defined for some entity types. Generic properties can be set using
+	// the EntityProperty.
+	IdentifyingProp []string `protobuf:"bytes,1,rep,name=identifyingProp" json:"identifyingProp,omitempty"`
+	// Proxy entities may also transfer their commodity data to the replacement entity
+	BuyingCommTypes  []CommodityDTO_CommodityType `protobuf:"varint,2,rep,name=buyingCommTypes,enum=common_dto.CommodityDTO_CommodityType" json:"buyingCommTypes,omitempty"`
+	SellingCommTypes []CommodityDTO_CommodityType `protobuf:"varint,3,rep,name=sellingCommTypes,enum=common_dto.CommodityDTO_CommodityType" json:"sellingCommTypes,omitempty"`
+	XXX_unrecognized []byte                       `json:"-"`
+}
+
+func (m *EntityDTO_ReplacementEntityMetaData) Reset()         { *m = EntityDTO_ReplacementEntityMetaData{} }
+func (m *EntityDTO_ReplacementEntityMetaData) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_ReplacementEntityMetaData) ProtoMessage()    {}
+
+func (m *EntityDTO_ReplacementEntityMetaData) GetIdentifyingProp() []string {
+	if m != nil {
+		return m.IdentifyingProp
+	}
+	return nil
+}
+
+func (m *EntityDTO_ReplacementEntityMetaData) GetBuyingCommTypes() []CommodityDTO_CommodityType {
+	if m != nil {
+		return m.BuyingCommTypes
+	}
+	return nil
+}
+
+func (m *EntityDTO_ReplacementEntityMetaData) GetSellingCommTypes() []CommodityDTO_CommodityType {
+	if m != nil {
+		return m.SellingCommTypes
+	}
+	return nil
+}
+
 type CommodityDTO struct {
 	// Represents the type of commodity. Check {@link Commodity} enumeration for the available
 	// types.
@@ -1298,8 +1577,19 @@ type CommodityDTO struct {
 	// for sale on the market to below the value specified in the capacity. For example, a VM may have
 	// a VMem capacity of 4GB, but 1GB of that is needed by its operating system. In this example, specify
 	// a capacity of 4GB and a limit of 3GB to limit VMem available for sale to applications on the VM.
-	Limit              *float64                         `protobuf:"fixed64,6,opt,name=limit" json:"limit,omitempty"`
-	Peak               *float64                         `protobuf:"fixed64,7,opt,name=peak" json:"peak,omitempty"`
+	Limit *float64 `protobuf:"fixed64,6,opt,name=limit" json:"limit,omitempty"`
+	Peak  *float64 `protobuf:"fixed64,7,opt,name=peak" json:"peak,omitempty"`
+	// Has meaning on both the buying and selling side.
+	// Represents whether the commodity is active and currently participating in the market.
+	// Commodities that are inactive will not factor into market recommendations but will still be visible
+	// in the Operations Manager UI.
+	// Commodities are active by default.
+	Active *bool `protobuf:"varint,8,opt,name=active,def=1" json:"active,omitempty"`
+	// Has meaning on both the buying and selling side.
+	// Represents whether the commodity can be resized. This flag is used to signal to the market
+	// whether a commodity is eligible to receive resize up and resize down recommendations.
+	// Commodities are not resizable by default.
+	Resizable          *bool                            `protobuf:"varint,9,opt,name=resizable,def=0" json:"resizable,omitempty"`
 	StorageLatencyData *CommodityDTO_StorageLatencyData `protobuf:"bytes,500,opt,name=storage_latency_data" json:"storage_latency_data,omitempty"`
 	StorageAccessData  *CommodityDTO_StorageAccessData  `protobuf:"bytes,501,opt,name=storage_access_data" json:"storage_access_data,omitempty"`
 	XXX_unrecognized   []byte                           `json:"-"`
@@ -1308,6 +1598,9 @@ type CommodityDTO struct {
 func (m *CommodityDTO) Reset()         { *m = CommodityDTO{} }
 func (m *CommodityDTO) String() string { return proto.CompactTextString(m) }
 func (*CommodityDTO) ProtoMessage()    {}
+
+const Default_CommodityDTO_Active bool = true
+const Default_CommodityDTO_Resizable bool = false
 
 func (m *CommodityDTO) GetCommodityType() CommodityDTO_CommodityType {
 	if m != nil && m.CommodityType != nil {
@@ -1356,6 +1649,20 @@ func (m *CommodityDTO) GetPeak() float64 {
 		return *m.Peak
 	}
 	return 0
+}
+
+func (m *CommodityDTO) GetActive() bool {
+	if m != nil && m.Active != nil {
+		return *m.Active
+	}
+	return Default_CommodityDTO_Active
+}
+
+func (m *CommodityDTO) GetResizable() bool {
+	if m != nil && m.Resizable != nil {
+		return *m.Resizable
+	}
+	return Default_CommodityDTO_Resizable
 }
 
 func (m *CommodityDTO) GetStorageLatencyData() *CommodityDTO_StorageLatencyData {
@@ -1711,7 +2018,10 @@ func (m *GroupDTO_SelectionSpec_PropertyDoubleList) GetPropertyValue() []float64
 
 func init() {
 	proto.RegisterEnum("common_dto.EntityDTO_EntityType", EntityDTO_EntityType_name, EntityDTO_EntityType_value)
+	proto.RegisterEnum("common_dto.EntityDTO_PowerState", EntityDTO_PowerState_name, EntityDTO_PowerState_value)
+	proto.RegisterEnum("common_dto.EntityDTO_VirtualDatacenterRole", EntityDTO_VirtualDatacenterRole_name, EntityDTO_VirtualDatacenterRole_value)
 	proto.RegisterEnum("common_dto.EntityDTO_NumDiskNames", EntityDTO_NumDiskNames_name, EntityDTO_NumDiskNames_value)
+	proto.RegisterEnum("common_dto.EntityDTO_EntityOrigin", EntityDTO_EntityOrigin_name, EntityDTO_EntityOrigin_value)
 	proto.RegisterEnum("common_dto.CommodityDTO_CommodityType", CommodityDTO_CommodityType_name, CommodityDTO_CommodityType_value)
 	proto.RegisterEnum("common_dto.GroupDTO_ConstraintType", GroupDTO_ConstraintType_name, GroupDTO_ConstraintType_value)
 	proto.RegisterEnum("common_dto.GroupDTO_SelectionSpec_ExpressionType", GroupDTO_SelectionSpec_ExpressionType_name, GroupDTO_SelectionSpec_ExpressionType_value)

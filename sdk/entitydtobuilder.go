@@ -155,3 +155,12 @@ func (eb *EntityDTOBuilder) SetProperty(name, value string) *EntityDTOBuilder {
 	eb.entity.EntityProperties = append(eb.entity.EntityProperties, prop)
 	return eb
 }
+
+// Set the ReplacementEntityMetadata that will contain the information about the external entity
+// that this entity will patch with the metrics data it collected.
+func (eb *EntityDTOBuilder) ReplacedBy(replacementEntityMetaData *EntityDTO_ReplacementEntityMetaData) *EntityDTOBuilder {
+	origin := EntityDTO_PROXY
+	eb.entity.Origin = &origin
+	eb.entity.ReplacementEntityData = replacementEntityMetaData
+	return eb
+}
