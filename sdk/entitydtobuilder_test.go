@@ -54,28 +54,27 @@ func Test_EntityDTOBuilder(t *testing.T) {
 	}
 }	
 
-// check with DongYi is this method supposed to be get entity?
+/*
+* Tests the method Create() , which returns the entity member of the EntityDTOBuilder that 
+* called this method. 
+*/
 func TestEntityDTOBuilder_Create(t *testing.T) {
 	assert := assert.New(t)
-	pType := new(EntityDTO_EntityType)
-	idstr := rand.String(5)
 	entity := new(EntityDTO)
-	entity.EntityType = pType
-	entity.Id = &idstr
 	entityDTOBuilder := &EntityDTOBuilder{
 		entity: entity,
 	}
-	assert.Equal(*entityDTOBuilder.entity, *entityDTOBuilder.Create())
-	assert.Equal(entityDTOBuilder.entity, entityDTOBuilder.Create())
+	assert.Equal(*entity, *entityDTOBuilder.Create())
+	assert.Equal(entity, entityDTOBuilder.Create())
 }
 
+/*
+* Tests method DisplayName() which sets the DisplayName of the entity member of the 
+* EntityDTOBuilder that calls DisplayName()
+*/
 func TestEntityDTOBuilder_DisplayName(t *testing.T) {
 	assert := assert.New(t)
-	pType := new(EntityDTO_EntityType)
-	idstr := rand.String(5)
 	entity := new(EntityDTO)
-	entity.EntityType = pType
-	entity.Id = &idstr
 	entityDTOBuilder := &EntityDTOBuilder{
 		entity: entity,
 	}
