@@ -34,7 +34,7 @@ func TestProviderDTOGetProviderType(t *testing.T) {
 }
 
 /*
- * Tests the method NewEntityDTOBuilder() , which should return a pointer to a EntityDTOBuilder 
+ * Tests the method NewEntityDTOBuilder() , which should return a pointer to a EntityDTOBuilder
  * instance containing only its EntityDTOBuilder.entity member instantiated.
  */
 func Test_EntityDTOBuilder(t *testing.T) {
@@ -42,7 +42,7 @@ func Test_EntityDTOBuilder(t *testing.T) {
 	pType := new(EntityDTO_EntityType)
 	idstr := rand.String(5)
 	entityDTOBuilder := NewEntityDTOBuilder(*pType, idstr)
-	if assert.NotNil(t, entityDTOBuilder.entity){
+	if assert.NotNil(t, entityDTOBuilder.entity) {
 		assert.Equal(pType, entityDTOBuilder.entity.EntityType)
 		assert.Equal(&idstr, entityDTOBuilder.entity.Id)
 		if assert.NotNil(t, entityDTOBuilder.entity.CommoditiesBought) {
@@ -52,12 +52,12 @@ func Test_EntityDTOBuilder(t *testing.T) {
 			assert.Equal(0, len(entityDTOBuilder.entity.CommoditiesSold))
 		}
 	}
-}	
+}
 
 /*
-* Tests the method Create() , which returns the entity member of the EntityDTOBuilder that 
-* called this method. 
-*/
+* Tests the method Create() , which returns the entity member of the EntityDTOBuilder that
+* called this method.
+ */
 func TestEntityDTOBuilder_Create(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
@@ -69,9 +69,9 @@ func TestEntityDTOBuilder_Create(t *testing.T) {
 }
 
 /*
-* Tests method DisplayName() which sets the DisplayName of the entity member of the 
+* Tests method DisplayName() which sets the DisplayName of the entity member of the
 * EntityDTOBuilder that calls DisplayName()
-*/
+ */
 func TestEntityDTOBuilder_DisplayName(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
@@ -85,18 +85,17 @@ func TestEntityDTOBuilder_DisplayName(t *testing.T) {
 	assert.Equal(dispName, *entityDTOBuilder.entity.DisplayName)
 }
 
+/*
+* Tests Sells() method which sets the CommodityType and key members of a new CommodityDTO instance
+* and appends the new CommodityDTO instance to the CommoditiesSold member array of the entity membe
+* r of the EntityDTOBuilder that calls this method.
+ */
 func TestEntityDTOBuilder_Sells(t *testing.T) {
 	assert := assert.New(t)
 	commType := new(CommodityDTO_CommodityType)
 	keystr := rand.String(6)
 
-	pType := new(EntityDTO_EntityType)
-	idstr := rand.String(5)
 	entity := new(EntityDTO)
-	entity.EntityType = pType
-	entity.Id = &idstr
-	var commoditiesSold []*CommodityDTO
-	entity.CommoditiesSold = commoditiesSold
 	entityDTOBuilder := &EntityDTOBuilder{
 		entity: entity,
 	}
@@ -110,7 +109,6 @@ func TestEntityDTOBuilder_Sells(t *testing.T) {
 	assert.Equal(*commType, *entityDTOBuilder.entity.CommoditiesSold[0].CommodityType)
 	assert.Equal(keystr, *entityDTOBuilder.entity.CommoditiesSold[0].Key)
 	assert.Equal(&keystr, entityDTOBuilder.entity.CommoditiesSold[0].Key)
-	//	assert.Equal(t, entityDTOBuilder, entityDTOBuilder_ptr)
 }
 
 func TestEntityDTOBuilder_Used_True(t *testing.T) {
