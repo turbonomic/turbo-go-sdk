@@ -111,24 +111,33 @@ func TestEntityDTOBuilder_Sells(t *testing.T) {
 	assert.Equal(&keystr, entityDTOBuilder.entity.CommoditiesSold[0].Key)
 }
 
+/*
+*  Tests the method Used(used float64) to set the CommodityDTO in the
+* this.entity.CommoditiesSold array with the used float64 variable
+* passed as argument to Used.
+* Tests case: hasCommodity == true
+ */
+
 func TestEntityDTOBuilder_Used_True(t *testing.T) {
 	r := mathrand.New(mathrand.NewSource(99))
 	used := r.Float64()
 	assert := assert.New(t)
-	pType := new(EntityDTO_EntityType)
-	idstr := rand.String(6)
-	entityDTOBuilder := NewEntityDTOBuilder(*pType, idstr)
+	entity := new(EntityDTO)
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity: entity,
+	}
 	if assert.NotNil(t, entityDTOBuilder.entity.CommoditiesSold) {
 		assert.Equal(0, len(entityDTOBuilder.entity.CommoditiesSold))
 	}
 	commType := new(CommodityDTO_CommodityType)
-	keystr := rand.String(6)
-	entityDTOBuilder.Sells(*commType, keystr)
+	commDTO := new(CommodityDTO)
+	commDTO.CommodityType = commType
+	commSold := append(entity.CommoditiesSold, commDTO)
+	entity.CommoditiesSold = commSold
+	entityDTOBuilder.commodity = commDTO
 	assert.Equal(1, len(entityDTOBuilder.entity.CommoditiesSold))
 	assert.Equal(commType, entityDTOBuilder.entity.CommoditiesSold[0].CommodityType)
 	assert.Equal(*commType, *entityDTOBuilder.entity.CommoditiesSold[0].CommodityType)
-	assert.Equal(keystr, *entityDTOBuilder.entity.CommoditiesSold[0].Key)
-	assert.Equal(&keystr, entityDTOBuilder.entity.CommoditiesSold[0].Key)
 	entityDTOBuilder.Used(used)
 	assert.Equal(used, *entityDTOBuilder.entity.CommoditiesSold[0].Used)
 }
