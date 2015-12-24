@@ -148,27 +148,28 @@ func TestEntityDTOBuilder_Used_False(t *testing.T) {
 func TestEntityDTOBuilder_Capacity_True(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
-	entityDTOBuilder := &EntityDTOBuilder{
-		entity: entity,
-	}
-	r := mathrand.New(mathrand.NewSource(99))
-	cap := r.Float64()
 	commDTO := new(CommodityDTO)
 	commType := new(CommodityDTO_CommodityType)
 	commDTO.CommodityType = commType
-	//keystr := rand.String(6)
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity:    entity,
+		commodity: commDTO,
+	}
+	r := mathrand.New(mathrand.NewSource(99))
+	cap := r.Float64()
 	commSold := append(entityDTOBuilder.entity.CommoditiesSold, commDTO)
 	entityDTOBuilder.entity.CommoditiesSold = commSold
-	entityDTOBuilder.commodity = commDTO
 	entityDTOBuilder.Capacity(cap)
 	assert.Equal(cap, *entityDTOBuilder.entity.CommoditiesSold[0].Capacity)
 }
 
+// Tests that the method Capacity does not set commDTO.Capacity when hasCommodity = false
 func TestEntityDTOBuilder_Capacity_False(t *testing.T) {
 	assert := assert.New(t)
-	pType := new(EntityDTO_EntityType)
-	idstr := rand.String(6)
-	entityDTOBuilder := NewEntityDTOBuilder(*pType, idstr)
+	entity := new(EntityDTO)
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity: entity,
+	}
 	r := mathrand.New(mathrand.NewSource(99))
 	cap := r.Float64()
 	assert.Equal(0, len(entityDTOBuilder.Capacity(cap).entity.CommoditiesSold))
