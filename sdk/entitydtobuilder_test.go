@@ -180,17 +180,12 @@ func TestEntityDTOBuilder_Capacity_False(t *testing.T) {
 // entity member object of the EntityDTOBuilder it returns.
 func TestEntityDTOBuilder_requireCommodity_True(t *testing.T) {
 	assert := assert.New(t)
-	pType := new(EntityDTO_EntityType)
-	idstr := rand.String(6)
-	entityDTOBuilder := NewEntityDTOBuilder(*pType, idstr)
 	commDTO := new(CommodityDTO)
-	commType := new(CommodityDTO_CommodityType)
-	keystr := rand.String(6)
-
-	commDTO.CommodityType = commType
-	commDTO.Key = &keystr
-	entityDTOBuilder.commodity = commDTO
+	entityDTOBuilder := &EntityDTOBuilder{
+		commodity: commDTO,
+	}
 	assert.Equal(true, entityDTOBuilder.requireCommodity())
+	assert.Equal(commDTO, entityDTOBuilder.commodity)
 }
 
 // test to see if the EntityDTOBuilder calling object's member commodity is indeed null
@@ -198,8 +193,6 @@ func TestEntityDTOBuilder_requireCommodity_True(t *testing.T) {
 // entity member object of the EntityDTOBuilder it returns.
 func TestEntityDTOBuilder_requireCommodity_False(t *testing.T) {
 	assert := assert.New(t)
-	pType := new(EntityDTO_EntityType)
-	idstr := rand.String(6)
-	entityDTOBuilder := NewEntityDTOBuilder(*pType, idstr)
-	assert.Equal(true, entityDTOBuilder.requireCommodity())
+	entityDTOBuilder := &EntityDTOBuilder{}
+	assert.Equal(false, entityDTOBuilder.requireCommodity())
 }
