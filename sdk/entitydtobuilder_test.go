@@ -176,8 +176,8 @@ func TestEntityDTOBuilder_Capacity_False(t *testing.T) {
 }
 
 // test to see if the EntityDTOBuilder calling object's member commodity is indeed not null
-// NewEntityDTOBuilder() constructor creates a DTO builder and only initializes the
-// entity member object of the EntityDTOBuilder it returns.
+// Creates an EntityDTOBuilder and only initializes the
+// commodity member object of the EntityDTOBuilder.
 func TestEntityDTOBuilder_requireCommodity_True(t *testing.T) {
 	assert := assert.New(t)
 	commDTO := new(CommodityDTO)
@@ -189,10 +189,43 @@ func TestEntityDTOBuilder_requireCommodity_True(t *testing.T) {
 }
 
 // test to see if the EntityDTOBuilder calling object's member commodity is indeed null
-// NewEntityDTOBuilder() constructor creates a DTO builder and only initializes the
-// entity member object of the EntityDTOBuilder it returns.
+// Creates a EntityDTOBuilder and only initializes the
+// commodity member object of the EntityDTOBuilder.
 func TestEntityDTOBuilder_requireCommodity_False(t *testing.T) {
 	assert := assert.New(t)
 	entityDTOBuilder := &EntityDTOBuilder{}
 	assert.Equal(false, entityDTOBuilder.requireCommodity())
+}
+
+// test that the SetProvider method creates a ProviderDTO and sets its providerType and Id to the
+// passed arguments
+func Test_SetProvider(t *testing.T) {
+	assert := assert.New(t)
+	entityDTOBuilder := &EntityDTOBuilder{}
+	pType := new(EntityDTO_EntityType)
+	id := rand.String(6)
+	eb := entityDTOBuilder.SetProvider(*pType, id)
+	assert.Equal(pType, eb.currentProvider.providerType)
+	assert.Equal(*pType, *eb.currentProvider.providerType)
+	assert.Equal(&id, eb.currentProvider.Id)
+	assert.Equal(id, *eb.currentProvider.Id)
+}
+
+//
+func Test_Buys_True(t *testing.T) {
+	assert := assert.New(t)
+	entity := new(EntityDTO)
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity: entity,
+	}
+	providerDTO := new(ProviderDTO)
+	entityDTOBuilder.currentProvider = providerDTO
+	commType := new(CommodityDTO_CommodityType)
+	key := rand.String(6)
+	r := mathrand.New(mathrand.NewSource(99))
+	used := r.Float64()
+	eb := entityDTOBuilder.Buys(*commType, key, used)
+	// eb.GetCommoditiesBought  => eb.CommoditiesBought  type []*EntityDTO_CommodityBought
+	assert.Equal(commType, eb.entity.CommoditiesBought[0].Bought[0].CommodityType)
+
 }
