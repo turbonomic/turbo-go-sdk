@@ -197,7 +197,7 @@ func TestEntityDTOBuilder_requireCommodity_False(t *testing.T) {
 	assert.Equal(false, entityDTOBuilder.requireCommodity())
 }
 
-// test that the SetProvider method creates a ProviderDTO and sets its providerType and Id to the
+// test that the SetProvider method creates a ProviderDTO and sets its providerType and id to the
 // passed arguments
 func Test_SetProvider(t *testing.T) {
 	assert := assert.New(t)
@@ -211,14 +211,23 @@ func Test_SetProvider(t *testing.T) {
 	assert.Equal(id, *eb.currentProvider.Id)
 }
 
-//
+// Tests that a CommodityDTO is created with the arguments commodityType, key and used arguments
+// as its members . Tests that the created CommodityDTO is added to the Bought array in the
+// existing EntityDTO_CommodityBought struct with *ProviderId = * eb.currentProvider.Id
+// When find = true
 func Test_Buys_True(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
+	providerIdStr := rand.String(5)
+	entityDTO_CommodityBought := new(EntityDTO_CommodityBought)
+	entityDTO_CommodityBought.ProviderId = &providerIdStr
+	// Bought array is len = 0 for this EntityDTO_CommodityBought
+	entity.CommoditiesBought = append(entity.CommoditiesBought, entityDTO_CommodityBought)
 	entityDTOBuilder := &EntityDTOBuilder{
 		entity: entity,
 	}
 	providerDTO := new(ProviderDTO)
+	providerDTO.Id = &providerIdStr
 	entityDTOBuilder.currentProvider = providerDTO
 	commType := new(CommodityDTO_CommodityType)
 	key := rand.String(6)
@@ -227,5 +236,6 @@ func Test_Buys_True(t *testing.T) {
 	eb := entityDTOBuilder.Buys(*commType, key, used)
 	// eb.GetCommoditiesBought  => eb.CommoditiesBought  type []*EntityDTO_CommodityBought
 	assert.Equal(commType, eb.entity.CommoditiesBought[0].Bought[0].CommodityType)
-
+	assert.Equal(key, *eb.entity.CommoditiesBought[0].Bought[0].Key)
+	assert.Equal(used, *eb.entity.CommoditiesBought[0].Bought[0].Used)
 }
