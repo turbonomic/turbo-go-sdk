@@ -236,6 +236,39 @@ func Test_Buys_True(t *testing.T) {
 	eb := entityDTOBuilder.Buys(*commType, key, used)
 	// eb.GetCommoditiesBought  => eb.CommoditiesBought  type []*EntityDTO_CommodityBought
 	assert.Equal(commType, eb.entity.CommoditiesBought[0].Bought[0].CommodityType)
+	assert.Equal(*commType, *eb.entity.CommoditiesBought[0].Bought[0].CommodityType)
+	assert.Equal(&key, eb.entity.CommoditiesBought[0].Bought[0].Key)
 	assert.Equal(key, *eb.entity.CommoditiesBought[0].Bought[0].Key)
+	assert.Equal(&used, eb.entity.CommoditiesBought[0].Bought[0].Used)
+	assert.Equal(used, *eb.entity.CommoditiesBought[0].Bought[0].Used)
+}
+
+// Tests that a CommodityDTO is created with the arguments commodityType, key and used arguments
+// as its members . Tests that the created CommodityDTO is added to the Bought array in the
+// existing EntityDTO_CommodityBought struct with *ProviderId = * eb.currentProvider.Id
+// When find = false
+func Test_Buys_False(t *testing.T) {
+	assert := assert.New(t)
+	entity := new(EntityDTO)
+	providerIdStr := rand.String(5)
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity: entity,
+	}
+	providerDTO := new(ProviderDTO)
+	providerDTO.Id = &providerIdStr
+	entityDTOBuilder.currentProvider = providerDTO
+	commType := new(CommodityDTO_CommodityType)
+	key := rand.String(6)
+	r := mathrand.New(mathrand.NewSource(99))
+	used := r.Float64()
+	assert.Equal(0, len(entityDTOBuilder.entity.CommoditiesBought))
+	eb := entityDTOBuilder.Buys(*commType, key, used)
+	// eb.GetCommoditiesBought  => eb.CommoditiesBought  type []*EntityDTO_CommodityBought
+	assert.Equal(1, len(eb.entity.CommoditiesBought))
+	assert.Equal(commType, eb.entity.CommoditiesBought[0].Bought[0].CommodityType)
+	assert.Equal(*commType, *eb.entity.CommoditiesBought[0].Bought[0].CommodityType)
+	assert.Equal(&key, eb.entity.CommoditiesBought[0].Bought[0].Key)
+	assert.Equal(key, *eb.entity.CommoditiesBought[0].Bought[0].Key)
+	assert.Equal(&used, eb.entity.CommoditiesBought[0].Bought[0].Used)
 	assert.Equal(used, *eb.entity.CommoditiesBought[0].Bought[0].Used)
 }
