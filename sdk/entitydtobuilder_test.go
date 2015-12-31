@@ -272,3 +272,22 @@ func Test_Buys_False(t *testing.T) {
 	assert.Equal(&used, eb.entity.CommoditiesBought[0].Bought[0].Used)
 	assert.Equal(used, *eb.entity.CommoditiesBought[0].Bought[0].Used)
 }
+
+// Test to assert that the correct *EntityDTO_CommodityBought is returned if the
+// providerId for this struct is the same as the providerId passed to the method findCommBoughtProvider
+func Test_findCommBoughtProvider_True_inrange(t *testing.T) {
+	assert := assert.New(t)
+	entity := new(EntityDTO)
+	providerIdStr := rand.String(5)
+	entityDTO_CommodityBought := new(EntityDTO_CommodityBought)
+	entityDTO_CommodityBought.ProviderId = &providerIdStr
+	// Bought array is len = 0 for this EntityDTO_CommodityBought
+	entity.CommoditiesBought = append(entity.CommoditiesBought, entityDTO_CommodityBought)
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity: entity,
+	}
+	commBoughtProvider, wasFound := entityDTOBuilder.findCommBoughtProvider(&providerIdStr)
+	assert.Equal(true, wasFound)
+	assert.Equal(entityDTO_CommodityBought, commBoughtProvider)
+	assert.Equal(*entityDTO_CommodityBought, *commBoughtProvider)
+}
