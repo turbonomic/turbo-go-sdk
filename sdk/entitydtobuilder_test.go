@@ -311,3 +311,42 @@ func Test_findCommBoughtProvider_False_inrange(t *testing.T) {
 	assert.Equal(false, wasFound)
 	assert.Equal((*EntityDTO_CommodityBought)(nil), commBoughtProvider)
 }
+
+// Tests that the name and value passed as arguments to SetProperty are
+// appended to the array EntityProperties of eb.entity
+// Test case when eb.entity.GetEntityProperties != nil
+func Test_SetProperty_notnil(t *testing.T) {
+	assert := assert.New(t)
+	entity := new(EntityDTO)
+	name := rand.String(5)
+	value := rand.String(6)
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity: entity,
+	}
+	eb := entityDTOBuilder.SetProperty(name, value)
+	assert.Equal(&name, eb.entity.EntityProperties[0].Name)
+	assert.Equal(name, *eb.entity.EntityProperties[0].Name)
+	assert.Equal(&value, eb.entity.EntityProperties[0].Value)
+	assert.Equal(value, *eb.entity.EntityProperties[0].Value)
+}
+
+// Tests that the name and value passed as arguments to SetProperty are
+// appended to the array EntityProperties of eb.entity
+// Test case when eb.entity.GetEntityProperties = nil
+func Test_SetProperty_nil(t *testing.T) {
+	assert := assert.New(t)
+	entity := new(EntityDTO)
+	name := rand.String(5)
+	value := rand.String(6)
+	entity.EntityProperties = nil
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity: entity,
+	}
+	assert.Equal(([]*EntityDTO_EntityProperty)(nil), entityDTOBuilder.entity.EntityProperties)
+	//	assert.Nil(t, entityDTOBuilder.entity.EntityProperties)
+	eb := entityDTOBuilder.SetProperty(name, value)
+	assert.Equal(&name, eb.entity.EntityProperties[0].Name)
+	assert.Equal(name, *eb.entity.EntityPropertiess[0].Name)
+	assert.Equal(&value, eb.entity.EntityProperties[0].Value)
+	assert.Equal(value, *eb.entity.EntityPropertiess[0].Value)
+}
