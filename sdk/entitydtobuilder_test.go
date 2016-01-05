@@ -342,11 +342,26 @@ func Test_SetProperty_nil(t *testing.T) {
 	entityDTOBuilder := &EntityDTOBuilder{
 		entity: entity,
 	}
-	assert.Equal(([]*EntityDTO_EntityProperty)(nil), entityDTOBuilder.entity.EntityProperties)
+	assert.Equal([]*EntityDTO_EntityProperty(nil), entityDTOBuilder.entity.EntityProperties)
+	//assert.Equal(([]*EntityDTO_EntityProperty)(nil), entityDTOBuilder.entity.EntityProperties)
 	//	assert.Nil(t, entityDTOBuilder.entity.EntityProperties)
 	eb := entityDTOBuilder.SetProperty(name, value)
 	assert.Equal(&name, eb.entity.EntityProperties[0].Name)
-	assert.Equal(name, *eb.entity.EntityPropertiess[0].Name)
+	assert.Equal(name, *eb.entity.EntityProperties[0].Name)
 	assert.Equal(&value, eb.entity.EntityProperties[0].Value)
-	assert.Equal(value, *eb.entity.EntityPropertiess[0].Value)
+	assert.Equal(value, *eb.entity.EntityProperties[0].Value)
+}
+
+func Test_ReplacedBy(t *testing.T) {
+	assert := assert.New(t)
+	entity := new(EntityDTO)
+	replacementEntityMetaData := new(EntityDTO_ReplacementEntityMetaData)
+	entityDTOBuilder := &EntityDTOBuilder{
+		entity: entity,
+	}
+	assert.Equal((*EntityDTO_EntityOrigin)(nil), entityDTOBuilder.entity.Origin)
+	eb := entityDTOBuilder.ReplacedBy(replacementEntityMetaData)
+	assert.Equal(replacementEntityMetaData, eb.entity.ReplacementEntityData)
+	assert.Equal(*replacementEntityMetaData, *eb.entity.ReplacementEntityData)
+
 }
