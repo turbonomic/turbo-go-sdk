@@ -2,8 +2,7 @@ package sdk
 
 import (
 	"github.com/stretchr/testify/assert"
-	//	"github.com/vmturbo/vmturbo-go-sdk/util/rand"
-	//	mathrand "math/rand"
+	"github.com/vmturbo/vmturbo-go-sdk/util/rand"
 	//	"reflect"
 	"testing"
 )
@@ -51,4 +50,52 @@ func TestCommodity(t *testing.T) {
 	assert.Equal(1, len(externalEntityLink.Commodities))
 	assert.Equal(comm, &eelb.entityLink.Commodities[0])
 	assert.Equal(*comm, eelb.entityLink.Commodities[0])
+}
+
+// Tests that the name and description string arguments passed to ProbeEntityPropertyDef() are
+// used to set the Name and Description member variables of a newly created ExternalEntityLink_EntityPropertyDef
+// struct .
+// Tests that the created struct is appended to this.entityLink.ProbeEntityPropertyDef array
+func TestProbeEntityPropertyDef(t *testing.T) {
+	assert := assert.New(t)
+	externalEntityLink := new(ExternalEntityLink)
+	externalEntityLinkBuilder := &ExternalEntityLinkBuilder{
+		entityLink: externalEntityLink,
+	}
+	name := rand.String(6)
+	description := rand.String(6)
+	assert.Equal(0, len(externalEntityLink.ProbeEntityPropertyDef))
+	eelb := externalEntityLinkBuilder.ProbeEntityPropertyDef(name, description)
+	if assert.Equal(1, len(externalEntityLink.ProbeEntityPropertyDef)) {
+		assert.Equal(&name, eelb.entityLink.ProbeEntityPropertyDef[0].Name)
+		assert.Equal(name, *eelb.entityLink.ProbeEntityPropertyDef[0].Name)
+		assert.Equal(&description, eelb.entityLink.ProbeEntityPropertyDef[0].Description)
+		assert.Equal(description, *eelb.entityLink.ProbeEntityPropertyDef[0].Description)
+	}
+}
+
+// Tests that the ExternalEntityLink_ServerEntityPropDef passed to the method ExternalEntityPropertyDef
+// is appended to this.entityLink.ExternalEntityPropertyDefs
+func TestExternalEntityPropertyDef(t *testing.T) {
+	assert := assert.New(t)
+	externalEntityLink := new(ExternalEntityLink)
+	externalEntityLinkBuilder := &ExternalEntityLinkBuilder{
+		entityLink: externalEntityLink,
+	}
+	propertyDef := new(ExternalEntityLink_ServerEntityPropDef)
+	eelb := externalEntityLinkBuilder.ExternalEntityPropertyDef(propertyDef)
+	assert.Equal(1, len(eelb.entityLink.ExternalEntityPropertyDefs))
+	assert.Equal(propertyDef, eelb.entityLink.ExternalEntityPropertyDefs[0])
+}
+
+// Tests that the Build method returns the entityLink member of this
+func TestBuild(t *testing.T) {
+	assert := assert.New(t)
+	externalEntityLink := new(ExternalEntityLink)
+	externalEntityLinkBuilder := &ExternalEntityLinkBuilder{
+		entityLink: externalEntityLink,
+	}
+	el := externalEntityLinkBuilder.Build()
+	assert.Equal(externalEntityLink, el)
+	assert.Equal(*externalEntityLink, *el)
 }
