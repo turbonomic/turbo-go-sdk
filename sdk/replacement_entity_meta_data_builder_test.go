@@ -31,6 +31,8 @@ func TestNewReplacementEntityMetaDataBuilder(t *testing.T) {
 	}
 }
 
+// Tests that the Build() method returns the correct metaData member variable for the
+// ReplacementEntityMetaDataBuilder which calls it
 func TestReplacementEntityMetaDataBuilder_Build(t *testing.T) {
 	assert := assert.New(t)
 	replacementEMBnil := new(ReplacementEntityMetaDataBuilder)
@@ -44,6 +46,8 @@ func TestReplacementEntityMetaDataBuilder_Build(t *testing.T) {
 	assert.Equal(*replacementEntityMD, *metaData)
 }
 
+// Tests that the string passed to Matching() method is appended to the string array
+// variable called IdentifyProp in this.metaData
 func TestMatching(t *testing.T) {
 	assert := assert.New(t)
 	replacementEntityMD := new(EntityDTO_ReplacementEntityMetaData)
@@ -53,4 +57,33 @@ func TestMatching(t *testing.T) {
 	propStr := rand.String(6)
 	rEMB := replacementEMB.Matching(propStr)
 	assert.Equal(propStr, rEMB.metaData.IdentifyingProp[0])
+	assert.Equal(&propStr, &rEMB.metaData.IdentifyingProp[0])
+}
+
+// Tests that the CommodityDTO_CommodityType passed to PatchBuying is appended to this.metaData.BuyingCo
+//
+func TestPatchBuying(t *testing.T) {
+	assert := assert.New(t)
+	replacementEntityMD := new(EntityDTO_ReplacementEntityMetaData)
+	replacementEMB := &ReplacementEntityMetaDataBuilder{
+		metaData: replacementEntityMD,
+	}
+	commType := new(CommodityDTO_CommodityType)
+	rEMB := replacementEMB.PatchBuying(*commType)
+	assert.Equal(commType, &rEMB.metaData.BuyingCommTypes[0])
+	assert.Equal(*commType, rEMB.metaData.BuyingCommTypes[0])
+}
+
+// Tests that the CommodityDTO_CommodityType passed to PatchSelling is appended
+// to this.metaData.SellingCommTypes
+func TestPatchSelling(t *testing.T) {
+	assert := assert.New(t)
+	replacementEntityMD := new(EntityDTO_ReplacementEntityMetaData)
+	replacementEMB := &ReplacementEntityMetaDataBuilder{
+		metaData: replacementEntityMD,
+	}
+	commType := new(CommodityDTO_CommodityType)
+	rEMB := replacementEMB.PatchSelling(*commType)
+	assert.Equal(commType, &rEMB.metaData.SellingCommTypes[0])
+
 }
