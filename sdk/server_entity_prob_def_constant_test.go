@@ -7,6 +7,7 @@ import (
 
 // Test that getIpHandler returns a pointer to a ExternalEntityLink_PropertyHandler struct
 // Tests that the MethodName, DirectlyApply and EntityType member variables of the struct are not nil
+// DirectlyApply is tested to be false
 func TestgetIpHandler(t *testing.T) {
 	assert := assert.New(t)
 	propertyHandler := getIpHandler()
