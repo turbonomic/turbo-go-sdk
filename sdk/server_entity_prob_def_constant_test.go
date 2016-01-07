@@ -12,8 +12,12 @@ func TestgetIpHandler(t *testing.T) {
 	assert := assert.New(t)
 	propertyHandler := getIpHandler()
 	assert.NotNil(propertyHandler.EntityType)
-	assert.Equal(false, *propertyHandler.DirectlyApply)
-	assert.Equal("getAddress", *propertyHandler.MethodName)
+	if assert.NotNil(propertyHandler.DirectlyApply) {
+		assert.Equal(false, *propertyHandler.DirectlyApply)
+	}
+	if assert.NotNil(propertyHandler.MethodName) {
+		assert.Equal("getAddress", *propertyHandler.MethodName)
+	}
 }
 
 // Test that the Entity and PropertyHandler member variables of
@@ -22,7 +26,10 @@ func TestgetIpHandler(t *testing.T) {
 func TestgetVirtualMachineIpProperty(t *testing.T) {
 	assert := assert.New(t)
 	serverEntityProp := getVirtualMachineIpProperty()
-	assert.Equal("UsesEndPoints", *serverEntityProp.Attribute)
+	if assert.NotNil(serverEntityProp.Attribute) {
+		assert.Equal("UsesEndPoints", *serverEntityProp.Attribute)
+
+	}
 	assert.NotNil(serverEntityProp.Entity)
 	assert.NotNil(serverEntityProp.PropertyHandler)
 }
