@@ -8,20 +8,9 @@ import (
 	"testing"
 )
 
-func TestProviderDTOGetProviderID(t *testing.T) {
-	assert := assert.New(t)
-	fmt.Println("in TestProviderDTOProviderID")
-	id := rand.String(5)
-
-	providerDto := &ProviderDTO{
-		Id: &id,
-	}
-
-	assert.Equal(&id, providerDto.getId())
-}
-
-// Tests that getProviderType() returns the correct pointer
-func TestProviderDTOGetProviderType(t *testing.T) {
+// Tests that getProviderType() returns the correct pointer to the
+// providerType member variable that the getProviderType method is called on
+func TestgetProviderType(t *testing.T) {
 	assert := assert.New(t)
 	fmt.Println("in TestProviderDTOGetProviderType")
 	pType := new(EntityDTO_EntityType)
@@ -33,9 +22,21 @@ func TestProviderDTOGetProviderType(t *testing.T) {
 	assert.Equal(pType, providerDto.getProviderType())
 }
 
+// Tests that the getId() method returns a string pointer to
+// the Id member variable of the ProviderDTO struct that getId() is called on
+func TestgetId(t *testing.T) {
+	assert := assert.New(t)
+	fmt.Println("in TestProviderDTOProviderID")
+	id := rand.String(5)
+	providerDto := &ProviderDTO{
+		Id: &id,
+	}
+	assert.Equal(&id, providerDto.getId())
+}
+
 //Tests the method NewEntityDTOBuilder() , which should return a pointer to a EntityDTOBuilder
 //instance containing only its EntityDTOBuilder.entity member instantiated.
-func Test_EntityDTOBuilder(t *testing.T) {
+func TestNewEntityDTOBuilder(t *testing.T) {
 	assert := assert.New(t)
 	pType := new(EntityDTO_EntityType)
 	idstr := rand.String(5)
@@ -54,7 +55,7 @@ func Test_EntityDTOBuilder(t *testing.T) {
 
 // Tests the method Create() , which returns the entity member of the EntityDTOBuilder that
 // called this method.
-func TestEntityDTOBuilder_Create(t *testing.T) {
+func TestCreate(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	entityDTOBuilder := &EntityDTOBuilder{
@@ -66,7 +67,7 @@ func TestEntityDTOBuilder_Create(t *testing.T) {
 
 // Tests method DisplayName() which sets the DisplayName of the entity member of the
 // EntityDTOBuilder that calls DisplayName()
-func TestEntityDTOBuilder_DisplayName(t *testing.T) {
+func TestDisplayName(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	entityDTOBuilder := &EntityDTOBuilder{
@@ -81,7 +82,7 @@ func TestEntityDTOBuilder_DisplayName(t *testing.T) {
 
 // Tests Sells() method which sets the CommodityType and key members of a new CommodityDTO instance
 // and appends the new CommodityDTO instance to the CommoditiesSold member array of the entity memb// er of the EntityDTOBuilder that calls this method.
-func TestEntityDTOBuilder_Sells(t *testing.T) {
+func TestSells(t *testing.T) {
 	assert := assert.New(t)
 	commType := new(CommodityDTO_CommodityType)
 	keystr := rand.String(6)
@@ -105,7 +106,7 @@ func TestEntityDTOBuilder_Sells(t *testing.T) {
 // Tests the method Used(used float64) to set the CommodityDTO in the
 // this.entity.CommoditiesSold array with the used float64 variable passed as argument to Used.
 // Tests case: hasCommodity == true
-func TestEntityDTOBuilder_Used_True(t *testing.T) {
+func TestUsed_True(t *testing.T) {
 	r := mathrand.New(mathrand.NewSource(99))
 	used := r.Float64()
 	assert := assert.New(t)
@@ -132,7 +133,7 @@ func TestEntityDTOBuilder_Used_True(t *testing.T) {
 
 // Tests the method Used(used float64) to not set the CommodityDTO in the
 // this.entity.CommoditiesSold array with the used float64 variable passed as argument to Used.
-func TestEntityDTOBuilder_Used_False(t *testing.T) {
+func TestUsed_False(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	// creates an EntityDTOBuilder with commodity = null
@@ -146,7 +147,7 @@ func TestEntityDTOBuilder_Used_False(t *testing.T) {
 }
 
 // Tests that the correct capacity is set when hasCommodity = true
-func TestEntityDTOBuilder_Capacity_True(t *testing.T) {
+func TestCapacity_True(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	commDTO := new(CommodityDTO)
@@ -165,7 +166,7 @@ func TestEntityDTOBuilder_Capacity_True(t *testing.T) {
 }
 
 // Tests that the method Capacity does not set commDTO.Capacity when hasCommodity = false
-func TestEntityDTOBuilder_Capacity_False(t *testing.T) {
+func TestCapacity_False(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	entityDTOBuilder := &EntityDTOBuilder{
@@ -179,7 +180,7 @@ func TestEntityDTOBuilder_Capacity_False(t *testing.T) {
 // test to see if the EntityDTOBuilder calling object's member commodity is indeed not null
 // Creates an EntityDTOBuilder and only initializes the
 // commodity member object of the EntityDTOBuilder.
-func TestEntityDTOBuilder_requireCommodity_True(t *testing.T) {
+func TestrequireCommodity_True(t *testing.T) {
 	assert := assert.New(t)
 	commDTO := new(CommodityDTO)
 	entityDTOBuilder := &EntityDTOBuilder{
@@ -192,7 +193,7 @@ func TestEntityDTOBuilder_requireCommodity_True(t *testing.T) {
 // test to see if the EntityDTOBuilder calling object's member commodity is indeed null
 // Creates a EntityDTOBuilder and only initializes the
 // commodity member object of the EntityDTOBuilder.
-func TestEntityDTOBuilder_requireCommodity_False(t *testing.T) {
+func TestrequireCommodity_False(t *testing.T) {
 	assert := assert.New(t)
 	entityDTOBuilder := &EntityDTOBuilder{}
 	assert.Equal(false, entityDTOBuilder.requireCommodity())
@@ -200,7 +201,7 @@ func TestEntityDTOBuilder_requireCommodity_False(t *testing.T) {
 
 // test that the SetProvider method creates a ProviderDTO and sets its providerType and id to the
 // passed arguments
-func Test_SetProvider(t *testing.T) {
+func TestSetProvider(t *testing.T) {
 	assert := assert.New(t)
 	entityDTOBuilder := &EntityDTOBuilder{}
 	pType := new(EntityDTO_EntityType)
@@ -216,7 +217,7 @@ func Test_SetProvider(t *testing.T) {
 // as its members . Tests that the created CommodityDTO is added to the Bought array in the
 // existing EntityDTO_CommodityBought struct with *ProviderId = * eb.currentProvider.Id
 // When find = true
-func Test_Buys_True(t *testing.T) {
+func TestBuys_True(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	providerIdStr := rand.String(5)
@@ -248,7 +249,7 @@ func Test_Buys_True(t *testing.T) {
 // as its members . Tests that the created CommodityDTO is added to the Bought array in the
 // existing EntityDTO_CommodityBought struct with *ProviderId = * eb.currentProvider.Id
 // When find = false
-func Test_Buys_False(t *testing.T) {
+func TestBuys_False(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	providerIdStr := rand.String(5)
@@ -276,7 +277,7 @@ func Test_Buys_False(t *testing.T) {
 
 // Test to assert that the correct *EntityDTO_CommodityBought is returned if the
 // providerId for this struct is the same as the providerId passed to the method findCommBoughtProvider
-func Test_findCommBoughtProvider_True_inrange(t *testing.T) {
+func TestfindCommBoughtProvider_True_inrange(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	providerIdStr := rand.String(5)
@@ -295,7 +296,7 @@ func Test_findCommBoughtProvider_True_inrange(t *testing.T) {
 
 // Test to assert that the correct *EntityDTO_CommodityBought is returned if the
 // providerId for this struct is the same as the providerId passed to the method findCommBoughtProvider
-func Test_findCommBoughtProvider_False_inrange(t *testing.T) {
+func TestfindCommBoughtProvider_False_inrange(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	providerIdStr := rand.String(5)
@@ -315,7 +316,7 @@ func Test_findCommBoughtProvider_False_inrange(t *testing.T) {
 // Tests that the name and value passed as arguments to SetProperty are
 // appended to the array EntityProperties of eb.entity
 // Test case when eb.entity.GetEntityProperties != nil
-func Test_SetProperty_notnil(t *testing.T) {
+func TestSetProperty_notnil(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	name := rand.String(5)
@@ -333,7 +334,7 @@ func Test_SetProperty_notnil(t *testing.T) {
 // Tests that the name and value passed as arguments to SetProperty are
 // appended to the array EntityProperties of eb.entity
 // Test case when eb.entity.GetEntityProperties = nil
-func Test_SetProperty_nil(t *testing.T) {
+func TestSetProperty_nil(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	name := rand.String(5)
@@ -352,7 +353,9 @@ func Test_SetProperty_nil(t *testing.T) {
 	assert.Equal(value, *eb.entity.EntityProperties[0].Value)
 }
 
-func Test_ReplacedBy(t *testing.T) {
+// Tests that the *EntityDTO_ReplacementEntityMetaData passed to ReplacedBy is used to set
+// this.entity.ReplacementEntityData
+func TestReplacedBy(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	replacementEntityMetaData := new(EntityDTO_ReplacementEntityMetaData)
