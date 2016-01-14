@@ -70,7 +70,7 @@ func TestTop(t *testing.T) {
 // Tests that the SupplyChainNodeBuilder passed to the Entity() method
 // is assigned to an entry in the map this.SupplyChainNodes
 // Tests that this.currentNode is set to the argument to Entity() method
-func TestEntity_hasTop(t *testing.T) {
+func TestEntity_hasTopTrue(t *testing.T) {
 	assert := assert.New(t)
 	supplyChainMap := make(map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)
 	supplyCB := &SupplyChainBuilder{SupplyChainNodes: supplyChainMap}
@@ -82,4 +82,29 @@ func TestEntity_hasTop(t *testing.T) {
 		assert.Equal(1, len(scb.SupplyChainNodes))
 	}
 	assert.Equal(scb.currentNode, node)
+}
+
+// Tests that a map is not initialized and assigned to this.SupplyChainNodes
+// before the method Entity is called
+func TestEntity_hasTopFalse(t *testing.T) {
+	assert := assert.New(t)
+	supplyCB := &SupplyChainBuilder{}
+	assert.Equal((map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)(nil), supplyCB.SupplyChainNodes)
+}
+
+func TesthasTopNode_truecase(t *testing.T) {
+	assert := assert.New(t)
+	supplyChainNodes := new(map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)
+	supplyCB := &SupplyChainBuilder{
+		SupplyChainNodes: *supplyChainNodes,
+	}
+	hasSCNodes := supplyCB.hasTopNode()
+	assert.Equal(true, hasSCNodes)
+}
+
+func TesthasTopNode_falsecase(t *testing.T) {
+	assert := assert.New(t)
+	supplyCB := &SupplyChainBuilder{}
+	hasSCNodes := supplyCB.hasTopNode()
+	assert.Equal(false, hasSCNodes)
 }
