@@ -40,6 +40,10 @@ func TestSupplyChainBuilder_Create(t *testing.T) {
 	}
 }
 
+// Tests that a map is initialized and assigned to this.SupplyChainNodes
+// Tests that the SupplyChainNodeBuilder passed to the Top() method
+// is assigned to an entry in the recently initialized map
+// Tests that this.currentNode is set to the argument to Top() method
 func TestTop(t *testing.T) {
 	assert := assert.New(t)
 	scb := &SupplyChainBuilder{}
@@ -51,11 +55,31 @@ func TestTop(t *testing.T) {
 		entityTemplate: template,
 	}
 	scBuilder := scb.Top(scnBuilder)
-	assert.Equal(scBuilder.currentNode, scnBuilder)
+	assert.NotEqual(nil, scBuilder.SupplyChainNodes)
 	topNode_entity := scBuilder.currentNode.getEntity()
 	// getEntity returns a EntityDTO_EntityType which is same as *class
 	assert.Equal(topNode_entity, scnBuilder.getEntity())
 	assert.Equal(1, len(scBuilder.SupplyChainNodes))
 	// TODO : Fix below, the key is giving a nil value
 	//assert.Equal(scBuilder.SupplyChainNodes[class_ran], scnBuilder)
+	assert.Equal(scBuilder.currentNode, scnBuilder)
+}
+
+// Tests that a map is already initialized and assigned to this.SupplyChainNodes
+// before the method Entity is called
+// Tests that the SupplyChainNodeBuilder passed to the Entity() method
+// is assigned to an entry in the map this.SupplyChainNodes
+// Tests that this.currentNode is set to the argument to Entity() method
+func TestEntity_hasTop(t *testing.T) {
+	assert := assert.New(t)
+	supplyChainMap := make(map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)
+	supplyCB := &SupplyChainBuilder{SupplyChainNodes: supplyChainMap}
+	//assert.Equal((map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)(nil), supplyCB.SupplyChainNodes)
+	node := new(SupplyChainNodeBuilder)
+	scb := supplyCB.Entity(node)
+	assert.NotEqual(nil, scb.SupplyChainNodes)
+	if assert.NotEqual(nil, scb.SupplyChainNodes) {
+		assert.Equal(1, len(scb.SupplyChainNodes))
+	}
+	assert.Equal(scb.currentNode, node)
 }
