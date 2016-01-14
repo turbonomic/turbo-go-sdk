@@ -92,6 +92,7 @@ func TestEntity_hasTopFalse(t *testing.T) {
 	assert.Equal((map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)(nil), supplyCB.SupplyChainNodes)
 }
 
+// Tests that method hasTopNode() returns true when the member variable this.SupplyChainNodes is not nil
 func TesthasTopNode_truecase(t *testing.T) {
 	assert := assert.New(t)
 	supplyChainNodes := new(map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)
@@ -102,9 +103,58 @@ func TesthasTopNode_truecase(t *testing.T) {
 	assert.Equal(true, hasSCNodes)
 }
 
+// Tests that method hasTopNode() returns false when the member variable this.SupplyChainNodes is nil
 func TesthasTopNode_falsecase(t *testing.T) {
 	assert := assert.New(t)
 	supplyCB := &SupplyChainBuilder{}
 	hasSCNodes := supplyCB.hasTopNode()
 	assert.Equal(false, hasSCNodes)
+}
+
+// Tests that the ExternalEntityLink passed to ConnectsTo method is appended to
+// this.currentNode.entityTemplate.ExternalLink array when error from scb.requireCurrentNode()
+// is not nil
+func TestConnectsTo_nilerror(t *testing.T) {
+	assert := assert.New(t)
+	entityTemplate := new(TemplateDTO)
+	currentnode := &SupplyChainNodeBuilder{
+		entityTemplate: entityTemplate,
+	}
+	scbuilder := &SupplyChainBuilder{
+		currentNode: currentnode,
+	}
+	extentityLink := new(ExternalEntityLink)
+	scb := scbuilder.ConnectsTo(extentityLink)
+	// currentNode.Link(st)  => scnb.entityTemplate.ExternalLink[0].Value == st
+	if assert.NotNil(scb.currentNode) {
+		assert.Equal(scb.currentNode.entityTemplate.ExternalLink[0].Value, extentityLink)
+	}
+}
+
+// Tests that scb.requireCurrentNode() returns a non nil error when this.currentNode is nil
+func TestConnectsTo_error(t *testing.T) {
+	assert := assert.New(t)
+	scbuilder := &SupplyChainBuilder{}
+	extentityLink := new(ExternalEntityLink)
+	scb := scbuilder.ConnectsTo(extentityLink)
+	assert.Equal((*SupplyChainNodeBuilder)(nil), scb.currentNode)
+}
+
+// Tests that requireCurrentNode() returns nil when currentNode is not nil
+func TestrequireCurrentNode_nil(t *testing.T) {
+	assert := assert.New(t)
+	currentnode := new(SupplyChainNodeBuilder)
+	scbuilder := &SupplyChainBuilder{
+		currentNode: currentnode,
+	}
+	scb := scbuilder.requireCurrentNode()
+	assert.Equal(nil, scb)
+}
+
+// Tests that requireCurrentNode() returns not nil when currentNode is nil
+func TestrequireCurrentNode_notnil(t *testing.T) {
+	assert := assert.New(t)
+	scbuilder := &SupplyChainBuilder{}
+	scb := scbuilder.requireCurrentNode()
+	assert.NotEqual(nil, scb)
 }
