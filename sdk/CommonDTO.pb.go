@@ -2,6 +2,17 @@
 // source: CommonDTO.proto
 // DO NOT EDIT!
 
+/*
+Package common_dto is a generated protocol buffer package.
+
+It is generated from these files:
+	CommonDTO.proto
+
+It has these top-level messages:
+	EntityDTO
+	CommodityDTO
+	GroupDTO
+*/
 package sdk
 
 import proto "github.com/golang/protobuf/proto"
@@ -54,55 +65,56 @@ const (
 	EntityDTO_INTERNET                      EntityDTO_EntityType = 37
 	EntityDTO_MOVER                         EntityDTO_EntityType = 38
 	EntityDTO_DISTRIBUTED_VIRTUAL_PORTGROUP EntityDTO_EntityType = 39
-	EntityDTO_UNKNOWN                       EntityDTO_EntityType = 40
-	EntityDTO_CONTAINER                     EntityDTO_EntityType = 41
-	EntityDTO_CONTAINER_POD                 EntityDTO_EntityType = 42
+	EntityDTO_CONTAINER                     EntityDTO_EntityType = 40
+	EntityDTO_CONTAINER_POD                 EntityDTO_EntityType = 41
+	// 2047 is the largest tag value encoded in 2 bytes
+	EntityDTO_UNKNOWN EntityDTO_EntityType = 2047
 )
 
 var EntityDTO_EntityType_name = map[int32]string{
-	0:  "SWITCH",
-	1:  "VIRTUAL_DATACENTER",
-	2:  "STORAGE",
-	3:  "SERVICE",
-	4:  "DATABASE",
-	5:  "SAVINGS",
-	6:  "OPERATOR",
-	7:  "WEB_SERVER",
-	8:  "RIGHT_SIZER",
-	9:  "THREE_TIER_APPLICATION",
-	10: "VIRTUAL_MACHINE",
-	11: "DISK_ARRAY",
-	12: "DATACENTER",
-	13: "INFRASTRUCTURE",
-	14: "PHYSICAL_MACHINE",
-	15: "CHASSIS",
-	16: "LICENSING_SERVICE",
-	17: "BUSINESS_USER",
-	18: "STORAGE_CONTROLLER",
-	19: "HYPERVISOR",
-	20: "BUSINESS_ENTITY",
-	21: "IO_MODULE",
-	22: "ACTION_MANAGER",
-	23: "VLAN",
-	24: "APPLICATION_SERVER",
-	25: "BUSINESS",
-	26: "VIRTUAL_APPLICATION",
-	27: "NETWORKING_ENDPOINT",
-	28: "BUSINESS_ACCOUNT",
-	29: "IP",
-	30: "SERVICE_ENTITY_TEMPLATE",
-	31: "PORT",
-	32: "NETWORK",
-	33: "APPLICATION",
-	34: "THIS_ENTITY",
-	35: "COMPUTE_RESOURCE",
-	36: "MAC",
-	37: "INTERNET",
-	38: "MOVER",
-	39: "DISTRIBUTED_VIRTUAL_PORTGROUP",
-	40: "UNKNOWN",
-	41: "CONTAINER",
-	42: "CONTAINER_POD",
+	0:    "SWITCH",
+	1:    "VIRTUAL_DATACENTER",
+	2:    "STORAGE",
+	3:    "SERVICE",
+	4:    "DATABASE",
+	5:    "SAVINGS",
+	6:    "OPERATOR",
+	7:    "WEB_SERVER",
+	8:    "RIGHT_SIZER",
+	9:    "THREE_TIER_APPLICATION",
+	10:   "VIRTUAL_MACHINE",
+	11:   "DISK_ARRAY",
+	12:   "DATACENTER",
+	13:   "INFRASTRUCTURE",
+	14:   "PHYSICAL_MACHINE",
+	15:   "CHASSIS",
+	16:   "LICENSING_SERVICE",
+	17:   "BUSINESS_USER",
+	18:   "STORAGE_CONTROLLER",
+	19:   "HYPERVISOR",
+	20:   "BUSINESS_ENTITY",
+	21:   "IO_MODULE",
+	22:   "ACTION_MANAGER",
+	23:   "VLAN",
+	24:   "APPLICATION_SERVER",
+	25:   "BUSINESS",
+	26:   "VIRTUAL_APPLICATION",
+	27:   "NETWORKING_ENDPOINT",
+	28:   "BUSINESS_ACCOUNT",
+	29:   "IP",
+	30:   "SERVICE_ENTITY_TEMPLATE",
+	31:   "PORT",
+	32:   "NETWORK",
+	33:   "APPLICATION",
+	34:   "THIS_ENTITY",
+	35:   "COMPUTE_RESOURCE",
+	36:   "MAC",
+	37:   "INTERNET",
+	38:   "MOVER",
+	39:   "DISTRIBUTED_VIRTUAL_PORTGROUP",
+	40:   "CONTAINER",
+	41:   "CONTAINER_POD",
+	2047: "UNKNOWN",
 }
 var EntityDTO_EntityType_value = map[string]int32{
 	"SWITCH":                 0,
@@ -145,9 +157,9 @@ var EntityDTO_EntityType_value = map[string]int32{
 	"INTERNET":         37,
 	"MOVER":            38,
 	"DISTRIBUTED_VIRTUAL_PORTGROUP": 39,
-	"UNKNOWN":                       40,
-	"CONTAINER":                     41,
-	"CONTAINER_POD":                 42,
+	"CONTAINER":                     40,
+	"CONTAINER_POD":                 41,
+	"UNKNOWN":                       2047,
 }
 
 func (x EntityDTO_EntityType) Enum() *EntityDTO_EntityType {
@@ -406,85 +418,88 @@ const (
 	CommodityDTO_COLLECTION_TIME            CommodityDTO_CommodityType = 71
 	CommodityDTO_BUFFER_COMMODITY           CommodityDTO_CommodityType = 72
 	CommodityDTO_SOFTWARE_LICENSE_COMMODITY CommodityDTO_CommodityType = 73
-	CommodityDTO_UNKNOWN                    CommodityDTO_CommodityType = 74
+	CommodityDTO_VMPM_ACCESS                CommodityDTO_CommodityType = 74
+	// 2047 is the largest tag value encoded in 2 bytes
+	CommodityDTO_UNKNOWN CommodityDTO_CommodityType = 2047
 )
 
 var CommodityDTO_CommodityType_name = map[int32]string{
-	0:  "CLUSTER",
-	1:  "THREADS",
-	2:  "CPU_ALLOCATION",
-	3:  "NUMBER_CONSUMERS",
-	4:  "FLOW_ALLOCATION",
-	5:  "Q1_VCPU",
-	6:  "STORAGE_PROVISIONED",
-	7:  "LICENSE_COMMODITY",
-	8:  "STORAGE_AMOUNT",
-	9:  "Q16_VCPU",
-	10: "Q32_VCPU",
-	11: "SAME_CLUSTER_MOVE_SVC",
-	12: "Q3_VCPU",
-	13: "SLA_COMMODITY",
-	14: "CROSS_CLUSTER_MOVE_SVC",
-	15: "NUMBER_CONSUMERS_PM",
-	16: "STORAGE_ALLOCATION",
-	17: "Q8_VCPU",
-	18: "SPACE",
-	19: "Q6_VCPU",
-	20: "POWER",
-	21: "MEM",
-	22: "STORAGE_LATENCY",
-	23: "Q7_VCPU",
-	24: "COOLING",
-	25: "PORT_CHANEL",
-	26: "VCPU",
-	27: "QN_VCPU",
-	28: "CPU_PROVISIONED",
-	29: "RIGHT_SIZE_SVC",
-	30: "MOVE",
-	31: "Q2_VCPU",
-	32: "Q5_VCPU",
-	33: "SWAPPING",
-	34: "SEGMENTATION",
-	35: "FLOW",
-	36: "DATASTORE",
-	37: "CROSS_CLOUD_MOVE_SVC",
-	38: "RIGHT_SIZE_DOWN",
-	39: "IO_THROUGHPUT",
-	40: "CPU",
-	41: "BALLOONING",
-	42: "VDC",
-	43: "Q64_VCPU",
-	44: "CONNECTION",
-	45: "MEM_PROVISIONED",
-	46: "STORAGE",
-	47: "NET_THROUGHPUT",
-	48: "NUMBER_CONSUMERS_STORAGE",
-	49: "TRANSACTION",
-	50: "MEM_ALLOCATION",
-	51: "DSPM_ACCESS",
-	52: "RESPONSE_TIME",
-	53: "VMEM",
-	54: "ACTION_PERMIT",
-	55: "DATACENTER",
-	56: "APPLICATION",
-	57: "NETWORK",
-	58: "Q4_VCPU",
-	59: "STORAGE_CLUSTER",
-	60: "EXTENT",
-	61: "ACCESS",
-	62: "RIGHT_SIZE_UP",
-	63: "VAPP_ACCESS",
-	64: "STORAGE_ACCESS",
-	65: "VSTORAGE",
-	66: "DRS_SEGMENTATION",
-	67: "DB_MEM",
-	68: "TRANSACTION_LOG",
-	69: "DB_CACHE_HIT_RATE",
-	70: "HOT_STORAGE",
-	71: "COLLECTION_TIME",
-	72: "BUFFER_COMMODITY",
-	73: "SOFTWARE_LICENSE_COMMODITY",
-	74: "UNKNOWN",
+	0:    "CLUSTER",
+	1:    "THREADS",
+	2:    "CPU_ALLOCATION",
+	3:    "NUMBER_CONSUMERS",
+	4:    "FLOW_ALLOCATION",
+	5:    "Q1_VCPU",
+	6:    "STORAGE_PROVISIONED",
+	7:    "LICENSE_COMMODITY",
+	8:    "STORAGE_AMOUNT",
+	9:    "Q16_VCPU",
+	10:   "Q32_VCPU",
+	11:   "SAME_CLUSTER_MOVE_SVC",
+	12:   "Q3_VCPU",
+	13:   "SLA_COMMODITY",
+	14:   "CROSS_CLUSTER_MOVE_SVC",
+	15:   "NUMBER_CONSUMERS_PM",
+	16:   "STORAGE_ALLOCATION",
+	17:   "Q8_VCPU",
+	18:   "SPACE",
+	19:   "Q6_VCPU",
+	20:   "POWER",
+	21:   "MEM",
+	22:   "STORAGE_LATENCY",
+	23:   "Q7_VCPU",
+	24:   "COOLING",
+	25:   "PORT_CHANEL",
+	26:   "VCPU",
+	27:   "QN_VCPU",
+	28:   "CPU_PROVISIONED",
+	29:   "RIGHT_SIZE_SVC",
+	30:   "MOVE",
+	31:   "Q2_VCPU",
+	32:   "Q5_VCPU",
+	33:   "SWAPPING",
+	34:   "SEGMENTATION",
+	35:   "FLOW",
+	36:   "DATASTORE",
+	37:   "CROSS_CLOUD_MOVE_SVC",
+	38:   "RIGHT_SIZE_DOWN",
+	39:   "IO_THROUGHPUT",
+	40:   "CPU",
+	41:   "BALLOONING",
+	42:   "VDC",
+	43:   "Q64_VCPU",
+	44:   "CONNECTION",
+	45:   "MEM_PROVISIONED",
+	46:   "STORAGE",
+	47:   "NET_THROUGHPUT",
+	48:   "NUMBER_CONSUMERS_STORAGE",
+	49:   "TRANSACTION",
+	50:   "MEM_ALLOCATION",
+	51:   "DSPM_ACCESS",
+	52:   "RESPONSE_TIME",
+	53:   "VMEM",
+	54:   "ACTION_PERMIT",
+	55:   "DATACENTER",
+	56:   "APPLICATION",
+	57:   "NETWORK",
+	58:   "Q4_VCPU",
+	59:   "STORAGE_CLUSTER",
+	60:   "EXTENT",
+	61:   "ACCESS",
+	62:   "RIGHT_SIZE_UP",
+	63:   "VAPP_ACCESS",
+	64:   "STORAGE_ACCESS",
+	65:   "VSTORAGE",
+	66:   "DRS_SEGMENTATION",
+	67:   "DB_MEM",
+	68:   "TRANSACTION_LOG",
+	69:   "DB_CACHE_HIT_RATE",
+	70:   "HOT_STORAGE",
+	71:   "COLLECTION_TIME",
+	72:   "BUFFER_COMMODITY",
+	73:   "SOFTWARE_LICENSE_COMMODITY",
+	74:   "VMPM_ACCESS",
+	2047: "UNKNOWN",
 }
 var CommodityDTO_CommodityType_value = map[string]int32{
 	"CLUSTER":                    0,
@@ -561,7 +576,8 @@ var CommodityDTO_CommodityType_value = map[string]int32{
 	"COLLECTION_TIME":            71,
 	"BUFFER_COMMODITY":           72,
 	"SOFTWARE_LICENSE_COMMODITY": 73,
-	"UNKNOWN":                    74,
+	"VMPM_ACCESS":                74,
+	"UNKNOWN":                    2047,
 }
 
 func (x CommodityDTO_CommodityType) Enum() *CommodityDTO_CommodityType {
@@ -740,25 +756,20 @@ type EntityDTO struct {
 	// List of the IDs of the entities that this entity is underlying. For example, an IO Module can underly
 	// physical machines, or a physical machine can underly datastores.
 	Underlying []string `protobuf:"bytes,7,rep,name=underlying" json:"underlying,omitempty"`
-	// List of the uuid's of the entities that this entity hosts. For example, a PhysicalMachine entity
-	// can host many VirtualMachine entities.
-	Hosts []string `protobuf:"bytes,8,rep,name=hosts" json:"hosts,omitempty"`
-	// For a group entity, a list of the uuid's of the entities that are members of this group.
-	Members []string `protobuf:"bytes,9,rep,name=members" json:"members,omitempty"`
 	// Entity properties in free (string <-> string) form, used for user-defined values.
-	EntityProperties []*EntityDTO_EntityProperty `protobuf:"bytes,10,rep,name=entityProperties" json:"entityProperties,omitempty"`
+	EntityProperties []*EntityDTO_EntityProperty `protobuf:"bytes,8,rep,name=entityProperties" json:"entityProperties,omitempty"`
 	// Specifies the source of the entity (ie DISCOVERED or PROXY).
 	// For further details see the comments for EntityOrigin.
-	Origin *EntityDTO_EntityOrigin `protobuf:"varint,11,opt,name=origin,enum=common_dto.EntityDTO_EntityOrigin,def=1" json:"origin,omitempty"`
+	Origin *EntityDTO_EntityOrigin `protobuf:"varint,9,opt,name=origin,enum=common_dto.EntityDTO_EntityOrigin,def=1" json:"origin,omitempty"`
 	// Proxy entities may be replaced by entities discovered by another probe.
 	// Some proxy entities are aware of the entity replacing them based on a set of property values.
 	// Before replacing they may also transfer the commodity data to the server entity
-	ReplacementEntityData *EntityDTO_ReplacementEntityMetaData `protobuf:"bytes,12,opt,name=replacementEntityData" json:"replacementEntityData,omitempty"`
+	ReplacementEntityData *EntityDTO_ReplacementEntityMetaData `protobuf:"bytes,10,opt,name=replacementEntityData" json:"replacementEntityData,omitempty"`
 	// Specifies if the entity is monitored or not.
 	// If this field is false, state of the entity will be set to NOT_MONITORED in server.
-	Monitored *bool `protobuf:"varint,13,opt,name=monitored,def=1" json:"monitored,omitempty"`
+	Monitored *bool `protobuf:"varint,11,opt,name=monitored,def=1" json:"monitored,omitempty"`
 	// Specifies the power state of the entity.
-	PowerState                   *EntityDTO_PowerState                   `protobuf:"varint,14,opt,name=powerState,enum=common_dto.EntityDTO_PowerState,def=1" json:"powerState,omitempty"`
+	PowerState                   *EntityDTO_PowerState                   `protobuf:"varint,12,opt,name=powerState,enum=common_dto.EntityDTO_PowerState,def=1" json:"powerState,omitempty"`
 	StorageData                  *EntityDTO_StorageData                  `protobuf:"bytes,500,opt,name=storage_data" json:"storage_data,omitempty"`
 	DiskArrayData                *EntityDTO_DiskArrayData                `protobuf:"bytes,501,opt,name=disk_array_data" json:"disk_array_data,omitempty"`
 	ApplicationData              *EntityDTO_ApplicationData              `protobuf:"bytes,502,opt,name=application_data" json:"application_data,omitempty"`
@@ -824,20 +835,6 @@ func (m *EntityDTO) GetConsistsOf() []string {
 func (m *EntityDTO) GetUnderlying() []string {
 	if m != nil {
 		return m.Underlying
-	}
-	return nil
-}
-
-func (m *EntityDTO) GetHosts() []string {
-	if m != nil {
-		return m.Hosts
-	}
-	return nil
-}
-
-func (m *EntityDTO) GetMembers() []string {
-	if m != nil {
-		return m.Members
 	}
 	return nil
 }
@@ -1184,13 +1181,49 @@ func (m *EntityDTO_PMState) GetFailover() bool {
 	return Default_EntityDTO_PMState_Failover
 }
 
-type EntityDTO_VirtualDatacenterData struct {
-	PmUuid           []string                         `protobuf:"bytes,1,rep,name=pmUuid" json:"pmUuid,omitempty"`
-	VmUuid           []string                         `protobuf:"bytes,2,rep,name=vmUuid" json:"vmUuid,omitempty"`
-	SupportsStorage  *bool                            `protobuf:"varint,3,opt,name=supportsStorage,def=1" json:"supportsStorage,omitempty"`
-	SupportsNesting  *bool                            `protobuf:"varint,4,opt,name=supportsNesting,def=0" json:"supportsNesting,omitempty"`
-	Role             *EntityDTO_VirtualDatacenterRole `protobuf:"varint,5,opt,name=role,enum=common_dto.EntityDTO_VirtualDatacenterRole,def=1" json:"role,omitempty"`
+// Properties specific for a particular type of virtual datacenter
+type EntityDTO_VirtualDatacenterTypeProps struct {
+	Role             *EntityDTO_VirtualDatacenterRole `protobuf:"varint,1,opt,name=role,enum=common_dto.EntityDTO_VirtualDatacenterRole,def=1" json:"role,omitempty"`
+	SupportsNesting  *bool                            `protobuf:"varint,2,opt,name=supportsNesting,def=0" json:"supportsNesting,omitempty"`
+	NestedConsumer   *bool                            `protobuf:"varint,3,opt,name=nestedConsumer,def=0" json:"nestedConsumer,omitempty"`
 	XXX_unrecognized []byte                           `json:"-"`
+}
+
+func (m *EntityDTO_VirtualDatacenterTypeProps) Reset()         { *m = EntityDTO_VirtualDatacenterTypeProps{} }
+func (m *EntityDTO_VirtualDatacenterTypeProps) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_VirtualDatacenterTypeProps) ProtoMessage()    {}
+
+const Default_EntityDTO_VirtualDatacenterTypeProps_Role EntityDTO_VirtualDatacenterRole = EntityDTO_CONSUMER
+const Default_EntityDTO_VirtualDatacenterTypeProps_SupportsNesting bool = false
+const Default_EntityDTO_VirtualDatacenterTypeProps_NestedConsumer bool = false
+
+func (m *EntityDTO_VirtualDatacenterTypeProps) GetRole() EntityDTO_VirtualDatacenterRole {
+	if m != nil && m.Role != nil {
+		return *m.Role
+	}
+	return Default_EntityDTO_VirtualDatacenterTypeProps_Role
+}
+
+func (m *EntityDTO_VirtualDatacenterTypeProps) GetSupportsNesting() bool {
+	if m != nil && m.SupportsNesting != nil {
+		return *m.SupportsNesting
+	}
+	return Default_EntityDTO_VirtualDatacenterTypeProps_SupportsNesting
+}
+
+func (m *EntityDTO_VirtualDatacenterTypeProps) GetNestedConsumer() bool {
+	if m != nil && m.NestedConsumer != nil {
+		return *m.NestedConsumer
+	}
+	return Default_EntityDTO_VirtualDatacenterTypeProps_NestedConsumer
+}
+
+type EntityDTO_VirtualDatacenterData struct {
+	PmUuid           []string                              `protobuf:"bytes,1,rep,name=pmUuid" json:"pmUuid,omitempty"`
+	VmUuid           []string                              `protobuf:"bytes,2,rep,name=vmUuid" json:"vmUuid,omitempty"`
+	SupportsStorage  *bool                                 `protobuf:"varint,3,opt,name=supportsStorage,def=1" json:"supportsStorage,omitempty"`
+	VdcTypeProps     *EntityDTO_VirtualDatacenterTypeProps `protobuf:"bytes,4,opt,name=vdc_type_props" json:"vdc_type_props,omitempty"`
+	XXX_unrecognized []byte                                `json:"-"`
 }
 
 func (m *EntityDTO_VirtualDatacenterData) Reset()         { *m = EntityDTO_VirtualDatacenterData{} }
@@ -1198,8 +1231,6 @@ func (m *EntityDTO_VirtualDatacenterData) String() string { return proto.Compact
 func (*EntityDTO_VirtualDatacenterData) ProtoMessage()    {}
 
 const Default_EntityDTO_VirtualDatacenterData_SupportsStorage bool = true
-const Default_EntityDTO_VirtualDatacenterData_SupportsNesting bool = false
-const Default_EntityDTO_VirtualDatacenterData_Role EntityDTO_VirtualDatacenterRole = EntityDTO_CONSUMER
 
 func (m *EntityDTO_VirtualDatacenterData) GetPmUuid() []string {
 	if m != nil {
@@ -1222,18 +1253,11 @@ func (m *EntityDTO_VirtualDatacenterData) GetSupportsStorage() bool {
 	return Default_EntityDTO_VirtualDatacenterData_SupportsStorage
 }
 
-func (m *EntityDTO_VirtualDatacenterData) GetSupportsNesting() bool {
-	if m != nil && m.SupportsNesting != nil {
-		return *m.SupportsNesting
+func (m *EntityDTO_VirtualDatacenterData) GetVdcTypeProps() *EntityDTO_VirtualDatacenterTypeProps {
+	if m != nil {
+		return m.VdcTypeProps
 	}
-	return Default_EntityDTO_VirtualDatacenterData_SupportsNesting
-}
-
-func (m *EntityDTO_VirtualDatacenterData) GetRole() EntityDTO_VirtualDatacenterRole {
-	if m != nil && m.Role != nil {
-		return *m.Role
-	}
-	return Default_EntityDTO_VirtualDatacenterData_Role
+	return nil
 }
 
 type EntityDTO_EntityProperty struct {
