@@ -50,3 +50,42 @@ func TestEntity(t *testing.T) {
 	}
 
 }
+
+// Tests that the getEntity() method returns the TemplateClass member variable in the
+// struct point at by this.entityTemplate
+func TestgetEntity(t *testing.T) {
+	assert := assert.New(t)
+	class := new(EntityDTO_EntityType)
+	templateDTO := &TemplateDTO{
+		TemplateClass: class,
+	}
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: templateDTO,
+	}
+	entityDTO_EntityType := scnbuilder.getEntity()
+	assert.Equal(class, &entityDTO_EntityType)
+	assert.Equal(*class, entityDTO_EntityType)
+}
+
+// Tests that requireEntityTemplate returns true for the case when
+// this.entityTemplate is not nil
+func TestrequireEntityTemplate_notnil(t *testing.T) {
+	assert := assert.New(t)
+	templateDTO := new(TemplateDTO)
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: templateDTO,
+	}
+	entityTemplate := scnbuilder.requireEntityTemplate()
+	assert.Equal(true, entityTemplate)
+}
+
+// Tests that requireEntityTemplate returns false for the case when
+// this.entityTemplate is nil
+func TestrequireEntityTemplate_nil(t *testing.T) {
+	assert := assert.New(t)
+	scnbuilder := &SupplyChainNodeBuilder{
+	//entityTemplate is nil
+	}
+	entityTemplate := scnbuilder.requireEntityTemplate()
+	assert.Equal(false, entityTemplate)
+}
