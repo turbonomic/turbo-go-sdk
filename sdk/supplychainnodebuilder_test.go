@@ -168,7 +168,11 @@ func TestProvider_HOSTING(t *testing.T) {
 	assert.Equal(int32(1), *scnb.currentProvider.CardinalityMin)
 }
 
-func TestBuys_hasProvider_true(t *testing.T) {
+// For the case when exist = true
+// Tests that the TemplateCommodity passed to the Buys() method is appended to the
+// member array named Value in the TemplateDTO_CommBoughtProviderProp having the
+//  Key = this.currentProvider
+func TestBuys_exist_true(t *testing.T) {
 	assert := assert.New(t)
 	provider := &Provider{
 	// nothing here for now
@@ -186,8 +190,8 @@ func TestBuys_hasProvider_true(t *testing.T) {
 		entityTemplate:  template,
 		currentProvider: provider,
 	}
-	templateComm := new(TemplateCommodity)
-	scnb := scnbuilder.Buys(*templateComm)
+	templateCommodity := new(TemplateCommodity)
+	scnb := scnbuilder.Buys(*templateCommodity)
 	commoditiesBought := scnb.entityTemplate.CommodityBought
 	var providerProp *TemplateDTO_CommBoughtProviderProp
 	for _, pp := range commoditiesBought {
@@ -195,6 +199,12 @@ func TestBuys_hasProvider_true(t *testing.T) {
 			providerProp = pp
 		}
 	}
-	// provideProp is the array to which Buys appended
-	assert.Equal(templateComm, providerProp.Value[0])
+	// provideProp is the  *TemplateDTO_CommBoughtProviderProp
+	// containing the []*TemplateCommodity to which Buys appended templateCommodity
+	assert.Equal(1, len(scnb.entityTemplate.CommodityBought))
+	if assert.NotEqual(([]*TemplateCommodity)(nil), commoditiesBought[0].Value) {
+		assert.Equal(1, len(providerProp.Value))
+		assert.Equal(templateCommodity, providerProp.Value[0])
+
+	}
 }
