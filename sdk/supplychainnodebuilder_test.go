@@ -2,7 +2,7 @@ package sdk
 
 import (
 	"github.com/stretchr/testify/assert"
-	//	"math"
+	"math"
 	"testing"
 )
 
@@ -88,4 +88,82 @@ func TestrequireEntityTemplate_nil(t *testing.T) {
 	}
 	entityTemplate := scnbuilder.requireEntityTemplate()
 	assert.Equal(false, entityTemplate)
+}
+
+// Tests that when the member variable this.currentProvider is not nil
+// then requireProvider() method returns true
+func TestrequireProvider_notnil(t *testing.T) {
+	assert := assert.New(t)
+	provider := new(Provider)
+	scnbuilder := &SupplyChainNodeBuilder{
+		currentProvider: provider,
+	}
+	requireProvider := scnbuilder.requireProvider()
+	assert.Equal(true, requireProvider)
+}
+
+// Tests that when the member variable this.currentProvider is not nil
+// then requireProvider() method returns true
+func TestrequireProvider_nil(t *testing.T) {
+	assert := assert.New(t)
+	scnbuilder := &SupplyChainNodeBuilder{}
+	requireProvider := scnbuilder.requireProvider()
+	assert.Equal(false, requireProvider)
+}
+
+// Tests that a new TemplateCommodity is created  and that its member variables Key
+// CommodityType are set to "" and the pointer to CommodityDTO_CommodityType passed
+// to Selling method
+func TestSelling(t *testing.T) {
+	assert := assert.New(t)
+	templateDTO := &TemplateDTO{}
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: templateDTO,
+	}
+	comm := new(CommodityDTO_CommodityType)
+	scnb := scnbuilder.Selling(*comm)
+	// make sure the CommoditySold array is not nil
+	assert.NotEqual(([]*TemplateCommodity)(nil), scnb.entityTemplate.CommoditySold)
+	if assert.Equal(1, len(scnb.entityTemplate.CommoditySold)) {
+		assert.Equal(comm, scnb.entityTemplate.CommoditySold[0].CommodityType)
+		assert.Equal(*comm, *scnb.entityTemplate.CommoditySold[0].CommodityType)
+	}
+}
+
+// Tests that the Provider function creates a new Provider struct
+// Tests that the new Provider struct sets its member variables TemplateClass and
+// ProviderType to the pointer of the arguments passed to Provider method
+// Tests the CadinalityMax and CardinalityMin for the pType = Provider_LAYERED_OVER case
+func TestProvider_LAYERED_OVER(t *testing.T) {
+	assert := assert.New(t)
+	template := &TemplateDTO{}
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: template,
+	}
+	provider := new(EntityDTO_EntityType)
+	pType := Provider_LAYERED_OVER
+	scnb := scnbuilder.Provider(*provider, pType)
+	assert.Equal(provider, scnb.currentProvider.TemplateClass)
+	assert.Equal(pType, *scnb.currentProvider.ProviderType)
+	assert.Equal(int32(math.MaxInt32), *scnb.currentProvider.CardinalityMax)
+	assert.Equal(int32(0), *scnb.currentProvider.CardinalityMin)
+}
+
+//Tests that the Provider function creates a new Provider struct
+// Tests that the new Provider struct sets its member variables TemplateClass and
+// ProviderType to the pointer of the arguments passed to Provider method
+// Tests the CadinalityMax and CardinalityMin for the pType = Provider_HOSTING case
+func TestProvider_HOSTING(t *testing.T) {
+	assert := assert.New(t)
+	template := &TemplateDTO{}
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: template,
+	}
+	provider := new(EntityDTO_EntityType)
+	pType := Provider_HOSTING
+	scnb := scnbuilder.Provider(*provider, pType)
+	assert.Equal(provider, scnb.currentProvider.TemplateClass)
+	assert.Equal(pType, *scnb.currentProvider.ProviderType)
+	assert.Equal(int32(1), *scnb.currentProvider.CardinalityMax)
+	assert.Equal(int32(1), *scnb.currentProvider.CardinalityMin)
 }
