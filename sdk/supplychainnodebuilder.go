@@ -81,7 +81,7 @@ func (scnb *SupplyChainNodeBuilder) Selling(comm CommodityDTO_CommodityType) *Su
 	}
 	commSold := scnb.entityTemplate.CommoditySold
 	commSold = append(commSold, templateComm)
-
+	scnb.entityTemplate.CommoditySold = commSold
 	return scnb
 }
 
