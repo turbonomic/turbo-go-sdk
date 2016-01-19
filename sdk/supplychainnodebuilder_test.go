@@ -167,3 +167,34 @@ func TestProvider_HOSTING(t *testing.T) {
 	assert.Equal(int32(1), *scnb.currentProvider.CardinalityMax)
 	assert.Equal(int32(1), *scnb.currentProvider.CardinalityMin)
 }
+
+func TestBuys_hasProvider_true(t *testing.T) {
+	assert := assert.New(t)
+	provider := &Provider{
+	// nothing here for now
+	}
+	//	var value []*TemplateCommodity
+	// this will be the case when exist = true
+	templateDTO_CBPP := &TemplateDTO_CommBoughtProviderProp{
+		Key: provider,
+		//	Value:value,
+	}
+	template := new(TemplateDTO)
+	commBought := append(template.CommodityBought, templateDTO_CBPP)
+	template.CommodityBought = commBought
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate:  template,
+		currentProvider: provider,
+	}
+	templateComm := new(TemplateCommodity)
+	scnb := scnbuilder.Buys(*templateComm)
+	commoditiesBought := scnb.entityTemplate.CommodityBought
+	var providerProp *TemplateDTO_CommBoughtProviderProp
+	for _, pp := range commoditiesBought {
+		if pp.GetKey() == provider {
+			providerProp = pp
+		}
+	}
+	// provideProp is the array to which Buys appended
+	assert.Equal(templateComm, providerProp.Value[0])
+}
