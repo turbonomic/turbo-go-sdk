@@ -53,7 +53,7 @@ func TestEntity(t *testing.T) {
 
 // Tests that the getEntity() method returns the TemplateClass member variable in the
 // struct point at by this.entityTemplate
-func TestgetEntity(t *testing.T) {
+func TestGetEntity(t *testing.T) {
 	assert := assert.New(t)
 	class := new(EntityDTO_EntityType)
 	templateDTO := &TemplateDTO{
@@ -69,7 +69,7 @@ func TestgetEntity(t *testing.T) {
 
 // Tests that requireEntityTemplate returns true for the case when
 // this.entityTemplate is not nil
-func TestrequireEntityTemplate_notnil(t *testing.T) {
+func TestRequireEntityTemplate_notnil(t *testing.T) {
 	assert := assert.New(t)
 	templateDTO := new(TemplateDTO)
 	scnbuilder := &SupplyChainNodeBuilder{
@@ -81,7 +81,7 @@ func TestrequireEntityTemplate_notnil(t *testing.T) {
 
 // Tests that requireEntityTemplate returns false for the case when
 // this.entityTemplate is nil
-func TestrequireEntityTemplate_nil(t *testing.T) {
+func TestRequireEntityTemplate_nil(t *testing.T) {
 	assert := assert.New(t)
 	scnbuilder := &SupplyChainNodeBuilder{
 	//entityTemplate is nil
@@ -92,7 +92,7 @@ func TestrequireEntityTemplate_nil(t *testing.T) {
 
 // Tests that when the member variable this.currentProvider is not nil
 // then requireProvider() method returns true
-func TestrequireProvider_notnil(t *testing.T) {
+func TestRequireProvider_notnil(t *testing.T) {
 	assert := assert.New(t)
 	provider := new(Provider)
 	scnbuilder := &SupplyChainNodeBuilder{
@@ -104,7 +104,7 @@ func TestrequireProvider_notnil(t *testing.T) {
 
 // Tests that when the member variable this.currentProvider is not nil
 // then requireProvider() method returns true
-func TestrequireProvider_nil(t *testing.T) {
+func TestRequireProvider_nil(t *testing.T) {
 	assert := assert.New(t)
 	scnbuilder := &SupplyChainNodeBuilder{}
 	requireProvider := scnbuilder.requireProvider()
@@ -245,6 +245,9 @@ func TestBuys_exist_false(t *testing.T) {
 	}
 }
 
+// Tests that findCommBoughtProvider returns the TemplateDTO_CommBoughtProviderProp and true when
+// the argument to it matches the memeber variable named
+// Key of one of the elements in the CommodityBought array
 func TestFindCommBoughtProvider_true(t *testing.T) {
 	assert := assert.New(t)
 	template := new(TemplateDTO)
@@ -263,7 +266,10 @@ func TestFindCommBoughtProvider_true(t *testing.T) {
 	assert.Equal(providerprop, commboughtProviderProp)
 }
 
-func TestfindCommBoughtProvider_false(t *testing.T) {
+// Tests that findCommBoughtProvider returns nil and false when
+// the argument to it does not match any of the member variables named
+// Key of any of the elements in the this.entityTemplate.CommodityBought array
+func TestFindCommBoughtProvider_false(t *testing.T) {
 	assert := assert.New(t)
 	template := new(TemplateDTO)
 	provider1 := new(Provider)
@@ -276,15 +282,30 @@ func TestfindCommBoughtProvider_false(t *testing.T) {
 		entityTemplate: template,
 		//	currentProvider: provider,
 	}
-	//provider2 := new(Provider)
-	//commboughtProviderProp, isFound :=
-	scnbuilder.findCommBoughtProvider(provider1)
-	assert.Equal(2, 2)
-	//	assert.Equal(provider2, isFound)
-	//	assert.Equal(nil, commboughtProviderProp)
+	provider2 := new(Provider)
+	commboughtProviderProp, isFound := scnbuilder.findCommBoughtProvider(provider2)
+	assert.Equal(false, isFound)
+	assert.Equal((*TemplateDTO_CommBoughtProviderProp)(nil), commboughtProviderProp)
 }
 
-func TestTestify_check(t *testing.T) {
+// Tests that the Link method creates a new struct of type TemplateDTO_ExternalEntityLinkProp
+// and this struct's Key variable is set to the SellerRef value inside the ExternalEntityLink passed to
+// the Link method. This is  *extEntityLink.BuyerRef = *this.entityTemplate.TemplateClass true
+func TestLink_setTrue_sameBuyer(t *testing.T) {
 	assert := assert.New(t)
-	assert.Equal(2, 2)
+	class1 := new(EntityDTO_EntityType)
+	entityTemp := &TemplateDTO{
+		TemplateClass: class1,
+	}
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: entityTemp,
+	}
+	class2 := new(EntityDTO_EntityType)
+	extEntityLink := &ExternalEntityLink{
+		BuyerRef:  class2,
+		SellerRef: class2,
+	}
+	scnb := scnbuilder.Link(extEntityLink)
+	assert.Equal(*extEntityLink.SellerRef, *scnb.entityTemplate.ExternalLink[0].Key)
+	assert.Equal(extEntityLink, scnb.entityTemplate.ExternalLink[0].Value)
 }
