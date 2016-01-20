@@ -93,18 +93,20 @@ func TestEntity_hasTopFalse(t *testing.T) {
 }
 
 // Tests that method hasTopNode() returns true when the member variable this.SupplyChainNodes is not nil
-func TesthasTopNode_truecase(t *testing.T) {
+func TestHasTopNode_truecase(t *testing.T) {
 	assert := assert.New(t)
-	supplyChainNodes := new(map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)
+	supplyChainNodes := make(map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)
 	supplyCB := &SupplyChainBuilder{
-		SupplyChainNodes: *supplyChainNodes,
+		SupplyChainNodes: supplyChainNodes,
 	}
 	hasSCNodes := supplyCB.hasTopNode()
-	assert.Equal(true, hasSCNodes)
+	if assert.NotEqual((map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)(nil), supplyCB.SupplyChainNodes) {
+		assert.Equal(true, hasSCNodes)
+	}
 }
 
 // Tests that method hasTopNode() returns false when the member variable this.SupplyChainNodes is nil
-func TesthasTopNode_falsecase(t *testing.T) {
+func TestHasTopNode_falsecase(t *testing.T) {
 	assert := assert.New(t)
 	supplyCB := &SupplyChainBuilder{}
 	hasSCNodes := supplyCB.hasTopNode()
@@ -141,7 +143,7 @@ func TestConnectsTo_error(t *testing.T) {
 }
 
 // Tests that requireCurrentNode() returns nil when currentNode is not nil
-func TestrequireCurrentNode_nil(t *testing.T) {
+func TestRequireCurrentNode_nil(t *testing.T) {
 	assert := assert.New(t)
 	currentnode := new(SupplyChainNodeBuilder)
 	scbuilder := &SupplyChainBuilder{
@@ -152,7 +154,7 @@ func TestrequireCurrentNode_nil(t *testing.T) {
 }
 
 // Tests that requireCurrentNode() returns not nil when currentNode is nil
-func TestrequireCurrentNode_notnil(t *testing.T) {
+func TestRequireCurrentNode_notnil(t *testing.T) {
 	assert := assert.New(t)
 	scbuilder := &SupplyChainBuilder{}
 	scb := scbuilder.requireCurrentNode()

@@ -8,7 +8,7 @@ import (
 // Test that getIpHandler returns a pointer to a ExternalEntityLink_PropertyHandler struct
 // Tests that the MethodName, DirectlyApply and EntityType member variables of the struct are not nil
 // DirectlyApply is tested to be false
-func TestgetIpHandler(t *testing.T) {
+func TestGetIpHandler(t *testing.T) {
 	assert := assert.New(t)
 	propertyHandler := getIpHandler()
 	assert.NotNil(propertyHandler.EntityType)
@@ -23,7 +23,7 @@ func TestgetIpHandler(t *testing.T) {
 // Test that the Entity and PropertyHandler member variables of
 // the struct returned bu getVirtualMachineIpProperty are not nil
 // tests that the attribute string type member variable is "UsesEndPoints"
-func TestgetVirtualMachineIpProperty(t *testing.T) {
+func TestGetVirtualMachineIpProperty(t *testing.T) {
 	assert := assert.New(t)
 	serverEntityProp := getVirtualMachineIpProperty()
 	if assert.NotNil(serverEntityProp.Attribute) {

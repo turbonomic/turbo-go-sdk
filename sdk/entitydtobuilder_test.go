@@ -10,7 +10,7 @@ import (
 
 // Tests that getProviderType() returns the correct pointer to the
 // providerType member variable that the getProviderType method is called on
-func TestgetProviderType(t *testing.T) {
+func TestGetProviderType(t *testing.T) {
 	assert := assert.New(t)
 	fmt.Println("in TestProviderDTOGetProviderType")
 	pType := new(EntityDTO_EntityType)
@@ -24,7 +24,7 @@ func TestgetProviderType(t *testing.T) {
 
 // Tests that the getId() method returns a string pointer to
 // the Id member variable of the ProviderDTO struct that getId() is called on
-func TestgetId(t *testing.T) {
+func TestGetId(t *testing.T) {
 	assert := assert.New(t)
 	fmt.Println("in TestProviderDTOProviderID")
 	id := rand.String(5)
@@ -180,7 +180,7 @@ func TestCapacity_False(t *testing.T) {
 // test to see if the EntityDTOBuilder calling object's member commodity is indeed not null
 // Creates an EntityDTOBuilder and only initializes the
 // commodity member object of the EntityDTOBuilder.
-func TestrequireCommodity_True(t *testing.T) {
+func TestRequireCommodity_True(t *testing.T) {
 	assert := assert.New(t)
 	commDTO := new(CommodityDTO)
 	entityDTOBuilder := &EntityDTOBuilder{
@@ -193,7 +193,7 @@ func TestrequireCommodity_True(t *testing.T) {
 // test to see if the EntityDTOBuilder calling object's member commodity is indeed null
 // Creates a EntityDTOBuilder and only initializes the
 // commodity member object of the EntityDTOBuilder.
-func TestrequireCommodity_False(t *testing.T) {
+func TestRequireCommodity_False(t *testing.T) {
 	assert := assert.New(t)
 	entityDTOBuilder := &EntityDTOBuilder{}
 	assert.Equal(false, entityDTOBuilder.requireCommodity())
@@ -277,7 +277,7 @@ func TestBuys_False(t *testing.T) {
 
 // Test to assert that the correct *EntityDTO_CommodityBought is returned if the
 // providerId for this struct is the same as the providerId passed to the method findCommBoughtProvider
-func TestfindCommBoughtProvider_True_inrange(t *testing.T) {
+func TestFindCommBoughtProvider_True_inrange(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	providerIdStr := rand.String(5)
@@ -296,7 +296,7 @@ func TestfindCommBoughtProvider_True_inrange(t *testing.T) {
 
 // Test to assert that the correct *EntityDTO_CommodityBought is returned if the
 // providerId for this struct is the same as the providerId passed to the method findCommBoughtProvider
-func TestfindCommBoughtProvider_False_inrange(t *testing.T) {
+func TestFindCommBoughtProvider_False_inrange(t *testing.T) {
 	assert := assert.New(t)
 	entity := new(EntityDTO)
 	providerIdStr := rand.String(5)
