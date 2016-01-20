@@ -246,7 +246,6 @@ func TestBuys_exist_false(t *testing.T) {
 	}
 }
 
-//
 func TestfindCommBoughtProvider_true(t *testing.T) {
 	assert := assert.New(t)
 	template := new(TemplateDTO)
@@ -263,4 +262,25 @@ func TestfindCommBoughtProvider_true(t *testing.T) {
 	commboughtProviderProp, isFound := scnbuilder.findCommBoughtProvider(provider)
 	assert.Equal(true, isFound)
 	assert.Equal(providerprop, commboughtProviderProp)
+	assert.Equal(1, 2)
+}
+
+func TestfindCommBoughtProvider_false(t *testing.T) {
+	assert := assert.New(t)
+	template := new(TemplateDTO)
+	provider1 := new(Provider)
+	providerprop := &TemplateDTO_CommBoughtProviderProp{
+		Key: provider1,
+	}
+	commbought := append(template.CommodityBought, providerprop)
+	template.CommodityBought = commbought
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: template,
+		//	currentProvider: provider,
+	}
+	provider2 := new(Provider)
+	commboughtProviderProp, isFound := scnbuilder.findCommBoughtProvider(provider1)
+	assert.Equal(1, 2)
+	assert.Equal(provider2, isFound)
+	assert.Equal(nil, commboughtProviderProp)
 }
