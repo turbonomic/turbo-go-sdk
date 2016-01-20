@@ -208,3 +208,59 @@ func TestBuys_exist_true(t *testing.T) {
 
 	}
 }
+
+// For the case when exist = false
+// Tests that a new TemplateDTO_CommBoughtProviderProp struct is created
+// with it Key variable = this.currentProvider
+// Tests that the new TemplateDTO_CommBoughtProviderProp struct is appended
+// to this.entityTemplate.CommodityBought
+// Tests that the TemplateCommodity passed to the Buys() method is appended to the
+// member array named Value in the newly created TemplateDTO_CommBoughtProviderProp
+func TestBuys_exist_false(t *testing.T) {
+	assert := assert.New(t)
+	//
+	eTemplate := new(TemplateDTO)
+	provider := new(Provider)
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate:  eTemplate,
+		currentProvider: provider,
+	}
+	templateCommodity := new(TemplateCommodity)
+	scnb := scnbuilder.Buys(*templateCommodity)
+	var providerProp *TemplateDTO_CommBoughtProviderProp
+	var commoditiesBought []*TemplateDTO_CommBoughtProviderProp
+	if assert.NotEqual(([]*TemplateDTO_CommBoughtProviderProp)(nil), scnb.entityTemplate.CommodityBought) {
+		assert.Equal(1, len(scnb.entityTemplate.CommodityBought))
+		commoditiesBought = scnb.entityTemplate.CommodityBought
+		for _, pp := range commoditiesBought {
+			if pp.GetKey() == provider {
+				providerProp = pp
+			}
+		}
+	}
+	// provideProp is the  *TemplateDTO_CommBoughtProviderProp
+	// containing the []*TemplateCommodity to which Buys appended templateCommodity
+	if assert.NotEqual(([]*TemplateCommodity)(nil), commoditiesBought[0].Value) {
+		assert.Equal(1, len(providerProp.Value))
+		assert.Equal(templateCommodity, providerProp.Value[0])
+	}
+}
+
+//
+func TestfindCommBoughtProvider_true(t *testing.T) {
+	assert := assert.New(t)
+	template := new(TemplateDTO)
+	provider := new(Provider)
+	providerprop := &TemplateDTO_CommBoughtProviderProp{
+		Key: provider,
+	}
+	commbought := append(template.CommodityBought, providerprop)
+	template.CommodityBought = commbought
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate:  template,
+		currentProvider: provider,
+	}
+	commboughtProviderProp, isFound := scnbuilder.findCommBoughtProvider(provider)
+	assert.Equal(true, isFound)
+	assert.Equal(providerprop, commboughtProviderProp)
+}
