@@ -293,19 +293,56 @@ func TestFindCommBoughtProvider_false(t *testing.T) {
 // the Link method. This is  *extEntityLink.BuyerRef = *this.entityTemplate.TemplateClass true
 func TestLink_setTrue_sameBuyer(t *testing.T) {
 	assert := assert.New(t)
-	class1 := new(EntityDTO_EntityType)
+	class1 := EntityDTO_STORAGE
 	entityTemp := &TemplateDTO{
-		TemplateClass: class1,
+		TemplateClass: &class1,
 	}
 	scnbuilder := &SupplyChainNodeBuilder{
 		entityTemplate: entityTemp,
 	}
-	class2 := new(EntityDTO_EntityType)
+	class2 := EntityDTO_SWITCH
 	extEntityLink := &ExternalEntityLink{
-		BuyerRef:  class2,
-		SellerRef: class2,
+		BuyerRef:  &class1,
+		SellerRef: &class2,
 	}
 	scnb := scnbuilder.Link(extEntityLink)
 	assert.Equal(*extEntityLink.SellerRef, *scnb.entityTemplate.ExternalLink[0].Key)
 	assert.Equal(extEntityLink, scnb.entityTemplate.ExternalLink[0].Value)
+}
+
+// Tests that the Link method creates a new struct of type TemplateDTO_ExternalEntityLinkProp
+// and this struct's Key variable is set to the BuyerRef value inside the ExternalEntityLink passed to
+// the Link method. This is  *extEntityLink.SellerRef = *this.entityTemplate.TemplateClass true
+func TestLink_setTrue_sameSeller(t *testing.T) {
+	assert := assert.New(t)
+	class1 := EntityDTO_STORAGE
+	entityTemp := &TemplateDTO{
+		TemplateClass: &class1,
+	}
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: entityTemp,
+	}
+	class2 := EntityDTO_SWITCH
+	extEntityLink := &ExternalEntityLink{
+		BuyerRef:  &class2,
+		SellerRef: &class1,
+	}
+	scnb := scnbuilder.Link(extEntityLink)
+	assert.Equal(*extEntityLink.BuyerRef, *scnb.entityTemplate.ExternalLink[0].Key)
+	assert.Equal(extEntityLink, scnb.entityTemplate.ExternalLink[0].Value)
+}
+
+// Test that the pointer to TemplateDTO_ExternalEntityLinkProp is appended to the array
+// this.entityTemplate.ExternalLink
+func TestAddExternalLinkPropToTemplateEntity(t *testing.T) {
+	assert := assert.New(t)
+	templateDTO := new(TemplateDTO)
+	scnbuilder := &SupplyChainNodeBuilder{
+		entityTemplate: templateDTO,
+	}
+	extEntityLinkP := new(TemplateDTO_ExternalEntityLinkProp)
+	scnbuilder.addExternalLinkPropToTemplateEntity(extEntityLinkP)
+	if assert.NotEqual(([]*TemplateDTO_ExternalEntityLinkProp)(nil), scnbuilder.entityTemplate.ExternalLink) {
+		assert.Equal(extEntityLinkP, scnbuilder.entityTemplate.ExternalLink[0])
+	}
 }
