@@ -3,6 +3,7 @@ package communicator
 import (
 	"encoding/base64"
 	"net/http"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
@@ -69,6 +70,19 @@ func (wsc *WebSocketCommunicator) SendClientMessage(clientMsg *MediationClientMe
 	websocket.Message.Send(wsc.ws, msgMarshalled)
 }
 
+func (wsc *WebSocketCommunicator) CloseAndRegisterAgain(registrationMessage *MediationClientMessage) {
+	if wsc.ws != nil {
+		//Close the socket if it's not nil to prevent socket leak
+		wsc.ws.Close()
+		wsc.ws = nil
+	}
+	for wsc.ws == nil {
+		time.Sleep(time.Second * 10)
+		wsc.RegisterAndListen(registrationMessage)
+	}
+
+}
+
 // Register target type on vmt server and start to listen for server message
 func (wsc *WebSocketCommunicator) RegisterAndListen(registrationMessage *MediationClientMessage) {
 	// vmtServerUrl := "ws://10.10.173.154:8080/vmturbo/remoteMediation"
@@ -90,7 +104,11 @@ func (wsc *WebSocketCommunicator) RegisterAndListen(registrationMessage *Mediati
 
 	// webs, err := websocket.Dial(vmtServerUrl, "", localAddr)
 	if err != nil {
-		glog.Fatal(err)
+		glog.Error(err)
+		if webs == nil {
+			glog.Error("The websocket is null, reset")
+		}
+		wsc.CloseAndRegisterAgain(registrationMessage)
 	}
 	wsc.ws = webs
 
@@ -103,15 +121,21 @@ func (wsc *WebSocketCommunicator) RegisterAndListen(registrationMessage *Mediati
 	// main loop for listening server message.
 	for {
 		if n, err = wsc.ws.Read(msg); err != nil {
-			glog.Fatal(err)
+			glog.Error(err)
+			//glog.Fatal(err.Error())
+			//re-establish connection when error
+			glog.V(3).Infof("Error happened, re-establish websocket connection")
+			break
 		}
 		serverMsg := &MediationServerMessage{}
 		err = proto.Unmarshal(msg[:n], serverMsg)
 		if err != nil {
+			glog.Error("Received unmarshalable error, please make sure you are running the latest VMT server")
 			glog.Fatal("unmarshaling error: ", err)
 		}
 		//Spawn a separate go routine to handle the server message
 		go wsc.handleServerMessage(serverMsg, registrationMessage)
 		glog.V(3).Infof("Continue listen from server...")
 	}
+	wsc.CloseAndRegisterAgain(registrationMessage)
 }
