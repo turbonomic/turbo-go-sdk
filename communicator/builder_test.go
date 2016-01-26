@@ -2,9 +2,8 @@ package communicator
 
 import (
 	"github.com/stretchr/testify/assert"
-	"math"
+	"github.com/vmturbo/vmturbo-go-sdk/util/rand"
 	"testing"
-	"util/rand"
 )
 
 // Tests that the function NewSupplyChainBuilder() returns an initialized SupplyChainNodeBuilder struct
@@ -25,8 +24,8 @@ func TestCreate_ClientMessageBuilder(t *testing.T) {
 	}
 	cm := cmbuilder.Create()
 	if assert.NotEqual((*MediationClientMessage)(nil), cm) {
-		assert(clientMsg, cm)
-		assert(*clientMsg, *cm)
+		assert.Equal(clientMsg, cm)
+		assert.Equal(*clientMsg, *cm)
 
 	}
 }
@@ -42,7 +41,7 @@ func TestSetContainerInfo(t *testing.T) {
 	cmb := cmbuilder.SetContainerInfo(cInfo)
 	if assert.NotEqual((*ContainerInfo)(nil), cmb.clientMessage.ContainerInfo) {
 		assert.Equal(cInfo, cmb.clientMessage.ContainerInfo)
-		assert.Equal(*cInfo, *cmb.clienMessage.ContainerInfo)
+		assert.Equal(*cInfo, *cmb.clientMessage.ContainerInfo)
 	}
 }
 
@@ -71,7 +70,7 @@ func TestSetDiscoveryResponse(t *testing.T) {
 	}
 	discresponse := new(DiscoveryResponse)
 	cmb := cmbuilder.SetDiscoveryResponse(discresponse)
-	if assert.NotEqual((*DiscoveryResponse)(nil), cmb.clientMessage.DiscoverResponse) {
+	if assert.NotEqual((*DiscoveryResponse)(nil), cmb.clientMessage.DiscoveryResponse) {
 		assert.Equal(discresponse, cmb.clientMessage.DiscoveryResponse)
 		assert.Equal(*discresponse, *cmb.clientMessage.DiscoveryResponse)
 	}
@@ -122,15 +121,24 @@ func TestSetActionResponset(t *testing.T) {
 	}
 }
 
+// Tests that the method NewAccountDefEntryBuilder creates an AccountDefEntry struct with member
+// variables set equal to the pointers to the arguments passed to it
 func TestNewAccountDefEntryBuilder(t *testing.T) {
 	assert := assert.New(t)
 	name := rand.String(6)
 	displayName := rand.String(7)
 	description := rand.String(8)
 	verificationRegex := rand.String(9)
-	acctDefEntryBuilder := NewAccountDefEntryBuilder(name, displayName, description, verificationRegex)
+	entryType := AccountDefEntry_OPTIONAL
+	isSecret := true
+	acctDefEntryBuilder := NewAccountDefEntryBuilder(name, displayName, description, verificationRegex, entryType, isSecret)
 	acctDef := acctDefEntryBuilder.accountDefEntry
 	if assert.NotEqual((*AccountDefEntry)(nil), acctDef) {
-		assert.Equal(name, *acctDef.name)
+		assert.Equal(name, *acctDef.Name)
+		assert.Equal(displayName, *acctDef.DisplayName)
+		assert.Equal(description, *acctDef.Description)
+		assert.Equal(verificationRegex, *acctDef.VerificationRegex)
+		assert.Equal(entryType, *acctDef.Type)
+		assert.Equal(isSecret, *acctDef.IsSecret)
 	}
 }
