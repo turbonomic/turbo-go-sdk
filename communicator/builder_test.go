@@ -2,6 +2,7 @@ package communicator
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/vmturbo/vmturbo-go-sdk/sdk"
 	"github.com/vmturbo/vmturbo-go-sdk/util/rand"
 	"testing"
 )
@@ -141,4 +142,42 @@ func TestNewAccountDefEntryBuilder(t *testing.T) {
 		assert.Equal(entryType, *acctDef.Type)
 		assert.Equal(isSecret, *acctDef.IsSecret)
 	}
+}
+
+// Tests that the method Create returns the correct this.accountDefentry
+func TestCreate(t *testing.T) {
+	assert := assert.New(t)
+	acctDefEntry := new(AccountDefEntry)
+	acctDefEBuilder := &AccountDefEntryBuilder{
+		accountDefEntry: acctDefEntry,
+	}
+	acctDE := acctDefEBuilder.Create()
+	assert.Equal(acctDefEntry, acctDE)
+}
+
+// Tests that NewProbeInfoBuilder creates a ProbeInfo struct with member variables set to the
+// arguments passed to it and creates a ProbeInfoBuilder struct with its probeInfo variable set
+// to the new ProbeInfo struct containing the passed arguments
+func TestNewProbeInfoBuilder(t *testing.T) {
+	assert := assert.New(t)
+	probeType := rand.String(6)
+	probeCat := rand.String(7)
+	var supplyCS []*sdk.TemplateDTO
+	var acctDef []*AccountDefEntry
+	probeInfoBldr := NewProbeInfoBuilder(probeType, probeCat, supplyCS, acctDef)
+	assert.Equal(probeType, *probeInfoBldr.probeInfo.ProbeType)
+}
+
+// Tests that the method Create() returns a pointer to the ProbeInfo struct in the object that Create
+// called on
+func TestProbeInfo_Create(t *testing.T) {
+	assert := assert.New(t)
+	probeinfo := new(ProbeInfo)
+	builder := &ProbeInfoBuilder{
+		probeInfo: probeinfo,
+	}
+	pi := builder.Create()
+	assert.Equal(probeinfo, pi)
+	assert.Equal(*probeinfo, *pi)
+
 }
