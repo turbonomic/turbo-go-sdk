@@ -65,6 +65,8 @@ type AccountDefEntryBuilder struct {
 	accountDefEntry *AccountDefEntry
 }
 
+// A NewAccountDefEntryBuilder function creates a AccountDefEntry struct and sets its member
+// variables equal to the passed arguments
 func NewAccountDefEntryBuilder(name, displayName, description, verificationRegex string,
 	entryType AccountDefEntry_AccountDefEntryType, isSecret bool) *AccountDefEntryBuilder {
 	accountDefEntry := &AccountDefEntry{
@@ -80,6 +82,7 @@ func NewAccountDefEntryBuilder(name, displayName, description, verificationRegex
 	}
 }
 
+// A Create method returns the accountDefEntry of the object it is called on
 func (builder *AccountDefEntryBuilder) Create() *AccountDefEntry {
 	return builder.accountDefEntry
 }
