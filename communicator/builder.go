@@ -70,9 +70,11 @@ type AccountDefEntryBuilder struct {
 func NewAccountDefEntryBuilder(name, displayName, description, verificationRegex string,
 	entryType AccountDefEntry_AccountDefEntryType, isSecret bool) *AccountDefEntryBuilder {
 	accountDefEntry := &AccountDefEntry{
-		Name:              &name,
-		DisplayName:       &displayName,
-		Description:       &description,
+		Name:        &name,
+		DisplayName: &displayName,
+		Description: &description,
+		// VerificationRegex a regular expression to validate a field
+		// if the user's input matches the regex, then the entry is valid
 		VerificationRegex: &verificationRegex,
 		Type:              &entryType,
 		IsSecret:          &isSecret,
