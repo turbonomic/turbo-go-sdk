@@ -107,6 +107,28 @@ func (eb *EntityDTOBuilder) Buys(commodityType CommodityDTO_CommodityType, key s
 	commDTO.Capacity = &defaultCapacity
 	commDTO.Used = &used
 
+	eb.addCommodityBought(commDTO)
+
+	return eb
+}
+
+// Add an commodity which buys from the current provider, without any used value.
+func (eb *EntityDTOBuilder) BuysWithoutUse(commodityType CommodityDTO_CommodityType, key string) *EntityDTOBuilder {
+	if eb.currentProvider == nil {
+		// TODO should have error message. Notify set current provider first
+		return eb
+	}
+	commDTO := new(CommodityDTO)
+	commDTO.CommodityType = &commodityType
+	commDTO.Key = &key
+
+	eb.addCommodityBought(commDTO)
+
+	return eb
+}
+
+// Add an commodity to the commodity list which are bought from the current provider.
+func (eb *EntityDTOBuilder) addCommodityBought(commDTO *CommodityDTO) {
 	// add commodity bought
 	commBought := eb.entity.GetCommoditiesBought()
 	providerId := eb.currentProvider.Id
@@ -125,9 +147,9 @@ func (eb *EntityDTOBuilder) Buys(commodityType CommodityDTO_CommodityType, key s
 	}
 	commodities := commBoughtFromProvider.GetBought()
 	commodities = append(commodities, commDTO)
+	// add commodity bought
 	commBoughtFromProvider.Bought = commodities
 
-	return eb
 }
 
 // Find if this the current provider has already been in the map.
