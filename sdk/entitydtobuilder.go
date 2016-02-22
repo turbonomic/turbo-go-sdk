@@ -42,6 +42,19 @@ func (eb *EntityDTOBuilder) DisplayName(disp string) *EntityDTOBuilder {
 	return eb
 }
 
+func (eb *EntityDTOBuilder) SellsCommodity(commDTO *CommodityDTO) *EntityDTOBuilder {
+	commSold := eb.entity.CommoditiesSold
+	commSold = append(commSold, commDTO)
+	eb.entity.CommoditiesSold = commSold
+	return eb
+}
+
+func (eb *EntityDTOBuilder) SellsCommodities(commDTOs []*CommodityDTO) {
+	commSold := eb.entity.CommoditiesSold
+	commSold = append(commSold, commDTOs...)
+	eb.entity.CommoditiesSold = commSold
+}
+
 func (eb *EntityDTOBuilder) Sells(commodityType CommodityDTO_CommodityType, key string) *EntityDTOBuilder {
 	commDTO := new(CommodityDTO)
 	commDTO.CommodityType = &commodityType
@@ -106,29 +119,16 @@ func (eb *EntityDTOBuilder) Buys(commodityType CommodityDTO_CommodityType, key s
 	commDTO.Key = &key
 	commDTO.Capacity = &defaultCapacity
 	commDTO.Used = &used
-
-	eb.addCommodityBought(commDTO)
-
+	eb.BuysCommodity(commDTO)
 	return eb
 }
 
-// Add an commodity which buys from the current provider, without any used value.
-func (eb *EntityDTOBuilder) BuysWithoutUse(commodityType CommodityDTO_CommodityType, key string) *EntityDTOBuilder {
+func (eb *EntityDTOBuilder) BuysCommodity(commDTO *CommodityDTO) *EntityDTOBuilder {
 	if eb.currentProvider == nil {
 		// TODO should have error message. Notify set current provider first
 		return eb
 	}
-	commDTO := new(CommodityDTO)
-	commDTO.CommodityType = &commodityType
-	commDTO.Key = &key
 
-	eb.addCommodityBought(commDTO)
-
-	return eb
-}
-
-// Add an commodity to the commodity list which are bought from the current provider.
-func (eb *EntityDTOBuilder) addCommodityBought(commDTO *CommodityDTO) {
 	// add commodity bought
 	commBought := eb.entity.GetCommoditiesBought()
 	providerId := eb.currentProvider.Id
@@ -147,9 +147,9 @@ func (eb *EntityDTOBuilder) addCommodityBought(commDTO *CommodityDTO) {
 	}
 	commodities := commBoughtFromProvider.GetBought()
 	commodities = append(commodities, commDTO)
-	// add commodity bought
 	commBoughtFromProvider.Bought = commodities
 
+	return eb
 }
 
 // Find if this the current provider has already been in the map.

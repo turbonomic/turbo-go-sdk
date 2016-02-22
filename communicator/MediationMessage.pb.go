@@ -17,7 +17,6 @@ var _ = math.Inf
 
 // Messages, sent from client to server
 type MediationClientMessage struct {
-	ContainerInfo      *ContainerInfo      `protobuf:"bytes,1,opt,name=containerInfo" json:"containerInfo,omitempty"`
 	ValidationResponse *ValidationResponse `protobuf:"bytes,2,opt,name=validationResponse" json:"validationResponse,omitempty"`
 	DiscoveryResponse  *DiscoveryResponse  `protobuf:"bytes,3,opt,name=discoveryResponse" json:"discoveryResponse,omitempty"`
 	KeepAlive          *KeepAlive          `protobuf:"bytes,4,opt,name=keepAlive" json:"keepAlive,omitempty"`
@@ -33,13 +32,6 @@ type MediationClientMessage struct {
 func (m *MediationClientMessage) Reset()         { *m = MediationClientMessage{} }
 func (m *MediationClientMessage) String() string { return proto.CompactTextString(m) }
 func (*MediationClientMessage) ProtoMessage()    {}
-
-func (m *MediationClientMessage) GetContainerInfo() *ContainerInfo {
-	if m != nil {
-		return m.ContainerInfo
-	}
-	return nil
-}
 
 func (m *MediationClientMessage) GetValidationResponse() *ValidationResponse {
 	if m != nil {
@@ -85,7 +77,6 @@ func (m *MediationClientMessage) GetMessageID() int32 {
 
 // Messages, sent from server to client
 type MediationServerMessage struct {
-	Ack               *Ack               `protobuf:"bytes,1,opt,name=ack" json:"ack,omitempty"`
 	ValidationRequest *ValidationRequest `protobuf:"bytes,2,opt,name=validationRequest" json:"validationRequest,omitempty"`
 	DiscoveryRequest  *DiscoveryRequest  `protobuf:"bytes,3,opt,name=discoveryRequest" json:"discoveryRequest,omitempty"`
 	ActionRequest     *ActionRequest     `protobuf:"bytes,4,opt,name=actionRequest" json:"actionRequest,omitempty"`
@@ -99,13 +90,6 @@ type MediationServerMessage struct {
 func (m *MediationServerMessage) Reset()         { *m = MediationServerMessage{} }
 func (m *MediationServerMessage) String() string { return proto.CompactTextString(m) }
 func (*MediationServerMessage) ProtoMessage()    {}
-
-func (m *MediationServerMessage) GetAck() *Ack {
-	if m != nil {
-		return m.Ack
-	}
-	return nil
-}
 
 func (m *MediationServerMessage) GetValidationRequest() *ValidationRequest {
 	if m != nil {
@@ -135,8 +119,15 @@ func (m *MediationServerMessage) GetMessageID() int32 {
 	return 0
 }
 
+// Structure to hold account parameters, passed to probe to connect and authenticate
+// to target.
 type AccountValue struct {
-	Key              *string `protobuf:"bytes,1,req,name=key" json:"key,omitempty"`
+	// Name of the parameter. Should refer to the "name" field of AccountDefEntry message,
+	// which is returned by the probe in registration phase, for example "userName",
+	// "password" and so on.
+	Key *string `protobuf:"bytes,1,req,name=key" json:"key,omitempty"`
+	// String representation of the parameter value, for example "secretpassword",
+	// "192.168.111.3" and so on.
 	Value            *string `protobuf:"bytes,2,req,name=value" json:"value,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
@@ -234,7 +225,7 @@ func (m *ActionProgress) GetResponse() *ActionResponse {
 type ActionResponse struct {
 	// current action state
 	ActionResponseState *sdk.ActionResponseState `protobuf:"varint,1,req,name=actionResponseState,enum=common_dto.ActionResponseState" json:"actionResponseState,omitempty"`
-	// current action progress (1..100)
+	// current action progress (0..100)
 	Progress *int32 `protobuf:"varint,2,req,name=progress" json:"progress,omitempty"`
 	// action state description, for example ("Moving VM...")
 	ResponseDescription *string `protobuf:"bytes,3,req,name=responseDescription" json:"responseDescription,omitempty"`

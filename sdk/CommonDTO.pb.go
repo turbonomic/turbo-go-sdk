@@ -2,17 +2,6 @@
 // source: CommonDTO.proto
 // DO NOT EDIT!
 
-/*
-Package common_dto is a generated protocol buffer package.
-
-It is generated from these files:
-	CommonDTO.proto
-
-It has these top-level messages:
-	EntityDTO
-	CommodityDTO
-	GroupDTO
-*/
 package sdk
 
 import proto "github.com/golang/protobuf/proto"
@@ -750,26 +739,28 @@ type EntityDTO struct {
 	// The {@link CommodityDTO} items this entity buys from the different providers.
 	// This is a map of bought commodities where:<ul>
 	CommoditiesBought []*EntityDTO_CommodityBought `protobuf:"bytes,5,rep,name=commoditiesBought" json:"commoditiesBought,omitempty"`
-	// List of the IDs of the entities that this entity consists of. For example, a
-	// DiskArray entity can consist of multiple Storage entities.
-	ConsistsOf []string `protobuf:"bytes,6,rep,name=consistsOf" json:"consistsOf,omitempty"`
 	// List of the IDs of the entities that this entity is underlying. For example, an IO Module can underly
 	// physical machines, or a physical machine can underly datastores.
-	Underlying []string `protobuf:"bytes,7,rep,name=underlying" json:"underlying,omitempty"`
+	Underlying []string `protobuf:"bytes,6,rep,name=underlying" json:"underlying,omitempty"`
 	// Entity properties in free (string <-> string) form, used for user-defined values.
-	EntityProperties []*EntityDTO_EntityProperty `protobuf:"bytes,8,rep,name=entityProperties" json:"entityProperties,omitempty"`
+	EntityProperties []*EntityDTO_EntityProperty `protobuf:"bytes,7,rep,name=entityProperties" json:"entityProperties,omitempty"`
 	// Specifies the source of the entity (ie DISCOVERED or PROXY).
 	// For further details see the comments for EntityOrigin.
-	Origin *EntityDTO_EntityOrigin `protobuf:"varint,9,opt,name=origin,enum=common_dto.EntityDTO_EntityOrigin,def=1" json:"origin,omitempty"`
+	Origin *EntityDTO_EntityOrigin `protobuf:"varint,8,opt,name=origin,enum=common_dto.EntityDTO_EntityOrigin,def=1" json:"origin,omitempty"`
 	// Proxy entities may be replaced by entities discovered by another probe.
 	// Some proxy entities are aware of the entity replacing them based on a set of property values.
 	// Before replacing they may also transfer the commodity data to the server entity
-	ReplacementEntityData *EntityDTO_ReplacementEntityMetaData `protobuf:"bytes,10,opt,name=replacementEntityData" json:"replacementEntityData,omitempty"`
+	ReplacementEntityData *EntityDTO_ReplacementEntityMetaData `protobuf:"bytes,9,opt,name=replacementEntityData" json:"replacementEntityData,omitempty"`
 	// Specifies if the entity is monitored or not.
 	// If this field is false, state of the entity will be set to NOT_MONITORED in server.
-	Monitored *bool `protobuf:"varint,11,opt,name=monitored,def=1" json:"monitored,omitempty"`
+	// NOT_MONITORED state will imply that the entity is not participating in the Market Analysis.
+	Monitored *bool `protobuf:"varint,10,opt,name=monitored,def=1" json:"monitored,omitempty"`
 	// Specifies the power state of the entity.
-	PowerState                   *EntityDTO_PowerState                   `protobuf:"varint,12,opt,name=powerState,enum=common_dto.EntityDTO_PowerState,def=1" json:"powerState,omitempty"`
+	PowerState *EntityDTO_PowerState `protobuf:"varint,11,opt,name=powerState,enum=common_dto.EntityDTO_PowerState,def=1" json:"powerState,omitempty"`
+	// Specified properties required for the behavior of the entity as a consumer.
+	ConsumerPolicy *EntityDTO_ConsumerPolicy `protobuf:"bytes,12,opt,name=consumerPolicy" json:"consumerPolicy,omitempty"`
+	// Specified properties required for the behavior of the entity as a provider.
+	ProviderPolicy               *EntityDTO_ProviderPolicy               `protobuf:"bytes,13,opt,name=providerPolicy" json:"providerPolicy,omitempty"`
 	StorageData                  *EntityDTO_StorageData                  `protobuf:"bytes,500,opt,name=storage_data" json:"storage_data,omitempty"`
 	DiskArrayData                *EntityDTO_DiskArrayData                `protobuf:"bytes,501,opt,name=disk_array_data" json:"disk_array_data,omitempty"`
 	ApplicationData              *EntityDTO_ApplicationData              `protobuf:"bytes,502,opt,name=application_data" json:"application_data,omitempty"`
@@ -825,13 +816,6 @@ func (m *EntityDTO) GetCommoditiesBought() []*EntityDTO_CommodityBought {
 	return nil
 }
 
-func (m *EntityDTO) GetConsistsOf() []string {
-	if m != nil {
-		return m.ConsistsOf
-	}
-	return nil
-}
-
 func (m *EntityDTO) GetUnderlying() []string {
 	if m != nil {
 		return m.Underlying
@@ -872,6 +856,20 @@ func (m *EntityDTO) GetPowerState() EntityDTO_PowerState {
 		return *m.PowerState
 	}
 	return Default_EntityDTO_PowerState
+}
+
+func (m *EntityDTO) GetConsumerPolicy() *EntityDTO_ConsumerPolicy {
+	if m != nil {
+		return m.ConsumerPolicy
+	}
+	return nil
+}
+
+func (m *EntityDTO) GetProviderPolicy() *EntityDTO_ProviderPolicy {
+	if m != nil {
+		return m.ProviderPolicy
+	}
+	return nil
 }
 
 func (m *EntityDTO) GetStorageData() *EntityDTO_StorageData {
@@ -1575,6 +1573,42 @@ func (m *EntityDTO_ReplacementEntityMetaData) GetSellingCommTypes() []CommodityD
 	return nil
 }
 
+type EntityDTO_ConsumerPolicy struct {
+	ShopsTogether    *bool  `protobuf:"varint,1,opt,name=shopsTogether,def=0" json:"shopsTogether,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *EntityDTO_ConsumerPolicy) Reset()         { *m = EntityDTO_ConsumerPolicy{} }
+func (m *EntityDTO_ConsumerPolicy) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_ConsumerPolicy) ProtoMessage()    {}
+
+const Default_EntityDTO_ConsumerPolicy_ShopsTogether bool = false
+
+func (m *EntityDTO_ConsumerPolicy) GetShopsTogether() bool {
+	if m != nil && m.ShopsTogether != nil {
+		return *m.ShopsTogether
+	}
+	return Default_EntityDTO_ConsumerPolicy_ShopsTogether
+}
+
+type EntityDTO_ProviderPolicy struct {
+	AvailableForPlacement *bool  `protobuf:"varint,1,opt,name=availableForPlacement,def=1" json:"availableForPlacement,omitempty"`
+	XXX_unrecognized      []byte `json:"-"`
+}
+
+func (m *EntityDTO_ProviderPolicy) Reset()         { *m = EntityDTO_ProviderPolicy{} }
+func (m *EntityDTO_ProviderPolicy) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_ProviderPolicy) ProtoMessage()    {}
+
+const Default_EntityDTO_ProviderPolicy_AvailableForPlacement bool = true
+
+func (m *EntityDTO_ProviderPolicy) GetAvailableForPlacement() bool {
+	if m != nil && m.AvailableForPlacement != nil {
+		return *m.AvailableForPlacement
+	}
+	return Default_EntityDTO_ProviderPolicy_AvailableForPlacement
+}
+
 type CommodityDTO struct {
 	// Represents the type of commodity. Check {@link Commodity} enumeration for the available
 	// types.
@@ -1613,7 +1647,22 @@ type CommodityDTO struct {
 	// Represents whether the commodity can be resized. This flag is used to signal to the market
 	// whether a commodity is eligible to receive resize up and resize down recommendations.
 	// Commodities are not resizable by default.
-	Resizable          *bool                            `protobuf:"varint,9,opt,name=resizable,def=0" json:"resizable,omitempty"`
+	Resizable *bool `protobuf:"varint,9,opt,name=resizable,def=0" json:"resizable,omitempty"`
+	// The 'displayName' value appears in the product GUI and in reports to identify the commodity.
+	DisplayName *string `protobuf:"bytes,10,opt,name=displayName" json:"displayName,omitempty"`
+	// Implies if the commodity is thin provisioned.
+	// If the commodity is thin provisioned it can be overprovisioned by resizing it.
+	// By setting to false. we say overprovision by resizing up is not allowed.
+	Thin *bool `protobuf:"varint,11,opt,name=thin,def=1" json:"thin,omitempty"`
+	// Property to indicate if the 'used' value for the commodity will be computed by the server
+	// or if it is provided by Mediation.
+	// The default is 'false' since the Mediation will provide the used value and that will be
+	// returned by the server.
+	// In situations where Mediation is not able to obtain the used values, it should set
+	// this property to 'true'.
+	ComputedUsed *bool `protobuf:"varint,12,opt,name=computedUsed,def=0" json:"computedUsed,omitempty"`
+	// Property to indicate the amount by which the commodity will be resized.
+	UsedIncrement      *float64                         `protobuf:"fixed64,13,opt,name=usedIncrement" json:"usedIncrement,omitempty"`
 	StorageLatencyData *CommodityDTO_StorageLatencyData `protobuf:"bytes,500,opt,name=storage_latency_data" json:"storage_latency_data,omitempty"`
 	StorageAccessData  *CommodityDTO_StorageAccessData  `protobuf:"bytes,501,opt,name=storage_access_data" json:"storage_access_data,omitempty"`
 	XXX_unrecognized   []byte                           `json:"-"`
@@ -1625,6 +1674,8 @@ func (*CommodityDTO) ProtoMessage()    {}
 
 const Default_CommodityDTO_Active bool = true
 const Default_CommodityDTO_Resizable bool = false
+const Default_CommodityDTO_Thin bool = true
+const Default_CommodityDTO_ComputedUsed bool = false
 
 func (m *CommodityDTO) GetCommodityType() CommodityDTO_CommodityType {
 	if m != nil && m.CommodityType != nil {
@@ -1687,6 +1738,34 @@ func (m *CommodityDTO) GetResizable() bool {
 		return *m.Resizable
 	}
 	return Default_CommodityDTO_Resizable
+}
+
+func (m *CommodityDTO) GetDisplayName() string {
+	if m != nil && m.DisplayName != nil {
+		return *m.DisplayName
+	}
+	return ""
+}
+
+func (m *CommodityDTO) GetThin() bool {
+	if m != nil && m.Thin != nil {
+		return *m.Thin
+	}
+	return Default_CommodityDTO_Thin
+}
+
+func (m *CommodityDTO) GetComputedUsed() bool {
+	if m != nil && m.ComputedUsed != nil {
+		return *m.ComputedUsed
+	}
+	return Default_CommodityDTO_ComputedUsed
+}
+
+func (m *CommodityDTO) GetUsedIncrement() float64 {
+	if m != nil && m.UsedIncrement != nil {
+		return *m.UsedIncrement
+	}
+	return 0
 }
 
 func (m *CommodityDTO) GetStorageLatencyData() *CommodityDTO_StorageLatencyData {
@@ -1832,8 +1911,10 @@ type GroupDTO_ConstraintInfo struct {
 	// Notify if this group is for creating complementary group
 	NeedComplementary *bool `protobuf:"varint,5,opt,name=need_complementary,def=0" json:"need_complementary,omitempty"`
 	// Name for the constraint
-	ConstraintName   *string `protobuf:"bytes,6,req,name=constraint_name" json:"constraint_name,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	ConstraintName *string `protobuf:"bytes,6,req,name=constraint_name" json:"constraint_name,omitempty"`
+	// Consumers that should not be included in the cluster.
+	ForExcludedConsumers *bool  `protobuf:"varint,7,opt,name=forExcludedConsumers,def=0" json:"forExcludedConsumers,omitempty"`
+	XXX_unrecognized     []byte `json:"-"`
 }
 
 func (m *GroupDTO_ConstraintInfo) Reset()         { *m = GroupDTO_ConstraintInfo{} }
@@ -1842,6 +1923,7 @@ func (*GroupDTO_ConstraintInfo) ProtoMessage()    {}
 
 const Default_GroupDTO_ConstraintInfo_IsBuyer bool = false
 const Default_GroupDTO_ConstraintInfo_NeedComplementary bool = false
+const Default_GroupDTO_ConstraintInfo_ForExcludedConsumers bool = false
 
 func (m *GroupDTO_ConstraintInfo) GetConstraintType() GroupDTO_ConstraintType {
 	if m != nil && m.ConstraintType != nil {
@@ -1883,6 +1965,13 @@ func (m *GroupDTO_ConstraintInfo) GetConstraintName() string {
 		return *m.ConstraintName
 	}
 	return ""
+}
+
+func (m *GroupDTO_ConstraintInfo) GetForExcludedConsumers() bool {
+	if m != nil && m.ForExcludedConsumers != nil {
+		return *m.ForExcludedConsumers
+	}
+	return Default_GroupDTO_ConstraintInfo_ForExcludedConsumers
 }
 
 // List of SelectionSpec to select group members

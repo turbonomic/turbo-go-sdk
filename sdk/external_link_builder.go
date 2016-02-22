@@ -23,11 +23,15 @@ func (this *ExternalEntityLinkBuilder) Link(buyer, seller EntityDTO_EntityType, 
 }
 
 // Add a single bought commodity to the link.
-func (this *ExternalEntityLinkBuilder) Commodity(comm CommodityDTO_CommodityType) *ExternalEntityLinkBuilder {
-	commodities := this.entityLink.GetCommodities()
-	commodities = append(commodities, comm)
+func (this *ExternalEntityLinkBuilder) Commodity(comm CommodityDTO_CommodityType, hasKey bool) *ExternalEntityLinkBuilder {
+	commodityDefs := this.entityLink.GetCommodityDefs()
+	commodityDef := &ExternalEntityLink_CommodityDef{
+		Type:   &comm,
+		HasKey: &hasKey,
+	}
+	commodityDefs = append(commodityDefs, commodityDef)
 
-	this.entityLink.Commodities = commodities
+	this.entityLink.CommodityDefs = commodityDefs
 	return this
 }
 

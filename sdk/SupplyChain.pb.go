@@ -117,9 +117,6 @@ type TemplateDTO struct {
 	// The priority of a Base template. For equivalent Base templates, Operations Manager uses the highest-priority
 	// template, and discards discovered data from lower-priority Base templates.
 	TemplatePriority *int32 `protobuf:"varint,3,req,name=templatePriority" json:"templatePriority,omitempty"`
-	// A boolean where {@code true} indicates that Entities of the type represented by this template DTO will be
-	// created automatically by the supply chain instead of being discovered.
-	AutoCreate *bool `protobuf:"varint,4,req,name=autoCreate" json:"autoCreate,omitempty"`
 	// This entity's list of {@link TemplateCommodity} items that it provides.
 	CommoditySold []*TemplateCommodity `protobuf:"bytes,5,rep,name=commoditySold" json:"commoditySold,omitempty"`
 	// The commodities bought from the different providers.
@@ -157,13 +154,6 @@ func (m *TemplateDTO) GetTemplatePriority() int32 {
 		return *m.TemplatePriority
 	}
 	return 0
-}
-
-func (m *TemplateDTO) GetAutoCreate() bool {
-	if m != nil && m.AutoCreate != nil {
-		return *m.AutoCreate
-	}
-	return false
 }
 
 func (m *TemplateDTO) GetCommoditySold() []*TemplateCommodity {
@@ -357,7 +347,7 @@ type ExternalEntityLink struct {
 	// Provider relationship type
 	Relationship *Provider_ProviderType `protobuf:"varint,3,req,name=relationship,enum=common_dto.Provider_ProviderType" json:"relationship,omitempty"`
 	// The list of commodities the consumer entity buys from the provider entity.
-	Commodities []CommodityDTO_CommodityType `protobuf:"varint,4,rep,name=commodities,enum=common_dto.CommodityDTO_CommodityType" json:"commodities,omitempty"`
+	CommodityDefs []*ExternalEntityLink_CommodityDef `protobuf:"bytes,4,rep,name=commodityDefs" json:"commodityDefs,omitempty"`
 	// Commodity key
 	Key *string `protobuf:"bytes,5,opt,name=key" json:"key,omitempty"`
 	// If one of the entity is to be found outside the probe
@@ -396,9 +386,9 @@ func (m *ExternalEntityLink) GetRelationship() Provider_ProviderType {
 	return Provider_HOSTING
 }
 
-func (m *ExternalEntityLink) GetCommodities() []CommodityDTO_CommodityType {
+func (m *ExternalEntityLink) GetCommodityDefs() []*ExternalEntityLink_CommodityDef {
 	if m != nil {
-		return m.Commodities
+		return m.CommodityDefs
 	}
 	return nil
 }
@@ -429,6 +419,32 @@ func (m *ExternalEntityLink) GetExternalEntityPropertyDefs() []*ExternalEntityLi
 		return m.ExternalEntityPropertyDefs
 	}
 	return nil
+}
+
+type ExternalEntityLink_CommodityDef struct {
+	Type             *CommodityDTO_CommodityType `protobuf:"varint,1,req,name=type,enum=common_dto.CommodityDTO_CommodityType" json:"type,omitempty"`
+	HasKey           *bool                       `protobuf:"varint,2,opt,name=hasKey,def=0" json:"hasKey,omitempty"`
+	XXX_unrecognized []byte                      `json:"-"`
+}
+
+func (m *ExternalEntityLink_CommodityDef) Reset()         { *m = ExternalEntityLink_CommodityDef{} }
+func (m *ExternalEntityLink_CommodityDef) String() string { return proto.CompactTextString(m) }
+func (*ExternalEntityLink_CommodityDef) ProtoMessage()    {}
+
+const Default_ExternalEntityLink_CommodityDef_HasKey bool = false
+
+func (m *ExternalEntityLink_CommodityDef) GetType() CommodityDTO_CommodityType {
+	if m != nil && m.Type != nil {
+		return *m.Type
+	}
+	return CommodityDTO_CLUSTER
+}
+
+func (m *ExternalEntityLink_CommodityDef) GetHasKey() bool {
+	if m != nil && m.HasKey != nil {
+		return *m.HasKey
+	}
+	return Default_ExternalEntityLink_CommodityDef_HasKey
 }
 
 // The ServerEntityPropDef class provides metadata properties for entities
