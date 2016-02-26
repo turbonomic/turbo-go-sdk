@@ -123,6 +123,12 @@ func (eb *EntityDTOBuilder) Buys(commodityType CommodityDTO_CommodityType, key s
 	return eb
 }
 
+func (eb *EntityDTOBuilder) BuysCommodities(commDTOs []*CommodityDTO) {
+	for _, commDTO := range commDTOs {
+		eb.BuysCommodity(commDTO)
+	}
+}
+
 func (eb *EntityDTOBuilder) BuysCommodity(commDTO *CommodityDTO) *EntityDTOBuilder {
 	if eb.currentProvider == nil {
 		// TODO should have error message. Notify set current provider first
