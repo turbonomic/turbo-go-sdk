@@ -42,7 +42,7 @@ func CreateCommoditiesBought(comms_array []*Commodity_Params) []*sdk.CommodityDT
 func CreateCommoditiesSold(comms_array []*Commodity_Params) []*sdk.CommodityDTO {
 	var commoditiesSold []*sdk.CommodityDTO
 	for _, comm := range comms_array {
-		cpuComm := sdk.NewCommodtiyDTOBuilder(comm.commType).Key(comm.commKey).Capacity(comm.cap).Used(comm.used).Create()
+		cpuComm := sdk.NewCommodityDTOBuilder(comm.commType).Key(comm.commKey).Capacity(comm.cap).Used(comm.used).Create()
 		commoditiesSold = append(commoditiesSold, cpuComm)
 	}
 	return commoditiesSold
@@ -54,9 +54,9 @@ func (e *Entity_Params) buildEntityDTO() *sdk.EntityDTO {
 	entityDTOBuilder := sdk.NewEntityDTOBuilder(e.entityType, e.entityID)
 	entityDTOBuilder.DisplayName(e.entityDisplayName)
 	if e.isBuyer == true {
-		entityDTOBuilder.SetProvider(e.providerType, e.providerID)
+		entityDTOBuilder.SetProviderWithTypeAndID(e.providerType, e.providerID)
 		commoditiesbought := CreateCommoditiesBought(e.commoditiesBought)
-		entityDTOBuilder = entityDTOBuilder.BuysCommodities(commoditiesbought)
+		entityDTOBuilder.BuysCommodities(commoditiesbought)
 		glog.Infof("after buys --> %++v", entityDTOBuilder)
 	}
 	if e.isSeller == true {
