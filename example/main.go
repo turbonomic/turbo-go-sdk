@@ -31,7 +31,7 @@ type ConnectionInfo struct {
 func CreateCommoditiesBought(comms_array []*Commodity_Params) []*sdk.CommodityDTO {
 	var commoditiesBought []*sdk.CommodityDTO
 	for _, comm := range comms_array {
-		cpuComm := sdk.NewCommodtiyDTOBuilder(comm.commType).Key(comm.commKey).Capacity(comm.cap).Used(comm.used).Create()
+		cpuComm := sdk.NewCommodityDTOBuilder(comm.commType).Key(comm.commKey).Capacity(comm.cap).Used(comm.used).Create()
 		commoditiesBought = append(commoditiesBought, cpuComm)
 	}
 	return commoditiesBought

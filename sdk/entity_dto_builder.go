@@ -49,13 +49,6 @@ func (eb *EntityDTOBuilder) DisplayName(disp string) *EntityDTOBuilder {
 	return eb
 }
 
-func (eb *EntityDTOBuilder) SellsCommodity(commDTO *CommodityDTO) *EntityDTOBuilder {
-	commSold := eb.entity.CommoditiesSold
-	commSold = append(commSold, commDTO)
-	eb.entity.CommoditiesSold = commSold
-	return eb
-}
-
 func (eb *EntityDTOBuilder) SellsCommodities(commDTOs []*CommodityDTO) {
 	commSold := eb.entity.CommoditiesSold
 	commSold = append(commSold, commDTOs...)
