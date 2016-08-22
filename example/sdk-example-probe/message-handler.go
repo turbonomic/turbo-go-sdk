@@ -3,12 +3,14 @@ package main
 import (
 	"bytes"
 	"github.com/golang/glog"
-	"github.com/vmturbo/vmturbo-go-sdk/communicator"
+
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/comm"
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
 )
 
 // This Struct is the implementation of communicator.ServerMessageHandler interface
 type MsgHandler struct {
-	wscommunicator *communicator.WebSocketCommunicator
+	wscommunicator *comm.WebSocketCommunicator
 	cInfo          *ConnectionInfo
 	vmtapi         *VMTApiRequestHandler
 }
@@ -43,15 +45,15 @@ func (h *MsgHandler) AddTarget() {
 }
 
 // This Method validates our target which was previously added to the VMTServer
-func (h *MsgHandler) Validate(serverMsg *communicator.MediationServerMessage) {
+func (h *MsgHandler) Validate(serverMsg *proto.MediationServerMessage) {
 	// messageID is a int32 , if nil then 0
 	messageID := serverMsg.GetMessageID()
-	validationResponse := new(communicator.ValidationResponse)
+	validationResponse := new(proto.ValidationResponse)
 
 	// creates a ClientMessageBuilder and sets ClientMessageBuilder.clientMessage.MessageID = messageID
 	// sets clientMessage.ValidationResponse = validationResponse
 	// type of clientMessage is MediationClientMessage
-	clientMsg := communicator.NewClientMessageBuilder(messageID).SetValidationResponse(validationResponse).Create()
+	clientMsg := comm.NewClientMessageBuilder(messageID).SetValidationResponse(validationResponse).Create()
 	h.wscommunicator.SendClientMessage(clientMsg)
 	glog.Infof("The client msg sent out is %++v", clientMsg)
 	var requestDataB bytes.Buffer
@@ -83,24 +85,24 @@ func (h *MsgHandler) Validate(serverMsg *communicator.MediationServerMessage) {
 	return
 }
 
-func (h *MsgHandler) HandleAction(serverMsg *communicator.MediationServerMessage) {
+func (h *MsgHandler) HandleAction(serverMsg *proto.MediationServerMessage) {
 	glog.Infof("HandleAction called")
 	return
 }
 
 // This Method sends all the topology entities and relationships found at
 // this target to the VMTServer
-func (h *MsgHandler) DiscoverTopology(serverMsg *communicator.MediationServerMessage) {
+func (h *MsgHandler) DiscoverTopology(serverMsg *proto.MediationServerMessage) {
 
 	messageID := serverMsg.GetMessageID()
 	simulatedProbe := &TargetProbe{}
 	// add some fake nodes to simulatdProbe or just created it in getNodeEntityDTOs
 	nodeEntityDTOs := simulatedProbe.getNodeEntityDTOs() // []*sdk.EntityDTO
 	//  use simulated kubeclient to do ParseNode and ParsePod
-	discoveryResponse := &communicator.DiscoveryResponse{
+	discoveryResponse := &proto.DiscoveryResponse{
 		EntityDTO: nodeEntityDTOs,
 	}
-	clientMsg := communicator.NewClientMessageBuilder(messageID).SetDiscoveryResponse(discoveryResponse).Create()
+	clientMsg := comm.NewClientMessageBuilder(messageID).SetDiscoveryResponse(discoveryResponse).Create()
 	h.wscommunicator.SendClientMessage(clientMsg)
 	glog.Infof("The client msg sent out is %++v", clientMsg)
 	return
@@ -108,22 +110,22 @@ func (h *MsgHandler) DiscoverTopology(serverMsg *communicator.MediationServerMes
 
 // Function Creates ContainerInfo struct, sets Kubernetes Container Probe Information
 // Returns pointer to newly created ContainerInfo
-func (h *MsgHandler) CreateContainerInfo(localaddr string) *communicator.ContainerInfo {
-	var acctDefProps []*communicator.AccountDefEntry
-	targetIDAcctDefEntry := communicator.NewAccountDefEntryBuilder(h.cInfo.TargetIdentifier,
-		h.cInfo.UserDefinedNameorIPAddress, localaddr, ".*", communicator.AccountDefEntry_OPTIONAL, false).Create()
+func (h *MsgHandler) CreateContainerInfo(localaddr string) *proto.ContainerInfo {
+	var acctDefProps []*proto.AccountDefEntry
+	targetIDAcctDefEntry := comm.NewAccountDefEntryBuilder(h.cInfo.TargetIdentifier,
+		h.cInfo.UserDefinedNameorIPAddress, localaddr, ".*", proto.AccountDefEntry_OPTIONAL, false).Create()
 	acctDefProps = append(acctDefProps, targetIDAcctDefEntry)
-	usernameAcctDefEntry := communicator.NewAccountDefEntryBuilder("username", "Username", h.cInfo.Username, ".*", communicator.AccountDefEntry_OPTIONAL, false).Create()
+	usernameAcctDefEntry := comm.NewAccountDefEntryBuilder("username", "Username", h.cInfo.Username, ".*", proto.AccountDefEntry_OPTIONAL, false).Create()
 	acctDefProps = append(acctDefProps, usernameAcctDefEntry)
-	passwdAcctDefEntry := communicator.NewAccountDefEntryBuilder("password", "Password", h.cInfo.Password, ".*", communicator.AccountDefEntry_OPTIONAL, true).Create()
+	passwdAcctDefEntry := comm.NewAccountDefEntryBuilder("password", "Password", h.cInfo.Password, ".*", proto.AccountDefEntry_OPTIONAL, true).Create()
 	acctDefProps = append(acctDefProps, passwdAcctDefEntry)
 	//create the ProbeInfo struct with only type and category fields
 	probeType := h.cInfo.Type
 	probeCat := "Container"
 	templateDTOs := createSupplyChain()
-	probeInfo := communicator.NewProbeInfoBuilder(probeType, probeCat, templateDTOs, acctDefProps).Create()
+	probeInfo := comm.NewProbeInfoBuilder(probeType, probeCat, templateDTOs, acctDefProps).Create()
 	// Create container
-	containerInfo := new(communicator.ContainerInfo)
+	containerInfo := new(proto.ContainerInfo)
 	// Add probe to array of ProbeInfo* in container
 	probes := append(containerInfo.Probes, probeInfo)
 	containerInfo.Probes = probes

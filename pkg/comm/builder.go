@@ -1,17 +1,17 @@
-package communicator
+package comm
 
 import (
-	"github.com/vmturbo/vmturbo-go-sdk/sdk"
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
 )
 
 // A ClientMessageBuilder builds a ClientMessage instance.
 type ClientMessageBuilder struct {
-	clientMessage *MediationClientMessage
+	clientMessage *proto.MediationClientMessage
 }
 
 // Get an instance of ClientMessageBuilder
 func NewClientMessageBuilder(messageID int32) *ClientMessageBuilder {
-	clientMessage := &MediationClientMessage{
+	clientMessage := &proto.MediationClientMessage{
 		MessageID: &messageID,
 	}
 	return &ClientMessageBuilder{
@@ -20,7 +20,7 @@ func NewClientMessageBuilder(messageID int32) *ClientMessageBuilder {
 }
 
 // Build an instance of ClientMessage.
-func (cmb *ClientMessageBuilder) Create() *MediationClientMessage {
+func (cmb *ClientMessageBuilder) Create() *proto.MediationClientMessage {
 	return cmb.clientMessage
 }
 
@@ -31,43 +31,43 @@ func (cmb *ClientMessageBuilder) Create() *MediationClientMessage {
 // }
 
 // set the validation response
-func (cmb *ClientMessageBuilder) SetValidationResponse(validationResponse *ValidationResponse) *ClientMessageBuilder {
+func (cmb *ClientMessageBuilder) SetValidationResponse(validationResponse *proto.ValidationResponse) *ClientMessageBuilder {
 	cmb.clientMessage.ValidationResponse = validationResponse
 	return cmb
 }
 
 // set discovery response
-func (cmb *ClientMessageBuilder) SetDiscoveryResponse(discoveryResponse *DiscoveryResponse) *ClientMessageBuilder {
+func (cmb *ClientMessageBuilder) SetDiscoveryResponse(discoveryResponse *proto.DiscoveryResponse) *ClientMessageBuilder {
 	cmb.clientMessage.DiscoveryResponse = discoveryResponse
 	return cmb
 }
 
 // set discovery keep alive
-func (cmb *ClientMessageBuilder) SetKeepAlive(keepAlive *KeepAlive) *ClientMessageBuilder {
+func (cmb *ClientMessageBuilder) SetKeepAlive(keepAlive *proto.KeepAlive) *ClientMessageBuilder {
 	cmb.clientMessage.KeepAlive = keepAlive
 	return cmb
 }
 
 // set action progress
-func (cmb *ClientMessageBuilder) SetActionProgress(actionProgress *ActionProgress) *ClientMessageBuilder {
+func (cmb *ClientMessageBuilder) SetActionProgress(actionProgress *proto.ActionProgress) *ClientMessageBuilder {
 	cmb.clientMessage.ActionProgress = actionProgress
 	return cmb
 }
 
 // set action response
-func (cmb *ClientMessageBuilder) SetActionResponse(actionResponse *ActionResult) *ClientMessageBuilder {
+func (cmb *ClientMessageBuilder) SetActionResponse(actionResponse *proto.ActionResult) *ClientMessageBuilder {
 	cmb.clientMessage.ActionResponse = actionResponse
 	return cmb
 }
 
 // An AccountDefEntryBuilder builds an AccountDefEntry instance.
 type AccountDefEntryBuilder struct {
-	accountDefEntry *AccountDefEntry
+	accountDefEntry *proto.AccountDefEntry
 }
 
 func NewAccountDefEntryBuilder(name, displayName, description, verificationRegex string,
-	entryType AccountDefEntry_AccountDefEntryType, isSecret bool) *AccountDefEntryBuilder {
-	accountDefEntry := &AccountDefEntry{
+	entryType proto.AccountDefEntry_AccountDefEntryType, isSecret bool) *AccountDefEntryBuilder {
+	accountDefEntry := &proto.AccountDefEntry{
 		Name:              &name,
 		DisplayName:       &displayName,
 		Description:       &description,
@@ -80,17 +80,17 @@ func NewAccountDefEntryBuilder(name, displayName, description, verificationRegex
 	}
 }
 
-func (builder *AccountDefEntryBuilder) Create() *AccountDefEntry {
+func (builder *AccountDefEntryBuilder) Create() *proto.AccountDefEntry {
 	return builder.accountDefEntry
 }
 
 // A ProbeInfoBuilder builds a ProbeInfo instance.
 type ProbeInfoBuilder struct {
-	probeInfo *ProbeInfo
+	probeInfo *proto.ProbeInfo
 }
 
-func NewProbeInfoBuilder(probeType, probeCat string, supplyChainSet []*sdk.TemplateDTO, acctDef []*AccountDefEntry) *ProbeInfoBuilder {
-	probeInfo := &ProbeInfo{
+func NewProbeInfoBuilder(probeType, probeCat string, supplyChainSet []*proto.TemplateDTO, acctDef []*proto.AccountDefEntry) *ProbeInfoBuilder {
+	probeInfo := &proto.ProbeInfo{
 		ProbeType:                &probeType,
 		ProbeCategory:            &probeCat,
 		SupplyChainDefinitionSet: supplyChainSet,
@@ -101,6 +101,6 @@ func NewProbeInfoBuilder(probeType, probeCat string, supplyChainSet []*sdk.Templ
 	}
 }
 
-func (builder *ProbeInfoBuilder) Create() *ProbeInfo {
+func (builder *ProbeInfoBuilder) Create() *proto.ProbeInfo {
 	return builder.probeInfo
 }

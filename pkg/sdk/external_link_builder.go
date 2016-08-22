@@ -1,11 +1,13 @@
 package sdk
 
+import "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+
 type ExternalEntityLinkBuilder struct {
-	entityLink *ExternalEntityLink
+	entityLink *proto.ExternalEntityLink
 }
 
 func NewExternalEntityLinkBuilder() *ExternalEntityLinkBuilder {
-	link := &ExternalEntityLink{}
+	link := &proto.ExternalEntityLink{}
 	return &ExternalEntityLinkBuilder{
 		entityLink: link,
 	}
@@ -14,7 +16,7 @@ func NewExternalEntityLinkBuilder() *ExternalEntityLinkBuilder {
 // Initialize the buyer/seller external link that you're building.
 // This method sets the entity types for the buyer and seller, as well as the type of provider
 // relationship HOSTING or code LAYEREDOVER.
-func (this *ExternalEntityLinkBuilder) Link(buyer, seller EntityDTO_EntityType, relationship Provider_ProviderType) *ExternalEntityLinkBuilder {
+func (this *ExternalEntityLinkBuilder) Link(buyer, seller proto.EntityDTO_EntityType, relationship proto.Provider_ProviderType) *ExternalEntityLinkBuilder {
 	this.entityLink.BuyerRef = &buyer
 	this.entityLink.SellerRef = &seller
 	this.entityLink.Relationship = &relationship
@@ -23,9 +25,9 @@ func (this *ExternalEntityLinkBuilder) Link(buyer, seller EntityDTO_EntityType, 
 }
 
 // Add a single bought commodity to the link.
-func (this *ExternalEntityLinkBuilder) Commodity(comm CommodityDTO_CommodityType, hasKey bool) *ExternalEntityLinkBuilder {
+func (this *ExternalEntityLinkBuilder) Commodity(comm proto.CommodityDTO_CommodityType, hasKey bool) *ExternalEntityLinkBuilder {
 	commodityDefs := this.entityLink.GetCommodityDefs()
-	commodityDef := &ExternalEntityLink_CommodityDef{
+	commodityDef := &proto.ExternalEntityLink_CommodityDef{
 		Type:   &comm,
 		HasKey: &hasKey,
 	}
@@ -39,7 +41,7 @@ func (this *ExternalEntityLinkBuilder) Commodity(comm CommodityDTO_CommodityType
 // stitch the discovered entity into the Operations Manager topology. This setting includes the property name
 // and an arbitrary description.
 func (this *ExternalEntityLinkBuilder) ProbeEntityPropertyDef(name, description string) *ExternalEntityLinkBuilder {
-	entityProperty := &ExternalEntityLink_EntityPropertyDef{
+	entityProperty := &proto.ExternalEntityLink_EntityPropertyDef{
 		Name:        &name,
 		Description: &description,
 	}
@@ -56,7 +58,7 @@ func (this *ExternalEntityLinkBuilder) ProbeEntityPropertyDef(name, description 
 // to stitch entities discovered by the probe together with external entities.
 // An external entity is one that exists in the Operations Manager topology, but has
 // not been discovered by the probe.
-func (this *ExternalEntityLinkBuilder) ExternalEntityPropertyDef(propertyDef *ExternalEntityLink_ServerEntityPropDef) *ExternalEntityLinkBuilder {
+func (this *ExternalEntityLinkBuilder) ExternalEntityPropertyDef(propertyDef *proto.ExternalEntityLink_ServerEntityPropDef) *ExternalEntityLinkBuilder {
 	currentExtProps := this.entityLink.GetExternalEntityPropertyDefs()
 	currentExtProps = append(currentExtProps, propertyDef)
 
@@ -66,6 +68,6 @@ func (this *ExternalEntityLinkBuilder) ExternalEntityPropertyDef(propertyDef *Ex
 }
 
 // Get the ExternalEntityLink that you have built.
-func (this *ExternalEntityLinkBuilder) Build() *ExternalEntityLink {
+func (this *ExternalEntityLinkBuilder) Build() *proto.ExternalEntityLink {
 	return this.entityLink
 }

@@ -2,10 +2,12 @@ package sdk
 
 import (
 	"fmt"
+
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
 )
 
 type SupplyChainBuilder struct {
-	SupplyChainNodes map[*EntityDTO_EntityType]*SupplyChainNodeBuilder
+	SupplyChainNodes map[*proto.EntityDTO_EntityType]*SupplyChainNodeBuilder
 	currentNode      *SupplyChainNodeBuilder
 }
 
@@ -15,14 +17,14 @@ func NewSupplyChainBuilder() *SupplyChainBuilder {
 
 // TODO: supply chain here is a set(map) or a list
 // if a map, key is the node builder, value is a boolean
-func (scb *SupplyChainBuilder) Create() []*TemplateDTO {
+func (scb *SupplyChainBuilder) Create() []*proto.TemplateDTO {
 	allNodeBuilders := make(map[*SupplyChainNodeBuilder]bool)
 	for _, nodeBuilder := range scb.SupplyChainNodes {
 		allNodeBuilders[nodeBuilder] = true
 	}
 
 	// create nodes from all node builders and put it into result
-	var allNodes []*TemplateDTO
+	var allNodes []*proto.TemplateDTO
 	for nodeBuilder, _ := range allNodeBuilders {
 		allNodes = append(allNodes, nodeBuilder.Create())
 	}
@@ -33,7 +35,7 @@ func (scb *SupplyChainBuilder) Create() []*TemplateDTO {
 // To build a supply chain, must specify the top nodebuilder first.
 // Here it initialize SupplyChainNodes and currentNode
 func (scb *SupplyChainBuilder) Top(topNode *SupplyChainNodeBuilder) *SupplyChainBuilder {
-	supplyChianNodesBuilderMap := make(map[*EntityDTO_EntityType]*SupplyChainNodeBuilder)
+	supplyChianNodesBuilderMap := make(map[*proto.EntityDTO_EntityType]*SupplyChainNodeBuilder)
 	scb.SupplyChainNodes = supplyChianNodesBuilderMap
 	topNodeEntityType := topNode.getEntity()
 	scb.SupplyChainNodes[&topNodeEntityType] = topNode
@@ -69,7 +71,7 @@ func (scb *SupplyChainBuilder) hasTopNode() bool {
 // An external entity is on ethat exists in teh Operations Manager supply chain, but has not been
 // discovered by the probe. Operations Manager uses this link by the Operations Manager market. This
 // external entity can be a provider or a consumer.
-func (scb *SupplyChainBuilder) ConnectsTo(extEntityLink *ExternalEntityLink) *SupplyChainBuilder {
+func (scb *SupplyChainBuilder) ConnectsTo(extEntityLink *proto.ExternalEntityLink) *SupplyChainBuilder {
 	err := scb.requireCurrentNode()
 	if err != nil {
 		return scb

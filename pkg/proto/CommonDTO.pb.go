@@ -2,7 +2,7 @@
 // source: CommonDTO.proto
 // DO NOT EDIT!
 
-package sdk
+package proto
 
 import proto "github.com/golang/protobuf/proto"
 import math "math"

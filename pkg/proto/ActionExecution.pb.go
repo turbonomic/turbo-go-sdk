@@ -17,7 +17,7 @@ It has these top-level messages:
 	ActionExecutionDTO
 	ActionItemDTO
 */
-package sdk
+package proto
 
 import proto "github.com/golang/protobuf/proto"
 import math "math"

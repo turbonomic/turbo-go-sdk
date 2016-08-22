@@ -1,18 +1,20 @@
 package sdk
 
+import "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+
 type CommodityDTOBuilder struct {
-	commDTO *CommodityDTO
+	commDTO *proto.CommodityDTO
 }
 
-func NewCommodityDTOBuilder(commodityType CommodityDTO_CommodityType) *CommodityDTOBuilder {
-	commodityDTO := new(CommodityDTO)
+func NewCommodityDTOBuilder(commodityType proto.CommodityDTO_CommodityType) *CommodityDTOBuilder {
+	commodityDTO := new(proto.CommodityDTO)
 	commodityDTO.CommodityType = &commodityType
 	return &CommodityDTOBuilder{
 		commDTO: commodityDTO,
 	}
 }
 
-func (this *CommodityDTOBuilder) Create() *CommodityDTO {
+func (this *CommodityDTOBuilder) Create() *proto.CommodityDTO {
 	return this.commDTO
 }
 

@@ -1,21 +1,23 @@
-package communicator
+package comm
 
 import (
 	"encoding/base64"
 	"net/http"
 	"time"
 
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+
 	"github.com/golang/glog"
-	"github.com/golang/protobuf/proto"
+	goproto "github.com/golang/protobuf/proto"
 	"golang.org/x/net/websocket"
 )
 
 // An interface to handle server request.
 type ServerMessageHandler interface {
 	AddTarget()
-	Validate(serverMsg *MediationServerMessage)
-	DiscoverTopology(serverMsg *MediationServerMessage)
-	HandleAction(serverMsg *MediationServerMessage)
+	Validate(serverMsg *proto.MediationServerMessage)
+	DiscoverTopology(serverMsg *proto.MediationServerMessage)
+	HandleAction(serverMsg *proto.MediationServerMessage)
 }
 
 type WebSocketCommunicator struct {
@@ -28,7 +30,7 @@ type WebSocketCommunicator struct {
 }
 
 // Handle server message according to serverMessage type
-func (wsc *WebSocketCommunicator) handleServerMessage(serverMsg *MediationServerMessage) {
+func (wsc *WebSocketCommunicator) handleServerMessage(serverMsg *proto.MediationServerMessage) {
 	if wsc.ServerMsgHandler == nil {
 		// Log the error
 		glog.V(4).Infof("Server Message Handler is nil")
@@ -51,18 +53,18 @@ func (wsc *WebSocketCommunicator) handleServerMessage(serverMsg *MediationServer
 	}
 }
 
-func (wsc *WebSocketCommunicator) SendClientMessage(clientMsg *MediationClientMessage) {
+func (wsc *WebSocketCommunicator) SendClientMessage(clientMsg *proto.MediationClientMessage) {
 	glog.V(3).Infof("Send Client Message: %+v", clientMsg)
 	wsc.sendMessage(clientMsg)
 }
 
-func (wsc *WebSocketCommunicator) SendRegistrationMessage(containerInfo *ContainerInfo) {
+func (wsc *WebSocketCommunicator) SendRegistrationMessage(containerInfo *proto.ContainerInfo) {
 	glog.V(3).Infof("Send registration message: %+v", containerInfo)
 	wsc.sendMessage(containerInfo)
 }
 
-func (wsc *WebSocketCommunicator) sendMessage(message proto.Message) {
-	msgMarshalled, err := proto.Marshal(message)
+func (wsc *WebSocketCommunicator) sendMessage(message goproto.Message) {
+	msgMarshalled, err := goproto.Marshal(message)
 	if err != nil {
 		glog.Fatal("marshaling error: ", err)
 	}
@@ -77,7 +79,7 @@ func (wsc *WebSocketCommunicator) sendMessage(message proto.Message) {
 	websocket.Message.Send(wsc.ws, msgMarshalled)
 }
 
-func (wsc *WebSocketCommunicator) CloseAndRegisterAgain(containerInfo *ContainerInfo) {
+func (wsc *WebSocketCommunicator) CloseAndRegisterAgain(containerInfo *proto.ContainerInfo) {
 	if wsc.ws != nil {
 		//Close the socket if it's not nil to prevent socket leak
 		wsc.ws.Close()
@@ -91,7 +93,7 @@ func (wsc *WebSocketCommunicator) CloseAndRegisterAgain(containerInfo *Container
 }
 
 // Register target type on vmt server and start to listen for server message
-func (wsc *WebSocketCommunicator) RegisterAndListen(containerInfo *ContainerInfo) {
+func (wsc *WebSocketCommunicator) RegisterAndListen(containerInfo *proto.ContainerInfo) {
 	// vmtServerUrl := "ws://10.10.173.154:8080/vmturbo/remoteMediation"
 	vmtServerUrl := "ws://" + wsc.VmtServerAddress + "/vmturbo/remoteMediation"
 	localAddr := wsc.LocalAddress
@@ -143,11 +145,11 @@ func (wsc *WebSocketCommunicator) RegisterAndListen(containerInfo *ContainerInfo
 		// glog.Info("Unmarshalled msg is: %v", msg)
 
 		// ack := &Ack{}
-		// err = proto.Unmarshal(msg[:n], ack)
+		// err = goproto.Unmarshal(msg[:n], ack)
 		// glog.V(3).Infof("Ack from server: %v", ack)
 
-		serverMsg := &MediationServerMessage{}
-		err = proto.Unmarshal(msg[:n], serverMsg)
+		serverMsg := &proto.MediationServerMessage{}
+		err = goproto.Unmarshal(msg[:n], serverMsg)
 		if err != nil {
 			glog.Error("Received unmarshalable error, please make sure you are running the latest VMT server")
 			glog.Fatal("unmarshaling error: ", err)

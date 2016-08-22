@@ -2,11 +2,9 @@
 // source: MediationMessage.proto
 // DO NOT EDIT!
 
-package communicator
+package proto
 
 import (
-	"github.com/vmturbo/vmturbo-go-sdk/sdk"
-
 	proto "github.com/golang/protobuf/proto"
 	math "math"
 )
@@ -182,7 +180,7 @@ type ActionRequest struct {
 	// to the probe
 	AccountValue []*AccountValue `protobuf:"bytes,2,rep,name=accountValue" json:"accountValue,omitempty"`
 	// An action execution DTO contains one or more action items
-	ActionExecutionDTO *sdk.ActionExecutionDTO `protobuf:"bytes,3,req,name=actionExecutionDTO" json:"actionExecutionDTO,omitempty"`
+	ActionExecutionDTO *ActionExecutionDTO `protobuf:"bytes,3,req,name=actionExecutionDTO" json:"actionExecutionDTO,omitempty"`
 	// For Cross Destination actions (from one target to another) 2 sets of account
 	// values are needed
 	SecondaryAccountValue []*AccountValue `protobuf:"bytes,4,rep,name=secondaryAccountValue" json:"secondaryAccountValue,omitempty"`
@@ -207,7 +205,7 @@ func (m *ActionRequest) GetAccountValue() []*AccountValue {
 	return nil
 }
 
-func (m *ActionRequest) GetActionExecutionDTO() *sdk.ActionExecutionDTO {
+func (m *ActionRequest) GetActionExecutionDTO() *ActionExecutionDTO {
 	if m != nil {
 		return m.ActionExecutionDTO
 	}
@@ -262,7 +260,7 @@ func (m *ActionProgress) GetResponse() *ActionResponse {
 // description message notifying detailed information about current status of executing action
 type ActionResponse struct {
 	// current action state
-	ActionResponseState *sdk.ActionResponseState `protobuf:"varint,1,req,name=actionResponseState,enum=common_dto.ActionResponseState" json:"actionResponseState,omitempty"`
+	ActionResponseState *ActionResponseState `protobuf:"varint,1,req,name=actionResponseState,enum=common_dto.ActionResponseState" json:"actionResponseState,omitempty"`
 	// current action progress (0..100)
 	Progress *int32 `protobuf:"varint,2,req,name=progress" json:"progress,omitempty"`
 	// action state description, for example ("Moving VM...")
@@ -274,11 +272,11 @@ func (m *ActionResponse) Reset()         { *m = ActionResponse{} }
 func (m *ActionResponse) String() string { return proto.CompactTextString(m) }
 func (*ActionResponse) ProtoMessage()    {}
 
-func (m *ActionResponse) GetActionResponseState() sdk.ActionResponseState {
+func (m *ActionResponse) GetActionResponseState() ActionResponseState {
 	if m != nil && m.ActionResponseState != nil {
 		return *m.ActionResponseState
 	}
-	return sdk.ActionResponseState_PENDING_ACCEPT
+	return ActionResponseState_PENDING_ACCEPT
 }
 
 func (m *ActionResponse) GetProgress() int32 {
@@ -426,7 +424,7 @@ type ProbeInfo struct {
 	// Set of TemplateDTO objects that defines the types of entities the probe discovers, and
 	// what their bought and sold commodities are. Any entity instances the probe creates must match
 	// members of this set.
-	SupplyChainDefinitionSet []*sdk.TemplateDTO `protobuf:"bytes,3,rep,name=supplyChainDefinitionSet" json:"supplyChainDefinitionSet,omitempty"`
+	SupplyChainDefinitionSet []*TemplateDTO `protobuf:"bytes,3,rep,name=supplyChainDefinitionSet" json:"supplyChainDefinitionSet,omitempty"`
 	// List of AccountDefEntry objects that describe the fields users provide as
 	// input (i.e. ip, user, pass, ...). These fields appear in the Operations Manager user interface
 	// when users add targets of this probe's type. REST API calls to add targets also provide data
@@ -461,7 +459,7 @@ func (m *ProbeInfo) GetProbeCategory() string {
 	return ""
 }
 
-func (m *ProbeInfo) GetSupplyChainDefinitionSet() []*sdk.TemplateDTO {
+func (m *ProbeInfo) GetSupplyChainDefinitionSet() []*TemplateDTO {
 	if m != nil {
 		return m.SupplyChainDefinitionSet
 	}

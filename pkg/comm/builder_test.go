@@ -1,4 +1,4 @@
-package communicator
+package comm
 
 import (
 	"github.com/stretchr/testify/assert"

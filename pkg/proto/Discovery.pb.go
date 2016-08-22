@@ -2,11 +2,9 @@
 // source: Discovery.proto
 // DO NOT EDIT!
 
-package communicator
+package proto
 
 import (
-	"github.com/vmturbo/vmturbo-go-sdk/sdk"
-
 	proto "github.com/golang/protobuf/proto"
 	math "math"
 )
@@ -143,16 +141,16 @@ type DiscoveryResponse struct {
 	// Errors, discovered during external probe operation
 	ErrorDTO []*ErrorDTO `protobuf:"bytes,1,rep,name=errorDTO" json:"errorDTO,omitempty"`
 	// Entities, discovered by external probe.
-	EntityDTO []*sdk.EntityDTO `protobuf:"bytes,2,rep,name=entityDTO" json:"entityDTO,omitempty"`
+	EntityDTO []*EntityDTO `protobuf:"bytes,2,rep,name=entityDTO" json:"entityDTO,omitempty"`
 	// Constraints defined in external probe
-	DiscoveredGroup []*sdk.GroupDTO `protobuf:"bytes,3,rep,name=discoveredGroup" json:"discoveredGroup,omitempty"`
+	DiscoveredGroup []*GroupDTO `protobuf:"bytes,3,rep,name=discoveredGroup" json:"discoveredGroup,omitempty"`
 	// ServiceEntityProfile (template)
-	EntityProfile []*sdk.EntityProfileDTO `protobuf:"bytes,4,rep,name=entityProfile" json:"entityProfile,omitempty"`
+	EntityProfile []*EntityProfileDTO `protobuf:"bytes,4,rep,name=entityProfile" json:"entityProfile,omitempty"`
 	// Deployment Profile (ServiceCatalogItem)
-	DeploymentProfile []*sdk.DeploymentProfileDTO `protobuf:"bytes,5,rep,name=deploymentProfile" json:"deploymentProfile,omitempty"`
+	DeploymentProfile []*DeploymentProfileDTO `protobuf:"bytes,5,rep,name=deploymentProfile" json:"deploymentProfile,omitempty"`
 	// Notifications for global (not entity-specific) events
-	Notification     []*sdk.NotificationDTO `protobuf:"bytes,6,rep,name=notification" json:"notification,omitempty"`
-	XXX_unrecognized []byte                 `json:"-"`
+	Notification     []*NotificationDTO `protobuf:"bytes,6,rep,name=notification" json:"notification,omitempty"`
+	XXX_unrecognized []byte             `json:"-"`
 }
 
 func (m *DiscoveryResponse) Reset()         { *m = DiscoveryResponse{} }
@@ -166,35 +164,35 @@ func (m *DiscoveryResponse) GetErrorDTO() []*ErrorDTO {
 	return nil
 }
 
-func (m *DiscoveryResponse) GetEntityDTO() []*sdk.EntityDTO {
+func (m *DiscoveryResponse) GetEntityDTO() []*EntityDTO {
 	if m != nil {
 		return m.EntityDTO
 	}
 	return nil
 }
 
-func (m *DiscoveryResponse) GetDiscoveredGroup() []*sdk.GroupDTO {
+func (m *DiscoveryResponse) GetDiscoveredGroup() []*GroupDTO {
 	if m != nil {
 		return m.DiscoveredGroup
 	}
 	return nil
 }
 
-func (m *DiscoveryResponse) GetEntityProfile() []*sdk.EntityProfileDTO {
+func (m *DiscoveryResponse) GetEntityProfile() []*EntityProfileDTO {
 	if m != nil {
 		return m.EntityProfile
 	}
 	return nil
 }
 
-func (m *DiscoveryResponse) GetDeploymentProfile() []*sdk.DeploymentProfileDTO {
+func (m *DiscoveryResponse) GetDeploymentProfile() []*DeploymentProfileDTO {
 	if m != nil {
 		return m.DeploymentProfile
 	}
 	return nil
 }
 
-func (m *DiscoveryResponse) GetNotification() []*sdk.NotificationDTO {
+func (m *DiscoveryResponse) GetNotification() []*NotificationDTO {
 	if m != nil {
 		return m.Notification
 	}
@@ -301,7 +299,7 @@ func (m *AccountDefEntry) GetGroupScopePropertySet() *AccountDefEntry_GroupScope
 // Entity type with a set of properties for group scope account definition
 type AccountDefEntry_GroupScopePropertySet struct {
 	// Entity type
-	EntityType *sdk.EntityDTO_EntityType `protobuf:"varint,1,req,name=entityType,enum=common_dto.EntityDTO_EntityType" json:"entityType,omitempty"`
+	EntityType *EntityDTO_EntityType `protobuf:"varint,1,req,name=entityType,enum=common_dto.EntityDTO_EntityType" json:"entityType,omitempty"`
 	// Set of property names
 	PropertyName     []string `protobuf:"bytes,2,rep,name=propertyName" json:"propertyName,omitempty"`
 	XXX_unrecognized []byte   `json:"-"`
@@ -311,11 +309,11 @@ func (m *AccountDefEntry_GroupScopePropertySet) Reset()         { *m = AccountDe
 func (m *AccountDefEntry_GroupScopePropertySet) String() string { return proto.CompactTextString(m) }
 func (*AccountDefEntry_GroupScopePropertySet) ProtoMessage()    {}
 
-func (m *AccountDefEntry_GroupScopePropertySet) GetEntityType() sdk.EntityDTO_EntityType {
+func (m *AccountDefEntry_GroupScopePropertySet) GetEntityType() EntityDTO_EntityType {
 	if m != nil && m.EntityType != nil {
 		return *m.EntityType
 	}
-	return sdk.EntityDTO_SWITCH
+	return EntityDTO_SWITCH
 }
 
 func (m *AccountDefEntry_GroupScopePropertySet) GetPropertyName() []string {

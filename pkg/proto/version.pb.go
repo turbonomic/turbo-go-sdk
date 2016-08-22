@@ -12,7 +12,7 @@ It has these top-level messages:
 	NegotiationRequest
 	NegotiationAnswer
 */
-package communicator
+package proto
 
 import proto "github.com/golang/protobuf/proto"
 import math "math"

@@ -1,14 +1,16 @@
 package sdk
 
+import "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+
 type ReplacementEntityMetaDataBuilder struct {
-	metaData *EntityDTO_ReplacementEntityMetaData
+	metaData *proto.EntityDTO_ReplacementEntityMetaData
 }
 
 func NewReplacementEntityMetaDataBuilder() *ReplacementEntityMetaDataBuilder {
 	var identifyingProp []string
-	var buyingCommTypes []CommodityDTO_CommodityType
-	var sellingCommTypes []CommodityDTO_CommodityType
-	replacementEntityMetaData := &EntityDTO_ReplacementEntityMetaData{
+	var buyingCommTypes []proto.CommodityDTO_CommodityType
+	var sellingCommTypes []proto.CommodityDTO_CommodityType
+	replacementEntityMetaData := &proto.EntityDTO_ReplacementEntityMetaData{
 		IdentifyingProp:  identifyingProp,
 		BuyingCommTypes:  buyingCommTypes,
 		SellingCommTypes: sellingCommTypes,
@@ -18,7 +20,7 @@ func NewReplacementEntityMetaDataBuilder() *ReplacementEntityMetaDataBuilder {
 	}
 }
 
-func (this *ReplacementEntityMetaDataBuilder) Build() *EntityDTO_ReplacementEntityMetaData {
+func (this *ReplacementEntityMetaDataBuilder) Build() *proto.EntityDTO_ReplacementEntityMetaData {
 	return this.metaData
 }
 
@@ -34,14 +36,14 @@ func (this *ReplacementEntityMetaDataBuilder) Matching(property string) *Replace
 
 // Set the commodity type whose metric values will be transferred to the entity
 //  this DTO will be replaced by.
-func (this *ReplacementEntityMetaDataBuilder) PatchBuying(commType CommodityDTO_CommodityType) *ReplacementEntityMetaDataBuilder {
+func (this *ReplacementEntityMetaDataBuilder) PatchBuying(commType proto.CommodityDTO_CommodityType) *ReplacementEntityMetaDataBuilder {
 	this.metaData.BuyingCommTypes = append(this.metaData.GetBuyingCommTypes(), commType)
 	return this
 }
 
 // Set the commodity type whose metric values will be transferred to the entity
 //  this DTO will be replaced by.
-func (this *ReplacementEntityMetaDataBuilder) PatchSelling(commType CommodityDTO_CommodityType) *ReplacementEntityMetaDataBuilder {
+func (this *ReplacementEntityMetaDataBuilder) PatchSelling(commType proto.CommodityDTO_CommodityType) *ReplacementEntityMetaDataBuilder {
 	this.metaData.SellingCommTypes = append(this.metaData.GetSellingCommTypes(), commType)
 	return this
 }

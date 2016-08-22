@@ -1,24 +1,26 @@
 package sdk
 
+import "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+
 type EntityDTOBuilder struct {
-	entity          *EntityDTO
-	commodity       *CommodityDTO
+	entity          *proto.EntityDTO
+	commodity       *proto.CommodityDTO
 	currentProvider *ProviderDTO
 }
 
 type ProviderDTO struct {
-	providerType *EntityDTO_EntityType
+	providerType *proto.EntityDTO_EntityType
 	Id           *string
 }
 
-func CreateProvider(pType EntityDTO_EntityType, id string) *ProviderDTO {
+func CreateProvider(pType proto.EntityDTO_EntityType, id string) *ProviderDTO {
 	return &ProviderDTO{
 		providerType: &pType,
 		Id:           &id,
 	}
 }
 
-func (pDto *ProviderDTO) getProviderType() *EntityDTO_EntityType {
+func (pDto *ProviderDTO) getProviderType() *proto.EntityDTO_EntityType {
 	return pDto.providerType
 }
 
@@ -26,12 +28,12 @@ func (pDto *ProviderDTO) getId() *string {
 	return pDto.Id
 }
 
-func NewEntityDTOBuilder(eType EntityDTO_EntityType, id string) *EntityDTOBuilder {
-	entity := new(EntityDTO)
+func NewEntityDTOBuilder(eType proto.EntityDTO_EntityType, id string) *EntityDTOBuilder {
+	entity := new(proto.EntityDTO)
 	entity.EntityType = &eType
 	entity.Id = &id
-	var commoditiesBought []*EntityDTO_CommodityBought
-	var commoditiesSold []*CommodityDTO
+	var commoditiesBought []*proto.EntityDTO_CommodityBought
+	var commoditiesSold []*proto.CommodityDTO
 	entity.CommoditiesBought = commoditiesBought
 	entity.CommoditiesSold = commoditiesSold
 	return &EntityDTOBuilder{
@@ -39,7 +41,7 @@ func NewEntityDTOBuilder(eType EntityDTO_EntityType, id string) *EntityDTOBuilde
 	}
 }
 
-func (eb *EntityDTOBuilder) Create() *EntityDTO {
+func (eb *EntityDTOBuilder) Create() *proto.EntityDTO {
 	return eb.entity
 }
 
@@ -49,14 +51,14 @@ func (eb *EntityDTOBuilder) DisplayName(disp string) *EntityDTOBuilder {
 	return eb
 }
 
-func (eb *EntityDTOBuilder) SellsCommodities(commDTOs []*CommodityDTO) {
+func (eb *EntityDTOBuilder) SellsCommodities(commDTOs []*proto.CommodityDTO) {
 	commSold := eb.entity.CommoditiesSold
 	commSold = append(commSold, commDTOs...)
 	eb.entity.CommoditiesSold = commSold
 }
 
-func (eb *EntityDTOBuilder) Sells(commodityType CommodityDTO_CommodityType, key string) *EntityDTOBuilder {
-	commDTO := new(CommodityDTO)
+func (eb *EntityDTOBuilder) Sells(commodityType proto.CommodityDTO_CommodityType, key string) *EntityDTOBuilder {
+	commDTO := new(proto.CommodityDTO)
 	commDTO.CommodityType = &commodityType
 	commDTO.Key = &key
 
@@ -103,7 +105,7 @@ func (eb *EntityDTOBuilder) SetProvider(provider *ProviderDTO) {
 	eb.currentProvider = provider
 }
 
-func (eb *EntityDTOBuilder) SetProviderWithTypeAndID(pType EntityDTO_EntityType, id string) *EntityDTOBuilder {
+func (eb *EntityDTOBuilder) SetProviderWithTypeAndID(pType proto.EntityDTO_EntityType, id string) *EntityDTOBuilder {
 	eb.currentProvider = &ProviderDTO{
 		providerType: &pType,
 		Id:           &id,
@@ -112,13 +114,13 @@ func (eb *EntityDTOBuilder) SetProviderWithTypeAndID(pType EntityDTO_EntityType,
 }
 
 // Add an commodity which buys from the current provider.
-func (eb *EntityDTOBuilder) Buys(commodityType CommodityDTO_CommodityType, key string, used float64) *EntityDTOBuilder {
+func (eb *EntityDTOBuilder) Buys(commodityType proto.CommodityDTO_CommodityType, key string, used float64) *EntityDTOBuilder {
 	if eb.currentProvider == nil {
 		// TODO should have error message. Notify set current provider first
 		return eb
 	}
 	// defaultCapacity := float64(0.0)
-	commDTO := new(CommodityDTO)
+	commDTO := new(proto.CommodityDTO)
 	commDTO.CommodityType = &commodityType
 	commDTO.Key = &key
 	// commDTO.Capacity = &defaultCapacity
@@ -127,13 +129,13 @@ func (eb *EntityDTOBuilder) Buys(commodityType CommodityDTO_CommodityType, key s
 	return eb
 }
 
-func (eb *EntityDTOBuilder) BuysCommodities(commDTOs []*CommodityDTO) {
+func (eb *EntityDTOBuilder) BuysCommodities(commDTOs []*proto.CommodityDTO) {
 	for _, commDTO := range commDTOs {
 		eb.BuysCommodity(commDTO)
 	}
 }
 
-func (eb *EntityDTOBuilder) BuysCommodity(commDTO *CommodityDTO) *EntityDTOBuilder {
+func (eb *EntityDTOBuilder) BuysCommodity(commDTO *proto.CommodityDTO) *EntityDTOBuilder {
 	if eb.currentProvider == nil {
 		// TODO should have error message. Notify set current provider first
 		return eb
@@ -145,8 +147,8 @@ func (eb *EntityDTOBuilder) BuysCommodity(commDTO *CommodityDTO) *EntityDTOBuild
 	commBoughtFromProvider, find := eb.findCommBoughtProvider(providerId)
 	if !find {
 		// Create an EntityDTO_CommodityBought with empty CommodityDTO list
-		commBoughtFromProvider = new(EntityDTO_CommodityBought)
-		var commBoughtList []*CommodityDTO
+		commBoughtFromProvider = new(proto.EntityDTO_CommodityBought)
+		var commBoughtList []*proto.CommodityDTO
 		commBoughtFromProvider.Bought = commBoughtList
 		commBoughtFromProvider.ProviderId = providerId
 
@@ -165,7 +167,7 @@ func (eb *EntityDTOBuilder) BuysCommodity(commDTO *CommodityDTO) *EntityDTOBuild
 // Find if this the current provider has already been in the map.
 // If found, return the commodityDTO list bought from the provider.
 // TODO this should belongs to entityDTO
-func (eb *EntityDTOBuilder) findCommBoughtProvider(providerId *string) (*EntityDTO_CommodityBought, bool) {
+func (eb *EntityDTOBuilder) findCommBoughtProvider(providerId *string) (*proto.EntityDTO_CommodityBought, bool) {
 	for _, commBougthProvider := range eb.entity.CommoditiesBought {
 		if commBougthProvider.GetProviderId() == *providerId {
 			return commBougthProvider, true
@@ -177,10 +179,10 @@ func (eb *EntityDTOBuilder) findCommBoughtProvider(providerId *string) (*EntityD
 // Add property to an entity
 func (eb *EntityDTOBuilder) SetProperty(name, value string) *EntityDTOBuilder {
 	if eb.entity.GetEntityProperties() == nil {
-		var entityProps []*EntityDTO_EntityProperty
+		var entityProps []*proto.EntityDTO_EntityProperty
 		eb.entity.EntityProperties = entityProps
 	}
-	prop := &EntityDTO_EntityProperty{
+	prop := &proto.EntityDTO_EntityProperty{
 		Name:  &name,
 		Value: &value,
 	}
@@ -190,8 +192,8 @@ func (eb *EntityDTOBuilder) SetProperty(name, value string) *EntityDTOBuilder {
 
 // Set the ReplacementEntityMetadata that will contain the information about the external entity
 // that this entity will patch with the metrics data it collected.
-func (eb *EntityDTOBuilder) ReplacedBy(replacementEntityMetaData *EntityDTO_ReplacementEntityMetaData) *EntityDTOBuilder {
-	origin := EntityDTO_PROXY
+func (eb *EntityDTOBuilder) ReplacedBy(replacementEntityMetaData *proto.EntityDTO_ReplacementEntityMetaData) *EntityDTOBuilder {
+	origin := proto.EntityDTO_PROXY
 	eb.entity.Origin = &origin
 	eb.entity.ReplacementEntityData = replacementEntityMetaData
 	return eb

@@ -4,11 +4,13 @@ import (
 	"math"
 
 	"github.com/golang/glog"
+
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
 )
 
 type SupplyChainNodeBuilder struct {
-	entityTemplate  *TemplateDTO
-	currentProvider *Provider
+	entityTemplate  *proto.TemplateDTO
+	currentProvider *proto.Provider
 }
 
 // Create a new SupplyChainNode Builder
@@ -17,17 +19,17 @@ func NewSupplyChainNodeBuilder() *SupplyChainNodeBuilder {
 }
 
 // Create a SupplyChainNode
-func (scnb *SupplyChainNodeBuilder) Create() *TemplateDTO {
+func (scnb *SupplyChainNodeBuilder) Create() *proto.TemplateDTO {
 	return scnb.entityTemplate
 }
 
 // Build the entity of the SupplyChainNode
-func (scnb *SupplyChainNodeBuilder) Entity(entityType EntityDTO_EntityType) *SupplyChainNodeBuilder {
-	var commSold []*TemplateCommodity
-	var commBought []*TemplateDTO_CommBoughtProviderProp
-	templateType := TemplateDTO_BASE
+func (scnb *SupplyChainNodeBuilder) Entity(entityType proto.EntityDTO_EntityType) *SupplyChainNodeBuilder {
+	var commSold []*proto.TemplateCommodity
+	var commBought []*proto.TemplateDTO_CommBoughtProviderProp
+	templateType := proto.TemplateDTO_BASE
 	priority := int32(0)
-	scnb.entityTemplate = &TemplateDTO{
+	scnb.entityTemplate = &proto.TemplateDTO{
 		TemplateClass:    &entityType,
 		TemplateType:     &templateType,
 		TemplatePriority: &priority,
@@ -38,7 +40,7 @@ func (scnb *SupplyChainNodeBuilder) Entity(entityType EntityDTO_EntityType) *Sup
 }
 
 // Get the entityType of the TemplateDTO
-func (scnb *SupplyChainNodeBuilder) getEntity() EntityDTO_EntityType {
+func (scnb *SupplyChainNodeBuilder) getEntity() proto.EntityDTO_EntityType {
 	if hasEntityTemplate := scnb.requireEntityTemplate(); !hasEntityTemplate {
 		//TODO!! should give error
 		// return
@@ -64,14 +66,14 @@ func (scnb *SupplyChainNodeBuilder) requireProvider() bool {
 }
 
 // The very basic selling method. If want others, use other names
-func (scnb *SupplyChainNodeBuilder) Selling(comm CommodityDTO_CommodityType, key string) *SupplyChainNodeBuilder {
+func (scnb *SupplyChainNodeBuilder) Selling(comm proto.CommodityDTO_CommodityType, key string) *SupplyChainNodeBuilder {
 	if hasEntityTemplate := scnb.requireEntityTemplate(); !hasEntityTemplate {
 		//TODO should give error
 		return scnb
 	}
 
 	// Add commodity sold
-	templateComm := &TemplateCommodity{
+	templateComm := &proto.TemplateCommodity{
 		Key:           &key,
 		CommodityType: &comm,
 	}
@@ -82,17 +84,17 @@ func (scnb *SupplyChainNodeBuilder) Selling(comm CommodityDTO_CommodityType, key
 }
 
 // set the provider of the SupplyChainNode
-func (scnb *SupplyChainNodeBuilder) Provider(provider EntityDTO_EntityType, pType Provider_ProviderType) *SupplyChainNodeBuilder {
+func (scnb *SupplyChainNodeBuilder) Provider(provider proto.EntityDTO_EntityType, pType proto.Provider_ProviderType) *SupplyChainNodeBuilder {
 	if hasTemplate := scnb.requireEntityTemplate(); !hasTemplate {
 		//TODO should give error
 
 		return scnb
 	}
 
-	if pType == Provider_LAYERED_OVER {
+	if pType == proto.Provider_LAYERED_OVER {
 		maxCardinality := int32(math.MaxInt32)
 		minCardinality := int32(0)
-		scnb.currentProvider = &Provider{
+		scnb.currentProvider = &proto.Provider{
 			TemplateClass:  &provider,
 			ProviderType:   &pType,
 			CardinalityMax: &maxCardinality,
@@ -100,7 +102,7 @@ func (scnb *SupplyChainNodeBuilder) Provider(provider EntityDTO_EntityType, pTyp
 		}
 	} else {
 		hostCardinality := int32(1)
-		scnb.currentProvider = &Provider{
+		scnb.currentProvider = &proto.Provider{
 			TemplateClass:  &provider,
 			ProviderType:   &pType,
 			CardinalityMax: &hostCardinality,
@@ -113,7 +115,7 @@ func (scnb *SupplyChainNodeBuilder) Provider(provider EntityDTO_EntityType, pTyp
 
 // Add a commodity this node buys from the current provider. The provider must already been specified.
 // If there is no provider for this node, does not add the commodity.
-func (scnb *SupplyChainNodeBuilder) Buys(templateComm TemplateCommodity) *SupplyChainNodeBuilder {
+func (scnb *SupplyChainNodeBuilder) Buys(templateComm proto.TemplateCommodity) *SupplyChainNodeBuilder {
 	if hasEntityTemplate := scnb.requireEntityTemplate(); !hasEntityTemplate {
 		//TODO should give error
 		//glog.V(3).Infof("---------- Error! No entity found! ----------")
@@ -130,9 +132,9 @@ func (scnb *SupplyChainNodeBuilder) Buys(templateComm TemplateCommodity) *Supply
 	providerProp, exist := scnb.findCommBoughtProvider(scnb.currentProvider)
 	if !exist {
 
-		providerProp = new(TemplateDTO_CommBoughtProviderProp)
+		providerProp = new(proto.TemplateDTO_CommBoughtProviderProp)
 		providerProp.Key = scnb.currentProvider
-		var value []*TemplateCommodity
+		var value []*proto.TemplateCommodity
 		providerProp.Value = value
 
 		boughtMap = append(boughtMap, providerProp)
@@ -149,7 +151,7 @@ func (scnb *SupplyChainNodeBuilder) Buys(templateComm TemplateCommodity) *Supply
 
 // Check if current provider exists in BoughtMap of the templateDTO.
 // TODO, this should be a method in templateDTO?
-func (scnb *SupplyChainNodeBuilder) findCommBoughtProvider(provider *Provider) (*TemplateDTO_CommBoughtProviderProp, bool) {
+func (scnb *SupplyChainNodeBuilder) findCommBoughtProvider(provider *proto.Provider) (*proto.TemplateDTO_CommBoughtProviderProp, bool) {
 	for _, pp := range scnb.entityTemplate.GetCommodityBought() {
 
 		if pp.GetKey() == provider {
@@ -160,12 +162,12 @@ func (scnb *SupplyChainNodeBuilder) findCommBoughtProvider(provider *Provider) (
 }
 
 //Adds an external entity link to the current node.
-func (scnb *SupplyChainNodeBuilder) Link(extEntityLink *ExternalEntityLink) *SupplyChainNodeBuilder {
+func (scnb *SupplyChainNodeBuilder) Link(extEntityLink *proto.ExternalEntityLink) *SupplyChainNodeBuilder {
 	if set := scnb.requireEntityTemplate(); !set {
 		return scnb
 	}
 
-	linkProp := &TemplateDTO_ExternalEntityLinkProp{}
+	linkProp := &proto.TemplateDTO_ExternalEntityLinkProp{}
 	if extEntityLink.GetBuyerRef() == scnb.entityTemplate.GetTemplateClass() {
 		seller := extEntityLink.GetSellerRef()
 		linkProp.Key = &seller
@@ -182,7 +184,7 @@ func (scnb *SupplyChainNodeBuilder) Link(extEntityLink *ExternalEntityLink) *Sup
 
 }
 
-func (scnb *SupplyChainNodeBuilder) addExternalLinkPropToTemplateEntity(extEntityLinkProp *TemplateDTO_ExternalEntityLinkProp) {
+func (scnb *SupplyChainNodeBuilder) addExternalLinkPropToTemplateEntity(extEntityLinkProp *proto.TemplateDTO_ExternalEntityLinkProp) {
 	currentLinks := scnb.entityTemplate.GetExternalLink()
 	currentLinks = append(currentLinks, extEntityLinkProp)
 	scnb.entityTemplate.ExternalLink = currentLinks
