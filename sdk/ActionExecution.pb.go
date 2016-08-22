@@ -10,9 +10,11 @@ It is generated from these files:
 	CommonDTO.proto
 	Discovery.proto
 	MediationMessage.proto
+	ProfileDTO.proto
 	SupplyChain.proto
 
 It has these top-level messages:
+	ActionExecutionDTO
 	ActionItemDTO
 */
 package sdk
@@ -102,6 +104,7 @@ const (
 	ActionItemDTO_RESERVE_ON_DS          ActionItemDTO_ActionType = 18
 	ActionItemDTO_RESIZE_FOR_EFFICIENCY  ActionItemDTO_ActionType = 19
 	ActionItemDTO_RESIZE_FOR_PERFORMANCE ActionItemDTO_ActionType = 20
+	ActionItemDTO_CROSS_TARGET_MOVE      ActionItemDTO_ActionType = 21
 )
 
 var ActionItemDTO_ActionType_name = map[int32]string{
@@ -126,6 +129,7 @@ var ActionItemDTO_ActionType_name = map[int32]string{
 	18: "RESERVE_ON_DS",
 	19: "RESIZE_FOR_EFFICIENCY",
 	20: "RESIZE_FOR_PERFORMANCE",
+	21: "CROSS_TARGET_MOVE",
 }
 var ActionItemDTO_ActionType_value = map[string]int32{
 	"NONE":                   0,
@@ -149,6 +153,7 @@ var ActionItemDTO_ActionType_value = map[string]int32{
 	"RESERVE_ON_DS":          18,
 	"RESIZE_FOR_EFFICIENCY":  19,
 	"RESIZE_FOR_PERFORMANCE": 20,
+	"CROSS_TARGET_MOVE":      21,
 }
 
 func (x ActionItemDTO_ActionType) Enum() *ActionItemDTO_ActionType {
@@ -204,6 +209,44 @@ func (x *ActionItemDTO_CommodityAttribute) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// ActionExecutionDTO may contain one or more action items related to the overall action to be
+// executed.
+type ActionExecutionDTO struct {
+	// Overall action type.  In most cases this action type will be the same as the action type
+	// specified in the action items contained within this.
+	ActionType *ActionItemDTO_ActionType `protobuf:"varint,1,req,name=actionType,enum=common_dto.ActionItemDTO_ActionType" json:"actionType,omitempty"`
+	// One or more action items related to the overall action to be executed
+	ActionItem []*ActionItemDTO `protobuf:"bytes,2,rep,name=actionItem" json:"actionItem,omitempty"`
+	// Action Execution Progress
+	Progress         *int64 `protobuf:"varint,3,opt,name=progress" json:"progress,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *ActionExecutionDTO) Reset()         { *m = ActionExecutionDTO{} }
+func (m *ActionExecutionDTO) String() string { return proto.CompactTextString(m) }
+func (*ActionExecutionDTO) ProtoMessage()    {}
+
+func (m *ActionExecutionDTO) GetActionType() ActionItemDTO_ActionType {
+	if m != nil && m.ActionType != nil {
+		return *m.ActionType
+	}
+	return ActionItemDTO_NONE
+}
+
+func (m *ActionExecutionDTO) GetActionItem() []*ActionItemDTO {
+	if m != nil {
+		return m.ActionItem
+	}
+	return nil
+}
+
+func (m *ActionExecutionDTO) GetProgress() int64 {
+	if m != nil && m.Progress != nil {
+		return *m.Progress
+	}
+	return 0
+}
+
 // This message holds values necessary for executing actions on Service Entity discovered with SDK probe
 type ActionItemDTO struct {
 	// ActionType of the action
@@ -225,13 +268,15 @@ type ActionItemDTO struct {
 	// CommodityDTO for the commodity on which the action
 	// should be applied (after the action is applied)
 	NewComm *CommodityDTO `protobuf:"bytes,8,opt,name=newComm" json:"newComm,omitempty"`
-	// Action Execution Progress
-	Progress *int64 `protobuf:"varint,9,opt,name=progress" json:"progress,omitempty"`
 	// CommodityAttribute enum notifying type of changed attribute
 	CommodityAttribute *ActionItemDTO_CommodityAttribute `protobuf:"varint,10,opt,name=commodityAttribute,enum=common_dto.ActionItemDTO_CommodityAttribute" json:"commodityAttribute,omitempty"`
 	// Information for providers of the targetSE.
-	Providers        []*ActionItemDTO_ProviderInfo `protobuf:"bytes,11,rep,name=providers" json:"providers,omitempty"`
-	XXX_unrecognized []byte                        `json:"-"`
+	Providers []*ActionItemDTO_ProviderInfo `protobuf:"bytes,11,rep,name=providers" json:"providers,omitempty"`
+	// Profile related information used in executing a deploy action
+	EntityProfileDTO *EntityProfileDTO `protobuf:"bytes,12,opt,name=entityProfileDTO" json:"entityProfileDTO,omitempty"`
+	// Context data used in executing actions
+	ContextData      []*ContextData `protobuf:"bytes,13,rep,name=contextData" json:"contextData,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
 }
 
 func (m *ActionItemDTO) Reset()         { *m = ActionItemDTO{} }
@@ -294,13 +339,6 @@ func (m *ActionItemDTO) GetNewComm() *CommodityDTO {
 	return nil
 }
 
-func (m *ActionItemDTO) GetProgress() int64 {
-	if m != nil && m.Progress != nil {
-		return *m.Progress
-	}
-	return 0
-}
-
 func (m *ActionItemDTO) GetCommodityAttribute() ActionItemDTO_CommodityAttribute {
 	if m != nil && m.CommodityAttribute != nil {
 		return *m.CommodityAttribute
@@ -311,6 +349,20 @@ func (m *ActionItemDTO) GetCommodityAttribute() ActionItemDTO_CommodityAttribute
 func (m *ActionItemDTO) GetProviders() []*ActionItemDTO_ProviderInfo {
 	if m != nil {
 		return m.Providers
+	}
+	return nil
+}
+
+func (m *ActionItemDTO) GetEntityProfileDTO() *EntityProfileDTO {
+	if m != nil {
+		return m.EntityProfileDTO
+	}
+	return nil
+}
+
+func (m *ActionItemDTO) GetContextData() []*ContextData {
+	if m != nil {
+		return m.ContextData
 	}
 	return nil
 }

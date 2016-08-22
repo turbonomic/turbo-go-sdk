@@ -128,8 +128,10 @@ type AccountValue struct {
 	Key *string `protobuf:"bytes,1,req,name=key" json:"key,omitempty"`
 	// String representation of the parameter value, for example "secretpassword",
 	// "192.168.111.3" and so on.
-	Value            *string `protobuf:"bytes,2,req,name=value" json:"value,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	StringValue *string `protobuf:"bytes,2,opt,name=stringValue" json:"stringValue,omitempty"`
+	// Set of property value lists
+	GroupScopePropertyValues []*AccountValue_PropertyValueList `protobuf:"bytes,3,rep,name=groupScopePropertyValues" json:"groupScopePropertyValues,omitempty"`
+	XXX_unrecognized         []byte                            `json:"-"`
 }
 
 func (m *AccountValue) Reset()         { *m = AccountValue{} }
@@ -143,19 +145,48 @@ func (m *AccountValue) GetKey() string {
 	return ""
 }
 
-func (m *AccountValue) GetValue() string {
-	if m != nil && m.Value != nil {
-		return *m.Value
+func (m *AccountValue) GetStringValue() string {
+	if m != nil && m.StringValue != nil {
+		return *m.StringValue
 	}
 	return ""
 }
 
+func (m *AccountValue) GetGroupScopePropertyValues() []*AccountValue_PropertyValueList {
+	if m != nil {
+		return m.GroupScopePropertyValues
+	}
+	return nil
+}
+
+type AccountValue_PropertyValueList struct {
+	Value            []string `protobuf:"bytes,1,rep,name=value" json:"value,omitempty"`
+	XXX_unrecognized []byte   `json:"-"`
+}
+
+func (m *AccountValue_PropertyValueList) Reset()         { *m = AccountValue_PropertyValueList{} }
+func (m *AccountValue_PropertyValueList) String() string { return proto.CompactTextString(m) }
+func (*AccountValue_PropertyValueList) ProtoMessage()    {}
+
+func (m *AccountValue_PropertyValueList) GetValue() []string {
+	if m != nil {
+		return m.Value
+	}
+	return nil
+}
+
 // Request for action to be performed in probe
 type ActionRequest struct {
-	ProbeType        *string            `protobuf:"bytes,1,req,name=probeType" json:"probeType,omitempty"`
-	AccountValue     []*AccountValue    `protobuf:"bytes,2,rep,name=accountValue" json:"accountValue,omitempty"`
-	ActionItemDTO    *sdk.ActionItemDTO `protobuf:"bytes,3,req,name=actionItemDTO" json:"actionItemDTO,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
+	ProbeType *string `protobuf:"bytes,1,req,name=probeType" json:"probeType,omitempty"`
+	// Account values provide data to allow the probe to allow it to connect
+	// to the probe
+	AccountValue []*AccountValue `protobuf:"bytes,2,rep,name=accountValue" json:"accountValue,omitempty"`
+	// An action execution DTO contains one or more action items
+	ActionExecutionDTO *sdk.ActionExecutionDTO `protobuf:"bytes,3,req,name=actionExecutionDTO" json:"actionExecutionDTO,omitempty"`
+	// For Cross Destination actions (from one target to another) 2 sets of account
+	// values are needed
+	SecondaryAccountValue []*AccountValue `protobuf:"bytes,4,rep,name=secondaryAccountValue" json:"secondaryAccountValue,omitempty"`
+	XXX_unrecognized      []byte          `json:"-"`
 }
 
 func (m *ActionRequest) Reset()         { *m = ActionRequest{} }
@@ -176,9 +207,16 @@ func (m *ActionRequest) GetAccountValue() []*AccountValue {
 	return nil
 }
 
-func (m *ActionRequest) GetActionItemDTO() *sdk.ActionItemDTO {
+func (m *ActionRequest) GetActionExecutionDTO() *sdk.ActionExecutionDTO {
 	if m != nil {
-		return m.ActionItemDTO
+		return m.ActionExecutionDTO
+	}
+	return nil
+}
+
+func (m *ActionRequest) GetSecondaryAccountValue() []*AccountValue {
+	if m != nil {
+		return m.SecondaryAccountValue
 	}
 	return nil
 }
@@ -397,7 +435,12 @@ type ProbeInfo struct {
 	// Order of elements in the list specifyes the order they appear in the UI.
 	// List must not contain entries with equal "name" field. This is up to client to ensure this.
 	AccountDefinition []*AccountDefEntry `protobuf:"bytes,4,rep,name=accountDefinition" json:"accountDefinition,omitempty"`
-	XXX_unrecognized  []byte             `json:"-"`
+	// Specifies the interval at which discoveries will be executed for this probe.
+	// The value is specified in seconds. If no value is provided for rediscoveryIntervalSeconds
+	// a default of 600 seconds (10 minutes) will be used. The minimum value allowed for this
+	// field is 60 seconds (1 minute).
+	RediscoveryIntervalSeconds *int32 `protobuf:"varint,5,opt,name=rediscoveryIntervalSeconds" json:"rediscoveryIntervalSeconds,omitempty"`
+	XXX_unrecognized           []byte `json:"-"`
 }
 
 func (m *ProbeInfo) Reset()         { *m = ProbeInfo{} }
@@ -430,4 +473,11 @@ func (m *ProbeInfo) GetAccountDefinition() []*AccountDefEntry {
 		return m.AccountDefinition
 	}
 	return nil
+}
+
+func (m *ProbeInfo) GetRediscoveryIntervalSeconds() int32 {
+	if m != nil && m.RediscoveryIntervalSeconds != nil {
+		return *m.RediscoveryIntervalSeconds
+	}
+	return 0
 }

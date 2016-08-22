@@ -48,6 +48,40 @@ func (x *AccountDefEntry_AccountDefEntryType) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// Entry type
+type AccountDefEntry_AccountDefEntryFieldType int32
+
+const (
+	AccountDefEntry_STRING      AccountDefEntry_AccountDefEntryFieldType = 0
+	AccountDefEntry_GROUP_SCOPE AccountDefEntry_AccountDefEntryFieldType = 1
+)
+
+var AccountDefEntry_AccountDefEntryFieldType_name = map[int32]string{
+	0: "STRING",
+	1: "GROUP_SCOPE",
+}
+var AccountDefEntry_AccountDefEntryFieldType_value = map[string]int32{
+	"STRING":      0,
+	"GROUP_SCOPE": 1,
+}
+
+func (x AccountDefEntry_AccountDefEntryFieldType) Enum() *AccountDefEntry_AccountDefEntryFieldType {
+	p := new(AccountDefEntry_AccountDefEntryFieldType)
+	*p = x
+	return p
+}
+func (x AccountDefEntry_AccountDefEntryFieldType) String() string {
+	return proto.EnumName(AccountDefEntry_AccountDefEntryFieldType_name, int32(x))
+}
+func (x *AccountDefEntry_AccountDefEntryFieldType) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(AccountDefEntry_AccountDefEntryFieldType_value, data, "AccountDefEntry_AccountDefEntryFieldType")
+	if err != nil {
+		return err
+	}
+	*x = AccountDefEntry_AccountDefEntryFieldType(value)
+	return nil
+}
+
 type ErrorDTO_ErrorSeverity int32
 
 const (
@@ -111,8 +145,14 @@ type DiscoveryResponse struct {
 	// Entities, discovered by external probe.
 	EntityDTO []*sdk.EntityDTO `protobuf:"bytes,2,rep,name=entityDTO" json:"entityDTO,omitempty"`
 	// Constraints defined in external probe
-	DiscoveredGroup  []*sdk.GroupDTO `protobuf:"bytes,3,rep,name=discoveredGroup" json:"discoveredGroup,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
+	DiscoveredGroup []*sdk.GroupDTO `protobuf:"bytes,3,rep,name=discoveredGroup" json:"discoveredGroup,omitempty"`
+	// ServiceEntityProfile (template)
+	EntityProfile []*sdk.EntityProfileDTO `protobuf:"bytes,4,rep,name=entityProfile" json:"entityProfile,omitempty"`
+	// Deployment Profile (ServiceCatalogItem)
+	DeploymentProfile []*sdk.DeploymentProfileDTO `protobuf:"bytes,5,rep,name=deploymentProfile" json:"deploymentProfile,omitempty"`
+	// Notifications for global (not entity-specific) events
+	Notification     []*sdk.NotificationDTO `protobuf:"bytes,6,rep,name=notification" json:"notification,omitempty"`
+	XXX_unrecognized []byte                 `json:"-"`
 }
 
 func (m *DiscoveryResponse) Reset()         { *m = DiscoveryResponse{} }
@@ -136,6 +176,27 @@ func (m *DiscoveryResponse) GetEntityDTO() []*sdk.EntityDTO {
 func (m *DiscoveryResponse) GetDiscoveredGroup() []*sdk.GroupDTO {
 	if m != nil {
 		return m.DiscoveredGroup
+	}
+	return nil
+}
+
+func (m *DiscoveryResponse) GetEntityProfile() []*sdk.EntityProfileDTO {
+	if m != nil {
+		return m.EntityProfile
+	}
+	return nil
+}
+
+func (m *DiscoveryResponse) GetDeploymentProfile() []*sdk.DeploymentProfileDTO {
+	if m != nil {
+		return m.DeploymentProfile
+	}
+	return nil
+}
+
+func (m *DiscoveryResponse) GetNotification() []*sdk.NotificationDTO {
+	if m != nil {
+		return m.Notification
 	}
 	return nil
 }
@@ -164,8 +225,12 @@ type AccountDefEntry struct {
 	// Entry type
 	Type *AccountDefEntry_AccountDefEntryType `protobuf:"varint,5,opt,name=type,enum=common_dto.AccountDefEntry_AccountDefEntryType,def=1" json:"type,omitempty"`
 	// Specifies if the value for the entry can be disclosed (in the log file or wherever else).
-	IsSecret         *bool  `protobuf:"varint,6,opt,name=isSecret,def=0" json:"isSecret,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	IsSecret *bool `protobuf:"varint,6,opt,name=isSecret,def=0" json:"isSecret,omitempty"`
+	// Field type
+	FieldType *AccountDefEntry_AccountDefEntryFieldType `protobuf:"varint,7,opt,name=fieldType,enum=common_dto.AccountDefEntry_AccountDefEntryFieldType,def=0" json:"fieldType,omitempty"`
+	// Set of entity properties (e.g. IP addresses) for group scope target discovery
+	GroupScopePropertySet *AccountDefEntry_GroupScopePropertySet `protobuf:"bytes,8,opt,name=groupScopePropertySet" json:"groupScopePropertySet,omitempty"`
+	XXX_unrecognized      []byte                                 `json:"-"`
 }
 
 func (m *AccountDefEntry) Reset()         { *m = AccountDefEntry{} }
@@ -175,6 +240,7 @@ func (*AccountDefEntry) ProtoMessage()    {}
 const Default_AccountDefEntry_VerificationRegex string = ".*"
 const Default_AccountDefEntry_Type AccountDefEntry_AccountDefEntryType = AccountDefEntry_MANDATORY
 const Default_AccountDefEntry_IsSecret bool = false
+const Default_AccountDefEntry_FieldType AccountDefEntry_AccountDefEntryFieldType = AccountDefEntry_STRING
 
 func (m *AccountDefEntry) GetName() string {
 	if m != nil && m.Name != nil {
@@ -218,9 +284,50 @@ func (m *AccountDefEntry) GetIsSecret() bool {
 	return Default_AccountDefEntry_IsSecret
 }
 
+func (m *AccountDefEntry) GetFieldType() AccountDefEntry_AccountDefEntryFieldType {
+	if m != nil && m.FieldType != nil {
+		return *m.FieldType
+	}
+	return Default_AccountDefEntry_FieldType
+}
+
+func (m *AccountDefEntry) GetGroupScopePropertySet() *AccountDefEntry_GroupScopePropertySet {
+	if m != nil {
+		return m.GroupScopePropertySet
+	}
+	return nil
+}
+
+// Entity type with a set of properties for group scope account definition
+type AccountDefEntry_GroupScopePropertySet struct {
+	// Entity type
+	EntityType *sdk.EntityDTO_EntityType `protobuf:"varint,1,req,name=entityType,enum=common_dto.EntityDTO_EntityType" json:"entityType,omitempty"`
+	// Set of property names
+	PropertyName     []string `protobuf:"bytes,2,rep,name=propertyName" json:"propertyName,omitempty"`
+	XXX_unrecognized []byte   `json:"-"`
+}
+
+func (m *AccountDefEntry_GroupScopePropertySet) Reset()         { *m = AccountDefEntry_GroupScopePropertySet{} }
+func (m *AccountDefEntry_GroupScopePropertySet) String() string { return proto.CompactTextString(m) }
+func (*AccountDefEntry_GroupScopePropertySet) ProtoMessage()    {}
+
+func (m *AccountDefEntry_GroupScopePropertySet) GetEntityType() sdk.EntityDTO_EntityType {
+	if m != nil && m.EntityType != nil {
+		return *m.EntityType
+	}
+	return sdk.EntityDTO_SWITCH
+}
+
+func (m *AccountDefEntry_GroupScopePropertySet) GetPropertyName() []string {
+	if m != nil {
+		return m.PropertyName
+	}
+	return nil
+}
+
 // Error DTO. Represent some errors, occurred during operations inside the Mediation Container.
 type ErrorDTO struct {
-	// Error severity. Used to specify the colour of the message, shouwn to the end user.
+	// Error severity. Used to specify the colour of the message, shown to the end user.
 	Severity *ErrorDTO_ErrorSeverity `protobuf:"varint,1,req,name=severity,enum=common_dto.ErrorDTO_ErrorSeverity" json:"severity,omitempty"`
 	// Error description. Should not be null.
 	Description *string `protobuf:"bytes,2,req,name=description" json:"description,omitempty"`
@@ -265,5 +372,6 @@ func (m *ErrorDTO) GetEntityType() string {
 
 func init() {
 	proto.RegisterEnum("common_dto.AccountDefEntry_AccountDefEntryType", AccountDefEntry_AccountDefEntryType_name, AccountDefEntry_AccountDefEntryType_value)
+	proto.RegisterEnum("common_dto.AccountDefEntry_AccountDefEntryFieldType", AccountDefEntry_AccountDefEntryFieldType_name, AccountDefEntry_AccountDefEntryFieldType_value)
 	proto.RegisterEnum("common_dto.ErrorDTO_ErrorSeverity", ErrorDTO_ErrorSeverity_name, ErrorDTO_ErrorSeverity_value)
 }

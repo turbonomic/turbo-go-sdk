@@ -408,6 +408,8 @@ const (
 	CommodityDTO_BUFFER_COMMODITY           CommodityDTO_CommodityType = 72
 	CommodityDTO_SOFTWARE_LICENSE_COMMODITY CommodityDTO_CommodityType = 73
 	CommodityDTO_VMPM_ACCESS                CommodityDTO_CommodityType = 74
+	CommodityDTO_HA_COMMODITY               CommodityDTO_CommodityType = 75
+	CommodityDTO_NETWORK_POLICY             CommodityDTO_CommodityType = 76
 	// 2047 is the largest tag value encoded in 2 bytes
 	CommodityDTO_UNKNOWN CommodityDTO_CommodityType = 2047
 )
@@ -488,6 +490,8 @@ var CommodityDTO_CommodityType_name = map[int32]string{
 	72:   "BUFFER_COMMODITY",
 	73:   "SOFTWARE_LICENSE_COMMODITY",
 	74:   "VMPM_ACCESS",
+	75:   "HA_COMMODITY",
+	76:   "NETWORK_POLICY",
 	2047: "UNKNOWN",
 }
 var CommodityDTO_CommodityType_value = map[string]int32{
@@ -566,6 +570,8 @@ var CommodityDTO_CommodityType_value = map[string]int32{
 	"BUFFER_COMMODITY":           72,
 	"SOFTWARE_LICENSE_COMMODITY": 73,
 	"VMPM_ACCESS":                74,
+	"HA_COMMODITY":               75,
+	"NETWORK_POLICY":             76,
 	"UNKNOWN":                    2047,
 }
 
@@ -706,6 +712,48 @@ func (x *GroupDTO_SelectionSpec_ExpressionType) UnmarshalJSON(data []byte) error
 	return nil
 }
 
+type NotificationDTO_Severity int32
+
+const (
+	NotificationDTO_UNKNOWN  NotificationDTO_Severity = 0
+	NotificationDTO_NORMAL   NotificationDTO_Severity = 1
+	NotificationDTO_MINOR    NotificationDTO_Severity = 2
+	NotificationDTO_MAJOR    NotificationDTO_Severity = 3
+	NotificationDTO_CRITICAL NotificationDTO_Severity = 4
+)
+
+var NotificationDTO_Severity_name = map[int32]string{
+	0: "UNKNOWN",
+	1: "NORMAL",
+	2: "MINOR",
+	3: "MAJOR",
+	4: "CRITICAL",
+}
+var NotificationDTO_Severity_value = map[string]int32{
+	"UNKNOWN":  0,
+	"NORMAL":   1,
+	"MINOR":    2,
+	"MAJOR":    3,
+	"CRITICAL": 4,
+}
+
+func (x NotificationDTO_Severity) Enum() *NotificationDTO_Severity {
+	p := new(NotificationDTO_Severity)
+	*p = x
+	return p
+}
+func (x NotificationDTO_Severity) String() string {
+	return proto.EnumName(NotificationDTO_Severity_name, int32(x))
+}
+func (x *NotificationDTO_Severity) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(NotificationDTO_Severity_value, data, "NotificationDTO_Severity")
+	if err != nil {
+		return err
+	}
+	*x = NotificationDTO_Severity(value)
+	return nil
+}
+
 //
 // The EntityDTO message represents an Entity discovered in the target that your probe is
 // monitoring
@@ -760,7 +808,12 @@ type EntityDTO struct {
 	// Specified properties required for the behavior of the entity as a consumer.
 	ConsumerPolicy *EntityDTO_ConsumerPolicy `protobuf:"bytes,12,opt,name=consumerPolicy" json:"consumerPolicy,omitempty"`
 	// Specified properties required for the behavior of the entity as a provider.
-	ProviderPolicy               *EntityDTO_ProviderPolicy               `protobuf:"bytes,13,opt,name=providerPolicy" json:"providerPolicy,omitempty"`
+	ProviderPolicy *EntityDTO_ProviderPolicy `protobuf:"bytes,13,opt,name=providerPolicy" json:"providerPolicy,omitempty"`
+	// Specifies ID of the entity that this entity is owned by. For example, an Chassis is
+	// owned by Network.
+	OwnedBy *string `protobuf:"bytes,14,opt,name=ownedBy" json:"ownedBy,omitempty"`
+	// Notifications associated with the entity
+	Notification                 []*NotificationDTO                      `protobuf:"bytes,15,rep,name=notification" json:"notification,omitempty"`
 	StorageData                  *EntityDTO_StorageData                  `protobuf:"bytes,500,opt,name=storage_data" json:"storage_data,omitempty"`
 	DiskArrayData                *EntityDTO_DiskArrayData                `protobuf:"bytes,501,opt,name=disk_array_data" json:"disk_array_data,omitempty"`
 	ApplicationData              *EntityDTO_ApplicationData              `protobuf:"bytes,502,opt,name=application_data" json:"application_data,omitempty"`
@@ -868,6 +921,20 @@ func (m *EntityDTO) GetConsumerPolicy() *EntityDTO_ConsumerPolicy {
 func (m *EntityDTO) GetProviderPolicy() *EntityDTO_ProviderPolicy {
 	if m != nil {
 		return m.ProviderPolicy
+	}
+	return nil
+}
+
+func (m *EntityDTO) GetOwnedBy() string {
+	if m != nil && m.OwnedBy != nil {
+		return *m.OwnedBy
+	}
+	return ""
+}
+
+func (m *EntityDTO) GetNotification() []*NotificationDTO {
+	if m != nil {
+		return m.Notification
 	}
 	return nil
 }
@@ -1026,15 +1093,18 @@ func (m *EntityDTO_StorageData) GetWwn() string {
 }
 
 type EntityDTO_DiskArrayData struct {
-	StorageId        []string                 `protobuf:"bytes,1,rep,name=storageId" json:"storageId,omitempty"`
-	IopsCapacity     *int64                   `protobuf:"varint,2,opt,name=iopsCapacity" json:"iopsCapacity,omitempty"`
-	DiskCounts       *EntityDTO_DiskCountData `protobuf:"bytes,3,opt,name=diskCounts" json:"diskCounts,omitempty"`
-	XXX_unrecognized []byte                   `json:"-"`
+	StorageId            []string                 `protobuf:"bytes,1,rep,name=storageId" json:"storageId,omitempty"`
+	IopsCapacity         *int64                   `protobuf:"varint,2,opt,name=iopsCapacity" json:"iopsCapacity,omitempty"`
+	DiskCounts           *EntityDTO_DiskCountData `protobuf:"bytes,3,opt,name=diskCounts" json:"diskCounts,omitempty"`
+	SupportsVolumeResize *bool                    `protobuf:"varint,4,opt,name=supportsVolumeResize,def=0" json:"supportsVolumeResize,omitempty"`
+	XXX_unrecognized     []byte                   `json:"-"`
 }
 
 func (m *EntityDTO_DiskArrayData) Reset()         { *m = EntityDTO_DiskArrayData{} }
 func (m *EntityDTO_DiskArrayData) String() string { return proto.CompactTextString(m) }
 func (*EntityDTO_DiskArrayData) ProtoMessage()    {}
+
+const Default_EntityDTO_DiskArrayData_SupportsVolumeResize bool = false
 
 func (m *EntityDTO_DiskArrayData) GetStorageId() []string {
 	if m != nil {
@@ -1055,6 +1125,13 @@ func (m *EntityDTO_DiskArrayData) GetDiskCounts() *EntityDTO_DiskCountData {
 		return m.DiskCounts
 	}
 	return nil
+}
+
+func (m *EntityDTO_DiskArrayData) GetSupportsVolumeResize() bool {
+	if m != nil && m.SupportsVolumeResize != nil {
+		return *m.SupportsVolumeResize
+	}
+	return Default_EntityDTO_DiskArrayData_SupportsVolumeResize
 }
 
 type EntityDTO_ApplicationData struct {
@@ -1084,8 +1161,10 @@ func (m *EntityDTO_ApplicationData) GetIpAddress() string {
 type EntityDTO_VirtualMachineData struct {
 	IpAddress []string `protobuf:"bytes,1,rep,name=ipAddress" json:"ipAddress,omitempty"`
 	// Carries specific properties for setting Entity State of this VM.
-	VmState          *EntityDTO_VMState `protobuf:"bytes,2,opt,name=vmState" json:"vmState,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
+	VmState *EntityDTO_VMState `protobuf:"bytes,2,opt,name=vmState" json:"vmState,omitempty"`
+	// Annotation notes
+	AnnotationNote   []*EntityDTO_VirtualMachineData_AnnotationNote `protobuf:"bytes,3,rep,name=annotationNote" json:"annotationNote,omitempty"`
+	XXX_unrecognized []byte                                         `json:"-"`
 }
 
 func (m *EntityDTO_VirtualMachineData) Reset()         { *m = EntityDTO_VirtualMachineData{} }
@@ -1104,6 +1183,44 @@ func (m *EntityDTO_VirtualMachineData) GetVmState() *EntityDTO_VMState {
 		return m.VmState
 	}
 	return nil
+}
+
+func (m *EntityDTO_VirtualMachineData) GetAnnotationNote() []*EntityDTO_VirtualMachineData_AnnotationNote {
+	if m != nil {
+		return m.AnnotationNote
+	}
+	return nil
+}
+
+// Annotation note (currently used in VC only)
+type EntityDTO_VirtualMachineData_AnnotationNote struct {
+	// Annotation key
+	Key *string `protobuf:"bytes,1,req,name=key" json:"key,omitempty"`
+	// Annotation value
+	Value            *string `protobuf:"bytes,2,req,name=value" json:"value,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *EntityDTO_VirtualMachineData_AnnotationNote) Reset() {
+	*m = EntityDTO_VirtualMachineData_AnnotationNote{}
+}
+func (m *EntityDTO_VirtualMachineData_AnnotationNote) String() string {
+	return proto.CompactTextString(m)
+}
+func (*EntityDTO_VirtualMachineData_AnnotationNote) ProtoMessage() {}
+
+func (m *EntityDTO_VirtualMachineData_AnnotationNote) GetKey() string {
+	if m != nil && m.Key != nil {
+		return *m.Key
+	}
+	return ""
+}
+
+func (m *EntityDTO_VirtualMachineData_AnnotationNote) GetValue() string {
+	if m != nil && m.Value != nil {
+		return *m.Value
+	}
+	return ""
 }
 
 type EntityDTO_VMState struct {
@@ -1126,28 +1243,56 @@ func (m *EntityDTO_VMState) GetConnected() bool {
 }
 
 type EntityDTO_PhysicalMachineData struct {
-	NumCPUs *int32 `protobuf:"varint,1,opt,name=numCPUs" json:"numCPUs,omitempty"`
 	// Carries specific properties for setting Entity State of this PM.
-	PmState          *EntityDTO_PMState `protobuf:"bytes,2,opt,name=pmState" json:"pmState,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
+	PmState *EntityDTO_PMState `protobuf:"bytes,1,opt,name=pmState" json:"pmState,omitempty"`
+	// Total number of CPU sockets on the PM.
+	NumCpuSockets *int32 `protobuf:"varint,2,opt,name=numCpuSockets" json:"numCpuSockets,omitempty"`
+	// Total number of CPU cores on the PM.
+	NumCpuCores *int32 `protobuf:"varint,3,opt,name=numCpuCores" json:"numCpuCores,omitempty"`
+	// Total number of physical CPU threads on the PM.
+	NumCpuThreads *int32 `protobuf:"varint,4,opt,name=numCpuThreads" json:"numCpuThreads,omitempty"`
+	// CPU frequency for one CPU core for the PM.
+	CpuCoreMhz       *int32 `protobuf:"varint,5,opt,name=cpuCoreMhz" json:"cpuCoreMhz,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
 }
 
 func (m *EntityDTO_PhysicalMachineData) Reset()         { *m = EntityDTO_PhysicalMachineData{} }
 func (m *EntityDTO_PhysicalMachineData) String() string { return proto.CompactTextString(m) }
 func (*EntityDTO_PhysicalMachineData) ProtoMessage()    {}
 
-func (m *EntityDTO_PhysicalMachineData) GetNumCPUs() int32 {
-	if m != nil && m.NumCPUs != nil {
-		return *m.NumCPUs
-	}
-	return 0
-}
-
 func (m *EntityDTO_PhysicalMachineData) GetPmState() *EntityDTO_PMState {
 	if m != nil {
 		return m.PmState
 	}
 	return nil
+}
+
+func (m *EntityDTO_PhysicalMachineData) GetNumCpuSockets() int32 {
+	if m != nil && m.NumCpuSockets != nil {
+		return *m.NumCpuSockets
+	}
+	return 0
+}
+
+func (m *EntityDTO_PhysicalMachineData) GetNumCpuCores() int32 {
+	if m != nil && m.NumCpuCores != nil {
+		return *m.NumCpuCores
+	}
+	return 0
+}
+
+func (m *EntityDTO_PhysicalMachineData) GetNumCpuThreads() int32 {
+	if m != nil && m.NumCpuThreads != nil {
+		return *m.NumCpuThreads
+	}
+	return 0
+}
+
+func (m *EntityDTO_PhysicalMachineData) GetCpuCoreMhz() int32 {
+	if m != nil && m.CpuCoreMhz != nil {
+		return *m.CpuCoreMhz
+	}
+	return 0
 }
 
 type EntityDTO_PMState struct {
@@ -1285,6 +1430,7 @@ func (m *EntityDTO_EntityProperty) GetValue() string {
 type EntityDTO_VirtualMachineRelatedData struct {
 	Memory           *EntityDTO_MemoryData      `protobuf:"bytes,1,opt,name=memory" json:"memory,omitempty"`
 	Processor        []*EntityDTO_ProcessorData `protobuf:"bytes,2,rep,name=processor" json:"processor,omitempty"`
+	Io               []*EntityDTO_IoData        `protobuf:"bytes,3,rep,name=io" json:"io,omitempty"`
 	XXX_unrecognized []byte                     `json:"-"`
 }
 
@@ -1302,6 +1448,13 @@ func (m *EntityDTO_VirtualMachineRelatedData) GetMemory() *EntityDTO_MemoryData 
 func (m *EntityDTO_VirtualMachineRelatedData) GetProcessor() []*EntityDTO_ProcessorData {
 	if m != nil {
 		return m.Processor
+	}
+	return nil
+}
+
+func (m *EntityDTO_VirtualMachineRelatedData) GetIo() []*EntityDTO_IoData {
+	if m != nil {
+		return m.Io
 	}
 	return nil
 }
@@ -1662,7 +1815,9 @@ type CommodityDTO struct {
 	// this property to 'true'.
 	ComputedUsed *bool `protobuf:"varint,12,opt,name=computedUsed,def=0" json:"computedUsed,omitempty"`
 	// Property to indicate the amount by which the commodity will be resized.
-	UsedIncrement      *float64                         `protobuf:"fixed64,13,opt,name=usedIncrement" json:"usedIncrement,omitempty"`
+	UsedIncrement *float64 `protobuf:"fixed64,13,opt,name=usedIncrement" json:"usedIncrement,omitempty"`
+	// Commodity properties map
+	PropMap            []*CommodityDTO_PropertiesList   `protobuf:"bytes,14,rep,name=propMap" json:"propMap,omitempty"`
 	StorageLatencyData *CommodityDTO_StorageLatencyData `protobuf:"bytes,500,opt,name=storage_latency_data" json:"storage_latency_data,omitempty"`
 	StorageAccessData  *CommodityDTO_StorageAccessData  `protobuf:"bytes,501,opt,name=storage_access_data" json:"storage_access_data,omitempty"`
 	XXX_unrecognized   []byte                           `json:"-"`
@@ -1768,6 +1923,13 @@ func (m *CommodityDTO) GetUsedIncrement() float64 {
 	return 0
 }
 
+func (m *CommodityDTO) GetPropMap() []*CommodityDTO_PropertiesList {
+	if m != nil {
+		return m.PropMap
+	}
+	return nil
+}
+
 func (m *CommodityDTO) GetStorageLatencyData() *CommodityDTO_StorageLatencyData {
 	if m != nil {
 		return m.StorageLatencyData
@@ -1778,6 +1940,31 @@ func (m *CommodityDTO) GetStorageLatencyData() *CommodityDTO_StorageLatencyData 
 func (m *CommodityDTO) GetStorageAccessData() *CommodityDTO_StorageAccessData {
 	if m != nil {
 		return m.StorageAccessData
+	}
+	return nil
+}
+
+// Map property type to list of strings
+type CommodityDTO_PropertiesList struct {
+	Name             *string  `protobuf:"bytes,1,req,name=name" json:"name,omitempty"`
+	Values           []string `protobuf:"bytes,2,rep,name=values" json:"values,omitempty"`
+	XXX_unrecognized []byte   `json:"-"`
+}
+
+func (m *CommodityDTO_PropertiesList) Reset()         { *m = CommodityDTO_PropertiesList{} }
+func (m *CommodityDTO_PropertiesList) String() string { return proto.CompactTextString(m) }
+func (*CommodityDTO_PropertiesList) ProtoMessage()    {}
+
+func (m *CommodityDTO_PropertiesList) GetName() string {
+	if m != nil && m.Name != nil {
+		return *m.Name
+	}
+	return ""
+}
+
+func (m *CommodityDTO_PropertiesList) GetValues() []string {
+	if m != nil {
+		return m.Values
 	}
 	return nil
 }
@@ -2129,6 +2316,88 @@ func (m *GroupDTO_SelectionSpec_PropertyDoubleList) GetPropertyValue() []float64
 	return nil
 }
 
+// Context data.  This data may be related to action execution
+// or this data may be used more generally.
+type ContextData struct {
+	ContextKey       *string `protobuf:"bytes,1,req,name=contextKey" json:"contextKey,omitempty"`
+	ContextValue     *string `protobuf:"bytes,2,req,name=contextValue" json:"contextValue,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *ContextData) Reset()         { *m = ContextData{} }
+func (m *ContextData) String() string { return proto.CompactTextString(m) }
+func (*ContextData) ProtoMessage()    {}
+
+func (m *ContextData) GetContextKey() string {
+	if m != nil && m.ContextKey != nil {
+		return *m.ContextKey
+	}
+	return ""
+}
+
+func (m *ContextData) GetContextValue() string {
+	if m != nil && m.ContextValue != nil {
+		return *m.ContextValue
+	}
+	return ""
+}
+
+// Notification on some event or condition.
+type NotificationDTO struct {
+	// Event name.
+	Event *string `protobuf:"bytes,1,req,name=event" json:"event,omitempty"`
+	// Notification category. For known notification categories use NotificationCategoryDTO enumeration.
+	Category *string `protobuf:"bytes,2,req,name=category" json:"category,omitempty"`
+	// Optional notification sub-category.
+	SubCategory *string `protobuf:"bytes,3,opt,name=subCategory" json:"subCategory,omitempty"`
+	// Optional notification description.
+	Description *string `protobuf:"bytes,4,opt,name=description" json:"description,omitempty"`
+	// Notification severity.
+	Severity         *NotificationDTO_Severity `protobuf:"varint,5,opt,name=severity,enum=common_dto.NotificationDTO_Severity,def=0" json:"severity,omitempty"`
+	XXX_unrecognized []byte                    `json:"-"`
+}
+
+func (m *NotificationDTO) Reset()         { *m = NotificationDTO{} }
+func (m *NotificationDTO) String() string { return proto.CompactTextString(m) }
+func (*NotificationDTO) ProtoMessage()    {}
+
+const Default_NotificationDTO_Severity NotificationDTO_Severity = NotificationDTO_UNKNOWN
+
+func (m *NotificationDTO) GetEvent() string {
+	if m != nil && m.Event != nil {
+		return *m.Event
+	}
+	return ""
+}
+
+func (m *NotificationDTO) GetCategory() string {
+	if m != nil && m.Category != nil {
+		return *m.Category
+	}
+	return ""
+}
+
+func (m *NotificationDTO) GetSubCategory() string {
+	if m != nil && m.SubCategory != nil {
+		return *m.SubCategory
+	}
+	return ""
+}
+
+func (m *NotificationDTO) GetDescription() string {
+	if m != nil && m.Description != nil {
+		return *m.Description
+	}
+	return ""
+}
+
+func (m *NotificationDTO) GetSeverity() NotificationDTO_Severity {
+	if m != nil && m.Severity != nil {
+		return *m.Severity
+	}
+	return Default_NotificationDTO_Severity
+}
+
 func init() {
 	proto.RegisterEnum("common_dto.EntityDTO_EntityType", EntityDTO_EntityType_name, EntityDTO_EntityType_value)
 	proto.RegisterEnum("common_dto.EntityDTO_PowerState", EntityDTO_PowerState_name, EntityDTO_PowerState_value)
@@ -2138,4 +2407,5 @@ func init() {
 	proto.RegisterEnum("common_dto.CommodityDTO_CommodityType", CommodityDTO_CommodityType_name, CommodityDTO_CommodityType_value)
 	proto.RegisterEnum("common_dto.GroupDTO_ConstraintType", GroupDTO_ConstraintType_name, GroupDTO_ConstraintType_value)
 	proto.RegisterEnum("common_dto.GroupDTO_SelectionSpec_ExpressionType", GroupDTO_SelectionSpec_ExpressionType_name, GroupDTO_SelectionSpec_ExpressionType_value)
+	proto.RegisterEnum("common_dto.NotificationDTO_Severity", NotificationDTO_Severity_name, NotificationDTO_Severity_value)
 }
