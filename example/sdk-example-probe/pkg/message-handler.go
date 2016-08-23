@@ -5,10 +5,10 @@ import (
 	"github.com/golang/glog"
 
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/comm"
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	sdkproto "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
 )
 
-// This Struct is the implementation of communicator.ServerMessageHandler interface
+// This Struct is the implementation of comm.ServerMessageHandler interface
 type MsgHandler struct {
 	wscommunicator *comm.WebSocketCommunicator
 	cInfo          *ConnectionInfo
@@ -45,10 +45,10 @@ func (h *MsgHandler) AddTarget() {
 }
 
 // This Method validates our target which was previously added to the VMTServer
-func (h *MsgHandler) Validate(serverMsg *proto.MediationServerMessage) {
+func (h *MsgHandler) Validate(serverMsg *sdkproto.MediationServerMessage) {
 	// messageID is a int32 , if nil then 0
 	messageID := serverMsg.GetMessageID()
-	validationResponse := new(proto.ValidationResponse)
+	validationResponse := new(sdkproto.ValidationResponse)
 
 	// creates a ClientMessageBuilder and sets ClientMessageBuilder.clientMessage.MessageID = messageID
 	// sets clientMessage.ValidationResponse = validationResponse
@@ -85,21 +85,21 @@ func (h *MsgHandler) Validate(serverMsg *proto.MediationServerMessage) {
 	return
 }
 
-func (h *MsgHandler) HandleAction(serverMsg *proto.MediationServerMessage) {
+func (h *MsgHandler) HandleAction(serverMsg *sdkproto.MediationServerMessage) {
 	glog.Infof("HandleAction called")
 	return
 }
 
 // This Method sends all the topology entities and relationships found at
 // this target to the VMTServer
-func (h *MsgHandler) DiscoverTopology(serverMsg *proto.MediationServerMessage) {
+func (h *MsgHandler) DiscoverTopology(serverMsg *sdkproto.MediationServerMessage) {
 
 	messageID := serverMsg.GetMessageID()
 	simulatedProbe := &TargetProbe{}
 	// add some fake nodes to simulatdProbe or just created it in getNodeEntityDTOs
 	nodeEntityDTOs := simulatedProbe.getNodeEntityDTOs() // []*sdk.EntityDTO
 	//  use simulated kubeclient to do ParseNode and ParsePod
-	discoveryResponse := &proto.DiscoveryResponse{
+	discoveryResponse := &sdkproto.DiscoveryResponse{
 		EntityDTO: nodeEntityDTOs,
 	}
 	clientMsg := comm.NewClientMessageBuilder(messageID).SetDiscoveryResponse(discoveryResponse).Create()
@@ -110,14 +110,14 @@ func (h *MsgHandler) DiscoverTopology(serverMsg *proto.MediationServerMessage) {
 
 // Function Creates ContainerInfo struct, sets Kubernetes Container Probe Information
 // Returns pointer to newly created ContainerInfo
-func (h *MsgHandler) CreateContainerInfo(localaddr string) *proto.ContainerInfo {
-	var acctDefProps []*proto.AccountDefEntry
+func (h *MsgHandler) CreateContainerInfo(localaddr string) *sdkproto.ContainerInfo {
+	var acctDefProps []*sdkproto.AccountDefEntry
 	targetIDAcctDefEntry := comm.NewAccountDefEntryBuilder(h.cInfo.TargetIdentifier,
-		h.cInfo.UserDefinedNameorIPAddress, localaddr, ".*", proto.AccountDefEntry_OPTIONAL, false).Create()
+		h.cInfo.UserDefinedNameorIPAddress, localaddr, ".*", sdkproto.AccountDefEntry_OPTIONAL, false).Create()
 	acctDefProps = append(acctDefProps, targetIDAcctDefEntry)
-	usernameAcctDefEntry := comm.NewAccountDefEntryBuilder("username", "Username", h.cInfo.Username, ".*", proto.AccountDefEntry_OPTIONAL, false).Create()
+	usernameAcctDefEntry := comm.NewAccountDefEntryBuilder("username", "Username", h.cInfo.Username, ".*", sdkproto.AccountDefEntry_OPTIONAL, false).Create()
 	acctDefProps = append(acctDefProps, usernameAcctDefEntry)
-	passwdAcctDefEntry := comm.NewAccountDefEntryBuilder("password", "Password", h.cInfo.Password, ".*", proto.AccountDefEntry_OPTIONAL, true).Create()
+	passwdAcctDefEntry := comm.NewAccountDefEntryBuilder("password", "Password", h.cInfo.Password, ".*", sdkproto.AccountDefEntry_OPTIONAL, true).Create()
 	acctDefProps = append(acctDefProps, passwdAcctDefEntry)
 	//create the ProbeInfo struct with only type and category fields
 	probeType := h.cInfo.Type
@@ -125,7 +125,7 @@ func (h *MsgHandler) CreateContainerInfo(localaddr string) *proto.ContainerInfo 
 	templateDTOs := createSupplyChain()
 	probeInfo := comm.NewProbeInfoBuilder(probeType, probeCat, templateDTOs, acctDefProps).Create()
 	// Create container
-	containerInfo := new(proto.ContainerInfo)
+	containerInfo := new(sdkproto.ContainerInfo)
 	// Add probe to array of ProbeInfo* in container
 	probes := append(containerInfo.Probes, probeInfo)
 	containerInfo.Probes = probes
