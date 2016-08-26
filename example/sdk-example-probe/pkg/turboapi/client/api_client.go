@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/api"
+	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/api"
 )
 
 type Client struct {
@@ -23,7 +23,7 @@ func (this *Client) DiscoverTarget(nameOrAddress string) error {
 // Add a ExampleProbe target to server
 // example : http://localhost:8400/vmturbo/api/externaltargets?
 //                     type=<target_type>&nameOrAddress=<host_address>&username=<username>&targetIdentifier=<target_identifier>&password=<password>
-func (this *Client) AddTarget(targetType, nameOrAddress, username, targetIdentifier, password string) error {
+func (this *Client) AddTarget(targetType, nameOrAddress, targetIdentifier, username, password string) error {
 	_, err := this.Post().Resource(api.Resource_Type_External_Target).
 		Param("type", targetType).
 		Param("nameOrAddress", nameOrAddress).

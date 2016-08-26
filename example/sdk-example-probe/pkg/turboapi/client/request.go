@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/api"
+	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/api"
 )
 
 type Request struct {
@@ -74,6 +74,7 @@ func (this *Request) Name(resourceName string) *Request {
 		this.err = fmt.Errorf("Resource name cannot be empty.")
 		return this
 	}
+	this.resourceName = resourceName
 	return this
 }
 

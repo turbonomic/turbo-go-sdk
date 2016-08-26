@@ -1,53 +1,57 @@
-package mediationcontainerinfobuilder
+package registration
 
 import (
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/comm"
-	sdkproto "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+
+	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/registration/supplychain"
+
+	"github.com/golang/glog"
 )
 
 type MediationContainerInfoBuilder struct {
 	targetType string
 }
 
-func NewMediationContainerInfoBuilder(targetType string) {
+func NewMediationContainerInfoBuilder(targetType string) *MediationContainerInfoBuilder {
 	return &MediationContainerInfoBuilder{
 		targetType: targetType,
 	}
 }
 
-func (this *MediationContainerInfoBuilder) Build() *sdkproto.ContainerInfo {
-	return &sdkproto.ContainerInfo{
+func (this *MediationContainerInfoBuilder) Build() *proto.ContainerInfo {
+	return &proto.ContainerInfo{
 		Probes: buildProbes(this.targetType),
 	}
 }
 
-func createAccountDef() []*sdkproto.AccountDefEntry {
-	var acctDefProps []*sdkproto.AccountDefEntry
+func createAccountDef() []*proto.AccountDefEntry {
+	var acctDefProps []*proto.AccountDefEntry
 
 	// target id
 	targetIDAcctDefEntry := comm.NewAccountDefEntryBuilder("targetIdentifier", "Address",
-		"IP address of the probe", ".*", sdkproto.AccountDefEntry_OPTIONAL, false).Create()
+		"IP address of the probe", ".*", proto.AccountDefEntry_OPTIONAL, false).Create()
 	acctDefProps = append(acctDefProps, targetIDAcctDefEntry)
 
 	// username
 	usernameAcctDefEntry := comm.NewAccountDefEntryBuilder("username", "Username",
-		"Username of the probe", ".*", sdkproto.AccountDefEntry_OPTIONAL, false).Create()
+		"Username of the probe", ".*", proto.AccountDefEntry_OPTIONAL, false).Create()
 	acctDefProps = append(acctDefProps, usernameAcctDefEntry)
 
 	// password
 	passwdAcctDefEntry := comm.NewAccountDefEntryBuilder("password", "Password",
-		"Password of the probe", ".*", comm.AccountDefEntry_OPTIONAL, true).Create()
+		"Password of the probe", ".*", proto.AccountDefEntry_OPTIONAL, true).Create()
 	acctDefProps = append(acctDefProps, passwdAcctDefEntry)
 
 	return acctDefProps
 }
 
-func buildProbes(probeType string) []*sdkproto.ProbeInfo {
+func buildProbes(probeType string) []*proto.ProbeInfo {
 	// 1. Construct the account definition for exmaple probe.
-	acctDefProps := this.createAccountDef()
+	acctDefProps := createAccountDef()
 
 	// 2. Build supply chain.
-	supplyChainFactory := &SupplyChainFactory{}
+	supplyChainFactory := &supplychain.SupplyChainFactory{}
 	templateDtos := supplyChainFactory.CreateSupplyChain()
 	glog.V(2).Infof("Supply chain for the example probe is created.")
 
@@ -56,7 +60,7 @@ func buildProbes(probeType string) []*sdkproto.ProbeInfo {
 	exampleProbe := comm.NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
 
 	// 4. Add example probe to probeInfo list, here it is the only probe supported.
-	var probes []*sdkproto.ProbeInfo
+	var probes []*proto.ProbeInfo
 	probes = append(probes, exampleProbe)
 
 	return probes

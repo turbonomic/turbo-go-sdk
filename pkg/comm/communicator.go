@@ -18,6 +18,10 @@ type ServerMessageHandler interface {
 	Validate(serverMsg *proto.MediationServerMessage)
 	DiscoverTopology(serverMsg *proto.MediationServerMessage)
 	HandleAction(serverMsg *proto.MediationServerMessage)
+
+	// Handler only process server message and is not responsible for sending back client message.
+	// A separate communicator is responsible for sending messages.
+	Callback() <-chan *proto.MediationClientMessage
 }
 
 type WebSocketCommunicator struct {
