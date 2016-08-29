@@ -1,8 +1,8 @@
-package comm
+package communication
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/vmturbo/vmturbo-go-sdk/sdk"
+	"github.com/vmturbo/vmturbo-go-sdk/builder"
 	"github.com/vmturbo/vmturbo-go-sdk/util/rand"
 	"testing"
 )

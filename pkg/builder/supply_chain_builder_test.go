@@ -1,4 +1,4 @@
-package sdk
+package builder
 
 import (
 	"github.com/stretchr/testify/assert"

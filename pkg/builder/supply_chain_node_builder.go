@@ -1,6 +1,7 @@
-package sdk
+package builder
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/golang/glog"
@@ -11,6 +12,8 @@ import (
 type SupplyChainNodeBuilder struct {
 	entityTemplate  *proto.TemplateDTO
 	currentProvider *proto.Provider
+
+	err error
 }
 
 // Create a new SupplyChainNode Builder
@@ -19,8 +22,11 @@ func NewSupplyChainNodeBuilder() *SupplyChainNodeBuilder {
 }
 
 // Create a SupplyChainNode
-func (scnb *SupplyChainNodeBuilder) Create() *proto.TemplateDTO {
-	return scnb.entityTemplate
+func (scnb *SupplyChainNodeBuilder) Create() (*proto.TemplateDTO, error) {
+	if scnb.err != nil {
+		return nil, fmt.Errorf("Cannot create supply chain node because of error: %v", scnb.err)
+	}
+	return scnb.entityTemplate, nil
 }
 
 // Build the entity of the SupplyChainNode
@@ -39,55 +45,26 @@ func (scnb *SupplyChainNodeBuilder) Entity(entityType proto.EntityDTO_EntityType
 	return scnb
 }
 
-// Get the entityType of the TemplateDTO
-func (scnb *SupplyChainNodeBuilder) getEntity() proto.EntityDTO_EntityType {
-	if hasEntityTemplate := scnb.requireEntityTemplate(); !hasEntityTemplate {
-		//TODO!! should give error
-		// return
-	}
-	return scnb.entityTemplate.GetTemplateClass()
-}
-
-// Check if the entityTemplate has been set.
-func (scnb *SupplyChainNodeBuilder) requireEntityTemplate() bool {
-	if scnb.entityTemplate == nil {
-		return false
-	}
-
-	return true
-}
-
-// Check if the provider has been set.
-func (scnb *SupplyChainNodeBuilder) requireProvider() bool {
-	if scnb.currentProvider == nil {
-		return false
-	}
-	return true
-}
-
 // The very basic selling method. If want others, use other names
-func (scnb *SupplyChainNodeBuilder) Selling(comm proto.CommodityDTO_CommodityType, key string) *SupplyChainNodeBuilder {
+func (scnb *SupplyChainNodeBuilder) Sells(templateComm proto.TemplateCommodity) *SupplyChainNodeBuilder {
 	if hasEntityTemplate := scnb.requireEntityTemplate(); !hasEntityTemplate {
 		//TODO should give error
 		return scnb
 	}
 
-	// Add commodity sold
-	templateComm := &proto.TemplateCommodity{
-		Key:           &key,
-		CommodityType: &comm,
-	}
 	commSold := scnb.entityTemplate.CommoditySold
-	commSold = append(commSold, templateComm)
+	commSold = append(commSold, &templateComm)
 	scnb.entityTemplate.CommoditySold = commSold
 	return scnb
 }
 
 // set the provider of the SupplyChainNode
 func (scnb *SupplyChainNodeBuilder) Provider(provider proto.EntityDTO_EntityType, pType proto.Provider_ProviderType) *SupplyChainNodeBuilder {
+	if scnb.err != nil {
+		return scnb
+	}
 	if hasTemplate := scnb.requireEntityTemplate(); !hasTemplate {
-		//TODO should give error
-
+		scnb.err = fmt.Errorf("EntityTemplate is not found. Must set before call Provider().")
 		return scnb
 	}
 
@@ -116,20 +93,23 @@ func (scnb *SupplyChainNodeBuilder) Provider(provider proto.EntityDTO_EntityType
 // Add a commodity this node buys from the current provider. The provider must already been specified.
 // If there is no provider for this node, does not add the commodity.
 func (scnb *SupplyChainNodeBuilder) Buys(templateComm proto.TemplateCommodity) *SupplyChainNodeBuilder {
+	if scnb.err != nil {
+		return scnb
+	}
 	if hasEntityTemplate := scnb.requireEntityTemplate(); !hasEntityTemplate {
-		//TODO should give error
-		//glog.V(3).Infof("---------- Error! No entity found! ----------")
+		scnb.err = fmt.Errorf("EntityTemplate is not found. Must set before call Buys().")
 		return scnb
 	}
 
 	if hasProvider := scnb.requireProvider(); !hasProvider {
-		//TODO should give error
-		//glog.V(3).Infof("---------- Error! No provider found! ----------")
+		scnb.err = fmt.Errorf("Provider is not found. Must set before call Buys().")
 		return scnb
 	}
 
 	boughtMap := scnb.entityTemplate.GetCommodityBought()
-	providerProp, exist := scnb.findCommBoughtProvider(scnb.currentProvider)
+	// 1. Check if the current provider is already added to the CommodityBought map of current templateDTO.
+	providerProp, exist := findProviderInCommBoughtMap(boughtMap, scnb.currentProvider)
+	// 2. If not exist, put current provider into CommodityBought map.
 	if !exist {
 
 		providerProp = new(proto.TemplateDTO_CommBoughtProviderProp)
@@ -139,9 +119,8 @@ func (scnb *SupplyChainNodeBuilder) Buys(templateComm proto.TemplateCommodity) *
 
 		boughtMap = append(boughtMap, providerProp)
 		scnb.entityTemplate.CommodityBought = boughtMap
-
 	}
-
+	// 3. Add current commodity into commodityBought map.
 	providerPropValue := providerProp.GetValue()
 	providerPropValue = append(providerPropValue, &templateComm)
 	providerProp.Value = providerPropValue
@@ -149,11 +128,10 @@ func (scnb *SupplyChainNodeBuilder) Buys(templateComm proto.TemplateCommodity) *
 	return scnb
 }
 
-// Check if current provider exists in BoughtMap of the templateDTO.
-// TODO, this should be a method in templateDTO?
-func (scnb *SupplyChainNodeBuilder) findCommBoughtProvider(provider *proto.Provider) (*proto.TemplateDTO_CommBoughtProviderProp, bool) {
-	for _, pp := range scnb.entityTemplate.GetCommodityBought() {
-
+// Check if current provider exists in CommodityBoughtProvider map of the templateDTO.
+func findProviderInCommBoughtMap(commBoughtProviders []*proto.TemplateDTO_CommBoughtProviderProp,
+	provider *proto.Provider) (*proto.TemplateDTO_CommBoughtProviderProp, bool) {
+	for _, pp := range commBoughtProviders {
 		if pp.GetKey() == provider {
 			return pp, true
 		}
@@ -188,4 +166,30 @@ func (scnb *SupplyChainNodeBuilder) addExternalLinkPropToTemplateEntity(extEntit
 	currentLinks := scnb.entityTemplate.GetExternalLink()
 	currentLinks = append(currentLinks, extEntityLinkProp)
 	scnb.entityTemplate.ExternalLink = currentLinks
+}
+
+// Get the entityType of the TemplateDTO
+func (scnb *SupplyChainNodeBuilder) getType() (*proto.EntityDTO_EntityType, error) {
+	if hasEntityTemplate := scnb.requireEntityTemplate(); !hasEntityTemplate {
+		return nil, fmt.Errorf("EntityTemplate has no been set. Call Entity() first.")
+	}
+	entityType := scnb.entityTemplate.GetTemplateClass()
+	return &entityType, nil
+}
+
+// Check if the entityTemplate has been set.
+func (scnb *SupplyChainNodeBuilder) requireEntityTemplate() bool {
+	if scnb.entityTemplate == nil {
+		return false
+	}
+
+	return true
+}
+
+// Check if the provider has been set.
+func (scnb *SupplyChainNodeBuilder) requireProvider() bool {
+	if scnb.currentProvider == nil {
+		return false
+	}
+	return true
 }

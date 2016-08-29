@@ -1,4 +1,4 @@
-package comm
+package communication
 
 import (
 	"encoding/base64"

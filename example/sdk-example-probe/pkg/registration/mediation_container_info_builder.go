@@ -1,7 +1,7 @@
 package registration
 
 import (
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/comm"
+	comm "github.com/vmturbo/vmturbo-go-sdk/pkg/communication"
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
 
 	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/registration/supplychain"
@@ -19,10 +19,15 @@ func NewMediationContainerInfoBuilder(targetType string) *MediationContainerInfo
 	}
 }
 
-func (this *MediationContainerInfoBuilder) Build() *proto.ContainerInfo {
-	return &proto.ContainerInfo{
-		Probes: buildProbes(this.targetType),
+func (this *MediationContainerInfoBuilder) Build() (*proto.ContainerInfo, error) {
+	p, err := buildProbes(this.targetType)
+	if err != nil {
+		return nil, err
 	}
+
+	return &proto.ContainerInfo{
+		Probes: p,
+	}, nil
 }
 
 func createAccountDef() []*proto.AccountDefEntry {
@@ -46,13 +51,16 @@ func createAccountDef() []*proto.AccountDefEntry {
 	return acctDefProps
 }
 
-func buildProbes(probeType string) []*proto.ProbeInfo {
+func buildProbes(probeType string) ([]*proto.ProbeInfo, error) {
 	// 1. Construct the account definition for exmaple probe.
 	acctDefProps := createAccountDef()
 
 	// 2. Build supply chain.
 	supplyChainFactory := &supplychain.SupplyChainFactory{}
-	templateDtos := supplyChainFactory.CreateSupplyChain()
+	templateDtos, err := supplyChainFactory.CreateSupplyChain()
+	if err != nil {
+		return nil, err
+	}
 	glog.V(2).Infof("Supply chain for the example probe is created.")
 
 	// 3. construct the example probe info.
@@ -63,5 +71,5 @@ func buildProbes(probeType string) []*proto.ProbeInfo {
 	var probes []*proto.ProbeInfo
 	probes = append(probes, exampleProbe)
 
-	return probes
+	return probes, nil
 }

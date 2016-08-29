@@ -1,18 +1,25 @@
 package supplychain
 
 import (
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/builder"
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/sdk"
 )
 
 var (
-	cpuType proto.CommodityDTO_CommodityType = proto.CommodityDTO_CPU
-	memType proto.CommodityDTO_CommodityType = proto.CommodityDTO_MEM
+	cpuType  proto.CommodityDTO_CommodityType = proto.CommodityDTO_CPU
+	memType  proto.CommodityDTO_CommodityType = proto.CommodityDTO_MEM
+	vCpuType proto.CommodityDTO_CommodityType = proto.CommodityDTO_VCPU
+	vMemType proto.CommodityDTO_CommodityType = proto.CommodityDTO_VMEM
 
 	//Commodity key is optional, when key is set, it serves as a constraint between seller and buyer
 	//for example, the buyer can only go to a seller that sells the commodity with the required key
 	cpuCommKey string = "cpu_comm_key"
 	memCommKey string = "mem_comm_key"
+
+	cpuTemplateComm  proto.TemplateCommodity = proto.TemplateCommodity{CommodityType: &cpuType}
+	memTemplateComm  proto.TemplateCommodity = proto.TemplateCommodity{CommodityType: &memType}
+	vCpuTemplateComm proto.TemplateCommodity = proto.TemplateCommodity{CommodityType: &vCpuType}
+	vMemTemplateComm proto.TemplateCommodity = proto.TemplateCommodity{CommodityType: &vMemType}
 )
 
 type SupplyChainFactory struct{}
@@ -23,7 +30,7 @@ type SupplyChainFactory struct{}
 // Each entity type and the relationships are defined by a single TemplateDTO struct
 // The function returns an array of TemplateDTO pointers
 // TO MODIFY:
-// For each entity: Create a supply chain builder object with sdk.NewSupplyChainNodeBuilder()
+// For each entity: Create a supply chain builder object with builder.NewSupplyChainNodeBuilder()
 //		    Set a provider type if the new entity is a buyer , create commodity objects
 //		    and add them to the entity's supply chain builder object
 //                  Add commodity objects with the selling function to the entity you create if
@@ -31,53 +38,48 @@ type SupplyChainFactory struct{}
 //		    Add the new entity to the supplyChainBuilder instance with either the Top()
 //		    or  Entity() methods
 // The SupplyChainBuilder() function is only called once, in this function.
-func (this *SupplyChainFactory) CreateSupplyChain() []*proto.TemplateDTO {
+func (this *SupplyChainFactory) CreateSupplyChain() ([]*proto.TemplateDTO, error) {
 	vmSupplyChainNodeBuilder := this.virtualMachineSupplyChainNodeBuilder()
 	pmSupplyChainNodeBuilder := this.physicalMachineSupplyChainNodeBuilder()
 
 	// SupplyChain building
 	// The last buyer in the supply chain is set as the top entity with the Top() method
 	// All other entities are added to the SupplyChainBuilder with the Entity() method
-	supplyChainBuilder := sdk.NewSupplyChainBuilder()
-	supplyChainBuilder.Top(vmSupplyChainNodeBuilder)
-	supplyChainBuilder.Entity(pmSupplyChainNodeBuilder)
-
-	return supplyChainBuilder.Create()
+	return builder.NewSupplyChainBuilder().
+		Top(vmSupplyChainNodeBuilder).
+		Entity(pmSupplyChainNodeBuilder).
+		Create()
 }
 
 // Create supply chain definition for Physical Machine.
-func (this *SupplyChainFactory) physicalMachineSupplyChainNodeBuilder() *sdk.SupplyChainNodeBuilder {
+func (this *SupplyChainFactory) physicalMachineSupplyChainNodeBuilder() *builder.SupplyChainNodeBuilder {
 	// PM Creation Process
-	pmSupplyChainNodeBuilder := sdk.NewSupplyChainNodeBuilder()
+	pmSupplyChainNodeBuilder := builder.NewSupplyChainNodeBuilder()
 	// Creates a Physical Machine entity and sets the type of commodity it sells to CPU
 	pmSupplyChainNodeBuilder = pmSupplyChainNodeBuilder.
 		Entity(proto.EntityDTO_PHYSICAL_MACHINE).
-		Selling(proto.CommodityDTO_CPU, cpuCommKey).
-		Selling(proto.CommodityDTO_MEM, memCommKey)
+		Sells(cpuTemplateComm).
+		Sells(memTemplateComm)
 
 	return pmSupplyChainNodeBuilder
 }
 
 // Create supply chain definition for Vitual Machine
-func (this *SupplyChainFactory) virtualMachineSupplyChainNodeBuilder() *sdk.SupplyChainNodeBuilder {
+func (this *SupplyChainFactory) virtualMachineSupplyChainNodeBuilder() *builder.SupplyChainNodeBuilder {
 	// VM Creation Process
-	vmSupplyChainNodeBuilder := sdk.NewSupplyChainNodeBuilder()
+	vmSupplyChainNodeBuilder := builder.NewSupplyChainNodeBuilder()
 	// Creates a Virtual Machine entity
-	vmSupplyChainNodeBuilder = vmSupplyChainNodeBuilder.Entity(proto.EntityDTO_VIRTUAL_MACHINE)
-	cpuTemplateComm := &proto.TemplateCommodity{
-		Key:           &cpuCommKey,
-		CommodityType: &cpuType,
-	}
-	memTemplateComm := &proto.TemplateCommodity{
-		Key:           &memCommKey,
-		CommodityType: &memType,
-	}
+	vmSupplyChainNodeBuilder = vmSupplyChainNodeBuilder.
+		Entity(proto.EntityDTO_VIRTUAL_MACHINE).
+		Sells(vCpuTemplateComm).
+		Sells(vMemTemplateComm)
+
 	// The Entity type for the Virtual Machine's commodity provider is defined by the Provider() method.
 	// The Commodity type for Virtual Machine's buying relationship is define by the Buys() method
 	vmSupplyChainNodeBuilder = vmSupplyChainNodeBuilder.
 		Provider(proto.EntityDTO_PHYSICAL_MACHINE, proto.Provider_HOSTING).
-		Buys(*cpuTemplateComm).
-		Buys(*memTemplateComm)
+		Buys(cpuTemplateComm).
+		Buys(memTemplateComm)
 
 	return vmSupplyChainNodeBuilder
 }

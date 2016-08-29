@@ -1,4 +1,4 @@
-package comm
+package communication
 
 import (
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"

@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/api"
+	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/api"
 )
 
 func TestParam(t *testing.T) {
@@ -33,8 +33,8 @@ func TestName(t *testing.T) {
 		name      string
 		expectStr string
 	}{
-		{"bar", u.String() + "/bar"},
-		{"foo", u.String() + "/foo"},
+		{"bar", "http://localhost/bar"},
+		{"foo", "http://localhost/foo"},
 	}
 	for _, test := range tests {
 		r := NewRequest("GET", u, "").Name(test.name)
@@ -72,14 +72,14 @@ func TestURLInOrder(t *testing.T) {
 		{
 			resource:     api.Resource_Type_Target,
 			resourceName: "foo",
-			expectStr:    u.String() + "/targets/foo",
+			expectStr:    "http://localhost/targets/foo",
 		},
 		{
 			resource: api.Resource_Type_External_Target,
 			parameters: map[string]string{
 				"foo": "12",
 			},
-			expectStr: u.String() + "/externaltargets?foo=12"},
+			expectStr: "http://localhost/externaltargets?foo=12"},
 	}
 	for _, test := range tests {
 		r := NewRequest("GET", u, "").Resource(test.resource).Name(test.resourceName)

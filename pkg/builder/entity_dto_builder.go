@@ -1,31 +1,14 @@
-package sdk
+package builder
 
-import "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+import (
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/common"
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+)
 
 type EntityDTOBuilder struct {
 	entity          *proto.EntityDTO
 	commodity       *proto.CommodityDTO
-	currentProvider *ProviderDTO
-}
-
-type ProviderDTO struct {
-	providerType *proto.EntityDTO_EntityType
-	Id           *string
-}
-
-func CreateProvider(pType proto.EntityDTO_EntityType, id string) *ProviderDTO {
-	return &ProviderDTO{
-		providerType: &pType,
-		Id:           &id,
-	}
-}
-
-func (pDto *ProviderDTO) getProviderType() *proto.EntityDTO_EntityType {
-	return pDto.providerType
-}
-
-func (pDto *ProviderDTO) getId() *string {
-	return pDto.Id
+	currentProvider *common.ProviderDTO
 }
 
 func NewEntityDTOBuilder(eType proto.EntityDTO_EntityType, id string) *EntityDTOBuilder {
@@ -51,10 +34,12 @@ func (eb *EntityDTOBuilder) DisplayName(disp string) *EntityDTOBuilder {
 	return eb
 }
 
-func (eb *EntityDTOBuilder) SellsCommodities(commDTOs []*proto.CommodityDTO) {
+func (eb *EntityDTOBuilder) SellsCommodities(commDTOs []*proto.CommodityDTO) *EntityDTOBuilder {
 	commSold := eb.entity.CommoditiesSold
 	commSold = append(commSold, commDTOs...)
 	eb.entity.CommoditiesSold = commSold
+
+	return eb
 }
 
 func (eb *EntityDTOBuilder) Sells(commodityType proto.CommodityDTO_CommodityType, key string) *EntityDTOBuilder {
@@ -101,15 +86,12 @@ func (eb *EntityDTOBuilder) requireCommodity() bool {
 	return true
 }
 
-func (eb *EntityDTOBuilder) SetProvider(provider *ProviderDTO) {
+func (eb *EntityDTOBuilder) SetProvider(provider *common.ProviderDTO) {
 	eb.currentProvider = provider
 }
 
 func (eb *EntityDTOBuilder) SetProviderWithTypeAndID(pType proto.EntityDTO_EntityType, id string) *EntityDTOBuilder {
-	eb.currentProvider = &ProviderDTO{
-		providerType: &pType,
-		Id:           &id,
-	}
+	eb.currentProvider = common.CreateProvider(pType, id)
 	return eb
 }
 
@@ -119,20 +101,19 @@ func (eb *EntityDTOBuilder) Buys(commodityType proto.CommodityDTO_CommodityType,
 		// TODO should have error message. Notify set current provider first
 		return eb
 	}
-	// defaultCapacity := float64(0.0)
 	commDTO := new(proto.CommodityDTO)
 	commDTO.CommodityType = &commodityType
 	commDTO.Key = &key
-	// commDTO.Capacity = &defaultCapacity
 	commDTO.Used = &used
 	eb.BuysCommodity(commDTO)
 	return eb
 }
 
-func (eb *EntityDTOBuilder) BuysCommodities(commDTOs []*proto.CommodityDTO) {
+func (eb *EntityDTOBuilder) BuysCommodities(commDTOs []*proto.CommodityDTO) *EntityDTOBuilder {
 	for _, commDTO := range commDTOs {
 		eb.BuysCommodity(commDTO)
 	}
+	return eb
 }
 
 func (eb *EntityDTOBuilder) BuysCommodity(commDTO *proto.CommodityDTO) *EntityDTOBuilder {

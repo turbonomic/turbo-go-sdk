@@ -4,22 +4,14 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/comm"
-	//"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
-	//	"github.com/vmturbo/vmturbo-go-sdk/pkg/sdk"
+	comm "github.com/vmturbo/vmturbo-go-sdk/pkg/communication"
 
 	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/metadata"
 	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/registration"
 	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/client"
-)
 
-//type Callback struct {
-//	c chan *proto.MediationClientMessage
-//}
-//
-//func (this *Callback) GetClientMessage(clientMsg *proto.MediationClientMessage) {
-//	c <- clientMsg
-//}
+	"github.com/golang/glog"
+)
 
 type Communicator struct {
 	wsComm *comm.WebSocketCommunicator
@@ -31,18 +23,6 @@ type Communicator struct {
 
 // use meta data and customized handler to create a communicator.
 func NewCommunicator(meta *metadata.Meta, handler comm.ServerMessageHandler) *Communicator {
-	//turboAPIClient, err := createTurboAPIClientFromMeta(meta)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//clientMsgChan := make(chan *proto.MediationClientMessage)
-
-	//handler := &ExampleServerMessageHandler{
-	//	turboAPIClient: turboAPIClient,
-	//	turboMetadata:  meta,
-	//}
-
 	wsCommunicator := &comm.WebSocketCommunicator{
 		VmtServerAddress: meta.ServerAddress,
 		LocalAddress:     meta.LocalAddress,
@@ -61,6 +41,7 @@ func NewCommunicator(meta *metadata.Meta, handler comm.ServerMessageHandler) *Co
 }
 
 func (this *Communicator) Start() {
+	glog.V(3).Infof("Start Communicator..")
 	go this.listenCallback()
 }
 
@@ -80,18 +61,24 @@ func createTurboAPIClientFromMeta(meta *metadata.Meta) (*client.Client, error) {
 // Listen to callback.c and send back any client message to server.
 // Should be run in a separate goroutine.
 func (this *Communicator) listenCallback() {
+
 	for {
 		select {
 		case msg := <-this.handler.Callback():
 			this.wsComm.SendClientMessage(msg)
 		case <-this.stop:
 			return
+
 		}
 	}
 }
 
 // Register target to server.
-func (this *Communicator) RegisterExampleProbe(targetType string) {
-	containerInfo := registration.NewMediationContainerInfoBuilder(targetType).Build()
+func (this *Communicator) RegisterExampleProbe(targetType string) error {
+	containerInfo, err := registration.NewMediationContainerInfoBuilder(targetType).Build()
+	if err != nil {
+		return err
+	}
 	this.wsComm.RegisterAndListen(containerInfo)
+	return nil
 }

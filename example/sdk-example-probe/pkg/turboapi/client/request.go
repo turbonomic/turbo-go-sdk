@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/api"
+
+	"github.com/golang/glog"
 )
 
 type Request struct {
@@ -114,6 +116,7 @@ func (this *Request) URL() *url.URL {
 	}
 
 	finalURL.RawQuery = query.Encode()
+
 	return finalURL
 }
 
@@ -139,10 +142,12 @@ func (this *Request) request(fn func(*http.Response)) error {
 	client := http.DefaultClient
 
 	url := this.URL().String()
+	glog.V(4).Infof("The request url is %s", url)
 	req, err := http.NewRequest(this.verb, url, nil)
 	if err != nil {
 		return err
 	}
+	req.SetBasicAuth(this.basicAuth.username, this.basicAuth.password)
 
 	resp, err := client.Do(req)
 	if err != nil {

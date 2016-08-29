@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/comm"
+	comm "github.com/vmturbo/vmturbo-go-sdk/pkg/communication"
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
 	//	"github.com/vmturbo/vmturbo-go-sdk/pkg/sdk"
 
@@ -17,37 +17,42 @@ import (
 
 // ExampleServerMessageHandler implement comm.ServerMessageHandler interface, which defines required actions of handlers that wants to work with Go SDK.
 type ExampleServerMessageHandler struct {
-	turboAPIClient *client.Client
-	turboMetadata  *metadata.Meta
+	TurboAPIClient *client.Client
+	TurboMetadata  *metadata.Meta
+
+	TopoAccessor *probe.TopologyGenerator
 
 	clientMsgChan chan *proto.MediationClientMessage
 }
 
-func NewExampleServerMessageHandler(c *client.Client, d *metadata.Meta) *ExampleServerMessageHandler {
+func NewExampleServerMessageHandler(c *client.Client, d *metadata.Meta, t *probe.TopologyGenerator) *ExampleServerMessageHandler {
+	glog.V(3).Infof("Buiding ExampleServerMessageHandler")
 	return &ExampleServerMessageHandler{
-		turboAPIClient: c,
-		turboMetadata:  d,
+		TurboAPIClient: c,
+		TurboMetadata:  d,
+
+		TopoAccessor: t,
 
 		// Make sure only send one clien message a time.
-		clientMsgChan: make(chan *proto.MediationClientMessage, 1),
+		clientMsgChan: make(chan *proto.MediationClientMessage),
 	}
 }
 
 // Implement comm.ServerMessageHandler Interface -> AddTarget()
 func (this *ExampleServerMessageHandler) AddTarget() {
-	glog.V(2).Infof("Now adding a %s target to server.", this.turboMetadata.TargetType)
+	glog.V(2).Infof("Now adding a %s target to server.", this.TurboMetadata.TargetType)
 
-	this.turboAPIClient.AddTarget(
-		this.turboMetadata.TargetType,
-		this.turboMetadata.NameOrAddress,
-		this.turboMetadata.TargetIdentifier,
-		this.turboMetadata.Username,
-		this.turboMetadata.Password)
+	this.TurboAPIClient.AddTarget(
+		this.TurboMetadata.TargetType,
+		this.TurboMetadata.NameOrAddress,
+		this.TurboMetadata.TargetIdentifier,
+		this.TurboMetadata.Username,
+		this.TurboMetadata.Password)
 }
 
 // Implement comm.ServerMessageHandler Interface -> Validate()
 func (this *ExampleServerMessageHandler) Validate(serverMsg *proto.MediationServerMessage) {
-	glog.V(2).Infof("Now validating target %s", this.turboMetadata.NameOrAddress)
+	glog.V(2).Infof("Now validating target %s", this.TurboMetadata.NameOrAddress)
 	// NOTE: Here we validate regardless of what info sent along with Validation request from server.
 	// 1. Retreive message ID from server message.
 	msgID := serverMsg.GetMessageID()
@@ -59,9 +64,9 @@ func (this *ExampleServerMessageHandler) Validate(serverMsg *proto.MediationServ
 	this.clientMsgChan <- clientMsg
 }
 
-// Implement comm.ServerMessageHandler Interface -> DiscoverTarget()
-func (this *ExampleServerMessageHandler) DiscoverTarget(serverMsg *proto.MediationServerMessage) {
-	glog.V(2).Infof("Now discovering toplogy of target %s.", this.turboMetadata.NameOrAddress)
+// Implement comm.ServerMessageHandler Interface -> DiscoverTopology()
+func (this *ExampleServerMessageHandler) DiscoverTopology(serverMsg *proto.MediationServerMessage) {
+	glog.V(2).Infof("Now discovering toplogy of target %s.", this.TurboMetadata.NameOrAddress)
 
 	// 1. Get message ID.
 	msgID := serverMsg.GetMessageID()
@@ -88,7 +93,7 @@ func (this *ExampleServerMessageHandler) DiscoverTarget(serverMsg *proto.Mediati
 
 	}()
 	// 3. Create probe and use probe to discover target topology.
-	exampleProbe := probe.NewExampleProbe()
+	exampleProbe := probe.NewExampleProbe(this.TopoAccessor)
 	discoveryResults, err := exampleProbe.Discover()
 	// 4. Build discovery response.
 	// If there is error during discovery, return an ErrorDTO.

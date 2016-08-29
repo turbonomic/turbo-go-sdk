@@ -1,4 +1,4 @@
-package sdk
+package builder
 
 import (
 	"fmt"
@@ -9,6 +9,8 @@ import (
 type SupplyChainBuilder struct {
 	SupplyChainNodes map[*proto.EntityDTO_EntityType]*SupplyChainNodeBuilder
 	currentNode      *SupplyChainNodeBuilder
+
+	err error
 }
 
 func NewSupplyChainBuilder() *SupplyChainBuilder {
@@ -17,7 +19,10 @@ func NewSupplyChainBuilder() *SupplyChainBuilder {
 
 // TODO: supply chain here is a set(map) or a list
 // if a map, key is the node builder, value is a boolean
-func (scb *SupplyChainBuilder) Create() []*proto.TemplateDTO {
+func (scb *SupplyChainBuilder) Create() ([]*proto.TemplateDTO, error) {
+	if scb.err != nil {
+		return nil, scb.err
+	}
 	allNodeBuilders := make(map[*SupplyChainNodeBuilder]bool)
 	for _, nodeBuilder := range scb.SupplyChainNodes {
 		allNodeBuilders[nodeBuilder] = true
@@ -26,10 +31,14 @@ func (scb *SupplyChainBuilder) Create() []*proto.TemplateDTO {
 	// create nodes from all node builders and put it into result
 	var allNodes []*proto.TemplateDTO
 	for nodeBuilder, _ := range allNodeBuilders {
-		allNodes = append(allNodes, nodeBuilder.Create())
+		templateDTO, err := nodeBuilder.Create()
+		if err != nil {
+			return nil, fmt.Errorf("Error in creating supplychain node: %v", err)
+		}
+		allNodes = append(allNodes, templateDTO)
 	}
 
-	return allNodes
+	return allNodes, nil
 }
 
 // To build a supply chain, must specify the top nodebuilder first.
@@ -37,8 +46,12 @@ func (scb *SupplyChainBuilder) Create() []*proto.TemplateDTO {
 func (scb *SupplyChainBuilder) Top(topNode *SupplyChainNodeBuilder) *SupplyChainBuilder {
 	supplyChianNodesBuilderMap := make(map[*proto.EntityDTO_EntityType]*SupplyChainNodeBuilder)
 	scb.SupplyChainNodes = supplyChianNodesBuilderMap
-	topNodeEntityType := topNode.getEntity()
-	scb.SupplyChainNodes[&topNodeEntityType] = topNode
+	topNodeEntityType, err := topNode.getType()
+	if err != nil {
+		scb.err = err
+		return scb
+	}
+	scb.SupplyChainNodes[topNodeEntityType] = topNode
 
 	scb.currentNode = topNode
 
@@ -48,11 +61,15 @@ func (scb *SupplyChainBuilder) Top(topNode *SupplyChainNodeBuilder) *SupplyChain
 // Add an entity node to supply chain
 func (scb *SupplyChainBuilder) Entity(node *SupplyChainNodeBuilder) *SupplyChainBuilder {
 	if hasTop := scb.hasTopNode(); !hasTop {
-		//TODO should have error
+		scb.err = fmt.Errorf("Must set top supply chain node first.")
 		return scb
 	}
-	nodeEntityType := node.getEntity()
-	scb.SupplyChainNodes[&nodeEntityType] = node
+	nodeEntityType, err := node.getType()
+	if err != nil {
+		scb.err = err
+		return scb
+	}
+	scb.SupplyChainNodes[nodeEntityType] = node
 
 	scb.currentNode = node
 
@@ -72,8 +89,12 @@ func (scb *SupplyChainBuilder) hasTopNode() bool {
 // discovered by the probe. Operations Manager uses this link by the Operations Manager market. This
 // external entity can be a provider or a consumer.
 func (scb *SupplyChainBuilder) ConnectsTo(extEntityLink *proto.ExternalEntityLink) *SupplyChainBuilder {
+	if scb.err != nil {
+		return scb
+	}
 	err := scb.requireCurrentNode()
 	if err != nil {
+		scb.err = err
 		return scb
 	}
 

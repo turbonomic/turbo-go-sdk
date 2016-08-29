@@ -9,6 +9,11 @@ import (
 	"github.com/golang/glog"
 )
 
+const (
+	defaultWebsocketCommunicationUsername string = "vmtRemoteMediation"
+	defaulWebsocketCommunicationPassword  string = "vmtRemoteMediation"
+)
+
 type Meta struct {
 	ServerAddress      string
 	TargetType         string
@@ -68,6 +73,13 @@ func NewMeta(serverAddr, targetType, nameOrAddress, targetID, usrn, passd, local
 
 	if len(opsManPassd) == 0 {
 		return nil, fmt.Errorf("Erorr getting OpsManagerPassword from meta data.")
+	}
+
+	if len(wsUsrn) == 0 {
+		wsUsrn = defaultWebsocketCommunicationUsername
+	}
+	if len(wsPassd) == 0 {
+		wsPassd = defaulWebsocketCommunicationPassword
 	}
 	meta := &Meta{
 		ServerAddress:      serverAddr,

@@ -15,7 +15,7 @@ type RESTClient struct {
 func NewRESTClient(baseURL *url.URL, apiPath string, ba *BasicAuthentication) *RESTClient {
 	base := *baseURL
 	if !strings.HasSuffix(base.Path, "/") {
-		base.Path += "/"
+		//		base.Path += "/"
 	}
 
 	return &RESTClient{
