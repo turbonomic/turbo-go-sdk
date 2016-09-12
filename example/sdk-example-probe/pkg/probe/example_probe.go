@@ -42,10 +42,13 @@ func (this *ExampleProbe) discoverPMs() ([]*proto.EntityDTO, error) {
 	for _, pm := range pms {
 		commoditiesSold := createPMCommoditiesSold(pm)
 
-		entityDTO := builder.NewEntityDTOBuilder(proto.EntityDTO_PHYSICAL_MACHINE, pm.UUID).
+		entityDTO, err := builder.NewEntityDTOBuilder(proto.EntityDTO_PHYSICAL_MACHINE, pm.UUID).
 			DisplayName(pm.Name).
 			SellsCommodities(commoditiesSold).
 			Create()
+		if err != nil {
+			return nil, fmt.Errorf("Error creating entityDTO for PM %s: %v", pm.Name, err)
+		}
 		result = append(result, entityDTO)
 	}
 
@@ -79,12 +82,15 @@ func (this *ExampleProbe) discoverVMs() ([]*proto.EntityDTO, error) {
 		commoditiesSold := createVMCommoditiesSold(vm)
 		commoditiesBought := createVMCommoditiesBought(vm)
 
-		entityDTO := builder.NewEntityDTOBuilder(proto.EntityDTO_VIRTUAL_MACHINE, vm.UUID).
+		entityDTO, err := builder.NewEntityDTOBuilder(proto.EntityDTO_VIRTUAL_MACHINE, vm.UUID).
 			DisplayName(vm.Name).
 			SellsCommodities(commoditiesSold).
 			SetProviderWithTypeAndID(proto.EntityDTO_PHYSICAL_MACHINE, vm.providerID).
 			BuysCommodities(commoditiesBought).
 			Create()
+		if err != nil {
+			return nil, fmt.Errorf("Error creating entityDTO for VM %s: %v", vm.Name, err)
+		}
 		result = append(result, entityDTO)
 	}
 

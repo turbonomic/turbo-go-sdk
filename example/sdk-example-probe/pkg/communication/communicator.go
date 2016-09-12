@@ -68,7 +68,6 @@ func (this *Communicator) listenCallback() {
 			this.wsComm.SendClientMessage(msg)
 		case <-this.stop:
 			return
-
 		}
 	}
 }
