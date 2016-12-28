@@ -2,5 +2,5 @@
 *.swo
 
 example_probe
-
-Godeps/_workspace/
+.idea/
+vmturbo-go-sdk.iml
