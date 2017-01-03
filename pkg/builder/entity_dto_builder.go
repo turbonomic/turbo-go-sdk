@@ -141,6 +141,10 @@ func (eb *EntityDTOBuilder) BuysCommodity(commDTO *proto.CommodityDTO) *EntityDT
 		return eb
 	}
 
+	if eb.commoditiesBoughtProviderMap == nil {
+		eb.commoditiesBoughtProviderMap = make(map[string][]*proto.CommodityDTO)
+	}
+
 	// add commodity bought to map
 	commoditiesSoldByCurrentProvider, exist := eb.commoditiesBoughtProviderMap[eb.currentProvider.Id]
 	if !exist {
@@ -203,6 +207,9 @@ func (eb *EntityDTOBuilder) WithPowerState(state proto.EntityDTO_PowerState) *En
 }
 
 func buildCommodityBoughtFromMap(providerCommoditiesMap map[string][]*proto.CommodityDTO) []*proto.EntityDTO_CommodityBought {
+	if len(providerCommoditiesMap) == 0 {
+		return nil
+	}
 	var commoditiesBought []*proto.EntityDTO_CommodityBought
 	for providerId, commodities := range providerCommoditiesMap {
 		commoditiesBought = append(commoditiesBought, &proto.EntityDTO_CommodityBought{
