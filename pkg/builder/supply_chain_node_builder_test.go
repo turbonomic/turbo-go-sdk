@@ -118,8 +118,8 @@ func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 	table := []struct {
 		templateCommoditiesBought []*proto.TemplateCommodity
 		provider                  *proto.Provider
-		existingErr                       error
-		newErr error
+		existingErr               error
+		newErr                    error
 	}{
 		{
 			existingErr: fmt.Errorf("Fake"),
@@ -161,8 +161,8 @@ func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 			priority:      base.priority,
 
 			providerCommodityBoughtMap: expectedMap,
-			currentProvider: item.provider,
-			err:             expectedErr,
+			currentProvider:            item.provider,
+			err:                        expectedErr,
 		}
 		builder := base
 		for _, comm := range item.templateCommoditiesBought {
@@ -172,7 +172,126 @@ func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 			t.Errorf("\nExpected %++v, \ngot      %++v", expectedBuilder, builder)
 		}
 
+	}
+}
 
+func TestBuildCommodityBought(t *testing.T) {
+	table := []struct {
+		providerList             []*proto.Provider
+		allCommoditiesBoughtList [][]*proto.TemplateCommodity
+	}{
+		{
+			providerList:             []*proto.Provider{},
+			allCommoditiesBoughtList: [][]*proto.TemplateCommodity{},
+		},
+		{
+			providerList: []*proto.Provider{
+				randomProvider(),
+				randomProvider(),
+			},
+			allCommoditiesBoughtList: [][]*proto.TemplateCommodity{
+				{
+					randomTemplateCommodity(),
+				},
+				{
+					randomTemplateCommodity(),
+					randomTemplateCommodity(),
+				},
+			},
+		},
+	}
+	for _, item := range table {
+		curMap := make(map[*proto.Provider][]*proto.TemplateCommodity)
+		expectedPropsSet := make(map[*proto.Provider]map[*proto.TemplateCommodity]struct{})
+		for _, provider := range item.providerList {
+			for _, commList := range item.allCommoditiesBoughtList {
+				curMap[provider] = commList
+
+				if _, exist := expectedPropsSet[provider]; !exist {
+					expectedPropsSet[provider] = make(map[*proto.TemplateCommodity]struct{})
+				}
+				for _, comm := range commList {
+					expectedPropsSet[provider][comm] = struct{}{}
+				}
+			}
+		}
+		props := buildCommodityBought(curMap)
+		for _, prop := range props {
+			provider := prop.Key
+			if _, exist := expectedPropsSet[provider]; !exist {
+				t.Errorf("Unexpected provider %+v", prop.Key)
+			}
+			for _, comm := range prop.Value {
+				if _, find := expectedPropsSet[provider][comm]; !find {
+					t.Errorf("Unexpected commodity bought %+v", comm)
+				}
+				delete(expectedPropsSet[provider], comm)
+				if len(expectedPropsSet[provider]) == 0 {
+					delete(expectedPropsSet, provider)
+				}
+			}
+		}
+
+	}
+}
+
+func TestSupplyChainNodeBuilder_ConnectsTo(t *testing.T) {
+
+}
+
+func TestBuildExternalEntityLinkProperty(t *testing.T) {
+	table := []struct {
+		buyerRef   proto.EntityDTO_EntityType
+		sellerRef  proto.EntityDTO_EntityType
+		entityType proto.EntityDTO_EntityType
+		key        proto.EntityDTO_EntityType
+
+		expectsError bool
+	}{
+		{
+			buyerRef:     proto.EntityDTO_VIRTUAL_MACHINE,
+			sellerRef:    proto.EntityDTO_PHYSICAL_MACHINE,
+			entityType:   proto.EntityDTO_VIRTUAL_MACHINE,
+			key:          proto.EntityDTO_PHYSICAL_MACHINE,
+			expectsError: false,
+		},
+		{
+			sellerRef:    proto.EntityDTO_PHYSICAL_MACHINE,
+			buyerRef:     proto.EntityDTO_VIRTUAL_MACHINE,
+			entityType:   proto.EntityDTO_PHYSICAL_MACHINE,
+			key:          proto.EntityDTO_VIRTUAL_MACHINE,
+			expectsError: false,
+		},
+		{
+			sellerRef:  proto.EntityDTO_PHYSICAL_MACHINE,
+			buyerRef:   proto.EntityDTO_VIRTUAL_MACHINE,
+			entityType: proto.EntityDTO_APPLICATION,
+
+			expectsError: true,
+		},
+	}
+	for _, item := range table {
+		extLink := &proto.ExternalEntityLink{
+			BuyerRef:  &item.buyerRef,
+			SellerRef: &item.sellerRef,
+		}
+		builder := &SupplyChainNodeBuilder{
+			templateClass: &item.entityType,
+		}
+		linkProp, err := builder.buildExternalEntityLinkProperty(extLink)
+		if item.expectsError {
+			if err == nil {
+				t.Error("Expect error, got no error")
+			}
+		} else {
+			expectedLinkProp := &proto.TemplateDTO_ExternalEntityLinkProp{
+				Key:   &item.key,
+				Value: extLink,
+			}
+			if !reflect.DeepEqual(linkProp, expectedLinkProp) {
+				t.Errorf("\nExpected %++v, \ngot      %++v", expectedLinkProp, linkProp)
+			}
+		}
 	}
 }
 

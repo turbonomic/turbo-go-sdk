@@ -7,7 +7,6 @@ import (
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
 )
 
-
 type SupplyChainNodeBuilder struct {
 	templateClass              *proto.EntityDTO_EntityType
 	templateType               *proto.TemplateDTO_TemplateType
@@ -16,9 +15,9 @@ type SupplyChainNodeBuilder struct {
 	providerCommodityBoughtMap map[*proto.Provider][]*proto.TemplateCommodity
 	externalLinks              []*proto.TemplateDTO_ExternalEntityLinkProp
 
-	currentProvider            *proto.Provider
+	currentProvider *proto.Provider
 
-	err                        error
+	err error
 }
 
 // Create a new SupplyChainNode Builder.
