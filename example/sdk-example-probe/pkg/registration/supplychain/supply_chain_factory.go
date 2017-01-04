@@ -3,6 +3,7 @@ package supplychain
 import (
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/builder"
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	"fmt"
 )
 
 var (
@@ -16,10 +17,10 @@ var (
 	cpuCommKey string = "cpu_comm_key"
 	memCommKey string = "mem_comm_key"
 
-	cpuTemplateComm  proto.TemplateCommodity = proto.TemplateCommodity{CommodityType: &cpuType}
-	memTemplateComm  proto.TemplateCommodity = proto.TemplateCommodity{CommodityType: &memType}
-	vCpuTemplateComm proto.TemplateCommodity = proto.TemplateCommodity{CommodityType: &vCpuType}
-	vMemTemplateComm proto.TemplateCommodity = proto.TemplateCommodity{CommodityType: &vMemType}
+	cpuTemplateComm  *proto.TemplateCommodity = &proto.TemplateCommodity{CommodityType: &cpuType}
+	memTemplateComm  *proto.TemplateCommodity = &proto.TemplateCommodity{CommodityType: &memType}
+	vCpuTemplateComm *proto.TemplateCommodity = &proto.TemplateCommodity{CommodityType: &vCpuType}
+	vMemTemplateComm *proto.TemplateCommodity = &proto.TemplateCommodity{CommodityType: &vMemType}
 )
 
 type SupplyChainFactory struct{}
@@ -38,39 +39,40 @@ type SupplyChainFactory struct{}
 //		    Add the new entity to the supplyChainBuilder instance with either the Top()
 //		    or  Entity() methods
 // The SupplyChainBuilder() function is only called once, in this function.
-func (this *SupplyChainFactory) CreateSupplyChain() ([]*proto.TemplateDTO, error) {
-	vmSupplyChainNodeBuilder := this.virtualMachineSupplyChainNodeBuilder()
-	pmSupplyChainNodeBuilder := this.physicalMachineSupplyChainNodeBuilder()
+func (f *SupplyChainFactory) CreateSupplyChain() ([]*proto.TemplateDTO, error) {
+	vmSupplyChainNode, err := f.createVirtualMachineSupplyChainNodeBuilder()
+	if err != nil {
+		return nil, fmt.Errorf("Error creating VM supply chain node: %s", err)
+	}
+	pmSupplyChainNode, err := f.createPhysicalMachineSupplyChainNode()
+	if err != nil {
+		return nil, fmt.Errorf("Error creating PM supply chain node: %s", err)
+
+	}
 
 	// SupplyChain building
 	// The last buyer in the supply chain is set as the top entity with the Top() method
 	// All other entities are added to the SupplyChainBuilder with the Entity() method
 	return builder.NewSupplyChainBuilder().
-		Top(vmSupplyChainNodeBuilder).
-		Entity(pmSupplyChainNodeBuilder).
+		Top(vmSupplyChainNode).
+		Entity(pmSupplyChainNode).
 		Create()
 }
 
 // Create supply chain definition for Physical Machine.
-func (this *SupplyChainFactory) physicalMachineSupplyChainNodeBuilder() *builder.SupplyChainNodeBuilder {
-	// PM Creation Process
-	pmSupplyChainNodeBuilder := builder.NewSupplyChainNodeBuilder()
+func (f *SupplyChainFactory) createPhysicalMachineSupplyChainNode() (*proto.TemplateDTO, error) {
 	// Creates a Physical Machine entity and sets the type of commodity it sells to CPU
-	pmSupplyChainNodeBuilder = pmSupplyChainNodeBuilder.
-		Entity(proto.EntityDTO_PHYSICAL_MACHINE).
+	return builder.NewSupplyChainNodeBuilder(proto.EntityDTO_PHYSICAL_MACHINE).
 		Sells(cpuTemplateComm).
-		Sells(memTemplateComm)
+		Sells(memTemplateComm).
+		Create()
 
-	return pmSupplyChainNodeBuilder
 }
 
-// Create supply chain definition for Vitual Machine
-func (this *SupplyChainFactory) virtualMachineSupplyChainNodeBuilder() *builder.SupplyChainNodeBuilder {
-	// VM Creation Process
-	vmSupplyChainNodeBuilder := builder.NewSupplyChainNodeBuilder()
+// Create supply chain definition for Virtual Machine
+func (f *SupplyChainFactory) createVirtualMachineSupplyChainNodeBuilder() (*proto.TemplateDTO, error) {
 	// Creates a Virtual Machine entity
-	vmSupplyChainNodeBuilder = vmSupplyChainNodeBuilder.
-		Entity(proto.EntityDTO_VIRTUAL_MACHINE).
+	vmSupplyChainNodeBuilder := builder.NewSupplyChainNodeBuilder(proto.EntityDTO_VIRTUAL_MACHINE).
 		Sells(vCpuTemplateComm).
 		Sells(vMemTemplateComm)
 
@@ -81,5 +83,5 @@ func (this *SupplyChainFactory) virtualMachineSupplyChainNodeBuilder() *builder.
 		Buys(cpuTemplateComm).
 		Buys(memTemplateComm)
 
-	return vmSupplyChainNodeBuilder
+	return vmSupplyChainNodeBuilder.Create()
 }
