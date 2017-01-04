@@ -1,8 +1,8 @@
 package supplychain
 
 import (
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/builder"
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"fmt"
 )
 

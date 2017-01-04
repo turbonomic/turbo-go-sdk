@@ -1,10 +1,10 @@
 package registration
 
 import (
-	comm "github.com/vmturbo/vmturbo-go-sdk/pkg/communication"
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	comm "github.com/turbonomic/turbo-go-sdk/pkg/communication"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/registration/supplychain"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/registration/supplychain"
 
 	"github.com/golang/glog"
 )

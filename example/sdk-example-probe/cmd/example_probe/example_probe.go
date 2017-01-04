@@ -6,10 +6,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/communication"
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/metadata"
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/probe"
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/client"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/communication"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/metadata"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/probe"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/turboapi/client"
 
 	"github.com/golang/glog"
 )

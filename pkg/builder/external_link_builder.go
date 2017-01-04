@@ -1,6 +1,6 @@
 package builder
 
-import "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+import "github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
 type ExternalEntityLinkBuilder struct {
 	entityLink *proto.ExternalEntityLink

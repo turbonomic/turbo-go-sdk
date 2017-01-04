@@ -3,7 +3,7 @@ package builder
 import (
 	"fmt"
 
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 type SupplyChainBuilder struct {

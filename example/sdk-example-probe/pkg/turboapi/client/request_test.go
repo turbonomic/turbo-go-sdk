@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/api"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/turboapi/api"
 )
 
 func TestParam(t *testing.T) {

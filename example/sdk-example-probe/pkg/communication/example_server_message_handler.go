@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	comm "github.com/vmturbo/vmturbo-go-sdk/pkg/communication"
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
-	//	"github.com/vmturbo/vmturbo-go-sdk/pkg/sdk"
+	comm "github.com/turbonomic/turbo-go-sdk/pkg/communication"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	//	"github.com/turbonomic/turbo-go-sdk/pkg/sdk"
 
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/metadata"
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/probe"
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/client"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/metadata"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/probe"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/turboapi/client"
 
 	"github.com/golang/glog"
 )

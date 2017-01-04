@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
-	"github.com/vmturbo/vmturbo-go-sdk/util/rand"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/util/rand"
 )
 
 func TestEntityDTOBuilder_NewEntityDTOBuilder(t *testing.T) {

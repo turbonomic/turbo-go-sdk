@@ -2,7 +2,7 @@ package builder
 //
 //import (
 //	"github.com/stretchr/testify/assert"
-//	"github.com/vmturbo/vmturbo-go-sdk/util/rand"
+//	"github.com/turbonomic/turbo-go-sdk/util/rand"
 //	"testing"
 //)
 //

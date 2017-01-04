@@ -1,6 +1,6 @@
 package common
 
-import "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+import "github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
 var ipHandler *proto.ExternalEntityLink_PropertyHandler = getIpHandler()
 

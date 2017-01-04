@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 type SupplyChainNodeBuilder struct {

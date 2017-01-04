@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
 	"github.com/golang/glog"
 	goproto "github.com/golang/protobuf/proto"

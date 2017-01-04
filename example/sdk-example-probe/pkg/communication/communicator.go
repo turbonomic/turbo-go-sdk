@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/url"
 
-	comm "github.com/vmturbo/vmturbo-go-sdk/pkg/communication"
+	comm "github.com/turbonomic/turbo-go-sdk/pkg/communication"
 
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/metadata"
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/registration"
-	"github.com/vmturbo/vmturbo-go-sdk/example/sdk-example-probe/pkg/turboapi/client"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/metadata"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/registration"
+	"github.com/turbonomic/turbo-go-sdk/example/sdk-example-probe/pkg/turboapi/client"
 
 	"github.com/golang/glog"
 )

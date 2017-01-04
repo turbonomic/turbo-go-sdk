@@ -1,7 +1,7 @@
 package communication
 
 import (
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 // A ClientMessageBuilder builds a ClientMessage instance.

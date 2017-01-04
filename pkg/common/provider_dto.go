@@ -1,6 +1,6 @@
 package common
 
-import "github.com/vmturbo/vmturbo-go-sdk/pkg/proto"
+import "github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
 type ProviderDTO struct {
 	providerType *proto.EntityDTO_EntityType
