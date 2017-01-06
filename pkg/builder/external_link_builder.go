@@ -1,16 +1,42 @@
 package builder
 
-import "github.com/turbonomic/turbo-go-sdk/pkg/proto"
+import (
+	"fmt"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+)
 
 type ExternalEntityLinkBuilder struct {
-	entityLink *proto.ExternalEntityLink
+	buyerRef                   *proto.EntityDTO_EntityType
+	sellerRef                  *proto.EntityDTO_EntityType
+	relationship               *proto.Provider_ProviderType
+	commodityDefs              []*proto.ExternalEntityLink_CommodityDef
+	key                        *string
+	hasExternalEntity          *bool
+	probeEntityPropertyDef     []*proto.ExternalEntityLink_EntityPropertyDef
+	externalEntityPropertyDefs []*proto.ExternalEntityLink_ServerEntityPropDef
+
+	err error
 }
 
 func NewExternalEntityLinkBuilder() *ExternalEntityLinkBuilder {
-	link := &proto.ExternalEntityLink{}
-	return &ExternalEntityLinkBuilder{
-		entityLink: link,
+	return &ExternalEntityLinkBuilder{}
+}
+
+// Get the ExternalEntityLink that you have built.
+func (builder *ExternalEntityLinkBuilder) Build() (*proto.ExternalEntityLink, error) {
+	if builder.err != nil {
+		return nil, builder.err
 	}
+	return &proto.ExternalEntityLink{
+		BuyerRef:                   builder.buyerRef,
+		SellerRef:                  builder.sellerRef,
+		Relationship:               builder.relationship,
+		CommodityDefs:              builder.commodityDefs,
+		Key:                        builder.key,
+		HasExternalEntity:          builder.hasExternalEntity,
+		ProbeEntityPropertyDef:     builder.probeEntityPropertyDef,
+		ExternalEntityPropertyDefs: builder.externalEntityPropertyDefs,
+	}, nil
 }
 
 // Initialize the buyer/seller external link that you're building.
@@ -18,24 +44,27 @@ func NewExternalEntityLinkBuilder() *ExternalEntityLinkBuilder {
 // relationship HOSTING or code LAYERED_OVER.
 func (builder *ExternalEntityLinkBuilder) Link(buyer, seller proto.EntityDTO_EntityType,
 	relationship proto.Provider_ProviderType) *ExternalEntityLinkBuilder {
+	if builder.err != nil {
+		return builder
+	}
 
-	builder.entityLink.BuyerRef = &buyer
-	builder.entityLink.SellerRef = &seller
-	builder.entityLink.Relationship = &relationship
+	builder.buyerRef = &buyer
+	builder.sellerRef = &seller
+	builder.relationship = &relationship
 
 	return builder
 }
 
 // Add a single bought commodity to the link.
 func (builder *ExternalEntityLinkBuilder) Commodity(comm proto.CommodityDTO_CommodityType, hasKey bool) *ExternalEntityLinkBuilder {
-	commodityDefs := builder.entityLink.GetCommodityDefs()
+	if builder.err != nil {
+		return builder
+	}
 	commodityDef := &proto.ExternalEntityLink_CommodityDef{
 		Type:   &comm,
 		HasKey: &hasKey,
 	}
-	commodityDefs = append(commodityDefs, commodityDef)
-
-	builder.entityLink.CommodityDefs = commodityDefs
+	builder.commodityDefs = append(builder.commodityDefs, commodityDef)
 	return builder
 }
 
@@ -43,13 +72,14 @@ func (builder *ExternalEntityLinkBuilder) Commodity(comm proto.CommodityDTO_Comm
 // stitch the discovered entity into the Operations Manager topology. This setting includes the property name
 // and an arbitrary description.
 func (builder *ExternalEntityLinkBuilder) ProbeEntityPropertyDef(name, description string) *ExternalEntityLinkBuilder {
+	if builder.err != nil {
+		return builder
+	}
 	entityProperty := &proto.ExternalEntityLink_EntityPropertyDef{
 		Name:        &name,
 		Description: &description,
 	}
-	currentProps := builder.entityLink.GetProbeEntityPropertyDef()
-	currentProps = append(currentProps, entityProperty)
-	builder.entityLink.ProbeEntityPropertyDef = currentProps
+	builder.probeEntityPropertyDef = append(builder.probeEntityPropertyDef, entityProperty)
 
 	return builder
 }
@@ -59,15 +89,11 @@ func (builder *ExternalEntityLinkBuilder) ProbeEntityPropertyDef(name, descripti
 // use the metadata to stitch entities discovered by the probe together with external entities.
 // An external entity is one that exists in the Operations Manager topology, but has not been discovered by the probe.
 func (builder *ExternalEntityLinkBuilder) ExternalEntityPropertyDef(propertyDef *proto.ExternalEntityLink_ServerEntityPropDef) *ExternalEntityLinkBuilder {
-	currentExtProps := builder.entityLink.GetExternalEntityPropertyDefs()
-	currentExtProps = append(currentExtProps, propertyDef)
-
-	builder.entityLink.ExternalEntityPropertyDefs = currentExtProps
+	if propertyDef == nil {
+		builder.err = fmt.Errorf("Nil service entity property definition.")
+		return builder
+	}
+	builder.externalEntityPropertyDefs = append(builder.externalEntityPropertyDefs, propertyDef)
 
 	return builder
-}
-
-// Get the ExternalEntityLink that you have built.
-func (builder *ExternalEntityLinkBuilder) Build() *proto.ExternalEntityLink {
-	return builder.entityLink
 }
