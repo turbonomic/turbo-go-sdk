@@ -1,6 +1,8 @@
 package builder
 
-import "github.com/turbonomic/turbo-go-sdk/pkg/proto"
+import (
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+)
 
 type ReplacementEntityMetaDataBuilder struct {
 	metaData *proto.EntityDTO_ReplacementEntityMetaData
