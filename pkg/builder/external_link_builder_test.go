@@ -1,101 +1,226 @@
 package builder
-//
-//import (
-//	"github.com/stretchr/testify/assert"
-//	"github.com/turbonomic/turbo-go-sdk/util/rand"
-//	//	"reflect"
-//	"testing"
-//)
-//
-//// Tests that the NewExternalEntityBuilder() function creates a new ExternalEntityLinkBuilder,
-//// instantiates an ExternalEntityLink and uses it to set the entityLink member variable of the
-//// ExternalEntityLinkBuilder returned
-//func TestNewExternalEntityBuilder(t *testing.T) {
-//	assert := assert.New(t)
-//	newEELB := NewExternalEntityLinkBuilder()
-//	assert.NotNil(newEELB)
-//	//	if assert.NotNil(newEELB.entityLink) {
-//	//		assert.Equal(*ExternalEntityLink, reflect.TypeOf(newEELB.entityLink))
-//	//	}
-//}
-//
-//// Tests that the buyer, seller and relationship passed to the Link method are used to set
-//// this.entityLink.BuyerRef, this.entityLink.SellerRef and this.entityLink.Relationship
-//func TestLink(t *testing.T) {
-//	assert := assert.New(t)
-//	externalEntityLink := new(ExternalEntityLink)
-//	externalEntityLinkBuilder := &ExternalEntityLinkBuilder{
-//		entityLink: externalEntityLink,
-//	}
-//	buyer := new(EntityDTO_EntityType)
-//	seller := new(EntityDTO_EntityType)
-//	relationship := new(Provider_ProviderType)
-//	eelb := externalEntityLinkBuilder.Link(*buyer, *seller, *relationship)
-//	assert.Equal(buyer, eelb.entityLink.BuyerRef)
-//	assert.Equal(seller, eelb.entityLink.SellerRef)
-//	assert.Equal(relationship, eelb.entityLink.Relationship)
-//}
-//
-//// Tests that the CommodityDTO_CommodityType passed to the Commodity() method
-//// is appended to the array this.entityLink.Commodities
-//func TestCommodity(t *testing.T) {
-//	assert := assert.New(t)
-//	externalEntityLink := new(ExternalEntityLink)
-//	externalEntityLinkBuilder := &ExternalEntityLinkBuilder{
-//		entityLink: externalEntityLink,
-//	}
-//	assert.Equal(0, len(externalEntityLink.Commodities))
-//	comm := new(CommodityDTO_CommodityType)
-//	eelb := externalEntityLinkBuilder.Commodity(*comm)
-//	assert.Equal(1, len(externalEntityLink.Commodities))
-//	assert.Equal(comm, &eelb.entityLink.Commodities[0])
-//	assert.Equal(*comm, eelb.entityLink.Commodities[0])
-//}
-//
-//// Tests that the name and description string arguments passed to ProbeEntityPropertyDef() are
-//// used to set the Name and Description member variables of a newly created ExternalEntityLink_EntityPropertyDef
-//// struct .
-//// Tests that the created struct is appended to this.entityLink.ProbeEntityPropertyDef array
-//func TestProbeEntityPropertyDef(t *testing.T) {
-//	assert := assert.New(t)
-//	externalEntityLink := new(ExternalEntityLink)
-//	externalEntityLinkBuilder := &ExternalEntityLinkBuilder{
-//		entityLink: externalEntityLink,
-//	}
-//	name := rand.String(6)
-//	description := rand.String(6)
-//	assert.Equal(0, len(externalEntityLink.ProbeEntityPropertyDef))
-//	eelb := externalEntityLinkBuilder.ProbeEntityPropertyDef(name, description)
-//	if assert.Equal(1, len(externalEntityLink.ProbeEntityPropertyDef)) {
-//		assert.Equal(&name, eelb.entityLink.ProbeEntityPropertyDef[0].Name)
-//		assert.Equal(name, *eelb.entityLink.ProbeEntityPropertyDef[0].Name)
-//		assert.Equal(&description, eelb.entityLink.ProbeEntityPropertyDef[0].Description)
-//		assert.Equal(description, *eelb.entityLink.ProbeEntityPropertyDef[0].Description)
-//	}
-//}
-//
-//// Tests that the ExternalEntityLink_ServerEntityPropDef passed to the method ExternalEntityPropertyDef
-//// is appended to this.entityLink.ExternalEntityPropertyDefs
-//func TestExternalEntityPropertyDef(t *testing.T) {
-//	assert := assert.New(t)
-//	externalEntityLink := new(ExternalEntityLink)
-//	externalEntityLinkBuilder := &ExternalEntityLinkBuilder{
-//		entityLink: externalEntityLink,
-//	}
-//	propertyDef := new(ExternalEntityLink_ServerEntityPropDef)
-//	eelb := externalEntityLinkBuilder.ExternalEntityPropertyDef(propertyDef)
-//	assert.Equal(1, len(eelb.entityLink.ExternalEntityPropertyDefs))
-//	assert.Equal(propertyDef, eelb.entityLink.ExternalEntityPropertyDefs[0])
-//}
-//
-//// Tests that the Build method returns the entityLink member of this
-//func TestBuild(t *testing.T) {
-//	assert := assert.New(t)
-//	externalEntityLink := new(ExternalEntityLink)
-//	externalEntityLinkBuilder := &ExternalEntityLinkBuilder{
-//		entityLink: externalEntityLink,
-//	}
-//	el := externalEntityLinkBuilder.Build()
-//	assert.Equal(externalEntityLink, el)
-//	assert.Equal(*externalEntityLink, *el)
-//}
+
+import (
+	"fmt"
+	"reflect"
+	"testing"
+
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/util/rand"
+)
+
+func TestExternalEntityLinkBuilder_Build(t *testing.T) {
+	table := []struct {
+		existingErr error
+		expectError bool
+	}{
+		{
+			existingErr: fmt.Errorf("Fake"),
+			expectError: true,
+		},
+		{
+			expectError: false,
+		},
+	}
+
+	for _, item := range table {
+		base := randomExternalEntityLinkBuilder()
+		if item.existingErr != nil {
+			base.err = item.existingErr
+		}
+		externalLink, err := base.Build()
+		if item.expectError {
+			if err == nil {
+				t.Errorf("Expected erro, got no error.")
+			}
+		} else {
+			expectedExternalLink := &proto.ExternalEntityLink{
+				BuyerRef:     base.buyerRef,
+				SellerRef:    base.sellerRef,
+				Relationship: base.relationship,
+			}
+			if !reflect.DeepEqual(expectedExternalLink, externalLink) {
+				t.Errorf("Expected %+v, got %+v", expectedExternalLink, externalLink)
+			}
+		}
+	}
+}
+
+func TestExternalEntityLinkBuilder_Link(t *testing.T) {
+	table := []struct {
+		buyer        proto.EntityDTO_EntityType
+		seller       proto.EntityDTO_EntityType
+		relationship proto.Provider_ProviderType
+
+		existingErr error
+	}{
+		{
+			buyer:        randomEntityType(),
+			seller:       randomEntityType(),
+			relationship: randomProviderConsumerRelationship(),
+		},
+		{
+			buyer:        randomEntityType(),
+			seller:       randomEntityType(),
+			relationship: randomProviderConsumerRelationship(),
+			existingErr:  fmt.Errorf("Error!"),
+		},
+	}
+
+	for _, item := range table {
+		base := &ExternalEntityLinkBuilder{}
+		expectedLinkBuilder := &ExternalEntityLinkBuilder{}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedLinkBuilder.err = item.existingErr
+		} else {
+			expectedLinkBuilder.buyerRef = &item.buyer
+			expectedLinkBuilder.sellerRef = &item.seller
+			expectedLinkBuilder.relationship = &item.relationship
+		}
+		builder := base.Link(item.buyer, item.seller, item.relationship)
+		if !reflect.DeepEqual(expectedLinkBuilder, builder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedLinkBuilder, builder)
+		}
+
+	}
+}
+
+func TestExternalEntityLinkBuilder_Commodity(t *testing.T) {
+	table := []struct {
+		comm   proto.CommodityDTO_CommodityType
+		hasKey bool
+
+		existingErr error
+	}{
+		{
+			comm:   randomCommodityType(),
+			hasKey: true,
+		},
+		{
+			comm:   randomCommodityType(),
+			hasKey: false,
+		},
+		{
+			comm:        randomCommodityType(),
+			hasKey:      false,
+			existingErr: fmt.Errorf("Error!"),
+		},
+		{
+			comm:        randomCommodityType(),
+			hasKey:      true,
+			existingErr: fmt.Errorf("Error!"),
+		},
+	}
+
+	for _, item := range table {
+		base := &ExternalEntityLinkBuilder{}
+		expectedLinkBuilder := &ExternalEntityLinkBuilder{}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedLinkBuilder.err = item.existingErr
+		} else {
+			expectedLinkBuilder.commodityDefs = []*proto.ExternalEntityLink_CommodityDef{
+				{
+					Type:   &item.comm,
+					HasKey: &item.hasKey,
+				},
+			}
+		}
+		builder := base.Commodity(item.comm, item.hasKey)
+		if !reflect.DeepEqual(expectedLinkBuilder, builder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedLinkBuilder, builder)
+		}
+
+	}
+}
+
+func TestExternalEntityLinkBuilder_ProbeEntityPropertyDef(t *testing.T) {
+	table := []struct {
+		name string
+		desc string
+
+		existingErr error
+	}{
+		{
+			name: rand.String(5),
+			desc: rand.String(5),
+		},
+		{
+			name:        rand.String(5),
+			desc:        rand.String(5),
+			existingErr: fmt.Errorf("Error!"),
+		},
+	}
+
+	for _, item := range table {
+		base := &ExternalEntityLinkBuilder{}
+		expectedLinkBuilder := &ExternalEntityLinkBuilder{}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedLinkBuilder.err = item.existingErr
+		} else {
+			expectedLinkBuilder.probeEntityPropertyDef = []*proto.ExternalEntityLink_EntityPropertyDef{
+				{
+					Name:        &item.name,
+					Description: &item.desc,
+				},
+			}
+		}
+		builder := base.ProbeEntityPropertyDef(item.name, item.desc)
+		if !reflect.DeepEqual(expectedLinkBuilder, builder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedLinkBuilder, builder)
+		}
+
+	}
+}
+
+func TestExternalEntityLinkBuilder_ExternalEntityPropertyDef(t *testing.T) {
+	table := []struct {
+		propertyDef *proto.ExternalEntityLink_ServerEntityPropDef
+	}{
+		{
+			propertyDef: nil,
+		},
+		{
+			propertyDef:randomExternalEntityLink_ServerEntityPropDef(),
+		},
+	}
+
+	for _, item := range table {
+		base := &ExternalEntityLinkBuilder{}
+		expectedLinkBuilder := &ExternalEntityLinkBuilder{}
+		if item.propertyDef != nil {
+			expectedLinkBuilder.externalEntityPropertyDefs = []*proto.ExternalEntityLink_ServerEntityPropDef{
+				item.propertyDef,
+			}
+		} else {
+			expectedLinkBuilder.err = fmt.Errorf("Nil service entity property definition.")
+		}
+		builder := base.ExternalEntityPropertyDef(item.propertyDef)
+		if !reflect.DeepEqual(expectedLinkBuilder, builder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedLinkBuilder, builder)
+		}
+
+	}
+}
+
+func randomExternalEntityLinkBuilder() *ExternalEntityLinkBuilder {
+	buyerRef := randomEntityType()
+	sellerRef := randomEntityType()
+	relationship := randomProviderConsumerRelationship()
+	return &ExternalEntityLinkBuilder{
+		buyerRef:     &buyerRef,
+		sellerRef:    &sellerRef,
+		relationship: &relationship,
+	}
+}
+
+func randomExternalEntityLink_ServerEntityPropDef() *proto.ExternalEntityLink_ServerEntityPropDef {
+	entity := randomEntityType()
+	attribute := rand.String(5)
+	return &proto.ExternalEntityLink_ServerEntityPropDef{
+		Entity:    &entity,
+		Attribute: &attribute,
+	}
+}
