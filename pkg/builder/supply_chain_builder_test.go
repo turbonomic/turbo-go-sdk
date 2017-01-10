@@ -94,6 +94,13 @@ func TestSupplyChainBuilder_Entity(t *testing.T) {
 		newErr      error
 	}{
 		{
+			newNodes: []*proto.TemplateDTO{
+				randomSupplyChainNode(),
+				randomSupplyChainNode(),
+			},
+			existingSupplyChainNodes: []*proto.TemplateDTO{
+				randomSupplyChainNode(),
+			},
 			existingErr: fmt.Errorf("Fake"),
 		},
 		{
@@ -117,30 +124,32 @@ func TestSupplyChainBuilder_Entity(t *testing.T) {
 	}
 	for _, item := range table {
 		base := baseSupplyChainBuilder()
+		expectedBuilder := &SupplyChainBuilder{}
 		if item.existingErr != nil {
 			base.err = item.existingErr
-		}
-		if item.existingSupplyChainNodes != nil {
-			base.supplyChainNodes = item.existingSupplyChainNodes
-		}
-		var expectedNodes []*proto.TemplateDTO
-		if item.existingErr == nil && item.existingSupplyChainNodes != nil {
-			if len(item.existingSupplyChainNodes) > 0 {
-				if item.newErr == nil {
-					expectedNodes = append(item.existingSupplyChainNodes, item.newNodes...)
-				}
-			} else {
-				expectedNodes = item.existingSupplyChainNodes
+			expectedBuilder.err = item.existingErr
+		} else {
+			if item.existingSupplyChainNodes != nil {
+				base.supplyChainNodes = item.existingSupplyChainNodes
 			}
+			var expectedNodes []*proto.TemplateDTO
+			if item.existingErr == nil && item.existingSupplyChainNodes != nil {
+				if len(item.existingSupplyChainNodes) > 0 {
+					if item.newErr == nil {
+						expectedNodes = append(item.existingSupplyChainNodes, item.newNodes...)
+					}
+				} else {
+					expectedNodes = item.existingSupplyChainNodes
+				}
+			}
+			expectedErr := item.existingErr
+			if item.newErr != nil {
+				expectedErr = item.newErr
+			}
+			expectedBuilder.supplyChainNodes = expectedNodes
+			expectedBuilder.err = expectedErr
 		}
-		expectedErr := item.existingErr
-		if item.newErr != nil {
-			expectedErr = item.newErr
-		}
-		expectedBuilder := &SupplyChainBuilder{
-			supplyChainNodes: expectedNodes,
-			err:              expectedErr,
-		}
+
 		builder := base
 		for _, newNode := range item.newNodes {
 			builder = builder.Entity(newNode)

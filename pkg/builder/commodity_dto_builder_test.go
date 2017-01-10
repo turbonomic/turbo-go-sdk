@@ -62,6 +62,7 @@ func TestCommodityDTOBuilder_Key(t *testing.T) {
 		existingErr error
 	}{
 		{
+			key:         rand.String(5),
 			existingErr: fmt.Errorf("Fake"),
 		},
 		{
@@ -71,17 +72,17 @@ func TestCommodityDTOBuilder_Key(t *testing.T) {
 
 	for _, item := range table {
 		base := randomBaseCommodityDTOBuilder()
+		expectedBuilder := &CommodityDTOBuilder{commodityType: base.commodityType}
 		if item.existingErr != nil {
 			base.err = item.existingErr
-		}
-		var key *string
-		if item.key != "" {
-			key = &item.key
-		}
-		expectedBuilder := &CommodityDTOBuilder{
-			commodityType: base.commodityType,
-			key:           key,
-			err:           item.existingErr,
+			expectedBuilder.err = item.existingErr
+		} else {
+			var key *string
+			if item.key != "" {
+				key = &item.key
+			}
+			expectedBuilder.commodityType = base.commodityType
+			expectedBuilder.key = key
 		}
 		builder := base.Key(item.key)
 		if !reflect.DeepEqual(builder, expectedBuilder) {
@@ -96,6 +97,7 @@ func TestCommodityDTOBuilder_Used(t *testing.T) {
 		existingErr error
 	}{
 		{
+			used:        mathrand.Float64(),
 			existingErr: fmt.Errorf("Fake"),
 		},
 		{
@@ -125,7 +127,7 @@ func TestCommodityDTOBuilder_Used(t *testing.T) {
 
 func TestCommodityDTOBuilder_Capacity(t *testing.T) {
 	table := []struct {
-		capacity        float64
+		capacity    float64
 		existingErr error
 	}{
 		{
@@ -146,7 +148,7 @@ func TestCommodityDTOBuilder_Capacity(t *testing.T) {
 		}
 		expectedBuilder := &CommodityDTOBuilder{
 			commodityType: base.commodityType,
-			capacity:          capacity,
+			capacity:      capacity,
 			err:           item.existingErr,
 		}
 		builder := base.Capacity(item.capacity)

@@ -87,21 +87,25 @@ func TestSupplyChainNodeBuilder_Sells(t *testing.T) {
 			err: nil,
 		},
 		{
+			templateCommoditiesSold: []*proto.TemplateCommodity{
+				randomTemplateCommodity(),
+				randomTemplateCommodity(),
+			},
 			err: fmt.Errorf("Fake"),
 		},
 	}
 	for _, item := range table {
 		base := randomBaseSupplyChainNodeBuilder()
-		if item.err != nil {
-			base.err = item.err
-		}
 		expectedBuilder := &SupplyChainNodeBuilder{
 			templateClass: base.templateClass,
 			templateType:  base.templateType,
 			priority:      base.priority,
-
-			commoditiesSold: item.templateCommoditiesSold,
-			err:             item.err,
+		}
+		if item.err != nil {
+			base.err = item.err
+			expectedBuilder.err = item.err
+		} else {
+			expectedBuilder.commoditiesSold = item.templateCommoditiesSold
 		}
 
 		builder := base
@@ -122,6 +126,11 @@ func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 		newErr                    error
 	}{
 		{
+			templateCommoditiesBought: []*proto.TemplateCommodity{
+				randomTemplateCommodity(),
+				randomTemplateCommodity(),
+			},
+			provider:    randomProvider(),
 			existingErr: fmt.Errorf("Fake"),
 		},
 		{
@@ -141,28 +150,30 @@ func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 	}
 	for _, item := range table {
 		base := randomBaseSupplyChainNodeBuilder()
-		if item.existingErr != nil {
-			base.err = item.existingErr
-		}
-
-		var expectedMap map[*proto.Provider][]*proto.TemplateCommodity
-		if item.provider != nil {
-			base.currentProvider = item.provider
-			expectedMap = make(map[*proto.Provider][]*proto.TemplateCommodity)
-			expectedMap[item.provider] = item.templateCommoditiesBought
-		}
-		expectedErr := item.existingErr
-		if item.newErr != nil {
-			expectedErr = item.newErr
-		}
 		expectedBuilder := &SupplyChainNodeBuilder{
 			templateClass: base.templateClass,
 			templateType:  base.templateType,
 			priority:      base.priority,
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
 
-			providerCommodityBoughtMap: expectedMap,
-			currentProvider:            item.provider,
-			err:                        expectedErr,
+			var expectedMap map[*proto.Provider][]*proto.TemplateCommodity
+			if item.provider != nil {
+				base.currentProvider = item.provider
+				expectedMap = make(map[*proto.Provider][]*proto.TemplateCommodity)
+				expectedMap[item.provider] = item.templateCommoditiesBought
+			}
+			expectedErr := item.existingErr
+			if item.newErr != nil {
+				expectedErr = item.newErr
+			}
+
+			expectedBuilder.providerCommodityBoughtMap = expectedMap
+			expectedBuilder.currentProvider = item.provider
+			expectedBuilder.err = expectedErr
 		}
 		builder := base
 		for _, comm := range item.templateCommoditiesBought {
