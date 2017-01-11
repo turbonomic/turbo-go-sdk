@@ -1,10 +1,11 @@
-package builder
+package supplychain
 
 import (
 	"fmt"
-	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"reflect"
 	"testing"
+
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 func TestNewSupplyChainBuilder(t *testing.T) {

@@ -1,4 +1,4 @@
-package common
+package supplychain
 
 import "github.com/turbonomic/turbo-go-sdk/pkg/proto"
 

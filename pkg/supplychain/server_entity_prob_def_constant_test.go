@@ -1,8 +1,9 @@
-package common
+package supplychain
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // Test that getIpHandler returns a pointer to a ExternalEntityLink_PropertyHandler struct

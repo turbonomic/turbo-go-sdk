@@ -1,7 +1,7 @@
 package supplychain
 
 import (
-	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
+	"github.com/turbonomic/turbo-go-sdk/pkg/supplychain"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"fmt"
 )
@@ -53,7 +53,7 @@ func (f *SupplyChainFactory) CreateSupplyChain() ([]*proto.TemplateDTO, error) {
 	// SupplyChain building
 	// The last buyer in the supply chain is set as the top entity with the Top() method
 	// All other entities are added to the SupplyChainBuilder with the Entity() method
-	return builder.NewSupplyChainBuilder().
+	return supplychain.NewSupplyChainBuilder().
 		Top(vmSupplyChainNode).
 		Entity(pmSupplyChainNode).
 		Create()
@@ -62,7 +62,7 @@ func (f *SupplyChainFactory) CreateSupplyChain() ([]*proto.TemplateDTO, error) {
 // Create supply chain definition for Physical Machine.
 func (f *SupplyChainFactory) createPhysicalMachineSupplyChainNode() (*proto.TemplateDTO, error) {
 	// Creates a Physical Machine entity and sets the type of commodity it sells to CPU
-	return builder.NewSupplyChainNodeBuilder(proto.EntityDTO_PHYSICAL_MACHINE).
+	return supplychain.NewSupplyChainNodeBuilder(proto.EntityDTO_PHYSICAL_MACHINE).
 		Sells(cpuTemplateComm).
 		Sells(memTemplateComm).
 		Create()
@@ -72,7 +72,7 @@ func (f *SupplyChainFactory) createPhysicalMachineSupplyChainNode() (*proto.Temp
 // Create supply chain definition for Virtual Machine
 func (f *SupplyChainFactory) createVirtualMachineSupplyChainNodeBuilder() (*proto.TemplateDTO, error) {
 	// Creates a Virtual Machine entity
-	vmSupplyChainNodeBuilder := builder.NewSupplyChainNodeBuilder(proto.EntityDTO_VIRTUAL_MACHINE).
+	vmSupplyChainNodeBuilder := supplychain.NewSupplyChainNodeBuilder(proto.EntityDTO_VIRTUAL_MACHINE).
 		Sells(vCpuTemplateComm).
 		Sells(vMemTemplateComm)
 

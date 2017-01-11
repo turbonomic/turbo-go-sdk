@@ -3,9 +3,28 @@ package builder
 import (
 	"fmt"
 
-	"github.com/turbonomic/turbo-go-sdk/pkg/common"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
+
+type ProviderDTO struct {
+	providerType *proto.EntityDTO_EntityType
+	Id           string
+}
+
+func CreateProvider(pType proto.EntityDTO_EntityType, id string) *ProviderDTO {
+	return &ProviderDTO{
+		providerType: &pType,
+		Id:           id,
+	}
+}
+
+func (pDto *ProviderDTO) getProviderType() *proto.EntityDTO_EntityType {
+	return pDto.providerType
+}
+
+func (pDto *ProviderDTO) getId() string {
+	return pDto.Id
+}
 
 type EntityDTOBuilder struct {
 	entityType                   *proto.EntityDTO_EntityType
@@ -33,7 +52,7 @@ type EntityDTOBuilder struct {
 	physicalMachineRelatedData   *proto.EntityDTO_PhysicalMachineRelatedData
 	storageControllerRelatedData *proto.EntityDTO_StorageControllerRelatedData
 
-	currentProvider *common.ProviderDTO
+	currentProvider *ProviderDTO
 
 	err error
 }
@@ -112,7 +131,7 @@ func (eb *EntityDTOBuilder) Provider(pType proto.EntityDTO_EntityType, id string
 	if eb.err != nil {
 		return eb
 	}
-	eb.currentProvider = common.CreateProvider(pType, id)
+	eb.currentProvider = CreateProvider(pType, id)
 	return eb
 }
 

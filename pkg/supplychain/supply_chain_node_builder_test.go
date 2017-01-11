@@ -1,18 +1,16 @@
-package builder
+package supplychain
 
 import (
 	"fmt"
-	mathrand "math/rand"
 	"reflect"
 	"testing"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
-	"math"
 )
 
 func TestNewSupplyChainNodeBuilder(t *testing.T) {
-	entityType := randomEntityType()
+	entityType := rand.RandomEntityType()
 	defaultTemplateType := proto.TemplateDTO_BASE
 	defaultPriority := int32(0)
 	expectedBuilder := &SupplyChainNodeBuilder{
@@ -37,7 +35,7 @@ func TestSupplyChainNodeBuilder_Create(t *testing.T) {
 		expectsError bool
 	}{
 		{
-			templateClass: randomEntityType(),
+			templateClass: rand.RandomEntityType(),
 			templateType:  proto.TemplateDTO_BASE,
 			priority:      0,
 
@@ -81,15 +79,15 @@ func TestSupplyChainNodeBuilder_Sells(t *testing.T) {
 	}{
 		{
 			templateCommoditiesSold: []*proto.TemplateCommodity{
-				randomTemplateCommodity(),
-				randomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
 			},
 			err: nil,
 		},
 		{
 			templateCommoditiesSold: []*proto.TemplateCommodity{
-				randomTemplateCommodity(),
-				randomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
 			},
 			err: fmt.Errorf("Fake"),
 		},
@@ -127,23 +125,23 @@ func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 	}{
 		{
 			templateCommoditiesBought: []*proto.TemplateCommodity{
-				randomTemplateCommodity(),
-				randomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
 			},
-			provider:    randomProvider(),
+			provider:    rand.RandomProvider(),
 			existingErr: fmt.Errorf("Fake"),
 		},
 		{
 			templateCommoditiesBought: []*proto.TemplateCommodity{
-				randomTemplateCommodity(),
-				randomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
 			},
-			provider: randomProvider(),
+			provider: rand.RandomProvider(),
 		},
 		{
 			templateCommoditiesBought: []*proto.TemplateCommodity{
-				randomTemplateCommodity(),
-				randomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
+				rand.RandomTemplateCommodity(),
 			},
 			newErr: fmt.Errorf("Provider must be set before calling Buys()."),
 		},
@@ -197,16 +195,16 @@ func TestBuildCommodityBought(t *testing.T) {
 		},
 		{
 			providerList: []*proto.Provider{
-				randomProvider(),
-				randomProvider(),
+				rand.RandomProvider(),
+				rand.RandomProvider(),
 			},
 			allCommoditiesBoughtList: [][]*proto.TemplateCommodity{
 				{
-					randomTemplateCommodity(),
+					rand.RandomTemplateCommodity(),
 				},
 				{
-					randomTemplateCommodity(),
-					randomTemplateCommodity(),
+					rand.RandomTemplateCommodity(),
+					rand.RandomTemplateCommodity(),
 				},
 			},
 		},
@@ -306,35 +304,8 @@ func TestBuildExternalEntityLinkProperty(t *testing.T) {
 	}
 }
 
-func randomTemplateCommodity() *proto.TemplateCommodity {
-	// a random commodity type.
-	cType := randomCommodityType()
-	// a random key
-	key := rand.String(5)
-	return &proto.TemplateCommodity{
-		CommodityType: &cType,
-		Key:           &key,
-	}
-}
-
-func randomProvider() *proto.Provider {
-	providerEntityType := randomEntityType()
-	relationShip := randomProviderConsumerRelationship()
-	maxCardinality := int32(math.MaxInt32)
-	minCardinality := int32(0)
-	return &proto.Provider{
-		TemplateClass:  &providerEntityType,
-		ProviderType:   &relationShip,
-		CardinalityMax: &maxCardinality,
-		CardinalityMin: &minCardinality,
-	}
-}
-
-func randomProviderConsumerRelationship() proto.Provider_ProviderType {
-	return proto.Provider_ProviderType(mathrand.Int31n(2))
-}
 
 // Create a random EntityDTOBuilder.
 func randomBaseSupplyChainNodeBuilder() *SupplyChainNodeBuilder {
-	return NewSupplyChainNodeBuilder(randomEntityType())
+	return NewSupplyChainNodeBuilder(rand.RandomEntityType())
 }

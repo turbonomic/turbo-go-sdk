@@ -1,4 +1,4 @@
-package builder
+package supplychain
 
 import (
 	"fmt"
@@ -55,14 +55,14 @@ func TestExternalEntityLinkBuilder_Link(t *testing.T) {
 		existingErr error
 	}{
 		{
-			buyer:        randomEntityType(),
-			seller:       randomEntityType(),
-			relationship: randomProviderConsumerRelationship(),
+			buyer:        rand.RandomEntityType(),
+			seller:       rand.RandomEntityType(),
+			relationship: rand.RandomProviderConsumerRelationship(),
 		},
 		{
-			buyer:        randomEntityType(),
-			seller:       randomEntityType(),
-			relationship: randomProviderConsumerRelationship(),
+			buyer:        rand.RandomEntityType(),
+			seller:       rand.RandomEntityType(),
+			relationship: rand.RandomProviderConsumerRelationship(),
 			existingErr:  fmt.Errorf("Error!"),
 		},
 	}
@@ -94,20 +94,20 @@ func TestExternalEntityLinkBuilder_Commodity(t *testing.T) {
 		existingErr error
 	}{
 		{
-			comm:   randomCommodityType(),
+			comm:   rand.RandomCommodityType(),
 			hasKey: true,
 		},
 		{
-			comm:   randomCommodityType(),
+			comm:   rand.RandomCommodityType(),
 			hasKey: false,
 		},
 		{
-			comm:        randomCommodityType(),
+			comm:        rand.RandomCommodityType(),
 			hasKey:      false,
 			existingErr: fmt.Errorf("Error!"),
 		},
 		{
-			comm:        randomCommodityType(),
+			comm:        rand.RandomCommodityType(),
 			hasKey:      true,
 			existingErr: fmt.Errorf("Error!"),
 		},
@@ -183,7 +183,7 @@ func TestExternalEntityLinkBuilder_ExternalEntityPropertyDef(t *testing.T) {
 			propertyDef: nil,
 		},
 		{
-			propertyDef:randomExternalEntityLink_ServerEntityPropDef(),
+			propertyDef:rand.RandomExternalEntityLink_ServerEntityPropDef(),
 		},
 	}
 
@@ -206,21 +206,12 @@ func TestExternalEntityLinkBuilder_ExternalEntityPropertyDef(t *testing.T) {
 }
 
 func randomExternalEntityLinkBuilder() *ExternalEntityLinkBuilder {
-	buyerRef := randomEntityType()
-	sellerRef := randomEntityType()
-	relationship := randomProviderConsumerRelationship()
+	buyerRef := rand.RandomEntityType()
+	sellerRef := rand.RandomEntityType()
+	relationship := rand.RandomProviderConsumerRelationship()
 	return &ExternalEntityLinkBuilder{
 		buyerRef:     &buyerRef,
 		sellerRef:    &sellerRef,
 		relationship: &relationship,
-	}
-}
-
-func randomExternalEntityLink_ServerEntityPropDef() *proto.ExternalEntityLink_ServerEntityPropDef {
-	entity := randomEntityType()
-	attribute := rand.String(5)
-	return &proto.ExternalEntityLink_ServerEntityPropDef{
-		Entity:    &entity,
-		Attribute: &attribute,
 	}
 }

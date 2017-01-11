@@ -2,7 +2,6 @@ package builder
 
 import (
 	"fmt"
-	mathrand "math/rand"
 	"reflect"
 	"testing"
 
@@ -16,7 +15,7 @@ func TestEntityDTOBuilder_NewEntityDTOBuilder(t *testing.T) {
 		id    string
 	}{
 		{
-			randomEntityType(),
+			rand.RandomEntityType(),
 			rand.String(5),
 		},
 	}
@@ -47,17 +46,17 @@ func TestCreate(t *testing.T) {
 		expectsError bool
 	}{
 		{
-			eType:      randomEntityType(),
+			eType:      rand.RandomEntityType(),
 			id:         rand.String(5),
-			powerState: randomPowerState(),
-			origin:     randomOrigin(),
+			powerState: rand.RandomPowerState(),
+			origin:     rand.RandomOrigin(),
 			commoditiesBoughtProviderMap: map[string][]*proto.CommodityDTO{
 				rand.String(5): []*proto.CommodityDTO{
-					randomCommodityDTOBought(),
+					rand.RandomCommodityDTOBought(),
 				},
 			},
 			commoditiesSold: []*proto.CommodityDTO{
-				randomCommodityDTOSold(),
+				rand.RandomCommodityDTOSold(),
 			},
 			expectsError: false,
 		},
@@ -142,8 +141,8 @@ func TestEntityDTOBuilder_SellsCommodities(t *testing.T) {
 	}{
 		{
 			commDTOs: []*proto.CommodityDTO{
-				randomCommodityDTOSold(),
-				randomCommodityDTOSold(),
+				rand.RandomCommodityDTOSold(),
+				rand.RandomCommodityDTOSold(),
 			},
 			err: nil,
 		},
@@ -175,7 +174,7 @@ func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 		err      error
 	}{
 		{
-			commDTO: randomCommodityDTOSold(),
+			commDTO: rand.RandomCommodityDTOSold(),
 			err: nil,
 		},
 		{
@@ -203,63 +202,7 @@ func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 		}
 	}
 }
-
-// Create a random entity type.
-func randomEntityType() proto.EntityDTO_EntityType {
-	return proto.EntityDTO_EntityType(mathrand.Int31n(42))
-}
-
-// Create a random commodity type.
-func randomCommodityType() proto.CommodityDTO_CommodityType {
-	return proto.CommodityDTO_CommodityType(mathrand.Int31n(77))
-}
-
-// Create a random power state value, range from 1 to 4.
-func randomPowerState() proto.EntityDTO_PowerState {
-	return proto.EntityDTO_PowerState(mathrand.Int31n(4) + 1)
-}
-
-// Create a random entity origin, range from 1 to 2.
-func randomOrigin() proto.EntityDTO_EntityOrigin {
-	return proto.EntityDTO_EntityOrigin(mathrand.Int31n(2) + 1)
-}
-
-// Create a random commodityDTO bought.
-func randomCommodityDTOBought() *proto.CommodityDTO {
-	// a random commodity type.
-	cType := randomCommodityType()
-	// a random key
-	key := rand.String(5)
-	// a random used
-	used := mathrand.Float64()
-	return &proto.CommodityDTO{
-		CommodityType: &cType,
-		Key:           &key,
-		Used:          &used,
-	}
-
-}
-
-// Create a random CommodityDTO sold.
-func randomCommodityDTOSold() *proto.CommodityDTO {
-	// a random commodity type.
-	cType := randomCommodityType()
-	// a random key
-	key := rand.String(5)
-	// a random capacity
-	capacity := mathrand.Float64()
-	// a random used
-	used := mathrand.Float64()
-	return &proto.CommodityDTO{
-		CommodityType: &cType,
-		Key:           &key,
-		Capacity:      &capacity,
-		Used:          &used,
-	}
-
-}
-
 // Create a random EntityDTOBuilder.
 func randomBaseEntityDTOBuilder() *EntityDTOBuilder {
-	return NewEntityDTOBuilder(randomEntityType(), rand.String(5))
+	return NewEntityDTOBuilder(rand.RandomEntityType(), rand.String(5))
 }

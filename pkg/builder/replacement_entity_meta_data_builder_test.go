@@ -71,7 +71,7 @@ func TestReplacementEntityMetaDataBuilder_PatchBuying(t *testing.T) {
 			SellingCommTypes: []proto.CommodityDTO_CommodityType{},
 		},
 	}
-	commType := randomCommodityType()
+	commType := rand.RandomCommodityType()
 	expectedBuilder := &ReplacementEntityMetaDataBuilder{
 		&proto.EntityDTO_ReplacementEntityMetaData{
 			IdentifyingProp:  []string{},
@@ -93,7 +93,7 @@ func TestReplacementEntityMetaDataBuilder_PatchSelling(t *testing.T) {
 			SellingCommTypes: []proto.CommodityDTO_CommodityType{},
 		},
 	}
-	commType := randomCommodityType()
+	commType := rand.RandomCommodityType()
 	expectedBuilder := &ReplacementEntityMetaDataBuilder{
 		&proto.EntityDTO_ReplacementEntityMetaData{
 			IdentifyingProp:  []string{},

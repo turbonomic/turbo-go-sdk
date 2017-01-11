@@ -11,7 +11,7 @@ import (
 )
 
 func TestNewCommodityDTOBuilder(t *testing.T) {
-	commodityType := randomCommodityType()
+	commodityType := rand.RandomCommodityType()
 	expectedBuilder := &CommodityDTOBuilder{
 		commodityType: &commodityType,
 	}
@@ -159,7 +159,7 @@ func TestCommodityDTOBuilder_Capacity(t *testing.T) {
 }
 
 func randomBaseCommodityDTOBuilder() *CommodityDTOBuilder {
-	cType := randomCommodityType()
+	cType := rand.RandomCommodityType()
 	return &CommodityDTOBuilder{
 		commodityType: &cType,
 	}
