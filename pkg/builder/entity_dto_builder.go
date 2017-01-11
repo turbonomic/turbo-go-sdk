@@ -61,7 +61,7 @@ func NewEntityDTOBuilder(eType proto.EntityDTO_EntityType, id string) *EntityDTO
 	return &EntityDTOBuilder{
 		entityType: &eType,
 		id:         &id,
-	}
+	}, nil
 }
 
 func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
