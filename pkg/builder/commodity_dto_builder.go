@@ -3,22 +3,30 @@ package builder
 import "github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
 type CommodityDTOBuilder struct {
-	commodityType      *proto.CommodityDTO_CommodityType
-	key                *string
-	used               *float64
-	reservation        *float64
-	capacity           *float64
-	limit              *float64
-	peak               *float64
-	active             *bool
-	resizable          *bool
-	displayName        *string
-	thin               *bool
-	computedUsed       *bool
-	usedIncrement      *float64
-	propMap            map[string][]string
-	storageLatencyData *proto.CommodityDTO_StorageLatencyData
-	storageAccessData  *proto.CommodityDTO_StorageAccessData
+	commodityType           *proto.CommodityDTO_CommodityType
+	key                     *string
+	used                    *float64
+	reservation             *float64
+	capacity                *float64
+	limit                   *float64
+	peak                    *float64
+	active                  *bool
+	resizable               *bool
+	displayName             *string
+	thin                    *bool
+	computedUsed            *bool
+	usedIncrement           *float64
+	propMap                 map[string][]string
+	isUsedPct               *bool
+	utilizationThresholdPct *float64
+	pricingMetadata         *proto.CommodityDTO_PricingMetadata
+
+	storageLatencyData    *proto.CommodityDTO_StorageLatencyData
+	storageAccessData     *proto.CommodityDTO_StorageAccessData
+	vstoragePartitionData *proto.VStoragePartitionData
+
+	vMemData *proto.CommodityDTO_VMemData
+	vCpuData *proto.CommodityDTO_VCpuData
 
 	err error
 }
@@ -33,24 +41,38 @@ func (cb *CommodityDTOBuilder) Create() (*proto.CommodityDTO, error) {
 	if cb.err != nil {
 		return nil, cb.err
 	}
-	return &proto.CommodityDTO{
-		CommodityType:      cb.commodityType,
-		Key:                cb.key,
-		Used:               cb.used,
-		Reservation:        cb.reservation,
-		Capacity:           cb.capacity,
-		Limit:              cb.limit,
-		Peak:               cb.peak,
-		Active:             cb.active,
-		Resizable:          cb.active,
-		DisplayName:        cb.displayName,
-		Thin:               cb.thin,
-		ComputedUsed:       cb.computedUsed,
-		UsedIncrement:      cb.usedIncrement,
-		PropMap:            buildPropertyMap(cb.propMap),
-		StorageLatencyData: cb.storageLatencyData,
-		StorageAccessData:  cb.storageAccessData,
-	}, nil
+	commodityDTO := &proto.CommodityDTO{
+		CommodityType: cb.commodityType,
+		Key:           cb.key,
+		Used:          cb.used,
+		Reservation:   cb.reservation,
+		Capacity:      cb.capacity,
+		Limit:         cb.limit,
+		Peak:          cb.peak,
+		Active:        cb.active,
+		Resizable:     cb.active,
+		DisplayName:   cb.displayName,
+		Thin:          cb.thin,
+		ComputedUsed:  cb.computedUsed,
+		UsedIncrement: cb.usedIncrement,
+		PropMap:       buildPropertyMap(cb.propMap),
+	}
+
+	if cb.storageLatencyData != nil {
+		commodityDTO.CommodityData = &proto.CommodityDTO_StorageLatencyData_{cb.storageLatencyData}
+	} else if cb.storageAccessData != nil {
+		commodityDTO.CommodityData = &proto.CommodityDTO_StorageAccessData_{cb.storageAccessData}
+	} else if cb.vstoragePartitionData != nil {
+		commodityDTO.CommodityData = &proto.CommodityDTO_VstoragePartitionData{cb.vstoragePartitionData}
+	}
+
+	if cb.vCpuData != nil {
+		commodityDTO.HotresizeData = &proto.CommodityDTO_VcpuData{cb.vCpuData}
+	} else if cb.vMemData != nil {
+		commodityDTO.HotresizeData = &proto.CommodityDTO_VmemData{cb.vMemData}
+	}
+
+	return commodityDTO, nil
 }
 
 func (cb *CommodityDTOBuilder) Key(key string) *CommodityDTOBuilder {

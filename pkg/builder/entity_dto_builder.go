@@ -69,32 +69,46 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		return nil, eb.err
 	}
 
-	return &proto.EntityDTO{
-		EntityType:                   eb.entityType,
-		Id:                           eb.id,
-		DisplayName:                  eb.displayName,
-		CommoditiesSold:              eb.commoditiesSold,
-		CommoditiesBought:            buildCommodityBoughtFromMap(eb.commoditiesBoughtProviderMap),
-		Underlying:                   eb.underlying,
-		EntityProperties:             eb.entityProperties,
-		Origin:                       eb.origin,
-		ReplacementEntityData:        eb.replacementEntityData,
-		Monitored:                    eb.monitored,
-		PowerState:                   eb.powerState,
-		ConsumerPolicy:               eb.consumerPolicy,
-		ProviderPolicy:               eb.providerPolicy,
-		OwnedBy:                      eb.ownedBy,
-		Notification:                 eb.notification,
-		StorageData:                  eb.storageData,
-		DiskArrayData:                eb.diskArrayData,
-		ApplicationData:              eb.applicationData,
-		VirtualMachineData:           eb.virtualMachineData,
-		PhysicalMachineData:          eb.physicalMachineData,
-		VirtualDatacenterData:        eb.virtualDataCenterData,
-		VirtualMachineRelatedData:    eb.virtualMachineRelatedData,
-		PhysicalMachineRelatedData:   eb.physicalMachineRelatedData,
-		StorageControllerRelatedData: eb.storageControllerRelatedData,
-	}, nil
+	entityDTO := &proto.EntityDTO{
+		EntityType:            eb.entityType,
+		Id:                    eb.id,
+		DisplayName:           eb.displayName,
+		CommoditiesSold:       eb.commoditiesSold,
+		CommoditiesBought:     buildCommodityBoughtFromMap(eb.commoditiesBoughtProviderMap),
+		Underlying:            eb.underlying,
+		EntityProperties:      eb.entityProperties,
+		Origin:                eb.origin,
+		ReplacementEntityData: eb.replacementEntityData,
+		Monitored:             eb.monitored,
+		PowerState:            eb.powerState,
+		ConsumerPolicy:        eb.consumerPolicy,
+		ProviderPolicy:        eb.providerPolicy,
+		OwnedBy:               eb.ownedBy,
+		Notification:          eb.notification,
+	}
+	if eb.storageData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_StorageData_{eb.storageData}
+	} else if eb.diskArrayData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_DiskArrayData_{eb.diskArrayData}
+	} else if eb.applicationData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_ApplicationData_{eb.applicationData}
+	} else if eb.virtualMachineData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_VirtualMachineData_{eb.virtualMachineData}
+	} else if eb.physicalMachineData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_PhysicalMachineData_{eb.physicalMachineData}
+	} else if eb.virtualDataCenterData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_VirtualDatacenterData_{eb.virtualDataCenterData}
+	}
+
+	if eb.virtualMachineRelatedData != nil {
+		entityDTO.RelatedEntityData = &proto.EntityDTO_VirtualMachineRelatedData_{eb.virtualMachineRelatedData}
+	} else if eb.physicalMachineRelatedData != nil {
+		entityDTO.RelatedEntityData = &proto.EntityDTO_PhysicalMachineRelatedData_{eb.physicalMachineRelatedData}
+	} else if eb.storageControllerRelatedData != nil {
+		entityDTO.RelatedEntityData = &proto.EntityDTO_StorageControllerRelatedData_{eb.storageControllerRelatedData}
+	}
+
+	return entityDTO, nil
 }
 
 func (eb *EntityDTOBuilder) DisplayName(displayName string) *EntityDTOBuilder {

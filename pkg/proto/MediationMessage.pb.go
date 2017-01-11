@@ -4,22 +4,24 @@
 
 package proto
 
-import (
-	proto "github.com/golang/protobuf/proto"
-	math "math"
-)
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
+var _ = fmt.Errorf
 var _ = math.Inf
 
 // Messages, sent from client to server
 type MediationClientMessage struct {
-	ValidationResponse *ValidationResponse `protobuf:"bytes,2,opt,name=validationResponse" json:"validationResponse,omitempty"`
-	DiscoveryResponse  *DiscoveryResponse  `protobuf:"bytes,3,opt,name=discoveryResponse" json:"discoveryResponse,omitempty"`
-	KeepAlive          *KeepAlive          `protobuf:"bytes,4,opt,name=keepAlive" json:"keepAlive,omitempty"`
-	ActionProgress     *ActionProgress     `protobuf:"bytes,5,opt,name=actionProgress" json:"actionProgress,omitempty"`
-	ActionResponse     *ActionResult       `protobuf:"bytes,6,opt,name=actionResponse" json:"actionResponse,omitempty"`
+	// Types that are valid to be assigned to MediationClientMessage:
+	//	*MediationClientMessage_ValidationResponse
+	//	*MediationClientMessage_DiscoveryResponse
+	//	*MediationClientMessage_KeepAlive
+	//	*MediationClientMessage_ActionProgress
+	//	*MediationClientMessage_ActionResponse
+	MediationClientMessage isMediationClientMessage_MediationClientMessage `protobuf_oneof:"mediation_client_message"`
 	// this is always required in reality. it's optional here because
 	// we don't know if in the future, with embedded targets, we will
 	// still use it or not
@@ -27,41 +29,75 @@ type MediationClientMessage struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *MediationClientMessage) Reset()         { *m = MediationClientMessage{} }
-func (m *MediationClientMessage) String() string { return proto.CompactTextString(m) }
-func (*MediationClientMessage) ProtoMessage()    {}
+func (m *MediationClientMessage) Reset()                    { *m = MediationClientMessage{} }
+func (m *MediationClientMessage) String() string            { return proto.CompactTextString(m) }
+func (*MediationClientMessage) ProtoMessage()               {}
+func (*MediationClientMessage) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
+
+type isMediationClientMessage_MediationClientMessage interface {
+	isMediationClientMessage_MediationClientMessage()
+}
+
+type MediationClientMessage_ValidationResponse struct {
+	ValidationResponse *ValidationResponse `protobuf:"bytes,2,opt,name=validationResponse,oneof"`
+}
+type MediationClientMessage_DiscoveryResponse struct {
+	DiscoveryResponse *DiscoveryResponse `protobuf:"bytes,3,opt,name=discoveryResponse,oneof"`
+}
+type MediationClientMessage_KeepAlive struct {
+	KeepAlive *KeepAlive `protobuf:"bytes,4,opt,name=keepAlive,oneof"`
+}
+type MediationClientMessage_ActionProgress struct {
+	ActionProgress *ActionProgress `protobuf:"bytes,5,opt,name=actionProgress,oneof"`
+}
+type MediationClientMessage_ActionResponse struct {
+	ActionResponse *ActionResult `protobuf:"bytes,6,opt,name=actionResponse,oneof"`
+}
+
+func (*MediationClientMessage_ValidationResponse) isMediationClientMessage_MediationClientMessage() {}
+func (*MediationClientMessage_DiscoveryResponse) isMediationClientMessage_MediationClientMessage()  {}
+func (*MediationClientMessage_KeepAlive) isMediationClientMessage_MediationClientMessage()          {}
+func (*MediationClientMessage_ActionProgress) isMediationClientMessage_MediationClientMessage()     {}
+func (*MediationClientMessage_ActionResponse) isMediationClientMessage_MediationClientMessage()     {}
+
+func (m *MediationClientMessage) GetMediationClientMessage() isMediationClientMessage_MediationClientMessage {
+	if m != nil {
+		return m.MediationClientMessage
+	}
+	return nil
+}
 
 func (m *MediationClientMessage) GetValidationResponse() *ValidationResponse {
-	if m != nil {
-		return m.ValidationResponse
+	if x, ok := m.GetMediationClientMessage().(*MediationClientMessage_ValidationResponse); ok {
+		return x.ValidationResponse
 	}
 	return nil
 }
 
 func (m *MediationClientMessage) GetDiscoveryResponse() *DiscoveryResponse {
-	if m != nil {
-		return m.DiscoveryResponse
+	if x, ok := m.GetMediationClientMessage().(*MediationClientMessage_DiscoveryResponse); ok {
+		return x.DiscoveryResponse
 	}
 	return nil
 }
 
 func (m *MediationClientMessage) GetKeepAlive() *KeepAlive {
-	if m != nil {
-		return m.KeepAlive
+	if x, ok := m.GetMediationClientMessage().(*MediationClientMessage_KeepAlive); ok {
+		return x.KeepAlive
 	}
 	return nil
 }
 
 func (m *MediationClientMessage) GetActionProgress() *ActionProgress {
-	if m != nil {
-		return m.ActionProgress
+	if x, ok := m.GetMediationClientMessage().(*MediationClientMessage_ActionProgress); ok {
+		return x.ActionProgress
 	}
 	return nil
 }
 
 func (m *MediationClientMessage) GetActionResponse() *ActionResult {
-	if m != nil {
-		return m.ActionResponse
+	if x, ok := m.GetMediationClientMessage().(*MediationClientMessage_ActionResponse); ok {
+		return x.ActionResponse
 	}
 	return nil
 }
@@ -73,11 +109,145 @@ func (m *MediationClientMessage) GetMessageID() int32 {
 	return 0
 }
 
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*MediationClientMessage) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _MediationClientMessage_OneofMarshaler, _MediationClientMessage_OneofUnmarshaler, _MediationClientMessage_OneofSizer, []interface{}{
+		(*MediationClientMessage_ValidationResponse)(nil),
+		(*MediationClientMessage_DiscoveryResponse)(nil),
+		(*MediationClientMessage_KeepAlive)(nil),
+		(*MediationClientMessage_ActionProgress)(nil),
+		(*MediationClientMessage_ActionResponse)(nil),
+	}
+}
+
+func _MediationClientMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*MediationClientMessage)
+	// mediation_client_message
+	switch x := m.MediationClientMessage.(type) {
+	case *MediationClientMessage_ValidationResponse:
+		b.EncodeVarint(2<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ValidationResponse); err != nil {
+			return err
+		}
+	case *MediationClientMessage_DiscoveryResponse:
+		b.EncodeVarint(3<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.DiscoveryResponse); err != nil {
+			return err
+		}
+	case *MediationClientMessage_KeepAlive:
+		b.EncodeVarint(4<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.KeepAlive); err != nil {
+			return err
+		}
+	case *MediationClientMessage_ActionProgress:
+		b.EncodeVarint(5<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ActionProgress); err != nil {
+			return err
+		}
+	case *MediationClientMessage_ActionResponse:
+		b.EncodeVarint(6<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ActionResponse); err != nil {
+			return err
+		}
+	case nil:
+	default:
+		return fmt.Errorf("MediationClientMessage.MediationClientMessage has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _MediationClientMessage_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*MediationClientMessage)
+	switch tag {
+	case 2: // mediation_client_message.validationResponse
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ValidationResponse)
+		err := b.DecodeMessage(msg)
+		m.MediationClientMessage = &MediationClientMessage_ValidationResponse{msg}
+		return true, err
+	case 3: // mediation_client_message.discoveryResponse
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(DiscoveryResponse)
+		err := b.DecodeMessage(msg)
+		m.MediationClientMessage = &MediationClientMessage_DiscoveryResponse{msg}
+		return true, err
+	case 4: // mediation_client_message.keepAlive
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(KeepAlive)
+		err := b.DecodeMessage(msg)
+		m.MediationClientMessage = &MediationClientMessage_KeepAlive{msg}
+		return true, err
+	case 5: // mediation_client_message.actionProgress
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ActionProgress)
+		err := b.DecodeMessage(msg)
+		m.MediationClientMessage = &MediationClientMessage_ActionProgress{msg}
+		return true, err
+	case 6: // mediation_client_message.actionResponse
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ActionResult)
+		err := b.DecodeMessage(msg)
+		m.MediationClientMessage = &MediationClientMessage_ActionResponse{msg}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _MediationClientMessage_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*MediationClientMessage)
+	// mediation_client_message
+	switch x := m.MediationClientMessage.(type) {
+	case *MediationClientMessage_ValidationResponse:
+		s := proto.Size(x.ValidationResponse)
+		n += proto.SizeVarint(2<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *MediationClientMessage_DiscoveryResponse:
+		s := proto.Size(x.DiscoveryResponse)
+		n += proto.SizeVarint(3<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *MediationClientMessage_KeepAlive:
+		s := proto.Size(x.KeepAlive)
+		n += proto.SizeVarint(4<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *MediationClientMessage_ActionProgress:
+		s := proto.Size(x.ActionProgress)
+		n += proto.SizeVarint(5<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *MediationClientMessage_ActionResponse:
+		s := proto.Size(x.ActionResponse)
+		n += proto.SizeVarint(6<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
 // Messages, sent from server to client
 type MediationServerMessage struct {
-	ValidationRequest *ValidationRequest `protobuf:"bytes,2,opt,name=validationRequest" json:"validationRequest,omitempty"`
-	DiscoveryRequest  *DiscoveryRequest  `protobuf:"bytes,3,opt,name=discoveryRequest" json:"discoveryRequest,omitempty"`
-	ActionRequest     *ActionRequest     `protobuf:"bytes,4,opt,name=actionRequest" json:"actionRequest,omitempty"`
+	// Types that are valid to be assigned to MediationServerMessage:
+	//	*MediationServerMessage_ValidationRequest
+	//	*MediationServerMessage_DiscoveryRequest
+	//	*MediationServerMessage_ActionRequest
+	//	*MediationServerMessage_InterruptOperation
+	MediationServerMessage isMediationServerMessage_MediationServerMessage `protobuf_oneof:"mediation_server_message"`
 	// this is always required in reality. it's optional here because
 	// we don't know if in the future, with embedded targets, we will
 	// still use it or not
@@ -85,29 +255,66 @@ type MediationServerMessage struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *MediationServerMessage) Reset()         { *m = MediationServerMessage{} }
-func (m *MediationServerMessage) String() string { return proto.CompactTextString(m) }
-func (*MediationServerMessage) ProtoMessage()    {}
+func (m *MediationServerMessage) Reset()                    { *m = MediationServerMessage{} }
+func (m *MediationServerMessage) String() string            { return proto.CompactTextString(m) }
+func (*MediationServerMessage) ProtoMessage()               {}
+func (*MediationServerMessage) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
+
+type isMediationServerMessage_MediationServerMessage interface {
+	isMediationServerMessage_MediationServerMessage()
+}
+
+type MediationServerMessage_ValidationRequest struct {
+	ValidationRequest *ValidationRequest `protobuf:"bytes,2,opt,name=validationRequest,oneof"`
+}
+type MediationServerMessage_DiscoveryRequest struct {
+	DiscoveryRequest *DiscoveryRequest `protobuf:"bytes,3,opt,name=discoveryRequest,oneof"`
+}
+type MediationServerMessage_ActionRequest struct {
+	ActionRequest *ActionRequest `protobuf:"bytes,4,opt,name=actionRequest,oneof"`
+}
+type MediationServerMessage_InterruptOperation struct {
+	InterruptOperation int32 `protobuf:"varint,5,opt,name=interruptOperation,oneof"`
+}
+
+func (*MediationServerMessage_ValidationRequest) isMediationServerMessage_MediationServerMessage()  {}
+func (*MediationServerMessage_DiscoveryRequest) isMediationServerMessage_MediationServerMessage()   {}
+func (*MediationServerMessage_ActionRequest) isMediationServerMessage_MediationServerMessage()      {}
+func (*MediationServerMessage_InterruptOperation) isMediationServerMessage_MediationServerMessage() {}
+
+func (m *MediationServerMessage) GetMediationServerMessage() isMediationServerMessage_MediationServerMessage {
+	if m != nil {
+		return m.MediationServerMessage
+	}
+	return nil
+}
 
 func (m *MediationServerMessage) GetValidationRequest() *ValidationRequest {
-	if m != nil {
-		return m.ValidationRequest
+	if x, ok := m.GetMediationServerMessage().(*MediationServerMessage_ValidationRequest); ok {
+		return x.ValidationRequest
 	}
 	return nil
 }
 
 func (m *MediationServerMessage) GetDiscoveryRequest() *DiscoveryRequest {
-	if m != nil {
-		return m.DiscoveryRequest
+	if x, ok := m.GetMediationServerMessage().(*MediationServerMessage_DiscoveryRequest); ok {
+		return x.DiscoveryRequest
 	}
 	return nil
 }
 
 func (m *MediationServerMessage) GetActionRequest() *ActionRequest {
-	if m != nil {
-		return m.ActionRequest
+	if x, ok := m.GetMediationServerMessage().(*MediationServerMessage_ActionRequest); ok {
+		return x.ActionRequest
 	}
 	return nil
+}
+
+func (m *MediationServerMessage) GetInterruptOperation() int32 {
+	if x, ok := m.GetMediationServerMessage().(*MediationServerMessage_InterruptOperation); ok {
+		return x.InterruptOperation
+	}
+	return 0
 }
 
 func (m *MediationServerMessage) GetMessageID() int32 {
@@ -115,6 +322,113 @@ func (m *MediationServerMessage) GetMessageID() int32 {
 		return *m.MessageID
 	}
 	return 0
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*MediationServerMessage) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _MediationServerMessage_OneofMarshaler, _MediationServerMessage_OneofUnmarshaler, _MediationServerMessage_OneofSizer, []interface{}{
+		(*MediationServerMessage_ValidationRequest)(nil),
+		(*MediationServerMessage_DiscoveryRequest)(nil),
+		(*MediationServerMessage_ActionRequest)(nil),
+		(*MediationServerMessage_InterruptOperation)(nil),
+	}
+}
+
+func _MediationServerMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*MediationServerMessage)
+	// mediation_server_message
+	switch x := m.MediationServerMessage.(type) {
+	case *MediationServerMessage_ValidationRequest:
+		b.EncodeVarint(2<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ValidationRequest); err != nil {
+			return err
+		}
+	case *MediationServerMessage_DiscoveryRequest:
+		b.EncodeVarint(3<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.DiscoveryRequest); err != nil {
+			return err
+		}
+	case *MediationServerMessage_ActionRequest:
+		b.EncodeVarint(4<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ActionRequest); err != nil {
+			return err
+		}
+	case *MediationServerMessage_InterruptOperation:
+		b.EncodeVarint(5<<3 | proto.WireVarint)
+		b.EncodeVarint(uint64(x.InterruptOperation))
+	case nil:
+	default:
+		return fmt.Errorf("MediationServerMessage.MediationServerMessage has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _MediationServerMessage_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*MediationServerMessage)
+	switch tag {
+	case 2: // mediation_server_message.validationRequest
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ValidationRequest)
+		err := b.DecodeMessage(msg)
+		m.MediationServerMessage = &MediationServerMessage_ValidationRequest{msg}
+		return true, err
+	case 3: // mediation_server_message.discoveryRequest
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(DiscoveryRequest)
+		err := b.DecodeMessage(msg)
+		m.MediationServerMessage = &MediationServerMessage_DiscoveryRequest{msg}
+		return true, err
+	case 4: // mediation_server_message.actionRequest
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ActionRequest)
+		err := b.DecodeMessage(msg)
+		m.MediationServerMessage = &MediationServerMessage_ActionRequest{msg}
+		return true, err
+	case 5: // mediation_server_message.interruptOperation
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.MediationServerMessage = &MediationServerMessage_InterruptOperation{int32(x)}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _MediationServerMessage_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*MediationServerMessage)
+	// mediation_server_message
+	switch x := m.MediationServerMessage.(type) {
+	case *MediationServerMessage_ValidationRequest:
+		s := proto.Size(x.ValidationRequest)
+		n += proto.SizeVarint(2<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *MediationServerMessage_DiscoveryRequest:
+		s := proto.Size(x.DiscoveryRequest)
+		n += proto.SizeVarint(3<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *MediationServerMessage_ActionRequest:
+		s := proto.Size(x.ActionRequest)
+		n += proto.SizeVarint(4<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *MediationServerMessage_InterruptOperation:
+		n += proto.SizeVarint(5<<3 | proto.WireVarint)
+		n += proto.SizeVarint(uint64(x.InterruptOperation))
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
 }
 
 // Structure to hold account parameters, passed to probe to connect and authenticate
@@ -132,9 +446,10 @@ type AccountValue struct {
 	XXX_unrecognized         []byte                            `json:"-"`
 }
 
-func (m *AccountValue) Reset()         { *m = AccountValue{} }
-func (m *AccountValue) String() string { return proto.CompactTextString(m) }
-func (*AccountValue) ProtoMessage()    {}
+func (m *AccountValue) Reset()                    { *m = AccountValue{} }
+func (m *AccountValue) String() string            { return proto.CompactTextString(m) }
+func (*AccountValue) ProtoMessage()               {}
+func (*AccountValue) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{2} }
 
 func (m *AccountValue) GetKey() string {
 	if m != nil && m.Key != nil {
@@ -165,6 +480,9 @@ type AccountValue_PropertyValueList struct {
 func (m *AccountValue_PropertyValueList) Reset()         { *m = AccountValue_PropertyValueList{} }
 func (m *AccountValue_PropertyValueList) String() string { return proto.CompactTextString(m) }
 func (*AccountValue_PropertyValueList) ProtoMessage()    {}
+func (*AccountValue_PropertyValueList) Descriptor() ([]byte, []int) {
+	return fileDescriptor4, []int{2, 0}
+}
 
 func (m *AccountValue_PropertyValueList) GetValue() []string {
 	if m != nil {
@@ -187,9 +505,10 @@ type ActionRequest struct {
 	XXX_unrecognized      []byte          `json:"-"`
 }
 
-func (m *ActionRequest) Reset()         { *m = ActionRequest{} }
-func (m *ActionRequest) String() string { return proto.CompactTextString(m) }
-func (*ActionRequest) ProtoMessage()    {}
+func (m *ActionRequest) Reset()                    { *m = ActionRequest{} }
+func (m *ActionRequest) String() string            { return proto.CompactTextString(m) }
+func (*ActionRequest) ProtoMessage()               {}
+func (*ActionRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{3} }
 
 func (m *ActionRequest) GetProbeType() string {
 	if m != nil && m.ProbeType != nil {
@@ -226,9 +545,10 @@ type ActionResult struct {
 	XXX_unrecognized []byte          `json:"-"`
 }
 
-func (m *ActionResult) Reset()         { *m = ActionResult{} }
-func (m *ActionResult) String() string { return proto.CompactTextString(m) }
-func (*ActionResult) ProtoMessage()    {}
+func (m *ActionResult) Reset()                    { *m = ActionResult{} }
+func (m *ActionResult) String() string            { return proto.CompactTextString(m) }
+func (*ActionResult) ProtoMessage()               {}
+func (*ActionResult) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{4} }
 
 func (m *ActionResult) GetResponse() *ActionResponse {
 	if m != nil {
@@ -244,9 +564,10 @@ type ActionProgress struct {
 	XXX_unrecognized []byte          `json:"-"`
 }
 
-func (m *ActionProgress) Reset()         { *m = ActionProgress{} }
-func (m *ActionProgress) String() string { return proto.CompactTextString(m) }
-func (*ActionProgress) ProtoMessage()    {}
+func (m *ActionProgress) Reset()                    { *m = ActionProgress{} }
+func (m *ActionProgress) String() string            { return proto.CompactTextString(m) }
+func (*ActionProgress) ProtoMessage()               {}
+func (*ActionProgress) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{5} }
 
 func (m *ActionProgress) GetResponse() *ActionResponse {
 	if m != nil {
@@ -268,9 +589,10 @@ type ActionResponse struct {
 	XXX_unrecognized    []byte  `json:"-"`
 }
 
-func (m *ActionResponse) Reset()         { *m = ActionResponse{} }
-func (m *ActionResponse) String() string { return proto.CompactTextString(m) }
-func (*ActionResponse) ProtoMessage()    {}
+func (m *ActionResponse) Reset()                    { *m = ActionResponse{} }
+func (m *ActionResponse) String() string            { return proto.CompactTextString(m) }
+func (*ActionResponse) ProtoMessage()               {}
+func (*ActionResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{6} }
 
 func (m *ActionResponse) GetActionResponseState() ActionResponseState {
 	if m != nil && m.ActionResponseState != nil {
@@ -302,9 +624,10 @@ type ContainerInfo struct {
 	XXX_unrecognized []byte       `json:"-"`
 }
 
-func (m *ContainerInfo) Reset()         { *m = ContainerInfo{} }
-func (m *ContainerInfo) String() string { return proto.CompactTextString(m) }
-func (*ContainerInfo) ProtoMessage()    {}
+func (m *ContainerInfo) Reset()                    { *m = ContainerInfo{} }
+func (m *ContainerInfo) String() string            { return proto.CompactTextString(m) }
+func (*ContainerInfo) ProtoMessage()               {}
+func (*ContainerInfo) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{7} }
 
 func (m *ContainerInfo) GetProbes() []*ProbeInfo {
 	if m != nil {
@@ -317,17 +640,19 @@ type KeepAlive struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *KeepAlive) Reset()         { *m = KeepAlive{} }
-func (m *KeepAlive) String() string { return proto.CompactTextString(m) }
-func (*KeepAlive) ProtoMessage()    {}
+func (m *KeepAlive) Reset()                    { *m = KeepAlive{} }
+func (m *KeepAlive) String() string            { return proto.CompactTextString(m) }
+func (*KeepAlive) ProtoMessage()               {}
+func (*KeepAlive) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{8} }
 
 type Ack struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *Ack) Reset()         { *m = Ack{} }
-func (m *Ack) String() string { return proto.CompactTextString(m) }
-func (*Ack) ProtoMessage()    {}
+func (m *Ack) Reset()                    { *m = Ack{} }
+func (m *Ack) String() string            { return proto.CompactTextString(m) }
+func (*Ack) ProtoMessage()               {}
+func (*Ack) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{9} }
 
 type ValidationRequest struct {
 	ProbeType        *string         `protobuf:"bytes,1,req,name=probeType" json:"probeType,omitempty"`
@@ -335,9 +660,10 @@ type ValidationRequest struct {
 	XXX_unrecognized []byte          `json:"-"`
 }
 
-func (m *ValidationRequest) Reset()         { *m = ValidationRequest{} }
-func (m *ValidationRequest) String() string { return proto.CompactTextString(m) }
-func (*ValidationRequest) ProtoMessage()    {}
+func (m *ValidationRequest) Reset()                    { *m = ValidationRequest{} }
+func (m *ValidationRequest) String() string            { return proto.CompactTextString(m) }
+func (*ValidationRequest) ProtoMessage()               {}
+func (*ValidationRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{10} }
 
 func (m *ValidationRequest) GetProbeType() string {
 	if m != nil && m.ProbeType != nil {
@@ -359,9 +685,10 @@ type DiscoveryRequest struct {
 	XXX_unrecognized []byte          `json:"-"`
 }
 
-func (m *DiscoveryRequest) Reset()         { *m = DiscoveryRequest{} }
-func (m *DiscoveryRequest) String() string { return proto.CompactTextString(m) }
-func (*DiscoveryRequest) ProtoMessage()    {}
+func (m *DiscoveryRequest) Reset()                    { *m = DiscoveryRequest{} }
+func (m *DiscoveryRequest) String() string            { return proto.CompactTextString(m) }
+func (*DiscoveryRequest) ProtoMessage()               {}
+func (*DiscoveryRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{11} }
 
 func (m *DiscoveryRequest) GetProbeType() string {
 	if m != nil && m.ProbeType != nil {
@@ -433,17 +760,26 @@ type ProbeInfo struct {
 	// Order of elements in the list specifyes the order they appear in the UI.
 	// List must not contain entries with equal "name" field. This is up to client to ensure this.
 	AccountDefinition []*AccountDefEntry `protobuf:"bytes,4,rep,name=accountDefinition" json:"accountDefinition,omitempty"`
+	// The field name, that should be treated as target identifier
+	TargetIdentifierField *string `protobuf:"bytes,5,req,name=targetIdentifierField" json:"targetIdentifierField,omitempty"`
 	// Specifies the interval at which discoveries will be executed for this probe.
 	// The value is specified in seconds. If no value is provided for rediscoveryIntervalSeconds
 	// a default of 600 seconds (10 minutes) will be used. The minimum value allowed for this
 	// field is 60 seconds (1 minute).
-	RediscoveryIntervalSeconds *int32 `protobuf:"varint,5,opt,name=rediscoveryIntervalSeconds" json:"rediscoveryIntervalSeconds,omitempty"`
-	XXX_unrecognized           []byte `json:"-"`
+	RediscoveryIntervalSeconds *int32 `protobuf:"varint,6,opt,name=rediscoveryIntervalSeconds" json:"rediscoveryIntervalSeconds,omitempty"`
+	// EntityIdentityMetadata supplies meta information describing the properties used to identify
+	// all of the entities that a probe may discover. There should be one EntityIdentityMetadata
+	// for each type of entity that a probe may discover.
+	EntityMetadata []*EntityIdentityMetadata `protobuf:"bytes,7,rep,name=entityMetadata" json:"entityMetadata,omitempty"`
+	// Action policy provides data about entity types and actions that can be applied to them
+	ActionPolicy     []*ActionPolicyDTO `protobuf:"bytes,8,rep,name=actionPolicy" json:"actionPolicy,omitempty"`
+	XXX_unrecognized []byte             `json:"-"`
 }
 
-func (m *ProbeInfo) Reset()         { *m = ProbeInfo{} }
-func (m *ProbeInfo) String() string { return proto.CompactTextString(m) }
-func (*ProbeInfo) ProtoMessage()    {}
+func (m *ProbeInfo) Reset()                    { *m = ProbeInfo{} }
+func (m *ProbeInfo) String() string            { return proto.CompactTextString(m) }
+func (*ProbeInfo) ProtoMessage()               {}
+func (*ProbeInfo) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{12} }
 
 func (m *ProbeInfo) GetProbeType() string {
 	if m != nil && m.ProbeType != nil {
@@ -473,9 +809,105 @@ func (m *ProbeInfo) GetAccountDefinition() []*AccountDefEntry {
 	return nil
 }
 
+func (m *ProbeInfo) GetTargetIdentifierField() string {
+	if m != nil && m.TargetIdentifierField != nil {
+		return *m.TargetIdentifierField
+	}
+	return ""
+}
+
 func (m *ProbeInfo) GetRediscoveryIntervalSeconds() int32 {
 	if m != nil && m.RediscoveryIntervalSeconds != nil {
 		return *m.RediscoveryIntervalSeconds
 	}
 	return 0
+}
+
+func (m *ProbeInfo) GetEntityMetadata() []*EntityIdentityMetadata {
+	if m != nil {
+		return m.EntityMetadata
+	}
+	return nil
+}
+
+func (m *ProbeInfo) GetActionPolicy() []*ActionPolicyDTO {
+	if m != nil {
+		return m.ActionPolicy
+	}
+	return nil
+}
+
+func init() {
+	proto.RegisterType((*MediationClientMessage)(nil), "common_dto.MediationClientMessage")
+	proto.RegisterType((*MediationServerMessage)(nil), "common_dto.MediationServerMessage")
+	proto.RegisterType((*AccountValue)(nil), "common_dto.AccountValue")
+	proto.RegisterType((*AccountValue_PropertyValueList)(nil), "common_dto.AccountValue.PropertyValueList")
+	proto.RegisterType((*ActionRequest)(nil), "common_dto.ActionRequest")
+	proto.RegisterType((*ActionResult)(nil), "common_dto.ActionResult")
+	proto.RegisterType((*ActionProgress)(nil), "common_dto.ActionProgress")
+	proto.RegisterType((*ActionResponse)(nil), "common_dto.ActionResponse")
+	proto.RegisterType((*ContainerInfo)(nil), "common_dto.ContainerInfo")
+	proto.RegisterType((*KeepAlive)(nil), "common_dto.KeepAlive")
+	proto.RegisterType((*Ack)(nil), "common_dto.Ack")
+	proto.RegisterType((*ValidationRequest)(nil), "common_dto.ValidationRequest")
+	proto.RegisterType((*DiscoveryRequest)(nil), "common_dto.DiscoveryRequest")
+	proto.RegisterType((*ProbeInfo)(nil), "common_dto.ProbeInfo")
+}
+
+func init() { proto.RegisterFile("MediationMessage.proto", fileDescriptor4) }
+
+var fileDescriptor4 = []byte{
+	// 832 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xac, 0x55, 0xed, 0x6a, 0xe3, 0x46,
+	0x14, 0xf5, 0xc7, 0x7a, 0x1b, 0x5d, 0xaf, 0xb3, 0xf1, 0x04, 0x6f, 0xa7, 0xde, 0x4d, 0xd7, 0x08,
+	0x0a, 0x66, 0x29, 0x86, 0xba, 0x65, 0xdb, 0x86, 0x50, 0x70, 0xa2, 0x14, 0x87, 0x6e, 0x48, 0x58,
+	0xa7, 0xf9, 0x1b, 0x66, 0xa5, 0x6b, 0x77, 0x88, 0xa4, 0x51, 0x67, 0x46, 0xa6, 0xfa, 0xd1, 0x67,
+	0xe8, 0x3b, 0xf4, 0x65, 0xfa, 0x08, 0x85, 0x3e, 0x4d, 0xd1, 0x48, 0xb2, 0x25, 0xdb, 0x29, 0x5d,
+	0xc8, 0x3f, 0x31, 0x73, 0xce, 0xbd, 0x67, 0x8e, 0xee, 0x07, 0xbc, 0xb8, 0x44, 0x8f, 0x33, 0xcd,
+	0x45, 0x78, 0x89, 0x4a, 0xb1, 0x05, 0x8e, 0x22, 0x29, 0xb4, 0x20, 0xe0, 0x8a, 0x20, 0x10, 0xe1,
+	0x9d, 0xa7, 0x45, 0xbf, 0x37, 0x71, 0x53, 0xc0, 0xf9, 0x6f, 0xe8, 0xc6, 0xe9, 0x47, 0x06, 0xe9,
+	0x3f, 0x77, 0xb8, 0x72, 0xc5, 0x12, 0x65, 0x92, 0x1f, 0x74, 0x67, 0x71, 0x14, 0xf9, 0xc9, 0xd9,
+	0x2f, 0x8c, 0x17, 0x98, 0x17, 0x17, 0x1e, 0x86, 0x9a, 0xeb, 0xe4, 0x12, 0x35, 0xf3, 0x98, 0x66,
+	0xd9, 0xb9, 0xfd, 0x77, 0xa3, 0x94, 0xf9, 0xcc, 0xe7, 0x18, 0xea, 0x3c, 0x3f, 0x39, 0x01, 0xb2,
+	0x64, 0x3e, 0xf7, 0xcc, 0xd5, 0x7b, 0x54, 0x91, 0x08, 0x15, 0xd2, 0xc6, 0xa0, 0x3e, 0x6c, 0x8f,
+	0x3f, 0x1f, 0xad, 0x65, 0x8d, 0x6e, 0xb7, 0x50, 0xd3, 0x1a, 0x39, 0x86, 0xae, 0x57, 0xc8, 0x5a,
+	0x91, 0x9b, 0x86, 0x7c, 0x54, 0x26, 0x3b, 0x9b, 0xa0, 0x69, 0x8d, 0xbc, 0x01, 0xeb, 0x1e, 0x31,
+	0x9a, 0xf8, 0x7c, 0x89, 0xf4, 0x89, 0xe1, 0xf4, 0xca, 0x9c, 0x9f, 0x8a, 0xcb, 0x69, 0x8d, 0x7c,
+	0x03, 0xfb, 0xcc, 0xb8, 0x72, 0x2d, 0xc5, 0x42, 0xa2, 0x52, 0xb4, 0x65, 0x08, 0xfd, 0x32, 0x61,
+	0x52, 0x41, 0x4c, 0x6b, 0x64, 0x5c, 0xb0, 0x56, 0xd2, 0x9e, 0x1a, 0x16, 0xdd, 0x66, 0xbd, 0x47,
+	0x15, 0xfb, 0x7a, 0x5a, 0x23, 0x5d, 0xb0, 0x82, 0xcc, 0x9a, 0x0b, 0x87, 0x3e, 0x1f, 0xd4, 0x87,
+	0xad, 0xd3, 0x3e, 0xd0, 0xa0, 0x30, 0xef, 0xce, 0x35, 0xee, 0xdd, 0xe5, 0x18, 0xfb, 0x8f, 0xb2,
+	0xb3, 0x33, 0x94, 0x4b, 0x94, 0x85, 0xb3, 0xc7, 0xd0, 0x2d, 0x3b, 0xfb, 0x6b, 0x8c, 0x4a, 0xe7,
+	0xc6, 0x1e, 0x3d, 0x64, 0xac, 0x01, 0x4d, 0x6b, 0xe4, 0x3b, 0x38, 0x28, 0xf9, 0x9a, 0x51, 0x33,
+	0x5b, 0x5f, 0x3d, 0x60, 0x6b, 0xc1, 0x1c, 0x43, 0xa7, 0x78, 0x73, 0x46, 0xcb, 0x9c, 0xfd, 0x6c,
+	0xd7, 0x93, 0x0b, 0xce, 0x2b, 0x20, 0x3c, 0xd4, 0x28, 0x65, 0x1c, 0xe9, 0xab, 0x08, 0xa5, 0x11,
+	0x63, 0x1c, 0x6e, 0xfd, 0x0f, 0x47, 0x94, 0x79, 0xf5, 0xca, 0x91, 0x3f, 0xeb, 0xf0, 0x6c, 0xe2,
+	0xba, 0x22, 0x0e, 0xf5, 0x2d, 0xf3, 0x63, 0x24, 0x6d, 0x68, 0xde, 0x63, 0x42, 0xeb, 0x83, 0xc6,
+	0xd0, 0x22, 0x87, 0xd0, 0x56, 0x5a, 0xf2, 0x70, 0x61, 0xee, 0x8c, 0x1d, 0x16, 0x79, 0x07, 0x74,
+	0x21, 0x45, 0x1c, 0xcd, 0x5c, 0x11, 0xe1, 0xb5, 0x14, 0x11, 0x4a, 0x9d, 0x18, 0x80, 0xa2, 0xcd,
+	0x41, 0x73, 0xd8, 0x1e, 0xbf, 0xa9, 0xca, 0x5f, 0x47, 0x1f, 0x55, 0xe0, 0xef, 0xb8, 0xd2, 0x7d,
+	0x1b, 0xba, 0x5b, 0x87, 0xa4, 0x03, 0xad, 0xa5, 0xc9, 0x58, 0x1f, 0x34, 0x87, 0x96, 0xfd, 0x57,
+	0x1d, 0x3a, 0x15, 0x17, 0xd2, 0x57, 0x46, 0x52, 0x7c, 0xc0, 0x9b, 0x24, 0xc2, 0x5c, 0xeb, 0x08,
+	0x9e, 0xb1, 0x52, 0x2a, 0xda, 0x30, 0x52, 0xe8, 0x43, 0x52, 0xc8, 0x31, 0x10, 0x56, 0x6d, 0x5d,
+	0xe7, 0xe6, 0x8a, 0x36, 0x07, 0x8d, 0xcd, 0x56, 0x9a, 0x6c, 0xa1, 0xc8, 0xb7, 0xd0, 0x53, 0xe8,
+	0x8a, 0xd0, 0x63, 0x32, 0x29, 0x07, 0xa5, 0x4f, 0xfe, 0x3b, 0xa9, 0x7d, 0x92, 0xba, 0xbd, 0xae,
+	0x60, 0xf2, 0x25, 0xec, 0xc9, 0xa2, 0xda, 0xeb, 0x26, 0x75, 0x7f, 0x67, 0xb5, 0x1b, 0x84, 0xfd,
+	0x03, 0xec, 0x57, 0xbb, 0xe6, 0x23, 0xf9, 0xbf, 0x17, 0xfc, 0xe2, 0x84, 0x9c, 0xc0, 0x61, 0xb5,
+	0xe7, 0x66, 0x9a, 0xe9, 0x2c, 0xd4, 0xfe, 0xf8, 0xf5, 0xc3, 0xa1, 0x0c, 0x8c, 0x1c, 0xc0, 0x5e,
+	0x54, 0x74, 0x78, 0x63, 0xd0, 0x18, 0xb6, 0xc8, 0x4b, 0x38, 0x2c, 0xf4, 0x38, 0xa8, 0x5c, 0xc9,
+	0x23, 0x53, 0x9c, 0xa9, 0xab, 0x96, 0xfd, 0x16, 0x3a, 0x67, 0x22, 0xd4, 0x8c, 0x87, 0x28, 0x2f,
+	0xc2, 0xb9, 0x20, 0x5f, 0xc0, 0x53, 0xf3, 0x17, 0x95, 0xf9, 0xcf, 0x1b, 0x03, 0xe5, 0x3a, 0xbd,
+	0x49, 0x61, 0x76, 0x1b, 0xac, 0xd5, 0x74, 0xb1, 0x5b, 0xd0, 0x9c, 0xb8, 0xf7, 0xf6, 0x2d, 0x74,
+	0xb7, 0x3a, 0xf1, 0x11, 0xaa, 0xc2, 0xfe, 0x19, 0x0e, 0x36, 0xdb, 0xf4, 0x31, 0xc2, 0xfe, 0xd3,
+	0x00, 0x6b, 0xf5, 0xa0, 0x5d, 0x01, 0x7b, 0xd0, 0x31, 0x47, 0x67, 0x4c, 0xe3, 0x42, 0xc8, 0xc4,
+	0xf8, 0x69, 0x91, 0xef, 0x81, 0xaa, 0xf5, 0xde, 0x70, 0x70, 0xce, 0x43, 0x9e, 0xcd, 0x2e, 0x9d,
+	0xf7, 0xda, 0xa7, 0xe5, 0x9c, 0x37, 0x18, 0x44, 0x3e, 0xd3, 0x98, 0xd6, 0xe8, 0x5b, 0xe8, 0xe6,
+	0x12, 0xd7, 0xb4, 0xbc, 0x3e, 0x5f, 0xee, 0xd0, 0xe9, 0xe0, 0xfc, 0x3c, 0xd4, 0x32, 0x21, 0x47,
+	0xd0, 0xd3, 0x4c, 0x2e, 0x50, 0x67, 0xdb, 0x69, 0xce, 0x51, 0xfe, 0xc8, 0xd1, 0xf7, 0x68, 0xcb,
+	0x28, 0xb2, 0xa1, 0x2f, 0x71, 0x35, 0xed, 0x2e, 0xd2, 0x41, 0xb4, 0x64, 0xfe, 0xcc, 0x74, 0x83,
+	0x32, 0x13, 0xbb, 0x45, 0x8e, 0x61, 0xbf, 0xba, 0xd8, 0xe8, 0x27, 0x26, 0xaf, 0x5d, 0xce, 0x7b,
+	0x6e, 0x10, 0x9b, 0x2b, 0x90, 0x7c, 0x95, 0x3a, 0x6b, 0x6a, 0x5c, 0xf8, 0xdc, 0x4d, 0xe8, 0xde,
+	0x2e, 0xc5, 0xeb, 0x7b, 0xe7, 0xe6, 0xea, 0xf4, 0x6b, 0x78, 0xed, 0x8a, 0x60, 0xb4, 0x0c, 0x74,
+	0x2c, 0x3f, 0x88, 0x51, 0xea, 0xc0, 0x5c, 0xc8, 0x60, 0xa4, 0xbc, 0xfb, 0x9c, 0x76, 0x7a, 0xb0,
+	0xb9, 0xc9, 0xff, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x2e, 0x09, 0xfc, 0x64, 0xdc, 0x07, 0x00, 0x00,
 }

@@ -4,80 +4,57 @@
 
 package proto
 
-import (
-	proto "github.com/golang/protobuf/proto"
-	math "math"
-)
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
+var _ = fmt.Errorf
 var _ = math.Inf
 
-type AccountDefEntry_AccountDefEntryType int32
+// Enum, determining the type of primitive value. All the primitive values are
+// always stored in string value holder, but are interpreted differently
+type CustomAccountDefEntry_PrimitiveValue int32
 
 const (
-	AccountDefEntry_OPTIONAL  AccountDefEntry_AccountDefEntryType = 0
-	AccountDefEntry_MANDATORY AccountDefEntry_AccountDefEntryType = 1
+	// Value should be interpreted as string
+	CustomAccountDefEntry_STRING CustomAccountDefEntry_PrimitiveValue = 1
+	// Value should be interpreted as numeric
+	CustomAccountDefEntry_NUMERIC CustomAccountDefEntry_PrimitiveValue = 2
+	// Value should be interpreted as boolean
+	CustomAccountDefEntry_BOOLEAN CustomAccountDefEntry_PrimitiveValue = 3
 )
 
-var AccountDefEntry_AccountDefEntryType_name = map[int32]string{
-	0: "OPTIONAL",
-	1: "MANDATORY",
+var CustomAccountDefEntry_PrimitiveValue_name = map[int32]string{
+	1: "STRING",
+	2: "NUMERIC",
+	3: "BOOLEAN",
 }
-var AccountDefEntry_AccountDefEntryType_value = map[string]int32{
-	"OPTIONAL":  0,
-	"MANDATORY": 1,
+var CustomAccountDefEntry_PrimitiveValue_value = map[string]int32{
+	"STRING":  1,
+	"NUMERIC": 2,
+	"BOOLEAN": 3,
 }
 
-func (x AccountDefEntry_AccountDefEntryType) Enum() *AccountDefEntry_AccountDefEntryType {
-	p := new(AccountDefEntry_AccountDefEntryType)
+func (x CustomAccountDefEntry_PrimitiveValue) Enum() *CustomAccountDefEntry_PrimitiveValue {
+	p := new(CustomAccountDefEntry_PrimitiveValue)
 	*p = x
 	return p
 }
-func (x AccountDefEntry_AccountDefEntryType) String() string {
-	return proto.EnumName(AccountDefEntry_AccountDefEntryType_name, int32(x))
+func (x CustomAccountDefEntry_PrimitiveValue) String() string {
+	return proto.EnumName(CustomAccountDefEntry_PrimitiveValue_name, int32(x))
 }
-func (x *AccountDefEntry_AccountDefEntryType) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(AccountDefEntry_AccountDefEntryType_value, data, "AccountDefEntry_AccountDefEntryType")
+func (x *CustomAccountDefEntry_PrimitiveValue) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(CustomAccountDefEntry_PrimitiveValue_value, data, "CustomAccountDefEntry_PrimitiveValue")
 	if err != nil {
 		return err
 	}
-	*x = AccountDefEntry_AccountDefEntryType(value)
+	*x = CustomAccountDefEntry_PrimitiveValue(value)
 	return nil
 }
-
-// Entry type
-type AccountDefEntry_AccountDefEntryFieldType int32
-
-const (
-	AccountDefEntry_STRING      AccountDefEntry_AccountDefEntryFieldType = 0
-	AccountDefEntry_GROUP_SCOPE AccountDefEntry_AccountDefEntryFieldType = 1
-)
-
-var AccountDefEntry_AccountDefEntryFieldType_name = map[int32]string{
-	0: "STRING",
-	1: "GROUP_SCOPE",
-}
-var AccountDefEntry_AccountDefEntryFieldType_value = map[string]int32{
-	"STRING":      0,
-	"GROUP_SCOPE": 1,
-}
-
-func (x AccountDefEntry_AccountDefEntryFieldType) Enum() *AccountDefEntry_AccountDefEntryFieldType {
-	p := new(AccountDefEntry_AccountDefEntryFieldType)
-	*p = x
-	return p
-}
-func (x AccountDefEntry_AccountDefEntryFieldType) String() string {
-	return proto.EnumName(AccountDefEntry_AccountDefEntryFieldType_name, int32(x))
-}
-func (x *AccountDefEntry_AccountDefEntryFieldType) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(AccountDefEntry_AccountDefEntryFieldType_value, data, "AccountDefEntry_AccountDefEntryFieldType")
-	if err != nil {
-		return err
-	}
-	*x = AccountDefEntry_AccountDefEntryFieldType(value)
-	return nil
+func (CustomAccountDefEntry_PrimitiveValue) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor2, []int{2, 0}
 }
 
 type ErrorDTO_ErrorSeverity int32
@@ -112,6 +89,42 @@ func (x *ErrorDTO_ErrorSeverity) UnmarshalJSON(data []byte) error {
 	*x = ErrorDTO_ErrorSeverity(value)
 	return nil
 }
+func (ErrorDTO_ErrorSeverity) EnumDescriptor() ([]byte, []int) { return fileDescriptor2, []int{4, 0} }
+
+// Type of the serialized data
+type CustomMetadataDTO_Type int32
+
+const (
+	CustomMetadataDTO_JSON CustomMetadataDTO_Type = 0
+	CustomMetadataDTO_XML  CustomMetadataDTO_Type = 1
+)
+
+var CustomMetadataDTO_Type_name = map[int32]string{
+	0: "JSON",
+	1: "XML",
+}
+var CustomMetadataDTO_Type_value = map[string]int32{
+	"JSON": 0,
+	"XML":  1,
+}
+
+func (x CustomMetadataDTO_Type) Enum() *CustomMetadataDTO_Type {
+	p := new(CustomMetadataDTO_Type)
+	*p = x
+	return p
+}
+func (x CustomMetadataDTO_Type) String() string {
+	return proto.EnumName(CustomMetadataDTO_Type_name, int32(x))
+}
+func (x *CustomMetadataDTO_Type) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(CustomMetadataDTO_Type_value, data, "CustomMetadataDTO_Type")
+	if err != nil {
+		return err
+	}
+	*x = CustomMetadataDTO_Type(value)
+	return nil
+}
+func (CustomMetadataDTO_Type) EnumDescriptor() ([]byte, []int) { return fileDescriptor2, []int{5, 0} }
 
 // ValidateResponse is the response of a ValidateRequest message.
 // It contains the response, and any errors encountered during the target validation attempt.
@@ -121,9 +134,10 @@ type ValidationResponse struct {
 	XXX_unrecognized []byte      `json:"-"`
 }
 
-func (m *ValidationResponse) Reset()         { *m = ValidationResponse{} }
-func (m *ValidationResponse) String() string { return proto.CompactTextString(m) }
-func (*ValidationResponse) ProtoMessage()    {}
+func (m *ValidationResponse) Reset()                    { *m = ValidationResponse{} }
+func (m *ValidationResponse) String() string            { return proto.CompactTextString(m) }
+func (*ValidationResponse) ProtoMessage()               {}
+func (*ValidationResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *ValidationResponse) GetErrorDTO() []*ErrorDTO {
 	if m != nil {
@@ -149,13 +163,16 @@ type DiscoveryResponse struct {
 	// Deployment Profile (ServiceCatalogItem)
 	DeploymentProfile []*DeploymentProfileDTO `protobuf:"bytes,5,rep,name=deploymentProfile" json:"deploymentProfile,omitempty"`
 	// Notifications for global (not entity-specific) events
-	Notification     []*NotificationDTO `protobuf:"bytes,6,rep,name=notification" json:"notification,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
+	Notification []*NotificationDTO `protobuf:"bytes,6,rep,name=notification" json:"notification,omitempty"`
+	// Custom Metadata DTO
+	MetadataDTO      []*CustomMetadataDTO `protobuf:"bytes,7,rep,name=metadataDTO" json:"metadataDTO,omitempty"`
+	XXX_unrecognized []byte               `json:"-"`
 }
 
-func (m *DiscoveryResponse) Reset()         { *m = DiscoveryResponse{} }
-func (m *DiscoveryResponse) String() string { return proto.CompactTextString(m) }
-func (*DiscoveryResponse) ProtoMessage()    {}
+func (m *DiscoveryResponse) Reset()                    { *m = DiscoveryResponse{} }
+func (m *DiscoveryResponse) String() string            { return proto.CompactTextString(m) }
+func (*DiscoveryResponse) ProtoMessage()               {}
+func (*DiscoveryResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
 
 func (m *DiscoveryResponse) GetErrorDTO() []*ErrorDTO {
 	if m != nil {
@@ -199,15 +216,18 @@ func (m *DiscoveryResponse) GetNotification() []*NotificationDTO {
 	return nil
 }
 
-// The AccountDefinitionEntry class defines a single field that is part of the account credentials
-// a user must specify to connect to a target of this probe type. Note that for every probe, the
-// 'TARGET_IDENTIFIER' is a mandatory field.
-//
-// It's the responsibility of your probe to define the credentials it needs to attach to a target. When adding an associated target to
-// Operations Manager via the REST API, the API call includes parameters for each of the credentials defined here.
-// When attaching via the Operations Manager GUI, the credentials defined here appear in the GUI as individual fields.
-// For a given probe, you define the credentials as a Set of AccountDefinitionEntry objects.
-type AccountDefEntry struct {
+func (m *DiscoveryResponse) GetMetadataDTO() []*CustomMetadataDTO {
+	if m != nil {
+		return m.MetadataDTO
+	}
+	return nil
+}
+
+// Custom user-defined account values. These construction is used, when SDK probe writers
+// define their own account values, instead of reusing existing ones.
+// Custom fields should be used, when there is not predefined field to match the purpose
+// of the field required by the probe.
+type CustomAccountDefEntry struct {
 	// The name of this entry field. The name must be unique for all of the entries you
 	// define for this probe.
 	Name *string `protobuf:"bytes,1,req,name=name" json:"name,omitempty"`
@@ -220,107 +240,379 @@ type AccountDefEntry struct {
 	// For example, you can validate that the entered text is only numbers and period characters
 	// for an IP address. To disable validation (allow any text), pass {@code ".*"}.
 	VerificationRegex *string `protobuf:"bytes,4,opt,name=verificationRegex,def=.*" json:"verificationRegex,omitempty"`
-	// Entry type
-	Type *AccountDefEntry_AccountDefEntryType `protobuf:"varint,5,opt,name=type,enum=common_dto.AccountDefEntry_AccountDefEntryType,def=1" json:"type,omitempty"`
 	// Specifies if the value for the entry can be disclosed (in the log file or wherever else).
-	IsSecret *bool `protobuf:"varint,6,opt,name=isSecret,def=0" json:"isSecret,omitempty"`
-	// Field type
-	FieldType *AccountDefEntry_AccountDefEntryFieldType `protobuf:"varint,7,opt,name=fieldType,enum=common_dto.AccountDefEntry_AccountDefEntryFieldType,def=0" json:"fieldType,omitempty"`
-	// Set of entity properties (e.g. IP addresses) for group scope target discovery
-	GroupScopePropertySet *AccountDefEntry_GroupScopePropertySet `protobuf:"bytes,8,opt,name=groupScopePropertySet" json:"groupScopePropertySet,omitempty"`
-	XXX_unrecognized      []byte                                 `json:"-"`
+	IsSecret *bool `protobuf:"varint,5,opt,name=isSecret,def=0" json:"isSecret,omitempty"`
+	// Field type describes, what data type is expected to be put into this field
+	//
+	// Types that are valid to be assigned to FieldType:
+	//	*CustomAccountDefEntry_PrimitiveValue_
+	//	*CustomAccountDefEntry_GroupScope
+	FieldType        isCustomAccountDefEntry_FieldType `protobuf_oneof:"fieldType"`
+	XXX_unrecognized []byte                            `json:"-"`
 }
 
-func (m *AccountDefEntry) Reset()         { *m = AccountDefEntry{} }
-func (m *AccountDefEntry) String() string { return proto.CompactTextString(m) }
-func (*AccountDefEntry) ProtoMessage()    {}
+func (m *CustomAccountDefEntry) Reset()                    { *m = CustomAccountDefEntry{} }
+func (m *CustomAccountDefEntry) String() string            { return proto.CompactTextString(m) }
+func (*CustomAccountDefEntry) ProtoMessage()               {}
+func (*CustomAccountDefEntry) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
 
-const Default_AccountDefEntry_VerificationRegex string = ".*"
-const Default_AccountDefEntry_Type AccountDefEntry_AccountDefEntryType = AccountDefEntry_MANDATORY
-const Default_AccountDefEntry_IsSecret bool = false
-const Default_AccountDefEntry_FieldType AccountDefEntry_AccountDefEntryFieldType = AccountDefEntry_STRING
+const Default_CustomAccountDefEntry_VerificationRegex string = ".*"
+const Default_CustomAccountDefEntry_IsSecret bool = false
 
-func (m *AccountDefEntry) GetName() string {
+type isCustomAccountDefEntry_FieldType interface {
+	isCustomAccountDefEntry_FieldType()
+}
+
+type CustomAccountDefEntry_PrimitiveValue_ struct {
+	PrimitiveValue CustomAccountDefEntry_PrimitiveValue `protobuf:"varint,6,opt,name=primitive_value,enum=common_dto.CustomAccountDefEntry_PrimitiveValue,oneof"`
+}
+type CustomAccountDefEntry_GroupScope struct {
+	GroupScope *CustomAccountDefEntry_GroupScopePropertySet `protobuf:"bytes,7,opt,name=group_scope,oneof"`
+}
+
+func (*CustomAccountDefEntry_PrimitiveValue_) isCustomAccountDefEntry_FieldType() {}
+func (*CustomAccountDefEntry_GroupScope) isCustomAccountDefEntry_FieldType()      {}
+
+func (m *CustomAccountDefEntry) GetFieldType() isCustomAccountDefEntry_FieldType {
+	if m != nil {
+		return m.FieldType
+	}
+	return nil
+}
+
+func (m *CustomAccountDefEntry) GetName() string {
 	if m != nil && m.Name != nil {
 		return *m.Name
 	}
 	return ""
 }
 
-func (m *AccountDefEntry) GetDisplayName() string {
+func (m *CustomAccountDefEntry) GetDisplayName() string {
 	if m != nil && m.DisplayName != nil {
 		return *m.DisplayName
 	}
 	return ""
 }
 
-func (m *AccountDefEntry) GetDescription() string {
+func (m *CustomAccountDefEntry) GetDescription() string {
 	if m != nil && m.Description != nil {
 		return *m.Description
 	}
 	return ""
 }
 
-func (m *AccountDefEntry) GetVerificationRegex() string {
+func (m *CustomAccountDefEntry) GetVerificationRegex() string {
 	if m != nil && m.VerificationRegex != nil {
 		return *m.VerificationRegex
 	}
-	return Default_AccountDefEntry_VerificationRegex
+	return Default_CustomAccountDefEntry_VerificationRegex
 }
 
-func (m *AccountDefEntry) GetType() AccountDefEntry_AccountDefEntryType {
-	if m != nil && m.Type != nil {
-		return *m.Type
-	}
-	return Default_AccountDefEntry_Type
-}
-
-func (m *AccountDefEntry) GetIsSecret() bool {
+func (m *CustomAccountDefEntry) GetIsSecret() bool {
 	if m != nil && m.IsSecret != nil {
 		return *m.IsSecret
 	}
-	return Default_AccountDefEntry_IsSecret
+	return Default_CustomAccountDefEntry_IsSecret
 }
 
-func (m *AccountDefEntry) GetFieldType() AccountDefEntry_AccountDefEntryFieldType {
-	if m != nil && m.FieldType != nil {
-		return *m.FieldType
+func (m *CustomAccountDefEntry) GetPrimitiveValue() CustomAccountDefEntry_PrimitiveValue {
+	if x, ok := m.GetFieldType().(*CustomAccountDefEntry_PrimitiveValue_); ok {
+		return x.PrimitiveValue
 	}
-	return Default_AccountDefEntry_FieldType
+	return CustomAccountDefEntry_STRING
 }
 
-func (m *AccountDefEntry) GetGroupScopePropertySet() *AccountDefEntry_GroupScopePropertySet {
-	if m != nil {
-		return m.GroupScopePropertySet
+func (m *CustomAccountDefEntry) GetGroupScope() *CustomAccountDefEntry_GroupScopePropertySet {
+	if x, ok := m.GetFieldType().(*CustomAccountDefEntry_GroupScope); ok {
+		return x.GroupScope
 	}
 	return nil
 }
 
-// Entity type with a set of properties for group scope account definition
-type AccountDefEntry_GroupScopePropertySet struct {
-	// Entity type
-	EntityType *EntityDTO_EntityType `protobuf:"varint,1,req,name=entityType,enum=common_dto.EntityDTO_EntityType" json:"entityType,omitempty"`
-	// Set of property names
-	PropertyName     []string `protobuf:"bytes,2,rep,name=propertyName" json:"propertyName,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*CustomAccountDefEntry) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _CustomAccountDefEntry_OneofMarshaler, _CustomAccountDefEntry_OneofUnmarshaler, _CustomAccountDefEntry_OneofSizer, []interface{}{
+		(*CustomAccountDefEntry_PrimitiveValue_)(nil),
+		(*CustomAccountDefEntry_GroupScope)(nil),
+	}
 }
 
-func (m *AccountDefEntry_GroupScopePropertySet) Reset()         { *m = AccountDefEntry_GroupScopePropertySet{} }
-func (m *AccountDefEntry_GroupScopePropertySet) String() string { return proto.CompactTextString(m) }
-func (*AccountDefEntry_GroupScopePropertySet) ProtoMessage()    {}
+func _CustomAccountDefEntry_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*CustomAccountDefEntry)
+	// fieldType
+	switch x := m.FieldType.(type) {
+	case *CustomAccountDefEntry_PrimitiveValue_:
+		b.EncodeVarint(6<<3 | proto.WireVarint)
+		b.EncodeVarint(uint64(x.PrimitiveValue))
+	case *CustomAccountDefEntry_GroupScope:
+		b.EncodeVarint(7<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.GroupScope); err != nil {
+			return err
+		}
+	case nil:
+	default:
+		return fmt.Errorf("CustomAccountDefEntry.FieldType has unexpected type %T", x)
+	}
+	return nil
+}
 
-func (m *AccountDefEntry_GroupScopePropertySet) GetEntityType() EntityDTO_EntityType {
+func _CustomAccountDefEntry_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*CustomAccountDefEntry)
+	switch tag {
+	case 6: // fieldType.primitive_value
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.FieldType = &CustomAccountDefEntry_PrimitiveValue_{CustomAccountDefEntry_PrimitiveValue(x)}
+		return true, err
+	case 7: // fieldType.group_scope
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(CustomAccountDefEntry_GroupScopePropertySet)
+		err := b.DecodeMessage(msg)
+		m.FieldType = &CustomAccountDefEntry_GroupScope{msg}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _CustomAccountDefEntry_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*CustomAccountDefEntry)
+	// fieldType
+	switch x := m.FieldType.(type) {
+	case *CustomAccountDefEntry_PrimitiveValue_:
+		n += proto.SizeVarint(6<<3 | proto.WireVarint)
+		n += proto.SizeVarint(uint64(x.PrimitiveValue))
+	case *CustomAccountDefEntry_GroupScope:
+		s := proto.Size(x.GroupScope)
+		n += proto.SizeVarint(7<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
+// Entity type with a set of properties for group scope account definition
+type CustomAccountDefEntry_GroupScopePropertySet struct {
+	// Entity type
+	EntityType *EntityDTO_EntityType `protobuf:"varint,1,req,name=entityType,enum=common_dto.EntityDTO_EntityType" json:"entityType,omitempty"`
+	// Set of properties
+	Property         []*CustomAccountDefEntry_GroupScopeProperty `protobuf:"bytes,2,rep,name=property" json:"property,omitempty"`
+	XXX_unrecognized []byte                                      `json:"-"`
+}
+
+func (m *CustomAccountDefEntry_GroupScopePropertySet) Reset() {
+	*m = CustomAccountDefEntry_GroupScopePropertySet{}
+}
+func (m *CustomAccountDefEntry_GroupScopePropertySet) String() string {
+	return proto.CompactTextString(m)
+}
+func (*CustomAccountDefEntry_GroupScopePropertySet) ProtoMessage() {}
+func (*CustomAccountDefEntry_GroupScopePropertySet) Descriptor() ([]byte, []int) {
+	return fileDescriptor2, []int{2, 0}
+}
+
+func (m *CustomAccountDefEntry_GroupScopePropertySet) GetEntityType() EntityDTO_EntityType {
 	if m != nil && m.EntityType != nil {
 		return *m.EntityType
 	}
 	return EntityDTO_SWITCH
 }
 
-func (m *AccountDefEntry_GroupScopePropertySet) GetPropertyName() []string {
+func (m *CustomAccountDefEntry_GroupScopePropertySet) GetProperty() []*CustomAccountDefEntry_GroupScopeProperty {
 	if m != nil {
-		return m.PropertyName
+		return m.Property
 	}
 	return nil
+}
+
+// Entity property for group scope selection
+type CustomAccountDefEntry_GroupScopeProperty struct {
+	// The name of the property
+	PropertyName *string `protobuf:"bytes,1,req,name=propertyName" json:"propertyName,omitempty"`
+	// Checks if property is mandatory or optional
+	IsMandatory      *bool  `protobuf:"varint,2,opt,name=isMandatory,def=1" json:"isMandatory,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *CustomAccountDefEntry_GroupScopeProperty) Reset() {
+	*m = CustomAccountDefEntry_GroupScopeProperty{}
+}
+func (m *CustomAccountDefEntry_GroupScopeProperty) String() string { return proto.CompactTextString(m) }
+func (*CustomAccountDefEntry_GroupScopeProperty) ProtoMessage()    {}
+func (*CustomAccountDefEntry_GroupScopeProperty) Descriptor() ([]byte, []int) {
+	return fileDescriptor2, []int{2, 1}
+}
+
+const Default_CustomAccountDefEntry_GroupScopeProperty_IsMandatory bool = true
+
+func (m *CustomAccountDefEntry_GroupScopeProperty) GetPropertyName() string {
+	if m != nil && m.PropertyName != nil {
+		return *m.PropertyName
+	}
+	return ""
+}
+
+func (m *CustomAccountDefEntry_GroupScopeProperty) GetIsMandatory() bool {
+	if m != nil && m.IsMandatory != nil {
+		return *m.IsMandatory
+	}
+	return Default_CustomAccountDefEntry_GroupScopeProperty_IsMandatory
+}
+
+// The AccountDefinitionEntry class defines a single field that is part of the account credentials
+// a user must specify to connect to a target of this probe type. Note that for every probe, the
+// 'TARGET_IDENTIFIER' is a mandatory field.
+//
+// It's the responsibility of your probe to define the credentials it needs to attach to a target. When adding an associated target to
+// Operations Manager via the REST API, the API call includes parameters for each of the credentials defined here.
+// When attaching via the Operations Manager GUI, the credentials defined here appear in the GUI as individual fields.
+// For a given probe, you define the credentials as a Set of AccountDefinitionEntry objects.
+type AccountDefEntry struct {
+	// Type of account definition
+	//
+	// Types that are valid to be assigned to Definition:
+	//	*AccountDefEntry_PredefinedDefinition
+	//	*AccountDefEntry_CustomDefinition
+	Definition isAccountDefEntry_Definition `protobuf_oneof:"definition"`
+	// Whether this field is mandatory (true) or optional (false). Default is mandatory
+	Mandatory *bool `protobuf:"varint,4,opt,name=mandatory,def=1" json:"mandatory,omitempty"`
+	// Default value the probe declares for this field. This can only be set if the field is
+	// optional.
+	DefaultValue     *string `protobuf:"bytes,5,opt,name=defaultValue" json:"defaultValue,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *AccountDefEntry) Reset()                    { *m = AccountDefEntry{} }
+func (m *AccountDefEntry) String() string            { return proto.CompactTextString(m) }
+func (*AccountDefEntry) ProtoMessage()               {}
+func (*AccountDefEntry) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
+
+const Default_AccountDefEntry_Mandatory bool = true
+
+type isAccountDefEntry_Definition interface {
+	isAccountDefEntry_Definition()
+}
+
+type AccountDefEntry_PredefinedDefinition struct {
+	PredefinedDefinition string `protobuf:"bytes,2,opt,name=predefined_definition,oneof"`
+}
+type AccountDefEntry_CustomDefinition struct {
+	CustomDefinition *CustomAccountDefEntry `protobuf:"bytes,3,opt,name=custom_definition,oneof"`
+}
+
+func (*AccountDefEntry_PredefinedDefinition) isAccountDefEntry_Definition() {}
+func (*AccountDefEntry_CustomDefinition) isAccountDefEntry_Definition()     {}
+
+func (m *AccountDefEntry) GetDefinition() isAccountDefEntry_Definition {
+	if m != nil {
+		return m.Definition
+	}
+	return nil
+}
+
+func (m *AccountDefEntry) GetPredefinedDefinition() string {
+	if x, ok := m.GetDefinition().(*AccountDefEntry_PredefinedDefinition); ok {
+		return x.PredefinedDefinition
+	}
+	return ""
+}
+
+func (m *AccountDefEntry) GetCustomDefinition() *CustomAccountDefEntry {
+	if x, ok := m.GetDefinition().(*AccountDefEntry_CustomDefinition); ok {
+		return x.CustomDefinition
+	}
+	return nil
+}
+
+func (m *AccountDefEntry) GetMandatory() bool {
+	if m != nil && m.Mandatory != nil {
+		return *m.Mandatory
+	}
+	return Default_AccountDefEntry_Mandatory
+}
+
+func (m *AccountDefEntry) GetDefaultValue() string {
+	if m != nil && m.DefaultValue != nil {
+		return *m.DefaultValue
+	}
+	return ""
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*AccountDefEntry) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _AccountDefEntry_OneofMarshaler, _AccountDefEntry_OneofUnmarshaler, _AccountDefEntry_OneofSizer, []interface{}{
+		(*AccountDefEntry_PredefinedDefinition)(nil),
+		(*AccountDefEntry_CustomDefinition)(nil),
+	}
+}
+
+func _AccountDefEntry_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*AccountDefEntry)
+	// definition
+	switch x := m.Definition.(type) {
+	case *AccountDefEntry_PredefinedDefinition:
+		b.EncodeVarint(2<<3 | proto.WireBytes)
+		b.EncodeStringBytes(x.PredefinedDefinition)
+	case *AccountDefEntry_CustomDefinition:
+		b.EncodeVarint(3<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.CustomDefinition); err != nil {
+			return err
+		}
+	case nil:
+	default:
+		return fmt.Errorf("AccountDefEntry.Definition has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _AccountDefEntry_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*AccountDefEntry)
+	switch tag {
+	case 2: // definition.predefined_definition
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeStringBytes()
+		m.Definition = &AccountDefEntry_PredefinedDefinition{x}
+		return true, err
+	case 3: // definition.custom_definition
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(CustomAccountDefEntry)
+		err := b.DecodeMessage(msg)
+		m.Definition = &AccountDefEntry_CustomDefinition{msg}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _AccountDefEntry_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*AccountDefEntry)
+	// definition
+	switch x := m.Definition.(type) {
+	case *AccountDefEntry_PredefinedDefinition:
+		n += proto.SizeVarint(2<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(len(x.PredefinedDefinition)))
+		n += len(x.PredefinedDefinition)
+	case *AccountDefEntry_CustomDefinition:
+		s := proto.Size(x.CustomDefinition)
+		n += proto.SizeVarint(3<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
 }
 
 // Error DTO. Represent some errors, occurred during operations inside the Mediation Container.
@@ -336,9 +628,10 @@ type ErrorDTO struct {
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (m *ErrorDTO) Reset()         { *m = ErrorDTO{} }
-func (m *ErrorDTO) String() string { return proto.CompactTextString(m) }
-func (*ErrorDTO) ProtoMessage()    {}
+func (m *ErrorDTO) Reset()                    { *m = ErrorDTO{} }
+func (m *ErrorDTO) String() string            { return proto.CompactTextString(m) }
+func (*ErrorDTO) ProtoMessage()               {}
+func (*ErrorDTO) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
 
 func (m *ErrorDTO) GetSeverity() ErrorDTO_ErrorSeverity {
 	if m != nil && m.Severity != nil {
@@ -368,8 +661,121 @@ func (m *ErrorDTO) GetEntityType() string {
 	return ""
 }
 
+// Custom Metadata DTO.
+// Represents custom data that will used by the Operations Manager server for different features.
+// Example : for injecting metadata for computing custom pricing for certain commodities.
+type CustomMetadataDTO struct {
+	// Namespace of the handler for this DTO in the server to handle the metadata
+	Namespace *CustomTypeDef_MetadataNamespace `protobuf:"varint,1,req,name=namespace,enum=common_dto.CustomTypeDef_MetadataNamespace" json:"namespace,omitempty"`
+	// Key in the namespace for the data
+	Key *string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty"`
+	// Type of data
+	DataType *CustomMetadataDTO_Type `protobuf:"varint,3,req,name=dataType,enum=common_dto.CustomMetadataDTO_Type" json:"dataType,omitempty"`
+	// Serializable Data
+	Payload          *string `protobuf:"bytes,4,req,name=payload" json:"payload,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *CustomMetadataDTO) Reset()                    { *m = CustomMetadataDTO{} }
+func (m *CustomMetadataDTO) String() string            { return proto.CompactTextString(m) }
+func (*CustomMetadataDTO) ProtoMessage()               {}
+func (*CustomMetadataDTO) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
+
+func (m *CustomMetadataDTO) GetNamespace() CustomTypeDef_MetadataNamespace {
+	if m != nil && m.Namespace != nil {
+		return *m.Namespace
+	}
+	return CustomTypeDef_UNKNOWN
+}
+
+func (m *CustomMetadataDTO) GetKey() string {
+	if m != nil && m.Key != nil {
+		return *m.Key
+	}
+	return ""
+}
+
+func (m *CustomMetadataDTO) GetDataType() CustomMetadataDTO_Type {
+	if m != nil && m.DataType != nil {
+		return *m.DataType
+	}
+	return CustomMetadataDTO_JSON
+}
+
+func (m *CustomMetadataDTO) GetPayload() string {
+	if m != nil && m.Payload != nil {
+		return *m.Payload
+	}
+	return ""
+}
+
 func init() {
-	proto.RegisterEnum("common_dto.AccountDefEntry_AccountDefEntryType", AccountDefEntry_AccountDefEntryType_name, AccountDefEntry_AccountDefEntryType_value)
-	proto.RegisterEnum("common_dto.AccountDefEntry_AccountDefEntryFieldType", AccountDefEntry_AccountDefEntryFieldType_name, AccountDefEntry_AccountDefEntryFieldType_value)
+	proto.RegisterType((*ValidationResponse)(nil), "common_dto.ValidationResponse")
+	proto.RegisterType((*DiscoveryResponse)(nil), "common_dto.DiscoveryResponse")
+	proto.RegisterType((*CustomAccountDefEntry)(nil), "common_dto.CustomAccountDefEntry")
+	proto.RegisterType((*CustomAccountDefEntry_GroupScopePropertySet)(nil), "common_dto.CustomAccountDefEntry.GroupScopePropertySet")
+	proto.RegisterType((*CustomAccountDefEntry_GroupScopeProperty)(nil), "common_dto.CustomAccountDefEntry.GroupScopeProperty")
+	proto.RegisterType((*AccountDefEntry)(nil), "common_dto.AccountDefEntry")
+	proto.RegisterType((*ErrorDTO)(nil), "common_dto.ErrorDTO")
+	proto.RegisterType((*CustomMetadataDTO)(nil), "common_dto.CustomMetadataDTO")
+	proto.RegisterEnum("common_dto.CustomAccountDefEntry_PrimitiveValue", CustomAccountDefEntry_PrimitiveValue_name, CustomAccountDefEntry_PrimitiveValue_value)
 	proto.RegisterEnum("common_dto.ErrorDTO_ErrorSeverity", ErrorDTO_ErrorSeverity_name, ErrorDTO_ErrorSeverity_value)
+	proto.RegisterEnum("common_dto.CustomMetadataDTO_Type", CustomMetadataDTO_Type_name, CustomMetadataDTO_Type_value)
+}
+
+func init() { proto.RegisterFile("Discovery.proto", fileDescriptor2) }
+
+var fileDescriptor2 = []byte{
+	// 807 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x9c, 0x54, 0xdd, 0x6e, 0xe3, 0x44,
+	0x14, 0x8e, 0x13, 0xb7, 0x89, 0x8f, 0xb3, 0x4d, 0x32, 0x6c, 0xb5, 0xde, 0xc2, 0x6a, 0x83, 0x2f,
+	0x50, 0xb4, 0x80, 0x05, 0xa5, 0x02, 0x69, 0x41, 0x2b, 0x35, 0x3f, 0x6c, 0x0b, 0xad, 0x53, 0x25,
+	0xd9, 0x85, 0xbb, 0x6a, 0xb0, 0x8f, 0x57, 0x23, 0x6c, 0x8f, 0x35, 0x9e, 0x44, 0xf8, 0x41, 0x78,
+	0x08, 0xae, 0x78, 0x07, 0xae, 0x78, 0x19, 0xde, 0x01, 0xcd, 0xc4, 0xf9, 0x69, 0xbd, 0x52, 0x05,
+	0x57, 0x71, 0xce, 0x39, 0xdf, 0xf9, 0xf9, 0xce, 0x77, 0x06, 0x3a, 0x63, 0x96, 0x07, 0x7c, 0x85,
+	0xa2, 0xf0, 0x32, 0xc1, 0x25, 0x27, 0x10, 0xf0, 0x24, 0xe1, 0xe9, 0x6d, 0x28, 0xf9, 0x49, 0x67,
+	0xa4, 0xbf, 0xc7, 0x8b, 0xe9, 0xda, 0x79, 0xd2, 0xbd, 0x11, 0x3c, 0x62, 0x31, 0x6e, 0x2d, 0xee,
+	0x77, 0x40, 0xde, 0xd2, 0x98, 0x85, 0x54, 0x32, 0x9e, 0xce, 0x30, 0xcf, 0x78, 0x9a, 0x23, 0xf9,
+	0x04, 0x5a, 0x28, 0x04, 0x17, 0xe3, 0xc5, 0xd4, 0x31, 0xfa, 0x8d, 0x81, 0x7d, 0xfa, 0xd8, 0xdb,
+	0xe5, 0xf5, 0x26, 0xa5, 0xcf, 0xfd, 0xa7, 0x0e, 0xbd, 0x6d, 0x03, 0xff, 0x15, 0x4d, 0x06, 0x60,
+	0x61, 0x2a, 0x99, 0x2c, 0x54, 0x60, 0x5d, 0x07, 0x1e, 0xdf, 0x09, 0xdc, 0x38, 0xc9, 0xe7, 0xd0,
+	0x09, 0xcb, 0x32, 0x18, 0xbe, 0x16, 0x7c, 0x99, 0x39, 0x8d, 0x6a, 0x62, 0xed, 0x50, 0xe1, 0x5f,
+	0xc1, 0xa3, 0x75, 0xe2, 0x72, 0x5c, 0xc7, 0xd4, 0xc1, 0x1f, 0x55, 0x93, 0xef, 0xf8, 0x20, 0xdf,
+	0x42, 0x2f, 0xc4, 0x2c, 0xe6, 0x45, 0x82, 0xa9, 0xdc, 0x00, 0x0f, 0x34, 0xb0, 0xbf, 0x0f, 0x1c,
+	0xdf, 0x0f, 0x52, 0xe0, 0x2f, 0xa1, 0x9d, 0x72, 0xc9, 0x22, 0x16, 0x68, 0x22, 0x9d, 0x43, 0x8d,
+	0xfb, 0x70, 0x1f, 0xe7, 0xef, 0xf9, 0x15, 0xe4, 0x14, 0xec, 0x04, 0x25, 0x0d, 0xa9, 0xa4, 0x6a,
+	0xfe, 0xa6, 0x46, 0x3c, 0xdb, 0x47, 0x8c, 0x96, 0xb9, 0xe4, 0xc9, 0xf5, 0x2e, 0xc8, 0xfd, 0xdb,
+	0x84, 0xe3, 0xb5, 0xf5, 0x3c, 0x08, 0xf8, 0x32, 0x95, 0x63, 0x8c, 0x26, 0xa9, 0x14, 0x05, 0x69,
+	0x83, 0x99, 0xd2, 0x04, 0x1d, 0xa3, 0x5f, 0x1f, 0x58, 0xe4, 0x03, 0xb0, 0x43, 0x96, 0x67, 0x31,
+	0x2d, 0x7c, 0x65, 0xac, 0x6f, 0x8d, 0x98, 0x07, 0x82, 0x65, 0xba, 0xc5, 0x86, 0x36, 0x3e, 0x83,
+	0xde, 0x0a, 0xc5, 0xb6, 0xb1, 0x19, 0xbe, 0xc3, 0xdf, 0x1c, 0xb3, 0x6f, 0x0c, 0xac, 0x97, 0x75,
+	0xef, 0x05, 0x79, 0x02, 0x2d, 0x96, 0xcf, 0x31, 0x10, 0x28, 0x9d, 0x83, 0xbe, 0x31, 0x68, 0xbd,
+	0x3c, 0x88, 0x68, 0x9c, 0x23, 0xf9, 0x11, 0x3a, 0x99, 0x60, 0x09, 0x93, 0x6c, 0x85, 0xb7, 0x2b,
+	0x1a, 0x2f, 0xd1, 0x39, 0xec, 0x1b, 0x83, 0xa3, 0xd3, 0x2f, 0xaa, 0x13, 0xdc, 0xeb, 0xd5, 0xbb,
+	0xd9, 0x00, 0xdf, 0x2a, 0xdc, 0x45, 0x8d, 0xf8, 0x60, 0xbf, 0x53, 0xbb, 0xbb, 0xcd, 0x03, 0x9e,
+	0xa1, 0xd3, 0xec, 0x1b, 0x03, 0xfb, 0xf4, 0x9b, 0x87, 0x13, 0xe9, 0x85, 0xcf, 0x15, 0xe6, 0x46,
+	0xf0, 0x0c, 0x85, 0x2c, 0xe6, 0x28, 0x2f, 0x6a, 0x27, 0xbf, 0x1b, 0x70, 0xfc, 0x5e, 0x1f, 0x39,
+	0x03, 0x58, 0x2b, 0x63, 0x51, 0x64, 0x6b, 0xb2, 0x8e, 0xee, 0x6e, 0x77, 0xab, 0xb9, 0xf2, 0x4b,
+	0xc5, 0x91, 0xef, 0xa1, 0x95, 0x95, 0x49, 0x4a, 0x9d, 0x9e, 0xfd, 0x9f, 0xe6, 0x4e, 0x26, 0x40,
+	0xaa, 0x56, 0xf2, 0x18, 0xda, 0x9b, 0xec, 0xfe, 0x6e, 0x85, 0x4f, 0xc1, 0x66, 0xf9, 0x35, 0x4d,
+	0x43, 0x2a, 0xb9, 0x50, 0x65, 0x15, 0xf9, 0xa6, 0x14, 0x4b, 0x74, 0xbf, 0x86, 0xa3, 0xbb, 0x14,
+	0x12, 0x80, 0xc3, 0xf9, 0x62, 0x76, 0xe9, 0xbf, 0xee, 0x1a, 0xc4, 0x86, 0xa6, 0xff, 0xe6, 0x7a,
+	0x32, 0xbb, 0x1c, 0x75, 0xeb, 0xea, 0xcf, 0x70, 0x3a, 0xbd, 0x9a, 0x9c, 0xfb, 0xdd, 0xc6, 0xd0,
+	0x06, 0x2b, 0x62, 0x18, 0x87, 0x6a, 0x26, 0xf7, 0x4f, 0x03, 0x3a, 0xf7, 0x45, 0xf4, 0x1c, 0x8e,
+	0x33, 0x81, 0x21, 0x46, 0x2c, 0xc5, 0xf0, 0x56, 0xff, 0x32, 0xad, 0x15, 0x55, 0xdd, 0xba, 0xa8,
+	0x91, 0x57, 0xd0, 0x0b, 0xf4, 0xb0, 0xfb, 0xce, 0x86, 0x5e, 0xd7, 0xc7, 0x0f, 0x32, 0x72, 0x51,
+	0x23, 0x4f, 0xc0, 0x4a, 0xb6, 0x23, 0x99, 0xbb, 0x91, 0x14, 0x07, 0x21, 0x46, 0x74, 0x19, 0x4b,
+	0x3d, 0x90, 0xd6, 0x9a, 0x35, 0x6c, 0x03, 0xec, 0xea, 0xb8, 0x7f, 0x18, 0xd0, 0xda, 0xbe, 0x1d,
+	0x67, 0xd0, 0xca, 0x51, 0x29, 0x57, 0x16, 0xe5, 0x1a, 0xdd, 0xf7, 0xbd, 0x31, 0xeb, 0x8f, 0x79,
+	0x19, 0x79, 0xff, 0x04, 0xd6, 0x77, 0x41, 0x36, 0x9a, 0x78, 0xb3, 0x64, 0xa1, 0x9e, 0x66, 0xcf,
+	0xa6, 0x75, 0xa2, 0xef, 0xc1, 0x7d, 0x01, 0x8f, 0xee, 0x66, 0x6b, 0x43, 0x6b, 0x34, 0xbb, 0x5c,
+	0x5c, 0x8e, 0xce, 0xaf, 0xba, 0x35, 0x45, 0xf5, 0x4f, 0xe7, 0x33, 0x5f, 0x2f, 0xc1, 0xfd, 0xcb,
+	0x80, 0x5e, 0xe5, 0x7c, 0xc9, 0x2b, 0xb0, 0xd4, 0x91, 0xe6, 0x19, 0x0d, 0x36, 0xe2, 0xfb, 0xb4,
+	0x4a, 0x9b, 0x2a, 0x39, 0xc6, 0xc8, 0xdb, 0x20, 0xfd, 0x0d, 0x84, 0xd8, 0xd0, 0xf8, 0x15, 0xd7,
+	0x5a, 0xb0, 0x14, 0x03, 0xca, 0xab, 0x1b, 0x6c, 0x54, 0x19, 0xa8, 0x54, 0xf7, 0xb4, 0x94, 0x3b,
+	0xd0, 0xcc, 0x68, 0x11, 0x73, 0x1a, 0x3a, 0xa6, 0x9a, 0xde, 0x7d, 0x0a, 0xa6, 0x76, 0xb4, 0xc0,
+	0xfc, 0x61, 0x3e, 0xf5, 0xbb, 0x35, 0xd2, 0x84, 0xc6, 0xcf, 0xd7, 0x57, 0x5d, 0x63, 0xf8, 0x19,
+	0x3c, 0x0f, 0x78, 0xe2, 0xad, 0x12, 0xb9, 0x14, 0xbf, 0x70, 0x2f, 0x8b, 0xa9, 0x8c, 0xb8, 0x48,
+	0xca, 0x2a, 0x5e, 0x28, 0xf9, 0xd0, 0xda, 0xbe, 0xfe, 0xff, 0x06, 0x00, 0x00, 0xff, 0xff, 0xcf,
+	0x18, 0x5e, 0x84, 0x8a, 0x06, 0x00, 0x00,
 }
