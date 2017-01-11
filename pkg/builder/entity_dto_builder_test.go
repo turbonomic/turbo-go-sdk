@@ -171,11 +171,11 @@ func TestEntityDTOBuilder_SellsCommodities(t *testing.T) {
 func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 	table := []struct {
 		commDTO *proto.CommodityDTO
-		err      error
+		err     error
 	}{
 		{
 			commDTO: rand.RandomCommodityDTOSold(),
-			err: nil,
+			err:     nil,
 		},
 		{
 			err: fmt.Errorf("Fake error"),
@@ -202,6 +202,39 @@ func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 		}
 	}
 }
+
+func TestEntityDTOBuilder_WithPowerState(t *testing.T) {
+	table := []struct {
+		powerState  proto.EntityDTO_PowerState
+		existingErr error
+	}{
+		{
+			powerState:  rand.RandomPowerState(),
+			existingErr: fmt.Errorf("Error"),
+		},
+		{
+			powerState: rand.RandomPowerState(),
+		},
+	}
+	for _, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		expectedBuilder := &EntityDTOBuilder{
+			entityType: base.entityType,
+			id:         base.id,
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			expectedBuilder.powerState = &item.powerState
+		}
+		builder := base.WithPowerState(item.powerState)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+		}
+	}
+}
+
 // Create a random EntityDTOBuilder.
 func randomBaseEntityDTOBuilder() *EntityDTOBuilder {
 	return NewEntityDTOBuilder(rand.RandomEntityType(), rand.String(5))
