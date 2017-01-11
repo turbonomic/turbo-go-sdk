@@ -6,7 +6,7 @@ go:
 
 go_import_path: github.com/turbonomic/turbo-go-sdk
 
-before_install:
-  - go get github.com/mattn/goveralls
-script:
-  - $HOME/gopath/bin/goveralls -service=travis-ci
+#before_install:
+#  - go get github.com/mattn/goveralls
+#script:
+#  - $HOME/gopath/bin/goveralls -service=travis-ci
