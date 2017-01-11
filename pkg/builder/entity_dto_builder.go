@@ -52,7 +52,8 @@ type EntityDTOBuilder struct {
 	physicalMachineRelatedData   *proto.EntityDTO_PhysicalMachineRelatedData
 	storageControllerRelatedData *proto.EntityDTO_StorageControllerRelatedData
 
-	currentProvider *ProviderDTO
+	currentProvider  *ProviderDTO
+	entityDataHasSet bool
 
 	err error
 }
@@ -141,11 +142,11 @@ func (eb *EntityDTOBuilder) SellsCommodity(commDTO *proto.CommodityDTO) *EntityD
 }
 
 // Set the current provider with provided entity type and ID.
-func (eb *EntityDTOBuilder) Provider(pType proto.EntityDTO_EntityType, id string) *EntityDTOBuilder {
+func (eb *EntityDTOBuilder) Provider(provider *ProviderDTO) *EntityDTOBuilder {
 	if eb.err != nil {
 		return eb
 	}
-	eb.currentProvider = CreateProvider(pType, id)
+	eb.currentProvider = provider
 	return eb
 }
 
@@ -236,6 +237,28 @@ func (eb *EntityDTOBuilder) WithPowerState(state proto.EntityDTO_PowerState) *En
 		return eb
 	}
 	eb.powerState = &state
+	return eb
+}
+
+func (eb *EntityDTOBuilder) Monitored(monitored bool) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	eb.monitored = &monitored
+	return eb
+}
+
+func (eb *EntityDTOBuilder) ApplicationData(appData *proto.EntityDTO_ApplicationData) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	if eb.entityDataHasSet {
+		eb.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", appData)
+
+		return eb
+	}
+	eb.applicationData = appData
+	eb.entityDataHasSet = true
 	return eb
 }
 

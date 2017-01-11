@@ -132,6 +132,7 @@ func TestCommodityDTOBuilder_Capacity(t *testing.T) {
 	}{
 		{
 			existingErr: fmt.Errorf("Fake"),
+			capacity:    mathrand.Float64(),
 		},
 		{
 			capacity: mathrand.Float64(),
@@ -152,6 +153,40 @@ func TestCommodityDTOBuilder_Capacity(t *testing.T) {
 			err:           item.existingErr,
 		}
 		builder := base.Capacity(item.capacity)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+		}
+	}
+}
+
+func TestCommodityDTOBuilder_Resizable(t *testing.T) {
+	table := []struct {
+		resizable   bool
+		existingErr error
+	}{
+		{
+			existingErr: fmt.Errorf("Fake"),
+			resizable:   mathrand.Int31n(2) == 1,
+		},
+		{
+			resizable: mathrand.Int31n(2) == 1,
+		},
+	}
+
+	for _, item := range table {
+		base := randomBaseCommodityDTOBuilder()
+		var resizable *bool
+		if item.existingErr != nil {
+			base.err = item.existingErr
+		} else {
+			resizable = &item.resizable
+		}
+		expectedBuilder := &CommodityDTOBuilder{
+			commodityType: base.commodityType,
+			resizable:     resizable,
+			err:           item.existingErr,
+		}
+		builder := base.Resizable(item.resizable)
 		if !reflect.DeepEqual(builder, expectedBuilder) {
 			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
 		}
