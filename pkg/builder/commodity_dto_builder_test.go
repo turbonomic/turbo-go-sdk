@@ -17,7 +17,7 @@ func TestNewCommodityDTOBuilder(t *testing.T) {
 	}
 	builder := NewCommodityDTOBuilder(commodityType)
 	if !reflect.DeepEqual(expectedBuilder, builder) {
-		t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+		t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
 	}
 }
 
