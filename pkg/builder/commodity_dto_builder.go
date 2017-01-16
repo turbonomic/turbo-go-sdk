@@ -99,6 +99,14 @@ func (cb *CommodityDTOBuilder) Used(used float64) *CommodityDTOBuilder {
 	return cb
 }
 
+func (cb *CommodityDTOBuilder) Resizable(resizable bool) *CommodityDTOBuilder {
+	if cb.err != nil {
+		return cb
+	}
+	cb.resizable = &resizable
+	return cb
+}
+
 func buildPropertyMap(propMap map[string][]string) []*proto.CommodityDTO_PropertiesList {
 	if propMap == nil {
 		return nil

@@ -2,6 +2,7 @@ package builder
 
 import (
 	"fmt"
+	mathrand "math/rand"
 	"reflect"
 	"testing"
 
@@ -231,6 +232,85 @@ func TestEntityDTOBuilder_WithPowerState(t *testing.T) {
 		builder := base.WithPowerState(item.powerState)
 		if !reflect.DeepEqual(builder, expectedBuilder) {
 			t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+		}
+	}
+}
+
+func TestEntityDTOBuilder_Monitored(t *testing.T) {
+	table := []struct {
+		monitored   bool
+		existingErr error
+	}{
+		{
+			monitored:   mathrand.Int31n(2) == 1,
+			existingErr: fmt.Errorf("Error"),
+		},
+		{
+			monitored: mathrand.Int31n(2) == 1,
+		},
+	}
+	for _, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		expectedBuilder := &EntityDTOBuilder{
+			entityType: base.entityType,
+			id:         base.id,
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			expectedBuilder.monitored = &item.monitored
+		}
+		builder := base.Monitored(item.monitored)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+		}
+	}
+}
+
+func TestEntityDTOBuilder_ApplicationData(t *testing.T) {
+	table := []struct {
+		appData *proto.EntityDTO_ApplicationData
+
+		entityDataHasSetFlag bool
+		existingErr          error
+	}{
+		{
+			appData:     rand.RandomApplicationData(),
+			existingErr: fmt.Errorf("Error"),
+		},
+		{
+			appData:              rand.RandomApplicationData(),
+			entityDataHasSetFlag: false,
+		},
+		{
+			appData:              rand.RandomApplicationData(),
+			entityDataHasSetFlag: true,
+		},
+	}
+	for _, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		base.entityDataHasSet = item.entityDataHasSetFlag
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:       base.entityType,
+			id:               base.id,
+			entityDataHasSet: base.entityDataHasSet,
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			if item.entityDataHasSetFlag {
+				expectedBuilder.err =  fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.appData)
+
+			} else {
+				expectedBuilder.applicationData = item.appData
+				expectedBuilder.entityDataHasSet = true
+			}
+		}
+		builder := base.ApplicationData(item.appData)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
 		}
 	}
 }

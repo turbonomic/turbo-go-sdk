@@ -2,10 +2,9 @@ package rand
 
 import (
 	"math/rand"
+	mathrand "math/rand"
 	"sync"
 	"time"
-	mathrand "math/rand"
-
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"math"
@@ -107,7 +106,6 @@ func RandomExternalEntityLink_ServerEntityPropDef() *proto.ExternalEntityLink_Se
 	}
 }
 
-
 func RandomTemplateCommodity() *proto.TemplateCommodity {
 	// a random commodity type.
 	cType := RandomCommodityType()
@@ -134,4 +132,13 @@ func RandomProvider() *proto.Provider {
 
 func RandomProviderConsumerRelationship() proto.Provider_ProviderType {
 	return proto.Provider_ProviderType(mathrand.Int31n(2))
+}
+
+func RandomApplicationData() *proto.EntityDTO_ApplicationData {
+	t := String(10)
+	i := String(10)
+	return &proto.EntityDTO_ApplicationData{
+		Type:      &t,
+		IpAddress: &i,
+	}
 }
