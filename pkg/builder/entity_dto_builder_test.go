@@ -197,7 +197,7 @@ func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 			commoditiesSold: comms,
 			err:             item.err,
 		}
-		if !reflect.DeepEqual(expectedBuilder, builder) {
+		if reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected:\n %++v, \ngot\n %++v", expectedBuilder, builder)
 		}
 	}
