@@ -2,25 +2,18 @@ package probe
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
-	"encoding/json"
-
-	"github.com/golang/glog"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
+// Turbo Probe Abstraction
+// Consists of clients that handle probe registration and discovery for different probe targets
 type TurboProbe struct {
-	RegistrationClient  	TurboRegistrationClient
-	ActionExecutor 		IActionExecutor
 	ProbeType		string
 	ProbeCategory		string
+	RegistrationClient  	TurboRegistrationClient
 	DiscoveryClientMap 	map[string]TurboDiscoveryClient
-	TurboAPIClient		*TurboAPIHandler
-
-	// TODO: state with respect to the server
-	IsRegistered		chan bool
+	ActionExecutor 		IActionExecutor		//TODO:
 }
 
 type TurboRegistrationClient interface {
@@ -41,59 +34,39 @@ type ProbeConfig struct {
 	ProbeCategory	string
 }
 
-func NewTurboProbe(probeConf *ProbeConfig) *TurboProbe {
-	fmt.Println("[TurboProbe] : ", probeConf)
-	// load the probe config
-	//config := parseProbeConfig(configFile)
-
-	myProbe := &TurboProbe{
-		ProbeType: probeConf.ProbeType,
-		ProbeCategory: probeConf.ProbeCategory,
-		DiscoveryClientMap: make(map[string]TurboDiscoveryClient),
-		IsRegistered: make(chan bool, 1),	// buffered channel so the send does not block
-	}
-
-	fmt.Printf("[TurboProbe] : Created TurboProbe %s\n", myProbe)
-	// Read config file to get the probe category and client
-	return myProbe
-}
-
-func parseProbeConfig(configFile string) *ProbeConfig {
-	// load the config
-	probeConfig := readProbeConfig(configFile)
-	fmt.Println("ProbeCategory : " + string(probeConfig.ProbeCategory))
-	fmt.Println("ProbeType : " + probeConfig.ProbeType)
-
-	// validate the config
-	probeConfig.validate()
-	return probeConfig
-}
-
-// TODO:
 func (probeConfig *ProbeConfig) validate() bool {
-	return false
-}
-
-func readProbeConfig(path string) *ProbeConfig {
-	file, e := ioutil.ReadFile(path)
-	if e != nil {
-		glog.Errorf("File error: %v\n", e)
-		os.Exit(1)
+	// Validate probe type and category
+	if &probeConfig.ProbeType == nil {
+		fmt.Println("[ProbeConfig] Null Probe type")	//TODO: throw exception
+		return false
 	}
-	//fmt.Println(string(file))
-	var config ProbeConfig
 
-	json.Unmarshal(file, &config)
-
-	glog.V(4).Infof("Results: %+v\n", config)
-	return &config
+	if &probeConfig.ProbeCategory == nil {
+		fmt.Println("[ProbeConfig] Null probe category")	//TODO: throw exception
+		return false
+	}
+	return true
 }
 
 // ==============================================================================================================
 
-func (theProbe *TurboProbe) SetTurboAPIHandler(turboApiClient *TurboAPIHandler) {
-	theProbe.TurboAPIClient = turboApiClient
+func NewTurboProbe(probeConf *ProbeConfig) *TurboProbe {
+	fmt.Println("[TurboProbe] : ", probeConf)
+	if !probeConf.validate() {
+		fmt.Println("[NewTurboProbe] Errors creating new TurboProbe")	//TODO: throw exception
+		return nil
+	}
+	myProbe := &TurboProbe{
+		ProbeType: probeConf.ProbeType,
+		ProbeCategory: probeConf.ProbeCategory,
+		DiscoveryClientMap: make(map[string]TurboDiscoveryClient),
+		//IsRegistered: make(chan bool, 1),	// buffered channel so the send does not block
+	}
+
+	fmt.Printf("[TurboProbe] : Created TurboProbe %s\n", myProbe)
+	return myProbe
 }
+
 
 func (theProbe *TurboProbe) SetProbeRegistrationClient(registrationClient TurboRegistrationClient) {
 	theProbe.RegistrationClient = registrationClient
@@ -149,20 +122,20 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues[] *proto.AccountValue) 
 	fmt.Println("[TurboProbe] Error validating target ", accountValues)
 	return nil
 }
-
-func (theProbe *TurboProbe) AddTargets()  {
-	isRegistered := <- theProbe.IsRegistered
-	if !isRegistered {
-		fmt.Println("[TurboProbe] Probe " + theProbe.ProbeCategory + "::" + theProbe.ProbeType + " should be registered before adding Targets")
-		return
-	}
-	fmt.Println("[TurboProbe] Probe " + theProbe.ProbeCategory + "::" + theProbe.ProbeType + " Registered : ============ Add Targets ========")
-	var targets []*TurboTarget
-	targets = theProbe.GetProbeTargets()
-	for _, targetInfo := range targets {
-		theProbe.TurboAPIClient.AddTarget(targetInfo)
-	}
-}
+//
+//func (theProbe *TurboProbe) AddTargets()  {
+//	isRegistered := <- theProbe.IsRegistered
+//	if !isRegistered {
+//		fmt.Println("[TurboProbe] Probe " + theProbe.ProbeCategory + "::" + theProbe.ProbeType + " should be registered before adding Targets")
+//		return
+//	}
+//	fmt.Println("[TurboProbe] Probe " + theProbe.ProbeCategory + "::" + theProbe.ProbeType + " Registered : ============ Add Targets ========")
+//	var targets []*TurboTarget
+//	targets = theProbe.GetProbeTargets()
+//	for _, targetInfo := range targets {
+//		theProbe.TurboAPIClient.AddTarget(targetInfo)
+//	}
+//}
 
 
 // ==============================================================================================================

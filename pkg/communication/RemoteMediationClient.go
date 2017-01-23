@@ -20,10 +20,6 @@ type RemoteMediationClient struct {
 	MessageHandlers   map[string]RequestHandler
 	// Channel for receiving probe responses
 	probeResponseChan chan *proto.MediationClientMessage
-
-	// Channel for receiving probe rest api request
-	probeRequestChan  chan string
-
 }
 
 // TODO: make singleton instance
@@ -34,10 +30,9 @@ func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
 		allProbes: allProbes,
 		containerConfig:  containerConfig,
 		probeResponseChan: make(chan *proto.MediationClientMessage),
-		probeRequestChan: make(chan string),
 	}
 
-	fmt.Printf("[RemoteMediationClient] Created channel %s\n", remoteMediationClient.probeResponseChan)
+	fmt.Printf("[RemoteMediationClient] Created probe Response channel %s\n", remoteMediationClient.probeResponseChan)
 
 	// Create message handlers
 	remoteMediationClient.createMessageHandlers(remoteMediationClient.probeResponseChan)
@@ -46,11 +41,13 @@ func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
 
 	return remoteMediationClient
 }
+
+
 // Establish connection with the Turbo server
 // - First register probes and targets
 // - Then wait for server messages
 //
-func (remoteMediationClient *RemoteMediationClient) Init() {
+func (remoteMediationClient *RemoteMediationClient) Init(probeRegisteredMsg chan bool) {
 	// Assert that the probes are registered before starting the handshake ??
 
 	//// --------- Create Websocket Transport
@@ -62,9 +59,8 @@ func (remoteMediationClient *RemoteMediationClient) Init() {
 		RequestURI: remoteMediationClient.containerConfig.ApplicationBase,
 	}
 
-	//remoteMediationClient.transport = CreateWebSocketCommunicator(connConfig)
-
 	remoteMediationClient.transport = CreateClientWebsocketTransport(connConfig)
+	// TODO: handle websocket creation errors
 
 	// -------- Start protocol handler separate thread
 	// Initiate protocol to connect to server
@@ -78,25 +74,18 @@ func (remoteMediationClient *RemoteMediationClient) Init() {
 	status := <-done
 
 	fmt.Println("[RemoteMediationClient] END CLIENT PROTOCOL, Received DONE = " , status)
+	// Send registration status to the upper layer
+	probeRegisteredMsg <- status
 
 	// --------- Listen for server messages
-	// Once all the probes are registered
-	// Mark all the probes as registered and signal them to add their targets
-	for _,v := range remoteMediationClient.allProbes {
-		turboProbe := v.Probe
-		turboProbe.IsRegistered <- true
-		turboProbe.AddTargets()
-	}
 	remoteMediationClient.handleServerMessages(remoteMediationClient.transport)
-
-	// ---------- Listen for client requests
-	//remoteMediationClient.handleClientMessages()	// TODO:
 }
 
 func (remoteMediationClient *RemoteMediationClient) Stop() {
 	remoteMediationClient.transport.CloseTransportPoint()
 	// TODO: stop the go routines for message handling and response callback
 }
+
 // ======================== Listen for server messages ===================
 // Performs registration, version negotiation , then notifies that the client protobuf endpoint is ready to be created
 
@@ -378,32 +367,3 @@ func (valReqHandler *ValidationRequestHandler) HandleMessage(serverRequest *prot
 	fmt.Println("[ValidationRequestHandler] sent validation response ", clientMsg.GetMessageID())
 }
 
-
-// ======================== Listen for probe/client messages ===================
-//
-//func (remoteMediationClient *RemoteMediationClient) handleClientMessages() {
-//	// Create Protobuf Endpoint to handle server messages
-//	// Spawn a new go routine that serves as a Callback for Probes when their response is ready
-//	fmt.Println("[RemoteMediationClient] Start Client Callback")
-//
-//	// main loop for listening to server message.
-//	for {
-//		// Wait for the client requests that need to be sent to the server
-//		fmt.Println("[RemoteMediationClient] : Waiting for client messages .....")
-//		serverMsg, ok := <-remoteMediationClient.probeRequestChan        // block till a message appears on the client request channel
-//		if !ok {
-//			fmt.Println(" client request channel is closed")
-//			return
-//		}
-//		fmt.Printf("[RemoteMediationClient] : Received: %s\n", serverMsg)
-//
-//		// TODO: send RestAPI Request
-//	}
-//}
-//
-//// TODO:
-//// Send target request and wait for response and validate response
-//func (remoteMediationClient *RemoteMediationClient) RegisterTarget(probeType string, probe *probe.TargetInfo) {
-//	var targetRequest string
-//	remoteMediationClient.probeRequestChan <- targetRequest
-//}

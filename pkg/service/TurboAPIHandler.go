@@ -6,30 +6,45 @@ import (
 
 	"github.com/golang/glog"
 
-	api "github.com/turbonomic/turbo-go-sdk/pkg/vmtapi"
+	"github.com/turbonomic/turbo-go-sdk/pkg/vmtapi"
+	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
 )
+
+
 type TurboAPIConfig struct {
-	VmtServerAddress	string
-	VmtUser			string
-	VmtPassword 		string
+	VmtRestServerAddress string
+	VmtRestUser          string
+	VmtRestPassword      string
 }
+
+// TODO:
+func (apiConfig *TurboAPIConfig) ValidateTurboAPIConfig() bool {
+	fmt.Println("========== Turbo Rest API Config =============")
+	fmt.Println("VmtServerAddress : " + string(apiConfig.VmtRestServerAddress))
+	fmt.Println("VmtUsername : " + apiConfig.VmtRestUser)
+	fmt.Println("VmtPassword : " + apiConfig.VmtRestPassword)
+	return true
+}
+
+// =====================================================================================================================
 
 type TurboAPIHandler struct {
 
-	TurboAPIClient	*api.VmtApi
+	TurboAPIClient	*vmtapi.VmtApi
  	// map of specific handlers
 }
 
 func NewTurboAPIHandler(conf *TurboAPIConfig) *TurboAPIHandler {
+	fmt.Println("---------- Created TurboAPIHandler ----------")
 	handler := &TurboAPIHandler{}
 
-	apiClient := api.NewVmtApi(conf.VmtServerAddress, conf.VmtUser, conf.VmtPassword)
+	apiClient := vmtapi.NewVmtApi(conf.VmtRestServerAddress, conf.VmtRestUser, conf.VmtRestPassword)
 	handler.TurboAPIClient = apiClient
 	return handler
 }
 
 // Use the vmt restAPI to add a Turbo target.
-func (handler *TurboAPIHandler) AddTarget(target *TurboTarget) error {
+func (handler *TurboAPIHandler) AddTarget(target *probe.TurboTarget) error {
 	// TODO: Check if the Target already exists in the server ?
 	targetType := target.GetTargetType()
 	targetIdentifier := target.GetTargetId()
@@ -80,7 +95,7 @@ func (handler *TurboAPIHandler) AddTarget(target *TurboTarget) error {
 }
 
 // Send an API request to make server start a discovery process on current Mesos
-func (handler *TurboAPIHandler) DiscoverTarget(target *TurboTarget) error {
+func (handler *TurboAPIHandler) DiscoverTarget(target *probe.TurboTarget) error {
 
 	// Discover Mesos target.
 	glog.V(3).Info("Calling VMTurbo REST API to initiate a new discovery.")

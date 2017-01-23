@@ -136,22 +136,9 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 	registrationResponse := protoMsg.RegistrationMsg
 	if registrationResponse == nil {
 		fmt.Println("[SdkClientProtocol] Probe registration failed, null ack")
-		//// Mark all the probes as NOT registered
-		//for _,v := range clientProtocol.allProbes {
-		//	turboProbe := v.Probe
-		//	turboProbe.IsRegistered <- false
-		//}
 		return false
 	}
 	endpoint.CloseEndpoint()
-
-	//// Once all the probes are registered
-	//// Mark all the probes as registered and signal them to add their targets
-	//for _,v := range clientProtocol.allProbes {
-	//	turboProbe := v.Probe
-	//	turboProbe.IsRegistered <- true
-	//	turboProbe.AddTargets()
-	//}
 
 	return true
 }
@@ -195,7 +182,7 @@ func buildProbeInfo(probeProps *ProbeProperties) (*proto.ProbeInfo, error) {
 	templateDtos = turboProbe.RegistrationClient.GetSupplyChainDefinition()
 
 	// 3. construct the example probe info.
-	probeConfig := probeProps.ProbeConfig
+	probeConfig := probeProps.ProbeSignature
 	probeCat := probeConfig.ProbeCategory	//"Container"
 	probeType := probeConfig.ProbeType
 	probeInfo := probe.NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
