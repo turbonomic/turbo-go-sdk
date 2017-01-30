@@ -7,7 +7,6 @@ import (
 
 	proto "github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	version "github.com/turbonomic/turbo-go-sdk/pkg/version"
-	probe "github.com/turbonomic/turbo-go-sdk/pkg/probe"
 )
 
 type SdkClientProtocol struct {
@@ -122,7 +121,7 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 		ProtobufMessage: containerInfo,
 	}
 	endpoint.Send(endMsg)
-	fmt.Println("[SdkClientProtocol] ************* [" + endpoint.GetName() + "] : Waiting for registration response *************")
+	fmt.Println("[SdkClientProtocol][" + endpoint.GetName() + "] : Waiting for registration response")
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
 	serverMsg, ok := <-endpoint.MessageReceiver()
 	if !ok {
@@ -153,7 +152,6 @@ func (clientProtocol *SdkClientProtocol) MakeContainerInfo() (*proto.ContainerIn
 		var probeInfo *proto.ProbeInfo
 		var err error
 		probeInfo, err = turboProbe.GetProbeInfo()
-		//probeInfo, err := buildProbeInfo(v)
 
 		if err != nil {
 			return nil, err
@@ -168,70 +166,31 @@ func (clientProtocol *SdkClientProtocol) MakeContainerInfo() (*proto.ContainerIn
 
 
 // TODO: remove this from the test probes that use the IProbe interface
-func buildProbeInfo(probeProps *ProbeProperties) (*proto.ProbeInfo, error) {
-	// 1. Get the account definition for probe
-	var acctDefProps []*proto.AccountDefEntry
-	var templateDtos  []*proto.TemplateDTO
-
-	turboProbe := probeProps.Probe
-
-	acctDefProps = turboProbe.RegistrationClient.GetAccountDefinition()
-
-	// 2. Get the supply chain.
-	//templateDtos := probeInterface.GetSupplyChainDefinition()	//&supplychain.SupplyChainFactory{}
-	templateDtos = turboProbe.RegistrationClient.GetSupplyChainDefinition()
-
-	// 3. construct the example probe info.
-	probeConfig := probeProps.ProbeSignature
-	probeCat := probeConfig.ProbeCategory	//"Container"
-	probeType := probeConfig.ProbeType
-	probeInfo := probe.NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
-	id := "targetIdentifier"		// TODO: parameterize this for different probes
-	probeInfo.TargetIdentifierField = &id
-
-	// 4. Add example probe to probeInfo list, here it is the only probe supported.
-	//var probes []*proto.ProbeInfo
-	//probes = append(probes, exampleProbe)
-
-	return probeInfo, nil
-}
-
-
-//// ======================= Register Targets ============================
-//func (clientProtocol *SdkClientProtocol) HandleTargetRegistration(transport ITransport) bool {
-//	var targetAdditionRequests []string
-//	targetAdditionRequests, _ = clientProtocol.MakeTargetInfo()
+//func buildProbeInfo(probeProps *ProbeProperties) (*proto.ProbeInfo, error) {
+//	// 1. Get the account definition for probe
+//	var acctDefProps []*proto.AccountDefEntry
+//	var templateDtos  []*proto.TemplateDTO
 //
-//	for targetRequest := targetAdditionRequests {
-//		// Create HTTP Endpoint to send and handle target addition messages
+//	turboProbe := probeProps.Probe
 //
-//		// Handle response
-//		fmt.Println("[SdkClientProtocol][HandleTargetRegistration] : Waiting for response *************")
-//	}
+//	acctDefProps = turboProbe.RegistrationClient.GetAccountDefinition()
 //
+//	// 2. Get the supply chain.
+//	//templateDtos := probeInterface.GetSupplyChainDefinition()	//&supplychain.SupplyChainFactory{}
+//	templateDtos = turboProbe.RegistrationClient.GetSupplyChainDefinition()
+//
+//	// 3. construct the example probe info.
+//	probeConfig := probeProps.ProbeSignature
+//	probeCat := probeConfig.ProbeCategory	//"Container"
+//	probeType := probeConfig.ProbeType
+//	probeInfo := builder.NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
+//	id := "targetIdentifier"		// TODO: parameterize this for different probes
+//	probeInfo.TargetIdentifierField = &id
+//
+//	// 4. Add example probe to probeInfo list, here it is the only probe supported.
+//	//var probes []*proto.ProbeInfo
+//	//probes = append(probes, exampleProbe)
+//
+//	return probeInfo, nil
 //}
-//
-//func (clientProtocol *SdkClientProtocol) MakeTargetInfo() ([]string, error) {
-//	var targetAdditionRequests []string
-//	// Create Target Addition requests
-//	for k,v := range clientProtocol.allProbes {
-//		fmt.Println("SdkClientProtocol] Creating Target Info for", k)
-//		turboProbe := v.Probe
-//		var targets []*probe.TargetInfo
-//		targets = turboProbe.GetProbeTargets()
-//		for targetInfo := range targets {
-//			request, err := buildTargetInfo(targetInfo)
-//			if err != nil {
-//				return nil, err
-//			}
-//			targetAdditionRequests = append(request)
-//		}
-//	}
-//	return targetAdditionRequests, nil
-//}
-//
-//
-//// TODO: Convert to http request string
-//func buildTargetInfo(targetProps *probe.TargetInfo) (string, error) {
-//
-//}
+

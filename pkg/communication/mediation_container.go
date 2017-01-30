@@ -72,6 +72,7 @@ func CreateMediationContainer(containerConfig *ContainerConfig) *MediationContai
 
 // Start the RemoteMediationClient
 func (theContainer *MediationContainer) Init(probeRegisteredMsg chan bool) {
+	fmt.Println("[MediationContainer] Initializing Mediation Container .....")
 	// Assert that the probes are registered before starting the handshake
 	if len(theContainer.allProbes) == 0 {
 		fmt.Println("[MediationContainer] No probes are registered with the container")

@@ -5,6 +5,7 @@ import (
 )
 
 // Abstraction for the VMTTarget object in the client
+// TODO: reconcile with the definition in the turbo-api
 type TurboTarget struct {
 	targetType string
 	targetIdentifier string

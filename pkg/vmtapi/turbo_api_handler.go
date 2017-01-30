@@ -1,13 +1,14 @@
-package probe
+package vmtapi
+
+import "fmt"
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/golang/glog"
 
-	"github.com/turbonomic/turbo-go-sdk/pkg/vmtapi"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
+	"github.com/vmturbo/vmturbo-go-sdk/pkg/vmtapi"
 )
 
 
@@ -44,13 +45,13 @@ func NewTurboAPIHandler(conf *TurboAPIConfig) *TurboAPIHandler {
 }
 
 // Use the vmt restAPI to add a Turbo target.
-func (handler *TurboAPIHandler) AddTarget(target *probe.TurboTarget) error {
+func (handler *TurboAPIHandler) AddTurboTarget(target *probe.TurboTarget) error {
 	// TODO: Check if the Target already exists in the server ?
 	targetType := target.GetTargetType()
-	targetIdentifier := target.GetTargetId()
+	//targetIdentifier := target.GetTargetId()
 	//nameOrAddress := target.GetNameOrAddress()
-	username := target.GetUser()
-	password := target.GetPassword()
+	//username := target.GetUser()
+	//password := target.GetPassword()
 
 	fmt.Println("[TurboAPIHandler] Calling VMTurbo REST API to added current %s target.", targetType)
 	// Create request string parameters
@@ -68,19 +69,33 @@ func (handler *TurboAPIHandler) AddTarget(target *probe.TurboTarget) error {
 	//requestDataBuffer.WriteString(nameOrAddress)
 	//requestDataBuffer.WriteString("&")
 
-	requestData["username"] = username
-	requestDataBuffer.WriteString("username=")
-	requestDataBuffer.WriteString(username)
-	requestDataBuffer.WriteString("&")
+	//requestData["username"] = username
+	//requestDataBuffer.WriteString("username=")
+	//requestDataBuffer.WriteString(username)
+	//requestDataBuffer.WriteString("&")
+	//
+	//requestData["targetIdentifier"] = targetIdentifier
+	//requestDataBuffer.WriteString("targetIdentifier=")
+	//requestDataBuffer.WriteString(targetIdentifier)
+	//requestDataBuffer.WriteString("&")
+	//
+	//requestData["password"] = password
+	//requestDataBuffer.WriteString("password=")
+	//requestDataBuffer.WriteString(password)
+	//requestDataBuffer.WriteString("&")
 
-	requestData["targetIdentifier"] = targetIdentifier
-	requestDataBuffer.WriteString("targetIdentifier=")
-	requestDataBuffer.WriteString(targetIdentifier)
-	requestDataBuffer.WriteString("&")
+	acctVals := target.AccountValues
+	for idx, acctEntry := range acctVals {
+		prop := *acctEntry.Key
+		requestData[prop] = prop
+		requestDataBuffer.WriteString(prop+"=")
+		requestDataBuffer.WriteString(*acctEntry.StringValue)
 
-	requestData["password"] = password
-	requestDataBuffer.WriteString("password=")
-	requestDataBuffer.WriteString(password)
+		if idx != (len(acctVals)-1) {
+			requestDataBuffer.WriteString("&")
+		}
+	}
+
 
 	s := requestDataBuffer.String()
 

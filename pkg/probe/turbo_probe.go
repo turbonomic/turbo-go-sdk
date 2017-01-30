@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	builder "github.com/turbonomic/turbo-go-sdk/pkg/builder"
 )
 
 // Turbo Probe Abstraction
@@ -19,6 +20,7 @@ type TurboProbe struct {
 type TurboRegistrationClient interface {
 	GetAccountDefinition() []*proto.AccountDefEntry
 	GetSupplyChainDefinition() []*proto.TemplateDTO
+	GetIdentifyingFields() string
 	// TODO: - add methods to get entity metadata, action policy data
 }
 
@@ -27,6 +29,8 @@ type TurboDiscoveryClient interface {
 	Validate(accountValues[] *proto.AccountValue) *proto.ValidationResponse
 	GetAccountValues() *TurboTarget
 }
+
+type DiscoveryClientInstantiateFunc func(accountValues[] *proto.AccountValue) TurboDiscoveryClient
 
 // ==============================================================================================================
 type ProbeConfig struct {
@@ -60,7 +64,6 @@ func NewTurboProbe(probeConf *ProbeConfig) *TurboProbe {
 		ProbeType: probeConf.ProbeType,
 		ProbeCategory: probeConf.ProbeCategory,
 		DiscoveryClientMap: make(map[string]TurboDiscoveryClient),
-		//IsRegistered: make(chan bool, 1),	// buffered channel so the send does not block
 	}
 
 	fmt.Printf("[TurboProbe] : Created TurboProbe %s\n", myProbe)
@@ -75,17 +78,26 @@ func (theProbe *TurboProbe) SetProbeRegistrationClient(registrationClient TurboR
 func (theProbe *TurboProbe) SetDiscoveryClient(targetIdentifier string, discoveryClient TurboDiscoveryClient) {
 	theProbe.DiscoveryClientMap[targetIdentifier] = discoveryClient
 }
+//
+//// TODO: CreateClient func as input
+//func (theProbe *TurboProbe) SetDiscoveryClientFunc(targetIdentifier string, accountValues[] *proto.AccountValue),
+//							createClientFunc DiscoveryClientInstantiateFunc) {
+//	discoveryClient := createClientFunc(accountValues)
+//	theProbe.DiscoveryClientMap[targetIdentifier] = discoveryClient
+//}
 
 func (theProbe *TurboProbe) getDiscoveryClient(targetIdentifier string) TurboDiscoveryClient {
 	return theProbe.DiscoveryClientMap[targetIdentifier]
 }
 
+// TODO: this method should be synchronized
 func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues[] *proto.AccountValue) TurboDiscoveryClient {
 	var address string
+	identifyingfield := theProbe.RegistrationClient.GetIdentifyingFields()
 
 	for _, accVal  := range accountValues {
 
-		if *accVal.Key == "targetIdentifier" {
+		if *accVal.Key == identifyingfield { 	//"targetIdentifier" {
 			address = *accVal.StringValue
 		}
 	}
@@ -93,11 +105,13 @@ func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues[] *proto.Accou
 
 	if target == nil {
 		fmt.Println("****** [TurboProbe][DiscoveryTarget] Cannot find Target for address : " + address)
+		//TODO: CreateDiscoveryClient(address, accountValues, )
 		return nil
 	}
 	fmt.Println("[TurboProbe][DiscoveryTarget] Found Target for address : " + address)
 	return target
 }
+
 
 func (theProbe *TurboProbe) DiscoverTarget(accountValues[] *proto.AccountValue) *proto.DiscoveryResponse {
 	fmt.Println("[TurboProbe] ============ Discover Target ========", accountValues)
@@ -119,34 +133,20 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues[] *proto.AccountValue) 
 		return handler.Validate(accountValues)
 	}
 
+	// TODO: if the handler is nil, implies the target is added from the UI
+	// Create a new discovery client for this target and add it to the map of discovery clients
+	// allow to pass a func to instantiate a default discovery client
+
 	fmt.Println("[TurboProbe] Error validating target ", accountValues)
 	return nil
 }
-//
-//func (theProbe *TurboProbe) AddTargets()  {
-//	isRegistered := <- theProbe.IsRegistered
-//	if !isRegistered {
-//		fmt.Println("[TurboProbe] Probe " + theProbe.ProbeCategory + "::" + theProbe.ProbeType + " should be registered before adding Targets")
-//		return
-//	}
-//	fmt.Println("[TurboProbe] Probe " + theProbe.ProbeCategory + "::" + theProbe.ProbeType + " Registered : ============ Add Targets ========")
-//	var targets []*TurboTarget
-//	targets = theProbe.GetProbeTargets()
-//	for _, targetInfo := range targets {
-//		theProbe.TurboAPIClient.AddTarget(targetInfo)
-//	}
-//}
-
 
 // ==============================================================================================================
+// The Targets associated with this probe type
 func (theProbe *TurboProbe) GetProbeTargets() []*TurboTarget {
 	// Iterate over the discovery client map and send requests to the server
 	var targets []*TurboTarget
 	for targetId, discoveryClient := range theProbe.DiscoveryClientMap {
-		//targetInfo := &TurboTarget{
-		//	targetType: theProbe.ProbeType,
-		//	targetIdentifier: targetId,
-		//}
 
 		targetInfo := discoveryClient.GetAccountValues()
 		targetInfo.targetType = theProbe.ProbeType
@@ -157,8 +157,8 @@ func (theProbe *TurboProbe) GetProbeTargets() []*TurboTarget {
 	return targets
 }
 
+// The ProbeInfo for the probe
 func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
-	// TODO:
 	// 1. Get the account definition for probe
 	var acctDefProps []*proto.AccountDefEntry
 	var templateDtos  []*proto.TemplateDTO
@@ -171,13 +171,11 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	// 3. construct the example probe info.
 	probeCat := theProbe.ProbeCategory
 	probeType := theProbe.ProbeType
-	probeInfo := NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
-	id := "targetIdentifier"		// TODO: parameterize this for different probes using AccountInfo struct
-	probeInfo.TargetIdentifierField = &id
+	probeInfo := builder.NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
+	id := theProbe.RegistrationClient.GetIdentifyingFields()
 
-	// 4. Add example probe to probeInfo list, here it is the only probe supported.
-	//var probes []*proto.ProbeInfo
-	//probes = append(probes, exampleProbe)
+	// /id := "targetIdentifier"		// TODO: parameterize this for different probes using AccountInfo struct
+	probeInfo.TargetIdentifierField = &id
 
 	return probeInfo, nil
 }
