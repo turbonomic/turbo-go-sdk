@@ -93,11 +93,11 @@ func (theProbe *TurboProbe) getDiscoveryClient(targetIdentifier string) TurboDis
 // TODO: this method should be synchronized
 func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues[] *proto.AccountValue) TurboDiscoveryClient {
 	var address string
-	identifyingfield := theProbe.RegistrationClient.GetIdentifyingFields()
+	identifyingField := theProbe.RegistrationClient.GetIdentifyingFields()
 
 	for _, accVal  := range accountValues {
 
-		if *accVal.Key == identifyingfield { 	//"targetIdentifier" {
+		if *accVal.Key == identifyingField {
 			address = *accVal.StringValue
 		}
 	}
@@ -130,6 +130,7 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues[] *proto.AccountValue) 
 	handler = theProbe.GetTurboDiscoveryClient(accountValues)
 
 	if handler != nil {
+		fmt.Printf("[TurboProbe] Send validation request to handler %s\n", handler)
 		return handler.Validate(accountValues)
 	}
 

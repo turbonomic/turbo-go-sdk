@@ -284,17 +284,13 @@ func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest *prot
 	var discoveryResponse *proto.DiscoveryResponse
 	discoveryResponse = turboProbe.DiscoverTarget(request.GetAccountValue())
 
-	//clientMsg := NewClientMessageBuilder(msgID).SetValidationResponse(validationResponse).Create()
-	cb := NewClientMessageBuilder(msgID)
-	clientMsg := cb.SetDiscoveryResponse(discoveryResponse).Create()
-
-	//response := &proto.MediationClientMessage_DiscoveryResponse {
-	//	DiscoveryResponse: discoveryResponse,
-	//}
-	//clientMsg := &proto.MediationClientMessage{
-	//	MessageID: &msgID,
-	//	MediationClientMessage: response,
-	//}
+	response := &proto.MediationClientMessage_DiscoveryResponse {
+		DiscoveryResponse: discoveryResponse,
+	}
+	clientMsg := &proto.MediationClientMessage{
+		MessageID: &msgID,
+		MediationClientMessage: response,
+	}
 
 	// Send the response on the callback channel to send to the server
 	//fmt.Printf("[DiscoveryRequestHandler] send discovery response %s on %s\n", clientMsg,  probeMsgChan)
@@ -303,16 +299,16 @@ func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest *prot
 
 	// Send empty response to signal completion of discovery
 	discoveryResponse = &proto.DiscoveryResponse{}
-	//response = &proto.MediationClientMessage_DiscoveryResponse {
-	//	DiscoveryResponse: discoveryResponse,
-	//}
-	//clientMsg = &proto.MediationClientMessage{
-	//	MessageID: &msgID,
-	//	MediationClientMessage: response,
-	//}
+	response = &proto.MediationClientMessage_DiscoveryResponse {
+		DiscoveryResponse: discoveryResponse,
+	}
+	clientMsg = &proto.MediationClientMessage{
+		MessageID: &msgID,
+		MediationClientMessage: response,
+	}
 
-	cb = NewClientMessageBuilder(msgID)
-	clientMsg = cb.SetDiscoveryResponse(discoveryResponse).Create()
+	//cb = NewClientMessageBuilder(msgID)
+	//clientMsg = cb.SetDiscoveryResponse(discoveryResponse).Create()
 	probeMsgChan <- clientMsg	// This will block till the channel is ready to receive
 	fmt.Println("[DiscoveryRequestHandler] sent empty discovery response for ", clientMsg.GetMessageID())
 
@@ -325,16 +321,16 @@ func (discReqHandler *DiscoveryRequestHandler) keepDiscoveryAlive(msgID int32, p
 	fmt.Println("Keep Alive is called for message with ID: %d", msgID)
 
 	keepAliveMsg := new(proto.KeepAlive)
-	cb := NewClientMessageBuilder(msgID)
-	clientMsg := cb.SetKeepAlive(keepAliveMsg).Create()
+	//cb := NewClientMessageBuilder(msgID)
+	//clientMsg := cb.SetKeepAlive(keepAliveMsg).Create()
 
-	//response := &proto.MediationClientMessage_KeepAlive {
-	//	KeepAlive: 	keepAliveMsg,
-	//}
-	//clientMsg := &proto.MediationClientMessage{
-	//	MessageID: &msgID,
-	//	MediationClientMessage: response,
-	//}
+	response := &proto.MediationClientMessage_KeepAlive {
+		KeepAlive: 	keepAliveMsg,
+	}
+	clientMsg := &proto.MediationClientMessage{
+		MessageID: &msgID,
+		MediationClientMessage: response,
+	}
 
 	// Send the response on the callback channel to send to the server
 	//fmt.Printf("[keepDiscoveryAlive] send keepDiscoveryAlive response %s on %s\n", clientMsg,  probeMsgChan)
@@ -360,20 +356,18 @@ func (valReqHandler *ValidationRequestHandler) HandleMessage(serverRequest *prot
 	var validationResponse *proto.ValidationResponse
 	validationResponse = turboProbe.ValidateTarget(request.GetAccountValue())
 
-	// validationResponse := probeInterface.Validate(request.GetAccountValue())
-
 	msgID := serverRequest.GetMessageID()
 	//clientMsg := NewClientMessageBuilder(msgID).SetValidationResponse(validationResponse).Create()
-	cb := NewClientMessageBuilder(msgID)
-	clientMsg := cb.SetValidationResponse(validationResponse).Create()
+	//cb := NewClientMessageBuilder(msgID)
+	//clientMsg := cb.SetValidationResponse(validationResponse).Create()
 
-	//response := &proto.MediationClientMessage_ValidationResponse {
-	//	ValidationResponse: 	validationResponse,
-	//}
-	//clientMsg := &proto.MediationClientMessage{
-	//	MessageID: &msgID,
-	//	MediationClientMessage: response,
-	//}
+	response := &proto.MediationClientMessage_ValidationResponse {
+		ValidationResponse: 	validationResponse,
+	}
+	clientMsg := &proto.MediationClientMessage{
+		MessageID: &msgID,
+		MediationClientMessage: response,
+	}
 
 	// Send the response on the callback channel to send to the server
 	//fmt.Printf("[ValidationRequestHandler] send validation response %s on %s\n", clientMsg,  probeMsgChan)
