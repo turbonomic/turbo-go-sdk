@@ -85,7 +85,7 @@ type TurboCommunicationConfig struct {
 	*communication.ContainerConfig
 }
 
-func parseTurboCommunicationConfig(configFile string) *TurboCommunicationConfig {
+func ParseTurboCommunicationConfig(configFile string) *TurboCommunicationConfig {
 	// load the config
 	turboCommConfig := readTurboCommunicationConfig(configFile)
 	if turboCommConfig == nil {
@@ -147,17 +147,35 @@ func (pb *TAPServiceBuilder) Create() *TAPService {
 	return pb.tapService
 }
 
-func (pb *TAPServiceBuilder) WithTurboCommunicator2(config *TurboCommunicationConfig) {
+func (pb *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommunicationConfig) *TAPServiceBuilder {
+	// The Webscoket Container
+	theContainer := communication.CreateMediationContainer(commConfig.ContainerConfig)
+	pb.tapService.MediationContainer = theContainer
+	// The RestAPI Handler
+	// TODO: if rest api config has validation errors or not specified, do not create the handler
+	turboApiHandler := vmtapi.NewTurboAPIHandler(commConfig.TurboAPIConfig)
+	pb.tapService.TurboAPIHandler = turboApiHandler
 
+	//config := restclient.NewConfigBuilder(commConfig.TurboAPIConfig.VmtRestServerAddress).
+	//	APIPath("/vmturbo/rest").
+	//	BasicAuthentication(commConfig.TurboAPIConfig.VmtRestUser, commConfig.TurboAPIConfig.VmtRestPassword).//"<UI-username>", "UI-password").
+	//	Create()
+	//client, err := restclient.NewAPIClientWithBA(config)
+	//if err != nil {
+	//	fmt.Errorf("[TAPServiceBuilder] Error creating  Turbo Rest API client: %s", err)
+	//}
+	//pb.tapService.Client = client
+
+	return pb
 }
 
 // The Communication Layer to communicate with the Turbo server
 // Uses Websocket to listen to server requests for discovery and actions
 // Uses Rest API to send requests to server for deployment
-func (pb *TAPServiceBuilder) WithTurboCommunicator(commConfFile string) *TAPServiceBuilder {
+func (pb *TAPServiceBuilder) WithTurboCommunicator2(commConfFile string) *TAPServiceBuilder {
 	//  Load the main communication configuration file and validate it
 	fmt.Println("[TAPServiceBuilder] TurboCommunicator configuration from %s", commConfFile)
-	commConfig := parseTurboCommunicationConfig(commConfFile)
+	commConfig := ParseTurboCommunicationConfig(commConfFile)
 
 	// The Webscoket Container
 	theContainer := communication.CreateMediationContainer(commConfig.ContainerConfig)
