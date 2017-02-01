@@ -41,5 +41,3 @@ func CreateWebsocketTransportPointUrl(connConfig *WebsocketConnectionConfig) str
 	fmt.Println("######### [CreateTransportPointUrl] Created Webscoket URL : ", vmtServerUrl)
 	return vmtServerUrl
 }
-
-

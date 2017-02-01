@@ -7,11 +7,11 @@ import (
 // Abstraction for the VMTTarget object in the client
 // TODO: reconcile with the definition in the turbo-api
 type TurboTarget struct {
-	targetType string
+	targetType       string
 	targetIdentifier string
-	user string
-	password string
-	AccountValues[] *proto.AccountValue
+	user             string
+	password         string
+	AccountValues    []*proto.AccountValue
 }
 
 func (target *TurboTarget) GetTargetType() string {
@@ -41,7 +41,3 @@ func (target *TurboTarget) SetUser(user string) {
 func (target *TurboTarget) SetPassword(pwd string) {
 	target.password = pwd
 }
-
-
-
-

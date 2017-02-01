@@ -17,41 +17,41 @@ type ClientProtobufEndpoint struct {
 	messageHandler ProtobufMessage
 	// Channel where the endpoint will send the parsed messages
 	MessageChannel chan goproto.Message
-	closeReceived bool
+	closeReceived  bool
 	// TODO: add message waiting policy
 }
 
 // Create a new instance of the ClientProtobufEndpoint that handles communication
 // for a specific message type using the given transport point
-func CreateClientProtobufEndpoint2(name string, transport ITransport, messageHandler ProtobufMessage) (ProtobufEndpoint) {
-	endpoint := &ClientProtobufEndpoint {
+func CreateClientProtobufEndpoint2(name string, transport ITransport, messageHandler ProtobufMessage) ProtobufEndpoint {
+	endpoint := &ClientProtobufEndpoint{
 		Name: name,
 
-		transport: transport,				// the transport
+		transport:      transport, // the transport
 		MessageChannel: make(chan goproto.Message),
-		messageHandler: messageHandler,			// the message parser
+		messageHandler: messageHandler, // the message parser
 	}
 
 	fmt.Println("[ProtobufEndpoint] Created endpoint " + endpoint.GetName())
 	// Start a Message Handling routine to wait for messages arriving on the transport point
-	go endpoint.waitForSingleServerMessage()	// TODO: redo using MessageWaiting policy
+	go endpoint.waitForSingleServerMessage() // TODO: redo using MessageWaiting policy
 	return endpoint
 }
 
 // TODO:
-func CreateClientProtobufEndpoint3(name string, transport ITransport, messageHandler ProtobufMessage) (ProtobufEndpoint) {
-	endpoint := &ClientProtobufEndpoint {
-		Name: name,
-		transport: transport,				// the transport
-		MessageChannel: make(chan goproto.Message),	// the unbuffered channel where parsed messages are sent
-								// this channel will block until the message is received
-								// by the top layer
-		messageHandler: messageHandler,			// the message parser
+func CreateClientProtobufEndpoint3(name string, transport ITransport, messageHandler ProtobufMessage) ProtobufEndpoint {
+	endpoint := &ClientProtobufEndpoint{
+		Name:           name,
+		transport:      transport,                  // the transport
+		MessageChannel: make(chan goproto.Message), // the unbuffered channel where parsed messages are sent
+		// this channel will block until the message is received
+		// by the top layer
+		messageHandler: messageHandler, // the message parser
 	}
 
 	fmt.Println("[ProtobufEndpoint] Created endpoint " + endpoint.GetName())
 	// Start a Message Handling routine to wait for messages arriving on the transport point
-	go endpoint.waitForServerMessage() 	 // TODO: redo using MessageWaiting policy
+	go endpoint.waitForServerMessage() // TODO: redo using MessageWaiting policy
 	return endpoint
 }
 
@@ -69,24 +69,24 @@ func (endpoint *ClientProtobufEndpoint) GetMessageHandler() ProtobufMessage {
 
 func (endpoint *ClientProtobufEndpoint) CloseEndpoint() {
 	endpoint.closeReceived = true
-	fmt.Println("[" + endpoint.Name + "] : CLOSING, close=", endpoint.closeReceived)
+	fmt.Println("["+endpoint.Name+"] : CLOSING, close=", endpoint.closeReceived)
 	//TODO: close the channel
 	//close(endpoint.MessageReceiver())
 }
 
 func (endpoint *ClientProtobufEndpoint) Send(messageToSend *EndpointMessage) {
-	fmt.Println("[" + endpoint.Name + "] : SENDING Protobuf message")	// %s", messageToSend.ProtobufMessage)
+	fmt.Println("[" + endpoint.Name + "] : SENDING Protobuf message") // %s", messageToSend.ProtobufMessage)
 	// Marshal protobuf message to raw bytes
-	msgMarshalled, err := goproto.Marshal(messageToSend.ProtobufMessage)	// marshal to byte array
+	msgMarshalled, err := goproto.Marshal(messageToSend.ProtobufMessage) // marshal to byte array
 	if err != nil {
 		glog.Fatal("[ClientProtobufEndpoint] During Send - marshaling error: ", err)
 		return
 	}
 	// Send using the underlying transport
-	tmsg := &TransportMessage {
+	tmsg := &TransportMessage{
 		RawMsg: msgMarshalled,
 	}
-	endpoint.transport.Send(tmsg)		// TODO: catch any exceptions during send
+	endpoint.transport.Send(tmsg) // TODO: catch any exceptions during send
 }
 
 func (endpoint *ClientProtobufEndpoint) waitForServerMessage() {
@@ -95,7 +95,7 @@ func (endpoint *ClientProtobufEndpoint) waitForServerMessage() {
 
 	// main loop for listening server message until its message receiver channel is closed.
 	for {
-		fmt.Println("[" + endpoint.Name + "] : Waiting for server message ...", endpoint.closeReceived)
+		fmt.Println("["+endpoint.Name+"] : Waiting for server message ...", endpoint.closeReceived)
 		if endpoint.closeReceived {
 			fmt.Println("[" + endpoint.Name + "] : Endpoint is closed")
 			break
@@ -117,12 +117,12 @@ func (endpoint *ClientProtobufEndpoint) waitForServerMessage() {
 		messageHandler.parse(rawBytes)
 		serverMsg := messageHandler.GetMessage()
 
-		fmt.Printf("[" + endpoint.Name + "][waitForServerMessage] : Received: %s\n", serverMsg)
+		fmt.Printf("["+endpoint.Name+"][waitForServerMessage] : Received: %s\n", serverMsg)
 
 		// Put the parsed message on the endpoint's channel
 		// - this will block till the upper layer receives this message
 		msgChannel := endpoint.MessageReceiver()
-		if msgChannel != nil {	// checking if the channel was closed before putting the message
+		if msgChannel != nil { // checking if the channel was closed before putting the message
 			msgChannel <- serverMsg
 		}
 
@@ -143,18 +143,19 @@ func (endpoint *ClientProtobufEndpoint) waitForSingleServerMessage() {
 	// Parse the input stream using the registered message handler
 	messageHandler := endpoint.GetMessageHandler()
 	messageHandler.parse(rawBytes)
-	serverMsg := messageHandler.GetMessage()	//endpoint.ParseFromData(rawBytes)
+	serverMsg := messageHandler.GetMessage() //endpoint.ParseFromData(rawBytes)
 
-	fmt.Printf("[" + endpoint.Name + "][waitForSingleServerMessage] : Received: %s\n", serverMsg)
+	fmt.Printf("["+endpoint.Name+"][waitForSingleServerMessage] : Received: %s\n", serverMsg)
 
 	// - this will block till the upper layer receives this message
 	msgChannel := endpoint.MessageReceiver()
-	if msgChannel != nil {	// checking if the channel was closed before putting the message
+	if msgChannel != nil { // checking if the channel was closed before putting the message
 		msgChannel <- serverMsg
 	}
 
 	fmt.Println("[" + endpoint.Name + "][waitForSingleServerMessage] : DONE Waiting for server response")
 }
+
 // =====================================================================================
 
 //type EndpointEventHandler interface {
@@ -169,7 +170,6 @@ func (endpoint *ClientProtobufEndpoint) waitForSingleServerMessage() {
 //	fmt.Println("[ClientProtobufEndpoint] Number of Event Handlers ", len(endpoint.eventHandlers))
 //}
 
-
 // =====================================================================================
 type MessageWaiter interface {
 	getMessage(endpoint ProtobufEndpoint) goproto.Message
@@ -182,5 +182,5 @@ func (messageWaiter *SingleMessageWaiter) getMessage(endpoint ProtobufEndpoint) 
 	fmt.Println("[" + endpoint.GetName() + "] : ########## Waiting for server response #######")
 
 	serverMsg := <-endpoint.MessageReceiver()
-	fmt.Printf("[" + endpoint.GetName() + "] : Received: %s\n", serverMsg)
+	fmt.Printf("["+endpoint.GetName()+"] : Received: %s\n", serverMsg)
 }

@@ -1,11 +1,10 @@
 package communication
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	"testing"
 )
-
 
 // Tests that the function NewSupplyChainBuilder() returns an initialized SupplyChainNodeBuilder struct
 func TestNewClientMessageBuilder(t *testing.T) {
@@ -30,7 +29,6 @@ func TestCreate_ClientMessageBuilder(t *testing.T) {
 
 	}
 }
-
 
 // Tests that the argument passed to SetValidationResponse is assigned to this.clientMessage.ValidationResponse
 func TestSetValidationResponse(t *testing.T) {
@@ -107,4 +105,3 @@ func TestSetActionResponset(t *testing.T) {
 		assert.Equal(*actionResult, *cmb.clientMessage.GetActionResponse())
 	}
 }
-

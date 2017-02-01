@@ -11,7 +11,6 @@ import (
 	"github.com/vmturbo/vmturbo-go-sdk/pkg/vmtapi"
 )
 
-
 type TurboAPIConfig struct {
 	VmtRestServerAddress string
 	VmtRestUser          string
@@ -30,9 +29,8 @@ func (apiConfig *TurboAPIConfig) ValidateTurboAPIConfig() bool {
 // =====================================================================================================================
 
 type TurboAPIHandler struct {
-
-	TurboAPIClient	*vmtapi.VmtApi
- 	// map of specific handlers
+	TurboAPIClient *vmtapi.VmtApi
+	// map of specific handlers
 }
 
 func NewTurboAPIHandler(conf *TurboAPIConfig) *TurboAPIHandler {
@@ -88,14 +86,13 @@ func (handler *TurboAPIHandler) AddTurboTarget(target *probe.TurboTarget) error 
 	for idx, acctEntry := range acctVals {
 		prop := *acctEntry.Key
 		requestData[prop] = prop
-		requestDataBuffer.WriteString(prop+"=")
+		requestDataBuffer.WriteString(prop + "=")
 		requestDataBuffer.WriteString(*acctEntry.StringValue)
 
-		if idx != (len(acctVals)-1) {
+		if idx != (len(acctVals) - 1) {
 			requestDataBuffer.WriteString("&")
 		}
 	}
-
 
 	s := requestDataBuffer.String()
 

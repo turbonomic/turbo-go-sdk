@@ -1,13 +1,12 @@
 package vmtapi
 
 import (
-	"github.com/golang/glog"
-	"net/http"
 	"errors"
-	"io/ioutil"
 	"fmt"
+	"github.com/golang/glog"
+	"io/ioutil"
+	"net/http"
 )
-
 
 // api information for requests to VMT server
 type VmtApi struct {
@@ -26,7 +25,6 @@ func NewVmtApi(vmtUrl string, username string, pwd string) *VmtApi {
 		extConfig: extCongfix,
 	}
 }
-
 
 func (vmtApi *VmtApi) Post(postUrl, requestDataString string) (string, error) {
 	return vmtApi.apiPost(postUrl, requestDataString)
@@ -131,4 +129,3 @@ func parseAPICallResponse(resp *http.Response) (string, error) {
 
 	return string(content), nil
 }
-

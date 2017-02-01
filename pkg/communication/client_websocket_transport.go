@@ -1,16 +1,15 @@
 package communication
 
 import (
-	"fmt"
-	"net/http"
 	"crypto/tls"
 	"encoding/base64"
+	"fmt"
+	"net/http"
 
 	"golang.org/x/net/websocket"
 
 	"github.com/golang/glog"
 )
-
 
 // Implementation of the ITransport for websocket communication to send and receive serialized protobuf message bytes
 type ClientWebsocketTransport struct {
@@ -18,16 +17,16 @@ type ClientWebsocketTransport struct {
 	//LocalAddress     string
 	//ServerUsername   string
 	//ServerPassword   string
-	ws               *websocket.Conn	// created during registration
-	inputStream 	chan []byte
+	ws            *websocket.Conn // created during registration
+	inputStream   chan []byte
 	closeReceived bool
 }
 
 // Instantiate a new ClientWebsocketTransport endpoint for the client
 // Websocket connection is established with the server
-func CreateClientWebsocketTransport (connConfig *WebsocketConnectionConfig) (*ClientWebsocketTransport) {
+func CreateClientWebsocketTransport(connConfig *WebsocketConnectionConfig) *ClientWebsocketTransport {
 	transport := &ClientWebsocketTransport{
-		ws: newWebsocketConnection(connConfig),
+		ws:          newWebsocketConnection(connConfig),
 		inputStream: make(chan []byte),
 	}
 
@@ -37,11 +36,11 @@ func CreateClientWebsocketTransport (connConfig *WebsocketConnectionConfig) (*Cl
 }
 
 // Create the websocket connection and establish session with the server
-func  newWebsocketConnection(connConfig *WebsocketConnectionConfig) (*websocket.Conn) {
+func newWebsocketConnection(connConfig *WebsocketConnectionConfig) *websocket.Conn {
 	// Websocket URL
 	vmtServerUrl := CreateWebsocketTransportPointUrl(connConfig)
 	//
-	localAddr := "http://127.0.0.1"			//TODO: required in url format, but ip is don't care for us
+	localAddr := "http://127.0.0.1" //TODO: required in url format, but ip is don't care for us
 	glog.V(3).Infof("Dial Server: %s", vmtServerUrl)
 
 	config, err := websocket.NewConfig(vmtServerUrl, localAddr)
@@ -80,8 +79,9 @@ func (clientTransport *ClientWebsocketTransport) CloseTransportPoint() {
 	close(clientTransport.RawMessageReceiver())
 	closeWebsocket(clientTransport.ws)
 }
+
 // Close the websocket connection
-func  closeWebsocket(wsConn *websocket.Conn) {
+func closeWebsocket(wsConn *websocket.Conn) {
 	//TODO:
 	wsConn.Close()
 	wsConn = nil
@@ -114,7 +114,7 @@ func (clientTransport *ClientWebsocketTransport) Send(messageToSend *TransportMe
 		// TODO: throw exception to the upper layer
 		return
 	}
-	fmt.Println("[ClientWebsocketTransport] Successfully sent message on client transport %s",messageToSend )
+	fmt.Println("[ClientWebsocketTransport] Successfully sent message on client transport %s", messageToSend)
 }
 
 // Receives serialized protobuf message bytes
@@ -149,4 +149,3 @@ func (clientTransport *ClientWebsocketTransport) waitForServerMessage() {
 //}
 
 //==============================================
-

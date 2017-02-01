@@ -2,18 +2,18 @@ package communication
 
 import (
 	"fmt"
-	probe "github.com/turbonomic/turbo-go-sdk/pkg/probe"
+	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
 )
 
-type ContainerConfig struct  {
+type ContainerConfig struct {
 	VmtServerAddress string
-	VmtServerPort 	 string
-	VmtUserName	 string
-	VmtPassword	 string
-	ConnectionRetry	 int16		//
-	IsSecure	 bool
+	VmtServerPort    string
+	VmtUserName      string
+	VmtPassword      string
+	ConnectionRetry  int16 //
+	IsSecure         bool
 	ApplicationBase  string
-	ProbesDir        string		//TODO: dont need until we can package like in the java sdk
+	ProbesDir        string //TODO: dont need until we can package like in the java sdk
 }
 
 // TODO:
@@ -22,7 +22,7 @@ func (containerConfig *ContainerConfig) ValidateContainerConfig() bool {
 	fmt.Println("VmtServerAddress : " + string(containerConfig.VmtServerAddress))
 	fmt.Println("VmtUsername : " + containerConfig.VmtUserName)
 	fmt.Println("VmtPassword : " + containerConfig.VmtPassword)
-	fmt.Println("isSecure : " , containerConfig.IsSecure)
+	fmt.Println("isSecure : ", containerConfig.IsSecure)
 	fmt.Println("ApplicationBase : " + containerConfig.ApplicationBase)
 	return true
 }
@@ -30,8 +30,8 @@ func (containerConfig *ContainerConfig) ValidateContainerConfig() bool {
 // ======================================================================
 
 type ProbeSignature struct {
-	ProbeType	string
-	ProbeCategory	string
+	ProbeType     string
+	ProbeCategory string
 }
 
 type ProbeProperties struct {
@@ -51,7 +51,7 @@ type MediationContainer struct {
 // Static method to create an instance of the Mediation Container
 func CreateMediationContainer(containerConfig *ContainerConfig) *MediationContainer {
 	fmt.Println("---------- Created MediationContainer ----------")
-	theContainer := &MediationContainer{}	// TODO: make a singleton instance
+	theContainer := &MediationContainer{} // TODO: make a singleton instance
 
 	//  Load the main container configuration file and validate it
 	theContainer.containerConfig = containerConfig
@@ -69,7 +69,6 @@ func CreateMediationContainer(containerConfig *ContainerConfig) *MediationContai
 //	return theContainer.theRemoteMediationClient
 //}
 
-
 // Start the RemoteMediationClient
 func (theContainer *MediationContainer) Init(probeRegisteredMsg chan bool) {
 	fmt.Println("[MediationContainer] Initializing Mediation Container .....")
@@ -79,7 +78,7 @@ func (theContainer *MediationContainer) Init(probeRegisteredMsg chan bool) {
 		return
 	}
 	// Open connection to the server and start server handshake to register probes
-	fmt.Println("[MediationContainer] Registering ", len(theContainer.allProbes) , " probes")
+	fmt.Println("[MediationContainer] Registering ", len(theContainer.allProbes), " probes")
 
 	remoteMediationClient := theContainer.theRemoteMediationClient
 	remoteMediationClient.Init(probeRegisteredMsg)
@@ -95,12 +94,12 @@ func (theContainer *MediationContainer) LoadProbe(probe *probe.TurboProbe) {
 	// load the probe config
 	config := &ProbeSignature{
 		ProbeCategory: probe.ProbeCategory,
-		ProbeType: probe.ProbeType,
+		ProbeType:     probe.ProbeType,
 	}
 
 	probeProp := &ProbeProperties{
 		ProbeSignature: config,
-		Probe: probe,
+		Probe:          probe,
 	}
 
 	// TODO: check if the probe type already exists and warn before overwriting
@@ -115,10 +114,9 @@ func (theContainer *MediationContainer) GetProbe(probeType string) *probe.TurboP
 		probe := probeProps.Probe
 		registrationClient := probe.RegistrationClient
 		acctDefProps := registrationClient.GetAccountDefinition()
-		fmt.Println("[MediationContainer] Found " + probeProps.ProbeSignature.ProbeCategory + "::" + probeProps.ProbeSignature.ProbeType + " ==> " , acctDefProps)
+		fmt.Println("[MediationContainer] Found "+probeProps.ProbeSignature.ProbeCategory+"::"+probeProps.ProbeSignature.ProbeType+" ==> ", acctDefProps)
 		return probe
 	}
 	fmt.Println("[MediationContainer] Cannot find Probe of type " + probeType)
 	return nil
 }
-

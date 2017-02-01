@@ -1,6 +1,5 @@
 package communication
 
-
 import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
@@ -28,8 +27,8 @@ func (cmb *ClientMessageBuilder) Create() *proto.MediationClientMessage {
 
 // set the validation response
 func (cmb *ClientMessageBuilder) SetValidationResponse(validationResponse *proto.ValidationResponse) *ClientMessageBuilder {
-	response := &proto.MediationClientMessage_ValidationResponse {
-		ValidationResponse: 	validationResponse,
+	response := &proto.MediationClientMessage_ValidationResponse{
+		ValidationResponse: validationResponse,
 	}
 
 	cmb.clientMessage.MediationClientMessage = response
@@ -39,8 +38,8 @@ func (cmb *ClientMessageBuilder) SetValidationResponse(validationResponse *proto
 
 // set discovery response
 func (cmb *ClientMessageBuilder) SetDiscoveryResponse(discoveryResponse *proto.DiscoveryResponse) *ClientMessageBuilder {
-	response := &proto.MediationClientMessage_DiscoveryResponse {
-		DiscoveryResponse: 	discoveryResponse,
+	response := &proto.MediationClientMessage_DiscoveryResponse{
+		DiscoveryResponse: discoveryResponse,
 	}
 	cmb.clientMessage.MediationClientMessage = response
 	return cmb
@@ -48,8 +47,8 @@ func (cmb *ClientMessageBuilder) SetDiscoveryResponse(discoveryResponse *proto.D
 
 // set discovery keep alive
 func (cmb *ClientMessageBuilder) SetKeepAlive(keepAlive *proto.KeepAlive) *ClientMessageBuilder {
-	response := &proto.MediationClientMessage_KeepAlive {
-		KeepAlive: 	keepAlive,
+	response := &proto.MediationClientMessage_KeepAlive{
+		KeepAlive: keepAlive,
 	}
 	cmb.clientMessage.MediationClientMessage = response
 
@@ -58,8 +57,8 @@ func (cmb *ClientMessageBuilder) SetKeepAlive(keepAlive *proto.KeepAlive) *Clien
 
 // set action progress
 func (cmb *ClientMessageBuilder) SetActionProgress(actionProgress *proto.ActionProgress) *ClientMessageBuilder {
-	response := &proto.MediationClientMessage_ActionProgress {
-		ActionProgress: 	actionProgress,
+	response := &proto.MediationClientMessage_ActionProgress{
+		ActionProgress: actionProgress,
 	}
 	cmb.clientMessage.MediationClientMessage = response
 
@@ -69,7 +68,7 @@ func (cmb *ClientMessageBuilder) SetActionProgress(actionProgress *proto.ActionP
 // set action response
 func (cmb *ClientMessageBuilder) SetActionResponse(actionResponse *proto.ActionResult) *ClientMessageBuilder {
 	response := &proto.MediationClientMessage_ActionResponse{
-		ActionResponse: 	actionResponse,
+		ActionResponse: actionResponse,
 	}
 	cmb.clientMessage.MediationClientMessage = response
 

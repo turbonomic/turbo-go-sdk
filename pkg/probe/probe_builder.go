@@ -7,21 +7,21 @@ type ProbeBuilder struct {
 }
 
 // Get an instance of ProbeBuilder
-func NewProbeBuilder (probeType string, probeCategory string) *ProbeBuilder {
+func NewProbeBuilder(probeType string, probeCategory string) *ProbeBuilder {
 	// Validate probe type and category
 	if &probeType == nil {
-		fmt.Println("[ProbeBuilder] Null Probe type")	//TODO: throw exception
+		fmt.Println("[ProbeBuilder] Null Probe type") //TODO: throw exception
 		return nil
 	}
 
 	if &probeCategory == nil {
-		fmt.Println("[ProbeBuilder] Null probe category")	//TODO: throw exception
+		fmt.Println("[ProbeBuilder] Null probe category") //TODO: throw exception
 		return nil
 	}
 
-	probeConf := &ProbeConfig {
+	probeConf := &ProbeConfig{
 		ProbeCategory: probeCategory,
-		ProbeType: probeType,
+		ProbeType:     probeType,
 	}
 	probe := NewTurboProbe(probeConf)
 
@@ -33,7 +33,7 @@ func NewProbeBuilder (probeType string, probeCategory string) *ProbeBuilder {
 // Build an instance of TurboProbe.
 func (pb *ProbeBuilder) Create() *TurboProbe {
 	if pb.turboProbe.RegistrationClient == nil {
-		fmt.Println("[ProbeBuilder] Null registration client")	//TODO: throw exception
+		fmt.Println("[ProbeBuilder] Null registration client") //TODO: throw exception
 		return nil
 	}
 

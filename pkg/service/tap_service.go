@@ -1,14 +1,14 @@
-package probe
+package service
 
 import (
-	"fmt"
-	"io/ioutil"
-	"github.com/golang/glog"
-	"os"
 	"encoding/json"
+	"fmt"
+	"github.com/golang/glog"
+	"io/ioutil"
+	"os"
 
 	restclient "github.com/turbonomic/turbo-api/pkg/client"
-	vmtapi "github.com/turbonomic/turbo-go-sdk/pkg/vmtapi"
+	"github.com/turbonomic/turbo-go-sdk/pkg/vmtapi"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/communication"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
@@ -18,7 +18,7 @@ type TAPService struct {
 	// Interface to the Turbo Server
 	*communication.MediationContainer
 	*probe.TurboProbe
-	*vmtapi.TurboAPIHandler	// TODO: use vmtapi.Client
+	*vmtapi.TurboAPIHandler // TODO: use vmtapi.Client
 	*restclient.Client
 }
 
@@ -35,10 +35,10 @@ func (tapService *TAPService) ConnectToTurbo() {
 // Invokes the Turbo Rest API to create VMTTarget representing the target environment
 // that is being controlled by the TAP service.
 // Targets are created only after the service is notified of successful registration with the server
-func (tapService *TAPService) createTurboTargets(IsRegistered chan bool)  {
+func (tapService *TAPService) createTurboTargets(IsRegistered chan bool) {
 	fmt.Printf("[******************* TAPService *****************] Waiting for registration complete .... %s\n", IsRegistered)
 	// Block till a message arrives on the channel
-	status := <- IsRegistered
+	status := <-IsRegistered
 	if !status {
 		fmt.Println("[TAPService] Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " should be registered before adding Targets")
 		return
@@ -75,20 +75,19 @@ func (tapService *TAPService) createTurboTargets(IsRegistered chan bool)  {
 	}
 }
 
-
 // ==============================================================================
 
 // Configuration parameters for communicating with the Turbo server
-type TurboCommunicationConfig struct  {
+type TurboCommunicationConfig struct {
 	// Config for the Rest API client
 	*vmtapi.TurboAPIConfig
 	// Config for RemoteMediation client that communicates using websocket
 	*communication.ContainerConfig
 }
 
-func parseTurboCommunicationConfig (configFile string) *TurboCommunicationConfig {
+func parseTurboCommunicationConfig(configFile string) *TurboCommunicationConfig {
 	// load the config
-	turboCommConfig := readTurboCommunicationConfig (configFile)
+	turboCommConfig := readTurboCommunicationConfig(configFile)
 	if turboCommConfig == nil {
 		os.Exit(1)
 	}
@@ -103,7 +102,7 @@ func parseTurboCommunicationConfig (configFile string) *TurboCommunicationConfig
 	return turboCommConfig
 }
 
-func readTurboCommunicationConfig (path string) *TurboCommunicationConfig {
+func readTurboCommunicationConfig(path string) *TurboCommunicationConfig {
 	file, e := ioutil.ReadFile(path)
 	if e != nil {
 		glog.Errorf("File error: %v\n", e)
@@ -129,10 +128,10 @@ type TAPServiceBuilder struct {
 }
 
 // Get an instance of TAPServiceBuilder
-func NewTAPServiceBuilder () *TAPServiceBuilder {
+func NewTAPServiceBuilder() *TAPServiceBuilder {
 	serviceBuilder := &TAPServiceBuilder{}
-	service := &TAPService {
-		//IsRegistered: make(chan bool, 1),	// buffered channel so the send does not block
+	service := &TAPService{
+	//IsRegistered: make(chan bool, 1),	// buffered channel so the send does not block
 	}
 	serviceBuilder.tapService = service
 	return serviceBuilder
@@ -141,11 +140,15 @@ func NewTAPServiceBuilder () *TAPServiceBuilder {
 // Build a new instance of TAPService.
 func (pb *TAPServiceBuilder) Create() *TAPService {
 	if &pb.tapService.TurboProbe == nil {
-		fmt.Println("[TAPServiceBuilder] Null turbo probe")	//TODO: throw exception
+		fmt.Println("[TAPServiceBuilder] Null turbo probe") //TODO: throw exception
 		return nil
 	}
 
 	return pb.tapService
+}
+
+func (pb *TAPServiceBuilder) WithTurboCommunicator2(config *TurboCommunicationConfig) {
+
 }
 
 // The Communication Layer to communicate with the Turbo server
@@ -194,5 +197,3 @@ func (pb *TAPServiceBuilder) WithTurboProbe(probeBuilder *probe.ProbeBuilder) *T
 	theContainer.GetProbe(turboProbe.ProbeType)
 	return pb
 }
-
-

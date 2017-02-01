@@ -1,10 +1,10 @@
 package builder
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
-	"github.com/turbonomic/turbo-go-sdk/util/rand"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/util/rand"
+	"testing"
 )
 
 //
@@ -31,7 +31,7 @@ func TestNewAccountDefEntryBuilder(t *testing.T) {
 	displayName := rand.String(7)
 	description := rand.String(8)
 	verificationRegex := rand.String(9)
-	entryType := false	//AccountDefEntry_OPTIONAL
+	entryType := false //AccountDefEntry_OPTIONAL
 	isSecret := true
 	acctDefEntryBuilder := NewAccountDefEntryBuilder(name, displayName, description, verificationRegex, entryType, isSecret)
 	acctDef := acctDefEntryBuilder.accountDefEntry
@@ -62,8 +62,8 @@ func TestCreate(t *testing.T) {
 // to the new ProbeInfo struct containing the passed arguments
 func TestNewProbeInfoBuilder(t *testing.T) {
 	assert := assert.New(t)
-	probeType := "ProbeType1"	//rand.String(6)
-	probeCat := "ProbeCategory1"	//rand.String(7)
+	probeType := "ProbeType1"    //rand.String(6)
+	probeCat := "ProbeCategory1" //rand.String(7)
 	var supplyCS []*proto.TemplateDTO
 	var acctDef []*proto.AccountDefEntry
 	probeInfoBldr := NewProbeInfoBuilder(probeType, probeCat, supplyCS, acctDef)

@@ -3,11 +3,11 @@ package communication
 import (
 	"fmt"
 
-	goproto "github.com/golang/protobuf/proto"
 	"github.com/golang/glog"
+	goproto "github.com/golang/protobuf/proto"
 
-	proto "github.com/turbonomic/turbo-go-sdk/pkg/proto"
-	version "github.com/turbonomic/turbo-go-sdk/pkg/version"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	"github.com/turbonomic/turbo-go-sdk/pkg/version"
 )
 
 // Endpoint to handle communication of a particular protobuf message type with the server
@@ -19,7 +19,6 @@ type ProtobufEndpoint interface {
 	MessageReceiver() chan goproto.Message
 	//AddEventHandler(handler EndpointEventHandler)
 }
-
 
 type EndpointMessage struct {
 	ProtobufMessage goproto.Message
