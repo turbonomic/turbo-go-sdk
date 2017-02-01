@@ -46,17 +46,6 @@ func TestNewAccountDefEntryBuilder(t *testing.T) {
 	}
 }
 
-// Tests that the method Create returns the correct this.accountDefentry
-func TestCreate(t *testing.T) {
-	assert := assert.New(t)
-	acctDefEntry := new(proto.AccountDefEntry)
-	acctDefEBuilder := &AccountDefEntryBuilder{
-		accountDefEntry: acctDefEntry,
-	}
-	acctDE := acctDefEBuilder.Create()
-	assert.Equal(acctDefEntry, acctDE)
-}
-
 // Tests that NewProbeInfoBuilder creates a ProbeInfo struct with member variables set to the
 // arguments passed to it and creates a ProbeInfoBuilder struct with its probeInfo variable set
 // to the new ProbeInfo struct containing the passed arguments

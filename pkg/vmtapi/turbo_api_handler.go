@@ -8,7 +8,6 @@ import (
 	"github.com/golang/glog"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
-	"github.com/vmturbo/vmturbo-go-sdk/pkg/vmtapi"
 )
 
 type TurboAPIConfig struct {
@@ -29,7 +28,7 @@ func (apiConfig *TurboAPIConfig) ValidateTurboAPIConfig() bool {
 // =====================================================================================================================
 
 type TurboAPIHandler struct {
-	TurboAPIClient *vmtapi.VmtApi
+	TurboAPIClient *VmtApi
 	// map of specific handlers
 }
 
@@ -37,7 +36,7 @@ func NewTurboAPIHandler(conf *TurboAPIConfig) *TurboAPIHandler {
 	fmt.Println("---------- Created TurboAPIHandler ----------")
 	handler := &TurboAPIHandler{}
 
-	apiClient := vmtapi.NewVmtApi(conf.VmtRestServerAddress, conf.VmtRestUser, conf.VmtRestPassword)
+	apiClient := NewVmtApi(conf.VmtRestServerAddress, conf.VmtRestUser, conf.VmtRestPassword)
 	handler.TurboAPIClient = apiClient
 	return handler
 }
