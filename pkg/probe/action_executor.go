@@ -5,11 +5,11 @@ import (
 )
 
 // TODO:
-type IActionExecutor interface {
+type ActionExecutorClient interface {
 	executeAction(actionExecutionDTO proto.ActionExecutionDTO,
 		accountValues []*proto.AccountValue,
-		progressTracker IProgressTracker)
+		progressTracker ActionProgressTracker)
 }
 
-type IProgressTracker interface {
+type ActionProgressTracker interface {
 }

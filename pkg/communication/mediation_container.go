@@ -2,7 +2,10 @@ package communication
 
 import (
 	"fmt"
+	"sync"
+	"errors"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
+	"github.com/golang/glog"
 )
 
 type ContainerConfig struct {
@@ -12,22 +15,50 @@ type ContainerConfig struct {
 	VmtPassword      string
 	ConnectionRetry  int16 //
 	IsSecure         bool
-	ApplicationBase  string
-	ProbesDir        string //TODO: dont need until we can package like in the java sdk
+	BaseServerUrl    string
 }
 
-// TODO:
-func (containerConfig *ContainerConfig) ValidateContainerConfig() bool {
+type ContainerConfigDefault string
+const (
+	VMT_Remote_Mediation_Server ContainerConfigDefault = "/vmturbo/remoteMediation"
+	VMT_Remote_Mediation_Server_User ContainerConfigDefault = "vmtRemoteMediation"
+	VMT_Remote_Mediation_Server_Pwd ContainerConfigDefault = "vmtRemoteMediation"
+)
+
+
+func (containerConfig *ContainerConfig) ValidateContainerConfig() (bool, error) {
+	if containerConfig.VmtServerAddress == "" {
+		return false, errors.New("Turbo Server Address IP is required "+ fmt.Sprint(containerConfig))
+	}
+	if containerConfig.BaseServerUrl == "" {
+		containerConfig.BaseServerUrl = string(VMT_Remote_Mediation_Server)
+	}
+	if containerConfig.VmtUserName == "" {
+		containerConfig.VmtUserName = string(VMT_Remote_Mediation_Server_User)
+	}
+	if containerConfig.VmtPassword == "" {
+		containerConfig.VmtPassword = string(VMT_Remote_Mediation_Server_Pwd)
+	}
+
 	fmt.Println("========== Container Config =============")
 	fmt.Println("VmtServerAddress : " + string(containerConfig.VmtServerAddress))
 	fmt.Println("VmtUsername : " + containerConfig.VmtUserName)
 	fmt.Println("VmtPassword : " + containerConfig.VmtPassword)
 	fmt.Println("isSecure : ", containerConfig.IsSecure)
-	fmt.Println("ApplicationBase : " + containerConfig.ApplicationBase)
-	return true
+	fmt.Println("BaseServerUrl : " + containerConfig.BaseServerUrl)
+	return true, nil
 }
 
-// ======================================================================
+// ===========================================================================================================
+
+type mediationContainer struct {
+	// Configuration for making the transport connection
+	containerConfig *ContainerConfig
+	// Map of probes registered with the container
+	allProbes map[string]*ProbeProperties
+	// The Mediation client that will handle the messages from the server
+	theRemoteMediationClient *remoteMediationClient
+}
 
 type ProbeSignature struct {
 	ProbeType     string
@@ -39,25 +70,32 @@ type ProbeProperties struct {
 	Probe          *probe.TurboProbe
 }
 
-// ===========================================================================================================
+var (
+	theInstance  *mediationContainer
+	once sync.Once
+)
 
-type MediationContainer struct {
-	// map of probes
-	allProbes                map[string]*ProbeProperties
-	theRemoteMediationClient *RemoteMediationClient
-	containerConfig          *ContainerConfig
+func singletonMediationContainer() *mediationContainer {
+	once.Do(func() {
+		if theInstance == nil {
+			theInstance = &mediationContainer{
+				allProbes: make(map[string]*ProbeProperties),
+				// TODO: create the probe store and mediation client here
+			}
+		}
+	})
+	return theInstance
 }
 
-// Static method to create an instance of the Mediation Container
-func CreateMediationContainer(containerConfig *ContainerConfig) *MediationContainer {
-	fmt.Println("---------- Created MediationContainer ----------")
-	theContainer := &MediationContainer{} // TODO: make a singleton instance
+// Static method to get the singleton instance of the Mediation Container
+func CreateMediationContainer(containerConfig *ContainerConfig) *mediationContainer {
+	// Validate the container config
+	containerConfig.ValidateContainerConfig()
+	glog.Infof("---------- Created MediationContainer ----------")
+	theContainer := singletonMediationContainer()  //&mediationContainer {} // TODO: make a singleton instance
 
 	//  Load the main container configuration file and validate it
 	theContainer.containerConfig = containerConfig
-
-	// Map for the Probes
-	theContainer.allProbes = make(map[string]*ProbeProperties)
 
 	// Create the RemoteMediationClient to start the session with the server
 	theContainer.theRemoteMediationClient = CreateRemoteMediationClient(theContainer.allProbes, theContainer.containerConfig)
@@ -65,58 +103,66 @@ func CreateMediationContainer(containerConfig *ContainerConfig) *MediationContai
 	return theContainer
 }
 
-//func (theContainer *MediationContainer) GetRemoteMediationClient() *RemoteMediationClient {
-//	return theContainer.theRemoteMediationClient
-//}
-
 // Start the RemoteMediationClient
-func (theContainer *MediationContainer) Init(probeRegisteredMsg chan bool) {
-	fmt.Println("[MediationContainer] Initializing Mediation Container .....")
+func InitMediationContainer(probeRegisteredMsg chan bool) {
+	theContainer := singletonMediationContainer()
+	//func (theContainer *mediationContainer) Init(probeRegisteredMsg chan bool) {
+	glog.Infof("[MediationContainer] Initializing Mediation Container .....")
 	// Assert that the probes are registered before starting the handshake
 	if len(theContainer.allProbes) == 0 {
-		fmt.Println("[MediationContainer] No probes are registered with the container")
+		glog.Errorf("No probes are registered with the container")
 		return
 	}
 	// Open connection to the server and start server handshake to register probes
-	fmt.Println("[MediationContainer] Registering ", len(theContainer.allProbes), " probes")
+	glog.V(2).Infof("Registering ", len(theContainer.allProbes), " probes")
 
 	remoteMediationClient := theContainer.theRemoteMediationClient
 	remoteMediationClient.Init(probeRegisteredMsg)
 }
 
-func (theContainer *MediationContainer) Close() {
+func (theContainer *mediationContainer) Close() {
 	theContainer.theRemoteMediationClient.Stop()
 	// TODO: clear probe map ?
 }
 
 // ============================= Probe Management ==================
-func (theContainer *MediationContainer) LoadProbe(probe *probe.TurboProbe) {
+func LoadProbe(probe *probe.TurboProbe) error {
+	//func (theContainer *mediationContainer) LoadProbe(probe *probe.TurboProbe)
+
 	// load the probe config
-	config := &ProbeSignature{
+	config := &ProbeSignature {
 		ProbeCategory: probe.ProbeCategory,
 		ProbeType:     probe.ProbeType,
 	}
 
-	probeProp := &ProbeProperties{
+	probeProp := &ProbeProperties {
 		ProbeSignature: config,
 		Probe:          probe,
 	}
-
+	theContainer := singletonMediationContainer()
+	if theContainer == nil {
+		return errors.New("[LoadProbe] **** Null mediation container ****")
+	}
 	// TODO: check if the probe type already exists and warn before overwriting
-	theContainer.allProbes[config.ProbeType] = probeProp //createProbeFunc(configFile)
-	fmt.Println("[MediationContainer] Registered  " + config.ProbeCategory + "::" + config.ProbeType)
+	theContainer.allProbes[config.ProbeType] = probeProp
+	glog.Infof("Registered " + config.ProbeCategory + "::" + config.ProbeType)
+	return nil
 }
 
-func (theContainer *MediationContainer) GetProbe(probeType string) *probe.TurboProbe {
+func GetProbe(probeType string) (*probe.TurboProbe, error) {
+	theContainer := singletonMediationContainer()
+	if theContainer == nil {
+		return nil, errors.New("[GetProbe] **** Null mediation container ****")
+	}
 	probeProps := theContainer.allProbes[probeType]
 
 	if probeProps != nil {
 		probe := probeProps.Probe
 		registrationClient := probe.RegistrationClient
 		acctDefProps := registrationClient.GetAccountDefinition()
-		fmt.Println("[MediationContainer] Found "+probeProps.ProbeSignature.ProbeCategory+"::"+probeProps.ProbeSignature.ProbeType+" ==> ", acctDefProps)
-		return probe
+		glog.V(2).Infof("Found "+probeProps.ProbeSignature.ProbeCategory+"::"+probeProps.ProbeSignature.ProbeType+" ==> ", acctDefProps)
+		return probe, nil
 	}
-	fmt.Println("[MediationContainer] Cannot find Probe of type " + probeType)
-	return nil
+	return nil, errors.New("[GetProbe] Cannot find Probe of type " + probeType)
+
 }

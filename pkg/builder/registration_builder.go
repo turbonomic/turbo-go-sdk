@@ -11,12 +11,11 @@ type AccountDefEntryBuilder struct {
 }
 
 func NewAccountDefEntryBuilder(name, displayName, description, verificationRegex string,
-	mandatory bool, //proto.AccountDefEntry_AccountDefEntryType,
-	isSecret bool) *AccountDefEntryBuilder {
-	fieldType := &proto.CustomAccountDefEntry_PrimitiveValue_{
+					mandatory bool, isSecret bool) *AccountDefEntryBuilder {
+	fieldType := &proto.CustomAccountDefEntry_PrimitiveValue_ {
 		PrimitiveValue: proto.CustomAccountDefEntry_STRING,
 	}
-	entry := &proto.CustomAccountDefEntry{
+	entry := &proto.CustomAccountDefEntry {
 		Name:              &name,
 		DisplayName:       &displayName,
 		Description:       &description,
@@ -25,16 +24,16 @@ func NewAccountDefEntryBuilder(name, displayName, description, verificationRegex
 		FieldType:         fieldType,
 	}
 
-	customDef := &proto.AccountDefEntry_CustomDefinition{
+	customDef := &proto.AccountDefEntry_CustomDefinition {
 		CustomDefinition: entry,
 	}
 
-	accountDefEntry := &proto.AccountDefEntry{
+	accountDefEntry := &proto.AccountDefEntry {
 		Mandatory:  &mandatory,
 		Definition: customDef,
 	}
 
-	return &AccountDefEntryBuilder{
+	return &AccountDefEntryBuilder {
 		accountDefEntry: accountDefEntry,
 	}
 }

@@ -1,10 +1,9 @@
 package probe
 
 import (
-	"fmt"
-
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	"github.com/golang/glog"
 )
 
 // Turbo Probe Abstraction
@@ -14,7 +13,7 @@ type TurboProbe struct {
 	ProbeCategory      string
 	RegistrationClient TurboRegistrationClient
 	DiscoveryClientMap map[string]TurboDiscoveryClient
-	ActionExecutor     IActionExecutor //TODO:
+	ActionExecutor     ActionExecutorClient //TODO:
 }
 
 type TurboRegistrationClient interface {
@@ -32,42 +31,30 @@ type TurboDiscoveryClient interface {
 
 type DiscoveryClientInstantiateFunc func(accountValues []*proto.AccountValue) TurboDiscoveryClient
 
-// ==============================================================================================================
 type ProbeConfig struct {
 	ProbeType     string
 	ProbeCategory string
 }
 
-func (probeConfig *ProbeConfig) validate() bool {
-	// Validate probe type and category
-	if &probeConfig.ProbeType == nil {
-		fmt.Println("[ProbeConfig] Null Probe type") //TODO: throw exception
-		return false
-	}
-
-	if &probeConfig.ProbeCategory == nil {
-		fmt.Println("[ProbeConfig] Null probe category") //TODO: throw exception
-		return false
-	}
-	return true
-}
-
 // ==============================================================================================================
 
-func NewTurboProbe(probeConf *ProbeConfig) *TurboProbe {
-	fmt.Println("[TurboProbe] : ", probeConf)
-	if !probeConf.validate() {
-		fmt.Println("[NewTurboProbe] Errors creating new TurboProbe") //TODO: throw exception
-		return nil
+func NewTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
+	if probeConf.ProbeType == "" {
+		return nil, ErrorInvalidProbeType()
 	}
+
+	if probeConf.ProbeCategory == "" {
+		return nil, ErrorInvalidProbeCategory()
+	}
+
 	myProbe := &TurboProbe{
 		ProbeType:          probeConf.ProbeType,
 		ProbeCategory:      probeConf.ProbeCategory,
 		DiscoveryClientMap: make(map[string]TurboDiscoveryClient),
 	}
 
-	fmt.Printf("[TurboProbe] : Created TurboProbe %s\n", myProbe)
-	return myProbe
+	glog.Infof("[NewTurboProbe] Created TurboProbe %s\n", myProbe)
+	return myProbe, nil
 }
 
 func (theProbe *TurboProbe) SetProbeRegistrationClient(registrationClient TurboRegistrationClient) {
@@ -104,32 +91,47 @@ func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues []*proto.Accou
 	target := theProbe.getDiscoveryClient(address)
 
 	if target == nil {
-		fmt.Println("****** [TurboProbe][DiscoveryTarget] Cannot find Target for address : " + address)
+		glog.Errorf("****** [GetTurboDiscoveryClient] Cannot find Target for address : " + address)
 		//TODO: CreateDiscoveryClient(address, accountValues, )
 		return nil
 	}
-	fmt.Println("[TurboProbe][DiscoveryTarget] Found Target for address : " + address)
+	glog.Infof("[GetTurboDiscoveryClient] Found Target for address : " + address)
 	return target
 }
 
 func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
-	fmt.Println("[TurboProbe] ============ Discover Target ========", accountValues)
+	glog.Infof("Discover Target : ", accountValues)
 	var handler TurboDiscoveryClient
 	handler = theProbe.GetTurboDiscoveryClient(accountValues)
+	var discoveryResponse *proto.DiscoveryResponse
 	if handler != nil {
-		return handler.Discover(accountValues)
+		 discoveryResponse = handler.Discover(accountValues)
 	}
-	fmt.Println("[TurboProbe] Error discovering target ", accountValues)
-	return nil
+	if discoveryResponse == nil {
+		description := "Null Entity DTOs"
+		severity := proto.ErrorDTO_CRITICAL
+		errorDTO := &proto.ErrorDTO {
+			Severity: &severity,
+			Description: &description,
+		}
+		var errorDtoList []*proto.ErrorDTO
+		errorDtoList = append(errorDtoList, errorDTO)
+
+		discoveryResponse = &proto.DiscoveryResponse{
+			ErrorDTO: errorDtoList,
+		}
+	}
+	glog.Infof("Error discovering target %s", discoveryResponse)
+	return discoveryResponse
 }
 
 func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) *proto.ValidationResponse {
-	fmt.Println("[TurboProbe] ============ Validate Target ========", accountValues)
+	glog.Infof("Validate Target : ", accountValues)
 	var handler TurboDiscoveryClient
 	handler = theProbe.GetTurboDiscoveryClient(accountValues)
 
 	if handler != nil {
-		fmt.Printf("[TurboProbe] Send validation request to handler %s\n", handler)
+		glog.Infof("Send validation request to handler %s\n", handler)
 		return handler.Validate(accountValues)
 	}
 
@@ -137,8 +139,22 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) 
 	// Create a new discovery client for this target and add it to the map of discovery clients
 	// allow to pass a func to instantiate a default discovery client
 
-	fmt.Println("[TurboProbe] Error validating target ", accountValues)
-	return nil
+
+	description := "Target not found"
+	severity := proto.ErrorDTO_CRITICAL
+
+	errorDTO := &proto.ErrorDTO {
+		Severity: &severity,
+		Description: &description,
+	}
+	var errorDtoList []*proto.ErrorDTO
+	errorDtoList = append(errorDtoList, errorDTO)
+
+	validationResponse := &proto.ValidationResponse{
+		ErrorDTO: errorDtoList,
+	}
+	glog.Infof("Error validating target %s", validationResponse)
+	return validationResponse
 }
 
 // ==============================================================================================================
@@ -172,10 +188,39 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	probeCat := theProbe.ProbeCategory
 	probeType := theProbe.ProbeType
 	probeInfo := builder.NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
+
+	// Fields that serve to uniquely identify a target
 	id := theProbe.RegistrationClient.GetIdentifyingFields()
 
-	// /id := "targetIdentifier"		// TODO: parameterize this for different probes using AccountInfo struct
 	probeInfo.TargetIdentifierField = &id
 
 	return probeInfo, nil
+}
+
+func (theProbe *TurboProbe) createValidationErrorDTO (errMsg string, severity proto.ErrorDTO_ErrorSeverity) *proto.ValidationResponse {
+	errorDTO := &proto.ErrorDTO {
+		Severity: &severity,
+		Description: &errMsg,
+	}
+	var errorDtoList []*proto.ErrorDTO
+	errorDtoList = append(errorDtoList, errorDTO)
+
+	validationResponse := &proto.ValidationResponse{
+		ErrorDTO: errorDtoList,
+	}
+	return validationResponse
+}
+
+func (theProbe *TurboProbe) createDiscoveryErrorDTO (errMsg string, severity proto.ErrorDTO_ErrorSeverity) *proto.DiscoveryResponse {
+	errorDTO := &proto.ErrorDTO {
+		Severity: &severity,
+		Description: &errMsg,
+	}
+	var errorDtoList []*proto.ErrorDTO
+	errorDtoList = append(errorDtoList, errorDTO)
+
+	discoveryResponse := &proto.DiscoveryResponse{
+		ErrorDTO: errorDtoList,
+	}
+	return discoveryResponse
 }
