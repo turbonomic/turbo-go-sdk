@@ -2,15 +2,16 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/golang/glog"
+	"fmt"
 	"io/ioutil"
-	"errors"
 
 	restclient "github.com/turbonomic/turbo-api/pkg/client"
-	"github.com/turbonomic/turbo-go-sdk/pkg/vmtapi"
 
+	"github.com/turbonomic/turbo-go-sdk/pkg/vmtapi"
 	"github.com/turbonomic/turbo-go-sdk/pkg/communication"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
+
+	"github.com/golang/glog"
 )
 
 type TAPService struct {
@@ -88,7 +89,7 @@ func ParseTurboCommunicationConfig(configFile string) (*TurboCommunicationConfig
 func readTurboCommunicationConfig(path string) (*TurboCommunicationConfig, error) {
 	file, e := ioutil.ReadFile(path)
 	if e != nil {
-		return nil, errors.New("File error: %v\n" + e.Error())
+		return nil, fmt.Errorf("File error: %v\n" + e.Error())
 	}
 	//fmt.Println(string(file))
 	var config TurboCommunicationConfig
@@ -96,7 +97,7 @@ func readTurboCommunicationConfig(path string) (*TurboCommunicationConfig, error
 	err := json.Unmarshal(file, &config)
 
 	if err != nil {
-		return nil, errors.New("Unmarshall error :%v\n" + err.Error())
+		return nil, fmt.Errorf("Unmarshall error :%v\n" + err.Error())
 	}
 	glog.Infof("Results: %+v\n", config)
 	return &config, nil
@@ -106,36 +107,32 @@ func readTurboCommunicationConfig(path string) (*TurboCommunicationConfig, error
 // Convenience builder for building a TAPService
 type TAPServiceBuilder struct {
 	tapService *TAPService
-	buildErrors []error
+
+	err error
 }
 
 // Get an instance of TAPServiceBuilder
 func NewTAPServiceBuilder() *TAPServiceBuilder {
 	serviceBuilder := &TAPServiceBuilder{}
-	service := &TAPService {}
+	service := &TAPService{}
 	serviceBuilder.tapService = service
 	return serviceBuilder
 }
 
 // Build a new instance of TAPService.
 func (pb *TAPServiceBuilder) Create() (*TAPService, error) {
-	//if &pb.tapService.TurboProbe == nil {
-	//	fmt.Println("[TAPServiceBuilder] Null turbo probe") //TODO: throw exception
-	//	return nil
-	//}
-	var errStr string
-	if len(pb.buildErrors) != 0 {
-		for _, err := range pb.buildErrors {
-			errStr = errStr + ", " + err.Error()
-		}
-
+	if pb.err != nil {
+		return nil, pb.err
 	}
 
-	return pb.tapService, errors.New(errStr)
+	return pb.tapService, nil
 }
 
 func (pb *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommunicationConfig) *TAPServiceBuilder {
-	// The Webscoket Container
+	if pb.err != nil {
+		return pb
+	}
+	// The WebSocket Container
 	communication.CreateMediationContainer(commConfig.ContainerConfig)
 	// The RestAPI Handler
 	// TODO: if rest api config has validation errors or not specified, do not create the handler
@@ -147,30 +144,23 @@ func (pb *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommunicatio
 
 // The TurboProbe representing the service in the Turbo server
 func (pb *TAPServiceBuilder) WithTurboProbe(probeBuilder *probe.ProbeBuilder) *TAPServiceBuilder {
+	if pb.err != nil {
+		return pb
+	}
 	// Create the probe
 	turboProbe, err := probeBuilder.Create()
 	if err != nil {
-		pb.setError(err)
-		return pb
-	}
-	if turboProbe == nil {
-		pb.setError(errors.New("Null probe"))
+		pb.err = err
 		return pb
 	}
 
 	pb.tapService.TurboProbe = turboProbe
-
 	// Register the probe
 	err = communication.LoadProbe(turboProbe)
 	if err != nil {
-		pb.setError(err)
+		pb.err = err
 		return pb
 	}
-	communication.GetProbe(turboProbe.ProbeType)
 
 	return pb
-}
-
-func (pb *TAPServiceBuilder) setError(err error) {
-	pb.buildErrors = append(pb.buildErrors, err)
 }
