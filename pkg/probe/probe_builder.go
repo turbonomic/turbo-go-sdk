@@ -6,11 +6,11 @@ import (
 )
 
 type ProbeBuilder struct {
-	probeType string
-	probeCategory string
+	probeType          string
+	probeCategory      string
 	registrationClient TurboRegistrationClient
 	discoveryClientMap map[string]TurboDiscoveryClient
-	builderError error
+	builderError       error
 }
 
 func ErrorInvalidProbeType() error {
@@ -37,7 +37,6 @@ func ErrorCreatingProbe(probeType string, probeCategory string) error {
 	return errors.New("Error creating probe for " + probeCategory + "::" + probeType)
 }
 
-
 // Get an instance of ProbeBuilder
 func NewProbeBuilder(probeType string, probeCategory string) *ProbeBuilder {
 	// Validate probe type and category
@@ -52,9 +51,9 @@ func NewProbeBuilder(probeType string, probeCategory string) *ProbeBuilder {
 		return probeBuilder
 	}
 
-	return &ProbeBuilder  {
-		probeCategory: probeCategory,
-		probeType:     probeType,
+	return &ProbeBuilder{
+		probeCategory:      probeCategory,
+		probeType:          probeType,
 		discoveryClientMap: make(map[string]TurboDiscoveryClient),
 	}
 }

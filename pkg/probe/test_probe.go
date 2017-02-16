@@ -7,7 +7,7 @@ import (
 type TestProbe struct{}
 type TestProbeDiscoveryClient struct {}
 type TestProbeRegistrationClient struct {}
-func (handler *TestProbeDiscoveryClient) GetAccountValues() *TurboTarget {
+func (handler *TestProbeDiscoveryClient) GetAccountValues() *TurboTargetInfo {
 	return nil
 }
 func (handler *TestProbeDiscoveryClient) Validate(accountValues[] *proto.AccountValue) *proto.ValidationResponse {

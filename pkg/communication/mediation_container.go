@@ -1,34 +1,38 @@
 package communication
 
 import (
+	"errors"
 	"fmt"
 	"sync"
-	"errors"
+
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
+
 	"github.com/golang/glog"
 )
 
 type ContainerConfig struct {
-	VmtServerAddress string
-	VmtServerPort    string
-	VmtUserName      string
-	VmtPassword      string
-	ConnectionRetry  int16 //
-	IsSecure         bool
-	BaseServerUrl    string
+	VmtServerAddress   string
+	VmtServerPort      string
+	VmtUserName        string
+	VmtPassword        string
+	ConnectionRetry    int16 //
+	IsSecure           bool
+	BaseServerUrl      string
+	OpsManagerUserName string
+	OpsManagerPassword string
 }
 
 type ContainerConfigDefault string
-const (
-	VMT_Remote_Mediation_Server ContainerConfigDefault = "/vmturbo/remoteMediation"
-	VMT_Remote_Mediation_Server_User ContainerConfigDefault = "vmtRemoteMediation"
-	VMT_Remote_Mediation_Server_Pwd ContainerConfigDefault = "vmtRemoteMediation"
-)
 
+const (
+	VMT_Remote_Mediation_Server      ContainerConfigDefault = "/vmturbo/remoteMediation"
+	VMT_Remote_Mediation_Server_User ContainerConfigDefault = "vmtRemoteMediation"
+	VMT_Remote_Mediation_Server_Pwd  ContainerConfigDefault = "vmtRemoteMediation"
+)
 
 func (containerConfig *ContainerConfig) ValidateContainerConfig() (bool, error) {
 	if containerConfig.VmtServerAddress == "" {
-		return false, errors.New("Turbo Server Address IP is required "+ fmt.Sprint(containerConfig))
+		return false, errors.New("Turbo Server Address IP is required " + fmt.Sprint(containerConfig))
 	}
 	if containerConfig.BaseServerUrl == "" {
 		containerConfig.BaseServerUrl = string(VMT_Remote_Mediation_Server)
@@ -71,8 +75,8 @@ type ProbeProperties struct {
 }
 
 var (
-	theInstance  *mediationContainer
-	once sync.Once
+	theInstance *mediationContainer
+	once        sync.Once
 )
 
 func singletonMediationContainer() *mediationContainer {
@@ -92,7 +96,7 @@ func CreateMediationContainer(containerConfig *ContainerConfig) *mediationContai
 	// Validate the container config
 	containerConfig.ValidateContainerConfig()
 	glog.Infof("---------- Created MediationContainer ----------")
-	theContainer := singletonMediationContainer()  //&mediationContainer {} // TODO: make a singleton instance
+	theContainer := singletonMediationContainer() //&mediationContainer {} // TODO: make a singleton instance
 
 	//  Load the main container configuration file and validate it
 	theContainer.containerConfig = containerConfig
@@ -130,12 +134,12 @@ func LoadProbe(probe *probe.TurboProbe) error {
 	//func (theContainer *mediationContainer) LoadProbe(probe *probe.TurboProbe)
 
 	// load the probe config
-	config := &ProbeSignature {
+	config := &ProbeSignature{
 		ProbeCategory: probe.ProbeCategory,
 		ProbeType:     probe.ProbeType,
 	}
 
-	probeProp := &ProbeProperties {
+	probeProp := &ProbeProperties{
 		ProbeSignature: config,
 		Probe:          probe,
 	}
