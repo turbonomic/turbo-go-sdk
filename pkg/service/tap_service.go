@@ -1,9 +1,8 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"net/url"
 
 	restclient "github.com/turbonomic/turbo-api/pkg/client"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
 
 	"github.com/golang/glog"
-	"net/url"
 )
 
 const (
@@ -62,55 +60,6 @@ func (tapService *TAPService) createTurboTargets(IsRegistered chan bool) {
 	}
 }
 
-// ==============================================================================
-
-// Configuration parameters for communicating with the Turbo server
-type TurboCommunicationConfig struct {
-	// Config for the Rest API client
-	// Config for RemoteMediation client that communicates using websocket
-	*communication.ContainerConfig
-}
-
-func ParseTurboCommunicationConfig(configFile string) (*TurboCommunicationConfig, error) {
-	// load the config
-	turboCommConfig, err := readTurboCommunicationConfig(configFile)
-	if turboCommConfig == nil {
-		return nil, err
-	}
-	glog.Infof("WebscoketContainer Config : ", turboCommConfig.ContainerConfig)
-
-	// validate the config
-	// TODO: return validation errors
-	_, err = turboCommConfig.ValidateContainerConfig()
-	if err != nil {
-		return nil, err
-	}
-	//_, err = turboCommConfig.ValidateTurboAPIConfig()
-	//if err != nil {
-	//	return nil, err
-	//}
-	glog.Infof("---------- Loaded Turbo Communication Config ---------")
-	return turboCommConfig, nil
-}
-
-func readTurboCommunicationConfig(path string) (*TurboCommunicationConfig, error) {
-	file, e := ioutil.ReadFile(path)
-	if e != nil {
-		return nil, fmt.Errorf("File error: %v\n" + e.Error())
-	}
-	//fmt.Println(string(file))
-	var config TurboCommunicationConfig
-
-	err := json.Unmarshal(file, &config)
-
-	if err != nil {
-		return nil, fmt.Errorf("Unmarshall error :%v\n" + err.Error())
-	}
-	glog.Infof("Results: %+v\n", config)
-	return &config, nil
-}
-
-// ==============================================================================
 // Convenience builder for building a TAPService
 type TAPServiceBuilder struct {
 	tapService *TAPService
@@ -136,15 +85,20 @@ func (builder *TAPServiceBuilder) Create() (*TAPService, error) {
 }
 
 // Build the mediation container and Turbo API client.
-func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommunicationConfig) *TAPServiceBuilder {
+func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *communication.TurboCommunicationConfig) *TAPServiceBuilder {
 	if builder.err != nil {
 		return builder
 	}
+
 	// Create the mediation container. This is a singleton.
-	communication.CreateMediationContainer(commConfig.ContainerConfig)
+	containerConfig := &communication.MediationContainerConfig{
+		ServerMeta:      commConfig.ServerMeta,
+		WebSocketConfig: commConfig.WebSocketConfig,
+	}
+	communication.CreateMediationContainer(containerConfig)
 
 	// The RestAPI Handler
-	serverAddress, err := url.Parse("https://" + commConfig.ContainerConfig.VmtServerAddress)
+	serverAddress, err := url.Parse(commConfig.TurboServer)
 	if err != nil {
 		builder.err = fmt.Errorf("Error during create Turbo API client config: Incorrect URL: %s\n", err)
 		return builder

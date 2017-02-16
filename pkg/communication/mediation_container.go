@@ -2,7 +2,6 @@ package communication
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
@@ -10,54 +9,9 @@ import (
 	"github.com/golang/glog"
 )
 
-type ContainerConfig struct {
-	VmtServerAddress   string
-	VmtServerPort      string
-	VmtUserName        string
-	VmtPassword        string
-	ConnectionRetry    int16 //
-	IsSecure           bool
-	BaseServerUrl      string
-	OpsManagerUserName string
-	OpsManagerPassword string
-}
-
-type ContainerConfigDefault string
-
-const (
-	VMT_Remote_Mediation_Server      ContainerConfigDefault = "/vmturbo/remoteMediation"
-	VMT_Remote_Mediation_Server_User ContainerConfigDefault = "vmtRemoteMediation"
-	VMT_Remote_Mediation_Server_Pwd  ContainerConfigDefault = "vmtRemoteMediation"
-)
-
-func (containerConfig *ContainerConfig) ValidateContainerConfig() (bool, error) {
-	if containerConfig.VmtServerAddress == "" {
-		return false, errors.New("Turbo Server Address IP is required " + fmt.Sprint(containerConfig))
-	}
-	if containerConfig.BaseServerUrl == "" {
-		containerConfig.BaseServerUrl = string(VMT_Remote_Mediation_Server)
-	}
-	if containerConfig.VmtUserName == "" {
-		containerConfig.VmtUserName = string(VMT_Remote_Mediation_Server_User)
-	}
-	if containerConfig.VmtPassword == "" {
-		containerConfig.VmtPassword = string(VMT_Remote_Mediation_Server_Pwd)
-	}
-
-	fmt.Println("========== Container Config =============")
-	fmt.Println("VmtServerAddress : " + string(containerConfig.VmtServerAddress))
-	fmt.Println("VmtUsername : " + containerConfig.VmtUserName)
-	fmt.Println("VmtPassword : " + containerConfig.VmtPassword)
-	fmt.Println("isSecure : ", containerConfig.IsSecure)
-	fmt.Println("BaseServerUrl : " + containerConfig.BaseServerUrl)
-	return true, nil
-}
-
-// ===========================================================================================================
-
 type mediationContainer struct {
 	// Configuration for making the transport connection
-	containerConfig *ContainerConfig
+	containerConfig *MediationContainerConfig
 	// Map of probes registered with the container
 	allProbes map[string]*ProbeProperties
 	// The Mediation client that will handle the messages from the server
@@ -92,9 +46,9 @@ func singletonMediationContainer() *mediationContainer {
 }
 
 // Static method to get the singleton instance of the Mediation Container
-func CreateMediationContainer(containerConfig *ContainerConfig) *mediationContainer {
+func CreateMediationContainer(containerConfig *MediationContainerConfig) *mediationContainer {
 	// Validate the container config
-	containerConfig.ValidateContainerConfig()
+	containerConfig.ValidateMediationContainerConfig()
 	glog.Infof("---------- Created MediationContainer ----------")
 	theContainer := singletonMediationContainer() //&mediationContainer {} // TODO: make a singleton instance
 
