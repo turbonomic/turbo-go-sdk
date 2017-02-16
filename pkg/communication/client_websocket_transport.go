@@ -3,16 +3,13 @@ package communication
 import (
 	"crypto/tls"
 	"encoding/base64"
+	"fmt"
+	"io"
 	"net/http"
 
-	"golang.org/x/net/websocket"
-
 	"github.com/golang/glog"
-	"io"
-	//"time"
-	"fmt"
+	"golang.org/x/net/websocket"
 )
-
 
 // Connection parameters for the websocket
 type WebsocketConnectionConfig struct {
@@ -46,14 +43,14 @@ type ClientWebSocketTransport struct {
 // Instantiate a new ClientWebsocketTransport endpoint for the client
 // Websocket connection is established with the server
 func CreateClientWebsocketTransport(connConfig *WebsocketConnectionConfig) (*ClientWebSocketTransport, error) {
-	websocket, err := newWebSocketConnection(connConfig)	// will be nil if the server is not connected
+	websocket, err := newWebSocketConnection(connConfig) // will be nil if the server is not connected
 
 	if err != nil {
 		return nil, err
 	}
 
 	transport := &ClientWebSocketTransport{
-		ws:          websocket,		//newWebsocketConnection(connConfig),
+		ws:          websocket, //newWebsocketConnection(connConfig),
 		inputStream: make(chan []byte),
 	}
 
@@ -67,7 +64,7 @@ func newWebSocketConnection(connConfig *WebsocketConnectionConfig) (*websocket.C
 	// Websocket URL
 	vmtServerUrl := CreateWebSocketTransportPointUrl(connConfig)
 	//
-	localAddr := "http://127.0.0.1" 	//Note - required in url format, but ip is don't care for us
+	localAddr := "http://127.0.0.1" //Note - required in url format, but ip is don't care for us
 	glog.V(3).Infof("Dial Server: %s", vmtServerUrl)
 
 	config, err := websocket.NewConfig(vmtServerUrl, localAddr)
@@ -120,7 +117,6 @@ func closeWebsocket(wsConn *websocket.Conn) {
 
 // Send serialized protobuf message bytes
 func (clientTransport *ClientWebSocketTransport) Send(messageToSend *TransportMessage) {
-	glog.V(1).Infof("SEND %s\n", messageToSend.RawMsg)
 	if clientTransport.closeReceived {
 		glog.Errorf("Cannot send message : Transport endpoint is closed")
 		return
@@ -130,12 +126,12 @@ func (clientTransport *ClientWebSocketTransport) Send(messageToSend *TransportMe
 		glog.Errorf("Cannot send message : web socket is nil")
 		return
 	}
-	if messageToSend == nil { 	//.RawMsg == nil {
+	if messageToSend == nil { //.RawMsg == nil {
 		glog.Errorf("Cannot send message : marshalled msg is nil")
 		return
 	}
 	if clientTransport.ws.IsClientConn() {
-		glog.V(2).Infof("Sending message on client transport %+v", clientTransport.ws)
+		glog.V(4).Infof("Sending message on client transport %+v", clientTransport.ws)
 	}
 	err := websocket.Message.Send(clientTransport.ws, messageToSend.RawMsg)
 	if err != nil {
@@ -144,7 +140,7 @@ func (clientTransport *ClientWebSocketTransport) Send(messageToSend *TransportMe
 		// TODO: throw exception to the upper layer
 		return
 	}
-	glog.V(2).Infof("Successfully sent message on client transport")
+	glog.V(3).Infof("Successfully sent message on client transport")
 }
 
 // Receives serialized protobuf message bytes
@@ -157,7 +153,7 @@ func (clientTransport *ClientWebSocketTransport) waitForServerMessage() {
 	}
 	// main loop for listening server message.
 	for {
-		glog.V(2).Infof("Waiting for server message ...")
+		glog.V(3).Infof("Waiting for server message ...")
 		var data []byte = make([]byte, 1024)
 		error := websocket.Message.Receive(clientTransport.ws, &data)
 		if error != nil {
@@ -184,4 +180,3 @@ func (clientTransport *ClientWebSocketTransport) waitForServerMessage() {
 		}
 	}
 }
-
