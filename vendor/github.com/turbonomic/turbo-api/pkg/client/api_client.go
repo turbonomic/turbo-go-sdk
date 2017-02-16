@@ -1,10 +1,11 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"encoding/json"
 
+	"crypto/tls"
 	"github.com/turbonomic/turbo-api/pkg/api"
 )
 
@@ -17,12 +18,20 @@ func NewAPIClientWithBA(c *Config) (*Client, error) {
 	if c.BasicAuth == nil {
 		return nil, fmt.Errorf("Basic authentication is not set")
 	}
-	restClient := NewRESTClient(http.DefaultClient, c.ServerAddress, c.APIPath).BasicAuthentication(c.BasicAuth)
+	client := http.DefaultClient
+	// If use https, disable the security check.
+	if c.ServerAddress.Scheme == "https" {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client = &http.Client{Transport: tr}
+	}
+	restClient := NewRESTClient(client, c.ServerAddress, c.APIPath).BasicAuthentication(c.BasicAuth)
 	return &Client{restClient}, nil
 }
 
 // Discover a target using api
-// <turbo_server_address>/vmturbo/api/targets/<uuid>
+// <turbo_server_address>/vmturbo/rest/targets/<uuid>
 func (c *Client) DiscoverTarget(uuid string) (Result, error) {
 	response, err := c.Post().Resource(api.Resource_Type_Target).Name(uuid).Do()
 	if err != nil {
@@ -31,6 +40,8 @@ func (c *Client) DiscoverTarget(uuid string) (Result, error) {
 	return response, nil
 }
 
+// Add a target.
+// <turbo_server_address>/vmturbo/rest/targets
 func (c *Client) AddTarget(target *api.Target) (Result, error) {
 	targetData, err := json.Marshal(target)
 	if err != nil {
