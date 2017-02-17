@@ -12,42 +12,26 @@ import (
 	"net/url"
 )
 
-// Connection parameters for the websocket
-//type WebSocketConnectionConfig struct {
-//	VmtServerAddress string
-//	LocalAddress     string
-//	ServerUsername   string
-//	ServerPassword   string
-//	RequestURI       string
-//}
-
 type WebSocketConnectionConfig MediationContainerConfig
 
-//func CreateWebSocketTransportPointUrl(connConfig *WebSocketConnectionConfig) string {
-//	protocol := "ws"
-//	if connConfig.IsSecure {
-//		protocol = "wss"
-//	}
-//
-//	vmtServerUrl := protocol + "://" + connConfig.VmtServerAddress + connConfig.RequestURI
-//	glog.Infof("######### [CreateTransportPointUrl] Created Webscoket URL : ", vmtServerUrl)
-//	return vmtServerUrl
-//}
-
 func CreateWebSocketConnectionConfig(connConfig *MediationContainerConfig) (*WebSocketConnectionConfig, error) {
-	// Change URL scheme from ws to http or wss to https.
-	url, err := url.Parse(connConfig.TurboServer)
+	_, err := url.ParseRequestURI(connConfig.LocalAddress)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse URL from %s when create WebSocketConnectionConfig.", connConfig.TurboServer)
+		return nil, fmt.Errorf("Failed to parse local URL from %s when create WebSocketConnectionConfig.", connConfig.LocalAddress)
 	}
-	switch url.Scheme {
+	// Change URL scheme from ws to http or wss to https.
+	serverURL, err := url.ParseRequestURI(connConfig.TurboServer)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse turboServer URL from %s when create WebSocketConnectionConfig.", connConfig.TurboServer)
+	}
+	switch serverURL.Scheme {
 	case "http":
-		url.Scheme = "ws"
+		serverURL.Scheme = "ws"
 	case "https":
-		url.Scheme = "wss"
+		serverURL.Scheme = "wss"
 	}
 	wsConfig := WebSocketConnectionConfig(*connConfig)
-	wsConfig.TurboServer = url.String()
+	wsConfig.TurboServer = serverURL.String()
 	return &wsConfig, nil
 }
 
@@ -61,7 +45,7 @@ type ClientWebSocketTransport struct {
 
 // Instantiate a new ClientWebsocketTransport endpoint for the client
 // Websocket connection is established with the server
-func CreateClientWebsocketTransport(connConfig *WebSocketConnectionConfig) (*ClientWebSocketTransport, error) {
+func CreateClientWebSocketTransport(connConfig *WebSocketConnectionConfig) (*ClientWebSocketTransport, error) {
 	websocket, err := newWebSocketConnection(connConfig) // will be nil if the server is not connected
 
 	if err != nil {
@@ -69,7 +53,7 @@ func CreateClientWebsocketTransport(connConfig *WebSocketConnectionConfig) (*Cli
 	}
 
 	transport := &ClientWebSocketTransport{
-		ws:          websocket, //newWebsocketConnection(connConfig),
+		ws:          websocket, //newWebSocketConnection(connConfig),
 		inputStream: make(chan []byte),
 	}
 
@@ -78,7 +62,7 @@ func CreateClientWebsocketTransport(connConfig *WebSocketConnectionConfig) (*Cli
 	return transport, nil
 }
 
-// Create the websocket connection and establish session with the server
+// Create the WebSocket connection and establish session with the server
 func newWebSocketConnection(connConfig *WebSocketConnectionConfig) (*websocket.Conn, error) {
 	glog.V(3).Infof("Dial Server: %s", connConfig.TurboServer)
 

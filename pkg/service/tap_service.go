@@ -105,9 +105,9 @@ func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *communicatio
 	}
 	config := restclient.NewConfigBuilder(serverAddress).
 		APIPath(defaultTurboAPIPath).
-		BasicAuthentication(commConfig.OpsManagerUserName, commConfig.OpsManagerPassword).
+		BasicAuthentication(commConfig.OpsManagerUsername, commConfig.OpsManagerPassword).
 		Create()
-	glog.V(4).Infof("The Turbo API client config authentication is: %s, %s", commConfig.OpsManagerUserName, commConfig.OpsManagerPassword)
+	glog.V(4).Infof("The Turbo API client config authentication is: %s, %s", commConfig.OpsManagerUsername, commConfig.OpsManagerPassword)
 	glog.V(4).Infof("The Turbo API client config is create successfully: %v", config)
 	apiClient, err := restclient.NewAPIClientWithBA(config)
 	if err != nil {

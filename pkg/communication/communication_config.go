@@ -25,7 +25,7 @@ func (meta *ServerMeta) validateServerMeta() error {
 	if meta.TurboServer == "" {
 		return errors.New("Turbo Server URL is missing")
 	}
-	if _, err := url.Parse(meta.TurboServer); err != nil {
+	if _, err := url.ParseRequestURI(meta.TurboServer); err != nil {
 		return fmt.Errorf("Invalid turbo address url: %v", meta)
 	}
 	return nil
@@ -44,7 +44,7 @@ func (wsc *WebSocketConfig) validateWebSocketConfig() error {
 		wsc.LocalAddress = defaultRemoteMediationLocalAddress
 	}
 	// Make sure the local address string provided is a valid URL
-	if _, err := url.Parse(wsc.LocalAddress); err != nil {
+	if _, err := url.ParseRequestURI(wsc.LocalAddress); err != nil {
 		return fmt.Errorf("Invalid local address url found in WebSocket config: %v", wsc)
 	}
 
@@ -61,13 +61,13 @@ func (wsc *WebSocketConfig) validateWebSocketConfig() error {
 }
 
 type RestAPIConfig struct {
-	OpsManagerUserName string `json:"opsManagerUsername,omitempty"`
+	OpsManagerUsername string `json:"opsManagerUsername,omitempty"`
 	OpsManagerPassword string `json:"opsManagerPassword,omitempty"`
 	APIPath            string `json:"apiPath,omitempty"`
 }
 
 func (rc *RestAPIConfig) validRestAPIConfig() error {
-	if rc.OpsManagerUserName == "" || rc.OpsManagerPassword == "" {
+	if rc.OpsManagerUsername == "" || rc.OpsManagerPassword == "" {
 		return errors.New("Either username or password for API is not provided.")
 	}
 	return nil
@@ -97,6 +97,20 @@ type TurboCommunicationConfig struct {
 	RestAPIConfig   `json:"restAPIConfig,omitempty"`
 }
 
+func (turboCommConfig *TurboCommunicationConfig) validateTurboCommunicationConfig() error {
+	// validate the config
+	if err := turboCommConfig.validateServerMeta(); err != nil {
+		return err
+	}
+	if err := turboCommConfig.validateWebSocketConfig(); err != nil {
+		return err
+	}
+	if err := turboCommConfig.validRestAPIConfig(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func ParseTurboCommunicationConfig(configFile string) (*TurboCommunicationConfig, error) {
 	// load the config
 	turboCommConfig, err := readTurboCommunicationConfig(configFile)
@@ -105,17 +119,10 @@ func ParseTurboCommunicationConfig(configFile string) (*TurboCommunicationConfig
 	}
 	glog.V(3).Infof("TurboCommunicationConfig Config: %v", turboCommConfig)
 
-	// validate the config
-	if err := turboCommConfig.validateServerMeta(); err != nil {
+	if err := turboCommConfig.validateTurboCommunicationConfig(); err != nil {
 		return nil, err
 	}
-	if err := turboCommConfig.validateWebSocketConfig(); err != nil {
-		return nil, err
-	}
-	if err := turboCommConfig.validRestAPIConfig(); err != nil {
-		return nil, err
-	}
-	glog.V(3).Infof("Loaded Turbo Communication Config: %v", turboCommConfig)
+	glog.V(3).Info("Turbo communication config validation passed.")
 	return turboCommConfig, nil
 }
 

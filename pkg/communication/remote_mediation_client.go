@@ -59,7 +59,7 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsg chan
 		return
 	}
 
-	transport, err := CreateClientWebsocketTransport(connConfig)
+	transport, err := CreateClientWebSocketTransport(connConfig)
 
 	// handle WebSocket creation errors
 	if transport == nil || err != nil {

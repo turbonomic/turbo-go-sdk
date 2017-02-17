@@ -5,7 +5,6 @@ example_probe
 .idea/
 turbo-go-sdk.iml
 
-pkg/communication/client_websocket_transport_test.go
 pkg/communication/mediation_container_test.go
 pkg/communication/probe_store.go
 test/
