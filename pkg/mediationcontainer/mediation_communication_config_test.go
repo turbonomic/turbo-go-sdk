@@ -1,4 +1,4 @@
-package communication
+package mediationcontainer
 
 import (
 	"testing"
@@ -30,7 +30,7 @@ func TestValidateServerMeta(t *testing.T) {
 		meta := &ServerMeta{
 			item.turboServer,
 		}
-		err := meta.validateServerMeta()
+		err := meta.ValidateServerMeta()
 		if item.expectErr {
 			if err == nil {
 				t.Errorf("Expected error, got no error. %s", meta)
@@ -81,7 +81,7 @@ func TestValidateWebSocketConfig(t *testing.T) {
 			WebSocketPath:     item.wsPath,
 			ConnectionRetry:   item.connectionRetry,
 		}
-		err := config.validateWebSocketConfig()
+		err := config.ValidateWebSocketConfig()
 		if item.expectErr {
 			if err == nil {
 				t.Errorf("Expected error, got no error: %v", config)
@@ -117,46 +117,7 @@ func TestValidateWebSocketConfig(t *testing.T) {
 	}
 }
 
-func TestValidateRestAPIConfig(t *testing.T) {
-	table := []struct {
-		user     string
-		password string
 
-		expectErr bool
-	}{
-		{
-			user:      "",
-			password:  rand.String(5),
-			expectErr: true,
-		},
-		{
-			user:      rand.String(10),
-			password:  rand.String(10),
-			expectErr: false,
-		},
-		{
-			user:      rand.String(10),
-			password:  "",
-			expectErr: true,
-		},
-	}
-	for _, item := range table {
-		config := &RestAPIConfig{
-			OpsManagerUsername: item.user,
-			OpsManagerPassword: item.password,
-		}
-		err := config.validRestAPIConfig()
-		if item.expectErr {
-			if err == nil {
-				t.Errorf("Expected error, got no error. %s", config)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("Unexpected error: %s", err)
-			}
-		}
-	}
-}
 
 func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T) {
 	table := []struct {
@@ -212,100 +173,3 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 	}
 }
 
-func TestValidateTurboCommunicationConfig(t *testing.T) {
-	table := []struct {
-		config    *TurboCommunicationConfig
-		expectErr bool
-	}{
-		{
-			config: &TurboCommunicationConfig{
-				ServerMeta{
-					"invalid",
-				},
-				WebSocketConfig{
-					LocalAddress:      "http://127.0.0.1",
-					WebSocketUsername: rand.String(10),
-					WebSocketPassword: rand.String(10),
-					WebSocketPath:     rand.String(10),
-					ConnectionRetry:   10,
-				},
-				RestAPIConfig{
-					OpsManagerUsername: rand.String(20),
-					OpsManagerPassword: rand.String(20),
-					APIPath:            rand.String(10),
-				},
-			},
-			expectErr: true,
-		},
-		{
-			config: &TurboCommunicationConfig{
-				ServerMeta{
-					"http:/127.0.0.1",
-				},
-				WebSocketConfig{
-					LocalAddress: "invalid",
-				},
-				RestAPIConfig{
-					OpsManagerUsername: rand.String(20),
-					OpsManagerPassword: rand.String(20),
-					APIPath:            rand.String(10),
-				},
-			},
-			expectErr: true,
-		},
-		{
-			config: &TurboCommunicationConfig{
-				ServerMeta: ServerMeta{
-					"http:/127.0.0.1",
-				},
-				RestAPIConfig: RestAPIConfig{
-					OpsManagerUsername: "",
-					OpsManagerPassword: rand.String(20),
-					APIPath:            rand.String(10),
-				},
-			},
-			expectErr: true,
-		},
-		{
-			config: &TurboCommunicationConfig{
-				ServerMeta: ServerMeta{
-					"http:/127.0.0.1",
-				},
-				RestAPIConfig: RestAPIConfig{
-					OpsManagerUsername: rand.String(20),
-					OpsManagerPassword: rand.String(20),
-					APIPath:            rand.String(10),
-				},
-			},
-			expectErr: false,
-		},
-	}
-	for _, item := range table {
-		err := item.config.validateTurboCommunicationConfig()
-		if item.expectErr {
-			if err == nil {
-				t.Errorf("Expects error, but go no error: %v", item.config)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
-		}
-	}
-}
-
-func TestParseTurboCommunicationConfig(t *testing.T) {
-	invalidConf := rand.String(50)
-	_, err := ParseTurboCommunicationConfig(invalidConf)
-	if err== nil {
-		t.Error("Expects error, got no error.")
-	}
-}
-
-func TestReadTurboCommunicationConfig(t *testing.T) {
-	invalidConf := rand.String(50)
-	_, err := readTurboCommunicationConfig(invalidConf)
-	if err== nil {
-		t.Error("Expects error, got no error.")
-	}
-}

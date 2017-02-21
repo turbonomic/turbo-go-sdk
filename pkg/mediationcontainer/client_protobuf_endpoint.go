@@ -1,4 +1,4 @@
-package communication
+package mediationcontainer
 
 import (
 	"github.com/golang/glog"

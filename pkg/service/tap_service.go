@@ -6,7 +6,7 @@ import (
 
 	restclient "github.com/turbonomic/turbo-api/pkg/client"
 
-	"github.com/turbonomic/turbo-go-sdk/pkg/communication"
+	"github.com/turbonomic/turbo-go-sdk/pkg/mediationcontainer"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
 
 	"github.com/golang/glog"
@@ -27,7 +27,7 @@ func (tapService *TAPService) ConnectToTurbo() {
 	defer close(IsRegistered)
 
 	// start a separate go routine to connect to the Turbo server
-	go communication.InitMediationContainer(IsRegistered)
+	go mediationcontainer.InitMediationContainer(IsRegistered)
 	//go tapService.mediationContainer.Init(IsRegistered)
 
 	// Wait for probe registration complete to create targets in turbo server
@@ -85,17 +85,17 @@ func (builder *TAPServiceBuilder) Create() (*TAPService, error) {
 }
 
 // Build the mediation container and Turbo API client.
-func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *communication.TurboCommunicationConfig) *TAPServiceBuilder {
+func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommunicationConfig) *TAPServiceBuilder {
 	if builder.err != nil {
 		return builder
 	}
 
 	// Create the mediation container. This is a singleton.
-	containerConfig := &communication.MediationContainerConfig{
+	containerConfig := &mediationcontainer.MediationContainerConfig{
 		ServerMeta:      commConfig.ServerMeta,
 		WebSocketConfig: commConfig.WebSocketConfig,
 	}
-	communication.CreateMediationContainer(containerConfig)
+	mediationcontainer.CreateMediationContainer(containerConfig)
 
 	// The RestAPI Handler
 	serverAddress, err := url.Parse(commConfig.TurboServer)
@@ -134,7 +134,7 @@ func (builder *TAPServiceBuilder) WithTurboProbe(probeBuilder *probe.ProbeBuilde
 
 	builder.tapService.TurboProbe = turboProbe
 	// Register the probe
-	err = communication.LoadProbe(turboProbe)
+	err = mediationcontainer.LoadProbe(turboProbe)
 	if err != nil {
 		builder.err = err
 		return builder
