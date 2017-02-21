@@ -1,4 +1,4 @@
-package communication
+package mediationcontainer
 
 import (
 	"crypto/tls"
@@ -9,27 +9,30 @@ import (
 
 	"github.com/golang/glog"
 	"golang.org/x/net/websocket"
+	"net/url"
 )
 
-// Connection parameters for the websocket
-type WebsocketConnectionConfig struct {
-	IsSecure         bool
-	VmtServerAddress string
-	LocalAddress     string
-	ServerUsername   string
-	ServerPassword   string
-	RequestURI       string
-}
+type WebSocketConnectionConfig MediationContainerConfig
 
-func CreateWebSocketTransportPointUrl(connConfig *WebsocketConnectionConfig) string {
-	protocol := "ws"
-	if connConfig.IsSecure {
-		protocol = "wss"
+func CreateWebSocketConnectionConfig(connConfig *MediationContainerConfig) (*WebSocketConnectionConfig, error) {
+	_, err := url.ParseRequestURI(connConfig.LocalAddress)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse local URL from %s when create WebSocketConnectionConfig.", connConfig.LocalAddress)
 	}
-
-	vmtServerUrl := protocol + "://" + connConfig.VmtServerAddress + connConfig.RequestURI
-	glog.Infof("######### [CreateTransportPointUrl] Created Webscoket URL : ", vmtServerUrl)
-	return vmtServerUrl
+	// Change URL scheme from ws to http or wss to https.
+	serverURL, err := url.ParseRequestURI(connConfig.TurboServer)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse turboServer URL from %s when create WebSocketConnectionConfig.", connConfig.TurboServer)
+	}
+	switch serverURL.Scheme {
+	case "http":
+		serverURL.Scheme = "ws"
+	case "https":
+		serverURL.Scheme = "wss"
+	}
+	wsConfig := WebSocketConnectionConfig(*connConfig)
+	wsConfig.TurboServer = serverURL.String()
+	return &wsConfig, nil
 }
 
 // ===================================================================================================================
@@ -42,7 +45,7 @@ type ClientWebSocketTransport struct {
 
 // Instantiate a new ClientWebsocketTransport endpoint for the client
 // Websocket connection is established with the server
-func CreateClientWebsocketTransport(connConfig *WebsocketConnectionConfig) (*ClientWebSocketTransport, error) {
+func CreateClientWebSocketTransport(connConfig *WebSocketConnectionConfig) (*ClientWebSocketTransport, error) {
 	websocket, err := newWebSocketConnection(connConfig) // will be nil if the server is not connected
 
 	if err != nil {
@@ -50,7 +53,7 @@ func CreateClientWebsocketTransport(connConfig *WebsocketConnectionConfig) (*Cli
 	}
 
 	transport := &ClientWebSocketTransport{
-		ws:          websocket, //newWebsocketConnection(connConfig),
+		ws:          websocket, //newWebSocketConnection(connConfig),
 		inputStream: make(chan []byte),
 	}
 
@@ -59,20 +62,16 @@ func CreateClientWebsocketTransport(connConfig *WebsocketConnectionConfig) (*Cli
 	return transport, nil
 }
 
-// Create the websocket connection and establish session with the server
-func newWebSocketConnection(connConfig *WebsocketConnectionConfig) (*websocket.Conn, error) {
-	// Websocket URL
-	vmtServerUrl := CreateWebSocketTransportPointUrl(connConfig)
-	//
-	localAddr := "http://127.0.0.1" //Note - required in url format, but ip is don't care for us
-	glog.V(3).Infof("Dial Server: %s", vmtServerUrl)
+// Create the WebSocket connection and establish session with the server
+func newWebSocketConnection(connConfig *WebSocketConnectionConfig) (*websocket.Conn, error) {
+	glog.V(3).Infof("Dial Server: %s", connConfig.TurboServer)
 
-	config, err := websocket.NewConfig(vmtServerUrl, localAddr)
+	config, err := websocket.NewConfig(connConfig.TurboServer+connConfig.WebSocketPath, connConfig.LocalAddress)
 	if err != nil {
 		glog.Error(err)
 		return nil, err
 	}
-	usrpasswd := []byte(connConfig.ServerUsername + ":" + connConfig.ServerPassword)
+	usrpasswd := []byte(connConfig.WebSocketUsername + ":" + connConfig.WebSocketPassword)
 
 	config.Header = http.Header{
 		"Authorization": {"Basic " + base64.StdEncoding.EncodeToString(usrpasswd)},
@@ -90,7 +89,7 @@ func newWebSocketConnection(connConfig *WebsocketConnectionConfig) (*websocket.C
 		return nil, err
 	}
 
-	glog.Infof("Created WebSocket : %s+v", vmtServerUrl)
+	glog.Infof("Created WebSocket connection to %s", connConfig.TurboServer)
 	return webs, nil
 }
 

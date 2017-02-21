@@ -1,23 +1,24 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"net/url"
 
 	restclient "github.com/turbonomic/turbo-api/pkg/client"
 
-	"github.com/turbonomic/turbo-go-sdk/pkg/vmtapi"
-	"github.com/turbonomic/turbo-go-sdk/pkg/communication"
+	"github.com/turbonomic/turbo-go-sdk/pkg/mediationcontainer"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
 
 	"github.com/golang/glog"
 )
 
+const (
+	defaultTurboAPIPath = "/vmturbo/rest"
+)
+
 type TAPService struct {
 	// Interface to the Turbo Server
 	*probe.TurboProbe
-	*vmtapi.TurboAPIHandler // TODO: use vmtapi.Client
 	*restclient.Client
 }
 
@@ -26,7 +27,7 @@ func (tapService *TAPService) ConnectToTurbo() {
 	defer close(IsRegistered)
 
 	// start a separate go routine to connect to the Turbo server
-	go communication.InitMediationContainer(IsRegistered)
+	go mediationcontainer.InitMediationContainer(IsRegistered)
 	//go tapService.mediationContainer.Init(IsRegistered)
 
 	// Wait for probe registration complete to create targets in turbo server
@@ -45,65 +46,20 @@ func (tapService *TAPService) createTurboTargets(IsRegistered chan bool) {
 		return
 	}
 	glog.Infof("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " Registered : === Add Targets ===")
-	var targets []*probe.TurboTarget
-	targets = tapService.GetProbeTargets()
-	for _, targetInfo := range targets {
-		glog.Infof("Adding target %s", targetInfo)
-		tapService.AddTurboTarget(targetInfo)
+	targetInfos := tapService.GetProbeTargets()
+	for _, targetInfo := range targetInfos {
+		target := targetInfo.GetTargetInstance()
+		glog.V(4).Infof("Now adding target %v", target)
+		resp, err := tapService.AddTarget(target)
+		if err != nil {
+			glog.Errorf("Error during add target %v: %s", targetInfo, err)
+			// TODO, do we want to return an error?
+			continue
+		}
+		glog.V(3).Infof("Successfully add target: %v", resp)
 	}
 }
 
-// ==============================================================================
-
-// Configuration parameters for communicating with the Turbo server
-type TurboCommunicationConfig struct {
-	// Config for the Rest API client
-	*vmtapi.TurboAPIConfig
-	// Config for RemoteMediation client that communicates using websocket
-	*communication.ContainerConfig
-}
-
-func ParseTurboCommunicationConfig(configFile string) (*TurboCommunicationConfig, error) {
-	// load the config
-	turboCommConfig, err := readTurboCommunicationConfig(configFile)
-	if turboCommConfig == nil {
-		return nil, err
-	}
-	glog.Infof("WebscoketContainer Config : ", turboCommConfig.ContainerConfig)
-	glog.Infof("RestAPI Config: ", turboCommConfig.TurboAPIConfig)
-
-	// validate the config
-	// TODO: return validation errors
-	_, err = turboCommConfig.ValidateContainerConfig()
-	if err != nil {
-		return nil, err
-	}
-	_, err = turboCommConfig.ValidateTurboAPIConfig()
-	if err != nil {
-		return nil, err
-	}
-	glog.Infof("---------- Loaded Turbo Communication Config ---------")
-	return turboCommConfig, nil
-}
-
-func readTurboCommunicationConfig(path string) (*TurboCommunicationConfig, error) {
-	file, e := ioutil.ReadFile(path)
-	if e != nil {
-		return nil, fmt.Errorf("File error: %v\n" + e.Error())
-	}
-	//fmt.Println(string(file))
-	var config TurboCommunicationConfig
-
-	err := json.Unmarshal(file, &config)
-
-	if err != nil {
-		return nil, fmt.Errorf("Unmarshall error :%v\n" + err.Error())
-	}
-	glog.Infof("Results: %+v\n", config)
-	return &config, nil
-}
-
-// ==============================================================================
 // Convenience builder for building a TAPService
 type TAPServiceBuilder struct {
 	tapService *TAPService
@@ -120,47 +76,69 @@ func NewTAPServiceBuilder() *TAPServiceBuilder {
 }
 
 // Build a new instance of TAPService.
-func (pb *TAPServiceBuilder) Create() (*TAPService, error) {
-	if pb.err != nil {
-		return nil, pb.err
+func (builder *TAPServiceBuilder) Create() (*TAPService, error) {
+	if builder.err != nil {
+		return nil, builder.err
 	}
 
-	return pb.tapService, nil
+	return builder.tapService, nil
 }
 
-func (pb *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommunicationConfig) *TAPServiceBuilder {
-	if pb.err != nil {
-		return pb
+// Build the mediation container and Turbo API client.
+func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommunicationConfig) *TAPServiceBuilder {
+	if builder.err != nil {
+		return builder
 	}
-	// The WebSocket Container
-	communication.CreateMediationContainer(commConfig.ContainerConfig)
-	// The RestAPI Handler
-	// TODO: if rest api config has validation errors or not specified, do not create the handler
-	turboApiHandler := vmtapi.NewTurboAPIHandler(commConfig.TurboAPIConfig)
-	pb.tapService.TurboAPIHandler = turboApiHandler
 
-	return pb
+	// Create the mediation container. This is a singleton.
+	containerConfig := &mediationcontainer.MediationContainerConfig{
+		ServerMeta:      commConfig.ServerMeta,
+		WebSocketConfig: commConfig.WebSocketConfig,
+	}
+	mediationcontainer.CreateMediationContainer(containerConfig)
+
+	// The RestAPI Handler
+	serverAddress, err := url.Parse(commConfig.TurboServer)
+	if err != nil {
+		builder.err = fmt.Errorf("Error during create Turbo API client config: Incorrect URL: %s\n", err)
+		return builder
+	}
+	config := restclient.NewConfigBuilder(serverAddress).
+		APIPath(defaultTurboAPIPath).
+		BasicAuthentication(commConfig.OpsManagerUsername, commConfig.OpsManagerPassword).
+		Create()
+	glog.V(4).Infof("The Turbo API client config authentication is: %s, %s", commConfig.OpsManagerUsername, commConfig.OpsManagerPassword)
+	glog.V(4).Infof("The Turbo API client config is create successfully: %v", config)
+	apiClient, err := restclient.NewAPIClientWithBA(config)
+	if err != nil {
+		builder.err = fmt.Errorf("Error during create Turbo API client: %s\n", err)
+		return builder
+	}
+	glog.V(4).Infof("The Turbo API client is create successfully: %v", apiClient)
+	builder.tapService.Client = apiClient
+
+	return builder
 }
 
 // The TurboProbe representing the service in the Turbo server
-func (pb *TAPServiceBuilder) WithTurboProbe(probeBuilder *probe.ProbeBuilder) *TAPServiceBuilder {
-	if pb.err != nil {
-		return pb
+func (builder *TAPServiceBuilder) WithTurboProbe(probeBuilder *probe.ProbeBuilder) *TAPServiceBuilder {
+	if builder.err != nil {
+		return builder
 	}
 	// Create the probe
 	turboProbe, err := probeBuilder.Create()
 	if err != nil {
-		pb.err = err
-		return pb
+		builder.err = err
+		return builder
 	}
 
-	pb.tapService.TurboProbe = turboProbe
+	builder.tapService.TurboProbe = turboProbe
 	// Register the probe
-	err = communication.LoadProbe(turboProbe)
+	err = mediationcontainer.LoadProbe(turboProbe)
 	if err != nil {
-		pb.err = err
-		return pb
+		builder.err = err
+		return builder
 	}
 
-	return pb
+	return builder
 }

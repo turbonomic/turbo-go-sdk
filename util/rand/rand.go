@@ -142,3 +142,12 @@ func RandomApplicationData() *proto.EntityDTO_ApplicationData {
 		IpAddress: &i,
 	}
 }
+
+func RandomAccoutValue() *proto.AccountValue {
+	key := String(5)
+	value := String(5)
+	return &proto.AccountValue{
+		Key:         &key,
+		StringValue: &value,
+	}
+}

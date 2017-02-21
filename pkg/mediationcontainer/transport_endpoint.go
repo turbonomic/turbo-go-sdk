@@ -1,4 +1,4 @@
-package communication
+package mediationcontainer
 
 
 // Transport endpoint that sends and receives raw message bytes

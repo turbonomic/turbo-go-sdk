@@ -1,9 +1,9 @@
 package probe
 
 import (
+	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
-	"github.com/golang/glog"
 )
 
 // Turbo Probe Abstraction
@@ -26,7 +26,7 @@ type TurboRegistrationClient interface {
 type TurboDiscoveryClient interface {
 	Discover(accountValues []*proto.AccountValue) *proto.DiscoveryResponse
 	Validate(accountValues []*proto.AccountValue) *proto.ValidationResponse
-	GetAccountValues() *TurboTarget
+	GetAccountValues() *TurboTargetInfo
 }
 
 type DiscoveryClientInstantiateFunc func(accountValues []*proto.AccountValue) TurboDiscoveryClient
@@ -83,9 +83,8 @@ func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues []*proto.Accou
 	identifyingField := theProbe.RegistrationClient.GetIdentifyingFields()
 
 	for _, accVal := range accountValues {
-
-		if *accVal.Key == identifyingField {
-			address = *accVal.StringValue
+		if accVal.GetKey() == identifyingField {
+			address = accVal.GetStringValue()
 		}
 	}
 	target := theProbe.getDiscoveryClient(address)
@@ -105,13 +104,13 @@ func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) 
 	handler = theProbe.GetTurboDiscoveryClient(accountValues)
 	var discoveryResponse *proto.DiscoveryResponse
 	if handler != nil {
-		 discoveryResponse = handler.Discover(accountValues)
+		discoveryResponse = handler.Discover(accountValues)
 	}
 	if discoveryResponse == nil {
 		description := "Null Entity DTOs"
 		severity := proto.ErrorDTO_CRITICAL
-		errorDTO := &proto.ErrorDTO {
-			Severity: &severity,
+		errorDTO := &proto.ErrorDTO{
+			Severity:    &severity,
 			Description: &description,
 		}
 		var errorDtoList []*proto.ErrorDTO
@@ -139,12 +138,11 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) 
 	// Create a new discovery client for this target and add it to the map of discovery clients
 	// allow to pass a func to instantiate a default discovery client
 
-
 	description := "Target not found"
 	severity := proto.ErrorDTO_CRITICAL
 
-	errorDTO := &proto.ErrorDTO {
-		Severity: &severity,
+	errorDTO := &proto.ErrorDTO{
+		Severity:    &severity,
 		Description: &description,
 	}
 	var errorDtoList []*proto.ErrorDTO
@@ -159,14 +157,14 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) 
 
 // ==============================================================================================================
 // The Targets associated with this probe type
-func (theProbe *TurboProbe) GetProbeTargets() []*TurboTarget {
+func (theProbe *TurboProbe) GetProbeTargets() []*TurboTargetInfo {
 	// Iterate over the discovery client map and send requests to the server
-	var targets []*TurboTarget
+	var targets []*TurboTargetInfo
 	for targetId, discoveryClient := range theProbe.DiscoveryClientMap {
 
 		targetInfo := discoveryClient.GetAccountValues()
 		targetInfo.targetType = theProbe.ProbeType
-		targetInfo.targetIdentifier = targetId
+		targetInfo.targetIdentifierField = targetId
 
 		targets = append(targets, targetInfo)
 	}
@@ -197,9 +195,9 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	return probeInfo, nil
 }
 
-func (theProbe *TurboProbe) createValidationErrorDTO (errMsg string, severity proto.ErrorDTO_ErrorSeverity) *proto.ValidationResponse {
-	errorDTO := &proto.ErrorDTO {
-		Severity: &severity,
+func (theProbe *TurboProbe) createValidationErrorDTO(errMsg string, severity proto.ErrorDTO_ErrorSeverity) *proto.ValidationResponse {
+	errorDTO := &proto.ErrorDTO{
+		Severity:    &severity,
 		Description: &errMsg,
 	}
 	var errorDtoList []*proto.ErrorDTO
@@ -211,9 +209,9 @@ func (theProbe *TurboProbe) createValidationErrorDTO (errMsg string, severity pr
 	return validationResponse
 }
 
-func (theProbe *TurboProbe) createDiscoveryErrorDTO (errMsg string, severity proto.ErrorDTO_ErrorSeverity) *proto.DiscoveryResponse {
-	errorDTO := &proto.ErrorDTO {
-		Severity: &severity,
+func (theProbe *TurboProbe) createDiscoveryErrorDTO(errMsg string, severity proto.ErrorDTO_ErrorSeverity) *proto.DiscoveryResponse {
+	errorDTO := &proto.ErrorDTO{
+		Severity:    &severity,
 		Description: &errMsg,
 	}
 	var errorDtoList []*proto.ErrorDTO

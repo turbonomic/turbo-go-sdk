@@ -1,10 +1,10 @@
-package communication
+package mediationcontainer
 
 import (
 	"time"
 
-	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/golang/glog"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 // Abstraction to establish session using the specified protocol with the server
@@ -13,7 +13,7 @@ type remoteMediationClient struct {
 	// All the probes
 	allProbes map[string]*ProbeProperties
 	// The container info containing the communication config for all the registered probes
-	containerConfig *ContainerConfig
+	containerConfig *MediationContainerConfig
 	// Associated Transport
 	transport ITransport
 	// Map of Message Handlers to receive server messages
@@ -23,7 +23,7 @@ type remoteMediationClient struct {
 }
 
 func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
-					containerConfig *ContainerConfig) *remoteMediationClient {
+	containerConfig *MediationContainerConfig) *remoteMediationClient {
 	remoteMediationClient := &remoteMediationClient{
 		MessageHandlers:   make(map[RequestType]RequestHandler),
 		allProbes:         allProbes,
@@ -48,19 +48,22 @@ func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
 func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsg chan bool) {
 	// Assert that the probes are registered before starting the handshake ??
 	glog.Infof("Probe Registration status channel %s\n", probeRegisteredMsg)
-	//// --------- Create Websocket Transport
-	connConfig := &WebsocketConnectionConfig {
-		VmtServerAddress: remoteMediationClient.containerConfig.VmtServerAddress,
-		ServerUsername:   remoteMediationClient.containerConfig.VmtUserName,
-		ServerPassword:   remoteMediationClient.containerConfig.VmtPassword,
-		IsSecure:         remoteMediationClient.containerConfig.IsSecure,
-		RequestURI:       remoteMediationClient.containerConfig.BaseServerUrl,
+
+	//// --------- Create WebSocket Transport
+	connConfig, err := CreateWebSocketConnectionConfig(remoteMediationClient.containerConfig)
+	if err != nil {
+		// TODO, extract error handling method.
+		glog.Errorf("Initialization of remote mediation client failed, null transport : " + err.Error())
+		remoteMediationClient.Stop()
+		probeRegisteredMsg <- false
+		return
 	}
 
-	transport, err := CreateClientWebsocketTransport(connConfig)
+	transport, err := CreateClientWebSocketTransport(connConfig)
 
-	// handle websocket creation errors
+	// handle WebSocket creation errors
 	if transport == nil || err != nil {
+		// TODO, extract error handling method.
 		glog.Errorf("Initialization of remote mediation client failed, null transport : " + err.Error())
 		remoteMediationClient.Stop()
 		probeRegisteredMsg <- false
@@ -175,18 +178,19 @@ func (remoteMediationClient *remoteMediationClient) probeCallback(endpoint Proto
 
 // ======================== Message Handlers ============================
 type RequestType string
+
 const (
-	DISCOVERY_REQUEST RequestType = "Discovery"
+	DISCOVERY_REQUEST  RequestType = "Discovery"
 	VALIDATION_REQUEST RequestType = "Validation"
-	INTERRUPT_REQUEST RequestType = "Interrupt"
-	ACTION_REQUEST RequestType = "Action"
-	UNKNOWN_REQUEST RequestType = "Unknown"
+	INTERRUPT_REQUEST  RequestType = "Interrupt"
+	ACTION_REQUEST     RequestType = "Action"
+	UNKNOWN_REQUEST    RequestType = "Unknown"
 )
 
 func getRequestType(serverRequest *proto.MediationServerMessage) RequestType {
 	if serverRequest.GetValidationRequest() != nil {
 		return VALIDATION_REQUEST
-	} else  if serverRequest.GetDiscoveryRequest() != nil {
+	} else if serverRequest.GetDiscoveryRequest() != nil {
 		return DISCOVERY_REQUEST
 	} else if serverRequest.GetActionRequest() != nil {
 		return ACTION_REQUEST
@@ -203,16 +207,16 @@ type RequestHandler interface {
 
 func (remoteMediationClient *remoteMediationClient) createMessageHandlers(probeMsgChan chan *proto.MediationClientMessage) {
 	allProbes := remoteMediationClient.allProbes
-	remoteMediationClient.MessageHandlers[DISCOVERY_REQUEST] = &DiscoveryRequestHandler {
+	remoteMediationClient.MessageHandlers[DISCOVERY_REQUEST] = &DiscoveryRequestHandler{
 		probes: allProbes,
 	}
-	remoteMediationClient.MessageHandlers[VALIDATION_REQUEST] = &ValidationRequestHandler {
+	remoteMediationClient.MessageHandlers[VALIDATION_REQUEST] = &ValidationRequestHandler{
 		probes: allProbes,
 	}
-	remoteMediationClient.MessageHandlers[INTERRUPT_REQUEST] = &InterruptMessageHandler {
+	remoteMediationClient.MessageHandlers[INTERRUPT_REQUEST] = &InterruptMessageHandler{
 		probes: allProbes,
 	}
-	remoteMediationClient.MessageHandlers[ACTION_REQUEST] = &ActionMessageHandler {
+	remoteMediationClient.MessageHandlers[ACTION_REQUEST] = &ActionMessageHandler{
 		probes: allProbes,
 	}
 
@@ -228,7 +232,7 @@ type ActionMessageHandler struct {
 }
 
 func (actionReqHandler *ActionMessageHandler) HandleMessage(serverRequest *proto.MediationServerMessage,
-								probeMsgChan chan *proto.MediationClientMessage) {
+	probeMsgChan chan *proto.MediationClientMessage) {
 
 	msgID := serverRequest.GetMessageID()
 	glog.Infof("Received: Action Message for message Id: %d, %s\n ", msgID, serverRequest)
@@ -239,7 +243,7 @@ type InterruptMessageHandler struct {
 }
 
 func (intMsgHandler *InterruptMessageHandler) HandleMessage(serverRequest *proto.MediationServerMessage,
-								probeMsgChan chan *proto.MediationClientMessage) {
+	probeMsgChan chan *proto.MediationClientMessage) {
 
 	msgID := serverRequest.GetMessageID()
 	glog.Infof("******** Received: Interrupt Message for message Id: %d, %s\n ", msgID, serverRequest)
@@ -250,7 +254,7 @@ type DiscoveryRequestHandler struct {
 }
 
 func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest *proto.MediationServerMessage,
-								probeMsgChan chan *proto.MediationClientMessage) {
+	probeMsgChan chan *proto.MediationClientMessage) {
 	request := serverRequest.GetDiscoveryRequest()
 	probeType := request.ProbeType
 	if discReqHandler.probes[*probeType] == nil {
@@ -316,7 +320,7 @@ type ValidationRequestHandler struct {
 }
 
 func (valReqHandler *ValidationRequestHandler) HandleMessage(serverRequest *proto.MediationServerMessage,
-								probeMsgChan chan *proto.MediationClientMessage) {
+	probeMsgChan chan *proto.MediationClientMessage) {
 	request := serverRequest.GetValidationRequest()
 	probeType := request.ProbeType
 	if valReqHandler.probes[*probeType] == nil {

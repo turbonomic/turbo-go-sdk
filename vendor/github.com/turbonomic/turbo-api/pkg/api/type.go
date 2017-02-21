@@ -1,15 +1,5 @@
 package api
 
-// targetType, nameOrAddress, targetIdentifier, username, password
-type ExternalTarget struct {
-	TargetType       string
-	NameOrAddress    string
-	TargetIdentifier string
-
-	Username string
-	Password string
-}
-
 type Target struct {
 	// Category of a probe, i.e. Hypervisor, Storage and so on.
 	Category    string `json:"categroty,omitempty"`
