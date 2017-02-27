@@ -13,8 +13,9 @@ type ClientProtobufEndpoint struct {
 	transport ITransport
 	// Parser for the message - this will vary with the type of message communication the endpoint is being used for
 	messageHandler ProtobufMessage
-	// Channel where the endpoint will send the parsed messages
-	MessageChannel chan goproto.Message
+	// Channel where the endpoint will send the incoming parsed messages
+	//MessageChannel chan goproto.Message
+	ParsedMessageChannel chan *ParsedMessage
 	closeReceived  bool
 	// TODO: add message waiting policy
 }
@@ -27,7 +28,8 @@ func CreateClientProtobufEndpoint(name string, transport ITransport, messageHand
 		Name: name,
 
 		transport:      transport, // the transport
-		MessageChannel: make(chan goproto.Message),
+		//MessageChannel: make(chan goproto.Message),
+		ParsedMessageChannel: make(chan *ParsedMessage),
 		messageHandler: messageHandler, // the message parser
 	}
 
@@ -50,8 +52,11 @@ func (endpoint *ClientProtobufEndpoint) GetTransport() ITransport {
 	return endpoint.transport
 }
 
-func (endpoint *ClientProtobufEndpoint) MessageReceiver() chan goproto.Message {
-	return endpoint.MessageChannel
+//func (endpoint *ClientProtobufEndpoint) MessageReceiver() chan goproto.Message {
+//	return endpoint.MessageChannel
+//}
+func (endpoint *ClientProtobufEndpoint) MessageReceiver() chan *ParsedMessage {
+	return endpoint.ParsedMessageChannel
 }
 
 func (endpoint *ClientProtobufEndpoint) GetMessageHandler() ProtobufMessage {
@@ -103,24 +108,23 @@ func (endpoint *ClientProtobufEndpoint) waitForServerMessage() {
 
 		// Parse the input stream using the registered message handler
 		messageHandler := endpoint.GetMessageHandler()
-		messageHandler.parse(rawBytes)
-		serverMsg := messageHandler.GetMessage()
+		parsedMsg, err := messageHandler.parse(rawBytes)
 
-		if serverMsg == nil {
+		if err != nil {
 			glog.Errorf("["+endpoint.Name+"][waitForServerMessage] : Received null message, dropping it")
 			continue
 		}
 
-		glog.Infof("["+endpoint.Name+"][waitForServerMessage] : Received: %s\n", serverMsg)
+		glog.Infof("["+endpoint.Name+"][waitForServerMessage] : Received: %s\n", parsedMsg)
 
 		// Put the parsed message on the endpoint's channel
 		// - this will block till the upper layer receives this message
 		msgChannel := endpoint.MessageReceiver()
 		if msgChannel != nil { // checking if the channel was closed before putting the message
-			msgChannel <- serverMsg
+			msgChannel <- parsedMsg
 		}
 
-		glog.V(2).Infof("[" + endpoint.Name + "] : Parsed server message delivered on the message channel, continue to listen from transport ...")
+		glog.Infof("[" + endpoint.Name + "] : Parsed server message delivered on the message channel, continue to listen from transport ...")
 	}
 	glog.V(2).Infof("[" + endpoint.Name + "][waitForServerMessage] : DONE, Waiting for server request")
 }
@@ -134,16 +138,19 @@ func (endpoint *ClientProtobufEndpoint) waitForSingleServerMessage() {
 
 	// Parse the input stream using the registered message handler
 	messageHandler := endpoint.GetMessageHandler()
-	messageHandler.parse(rawBytes)
+	parsedMsg, err := messageHandler.parse(rawBytes)
 
-	serverMsg := messageHandler.GetMessage()
+	if err != nil {
+		glog.Errorf("["+endpoint.Name+"][waitForSingleServerMessage] : Received null message, dropping it")
+		parsedMsg = &ParsedMessage{}	//create empty message
+	}
 
-	glog.Infof("["+endpoint.Name+"][waitForSingleServerMessage] : Received: %s\n", serverMsg)
+	glog.Infof("["+endpoint.Name+"][waitForSingleServerMessage] : Received: %s\n", parsedMsg)
 
 	// - this will block till the upper layer receives this message
 	msgChannel := endpoint.MessageReceiver()
 	if msgChannel != nil { // checking if the channel was closed before putting the message
-		msgChannel <- serverMsg
+		msgChannel <- parsedMsg
 	}
 
 	glog.V(2).Infof("[" + endpoint.Name + "][waitForSingleServerMessage] : DONE Waiting for server response")
@@ -168,18 +175,18 @@ func (messageWaiter *SingleMessageWaiter) getMessage(endpoint ProtobufEndpoint) 
 
 	// Parse the input stream using the registered message handler
 	messageHandler := endpoint.GetMessageHandler()
-	err := messageHandler.parse(rawBytes)
+	parsedMsg, err := messageHandler.parse(rawBytes)
 	if err != nil {
-
+		glog.Errorf("["+endpoint.GetName() +"][SingleMessageWaiter] : Received null message, dropping it")
+		parsedMsg = &ParsedMessage{}	//create empty message
 	}
-	serverMsg := messageHandler.GetMessage()
 
-	glog.Infof("["+endpoint.GetName()+"][waitForSingleServerMessage] : Received: %s\n", serverMsg)
+	glog.Infof("["+endpoint.GetName()+"][waitForSingleServerMessage] : Received: %s\n", parsedMsg)
 
 	// - this will block till the upper layer receives this message
 	msgChannel := endpoint.MessageReceiver()
 	if msgChannel != nil { // checking if the channel was closed before putting the message
-		msgChannel <- serverMsg
+		msgChannel <- parsedMsg
 	}
 }
 

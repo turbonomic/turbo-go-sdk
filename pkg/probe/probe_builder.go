@@ -10,7 +10,12 @@ type ProbeBuilder struct {
 	probeCategory      string
 	registrationClient TurboRegistrationClient
 	discoveryClientMap map[string]TurboDiscoveryClient
+	actionClient	   TurboActionExecutorClient
 	builderError       error
+}
+
+func ErrorInvalidTargetIdentifier() error {
+	return errors.New("Null Target Identifier")
 }
 
 func ErrorInvalidProbeType() error {
@@ -24,12 +29,15 @@ func ErrorInvalidProbeCategory() error {
 func ErrorInvalidRegistrationClient() error {
 	return errors.New("Null registration client")
 }
+func ErrorInvalidActionClient() error {
+	return errors.New("Null action client")
+}
 
 func ErrorInvalidDiscoveryClient(targetId string) error {
 	return errors.New("Invalid discovery client for target [" + targetId + "]")
 }
 
-func ErrorUndefineddDiscoveryClient() error {
+func ErrorUndefinedDiscoveryClient() error {
 	return errors.New("No discovery clients defined")
 }
 
@@ -66,7 +74,7 @@ func (pb *ProbeBuilder) Create() (*TurboProbe, error) {
 	}
 
 	if len(pb.discoveryClientMap) == 0 {
-		pb.builderError = ErrorUndefineddDiscoveryClient()
+		pb.builderError = ErrorUndefinedDiscoveryClient()
 		glog.Errorf(pb.builderError.Error())
 		return nil, pb.builderError
 	}
@@ -75,16 +83,17 @@ func (pb *ProbeBuilder) Create() (*TurboProbe, error) {
 		ProbeCategory: pb.probeCategory,
 		ProbeType:     pb.probeType,
 	}
-	turboProbe, err := NewTurboProbe(probeConf)
+	turboProbe, err := newTurboProbe(probeConf)
 	if err != nil {
 		pb.builderError = ErrorCreatingProbe(pb.probeType, pb.probeCategory)
 		glog.Errorf(pb.builderError.Error())
 		return nil, pb.builderError
 	}
 
-	turboProbe.SetProbeRegistrationClient(pb.registrationClient)
+	turboProbe.RegistrationClient = pb.registrationClient
+	turboProbe.ActionClient = pb.actionClient
 	for targetId, discoveryClient := range pb.discoveryClientMap {
-		turboProbe.SetDiscoveryClient(targetId, discoveryClient)
+		turboProbe.DiscoveryClientMap[targetId] = discoveryClient
 	}
 
 	return turboProbe, nil
@@ -104,7 +113,7 @@ func (pb *ProbeBuilder) RegisteredBy(registrationClient TurboRegistrationClient)
 // Set a target and discovery client for the probe
 func (pb *ProbeBuilder) DiscoversTarget(targetId string, discoveryClient TurboDiscoveryClient) *ProbeBuilder {
 	if targetId == "" {
-		pb.builderError = ErrorInvalidDiscoveryClient(targetId)
+		pb.builderError = ErrorInvalidTargetIdentifier()
 		return pb
 	}
 	if discoveryClient == nil {
@@ -113,6 +122,17 @@ func (pb *ProbeBuilder) DiscoversTarget(targetId string, discoveryClient TurboDi
 	}
 
 	pb.discoveryClientMap[targetId] = discoveryClient
+
+	return pb
+}
+
+// Set the action client for the probe
+func (pb *ProbeBuilder) ExecutesActionsBy(actionClient TurboActionExecutorClient) *ProbeBuilder {
+	if actionClient == nil {
+		pb.builderError = ErrorInvalidActionClient()
+		return pb
+	}
+	pb.actionClient = actionClient
 
 	return pb
 }
