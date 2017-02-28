@@ -315,6 +315,53 @@ func TestEntityDTOBuilder_ApplicationData(t *testing.T) {
 	}
 }
 
+func TestEntityDTOBuilder_VirtualMachineData(t *testing.T) {
+	table := []struct {
+		vmData               *proto.EntityDTO_VirtualMachineData
+
+		entityDataHasSetFlag bool
+		existingErr          error
+	}{
+		{
+			vmData:     rand.RandomVirtualMachineData(),
+			existingErr: fmt.Errorf("Error"),
+		},
+		{
+			vmData:              rand.RandomVirtualMachineData(),
+			entityDataHasSetFlag: false,
+		},
+		{
+			vmData:              rand.RandomVirtualMachineData(),
+			entityDataHasSetFlag: true,
+		},
+	}
+	for _, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		base.entityDataHasSet = item.entityDataHasSetFlag
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:       base.entityType,
+			id:               base.id,
+			entityDataHasSet: base.entityDataHasSet,
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			if item.entityDataHasSetFlag {
+				expectedBuilder.err =  fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.vmData)
+
+			} else {
+				expectedBuilder.virtualMachineData = item.vmData
+				expectedBuilder.entityDataHasSet = true
+			}
+		}
+		builder := base.VirtualMachineData(item.vmData)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+		}
+	}
+}
+
 // Create a random EntityDTOBuilder.
 func randomBaseEntityDTOBuilder() *EntityDTOBuilder {
 	return NewEntityDTOBuilder(rand.RandomEntityType(), rand.String(5))

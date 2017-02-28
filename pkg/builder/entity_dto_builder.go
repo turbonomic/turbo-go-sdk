@@ -262,6 +262,20 @@ func (eb *EntityDTOBuilder) ApplicationData(appData *proto.EntityDTO_Application
 	return eb
 }
 
+func (eb *EntityDTOBuilder) VirtualMachineData(vmData *proto.EntityDTO_VirtualMachineData) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	if eb.entityDataHasSet {
+		eb.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", vmData)
+
+		return eb
+	}
+	eb.virtualMachineData = vmData
+	eb.entityDataHasSet = true
+	return eb
+}
+
 func buildCommodityBoughtFromMap(providerCommoditiesMap map[string][]*proto.CommodityDTO) []*proto.EntityDTO_CommodityBought {
 	if len(providerCommoditiesMap) == 0 {
 		return nil

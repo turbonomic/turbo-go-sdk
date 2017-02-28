@@ -2,7 +2,6 @@ package rand
 
 import (
 	"math/rand"
-	mathrand "math/rand"
 	"sync"
 	"time"
 
@@ -44,22 +43,22 @@ func Seed(seed int64) {
 
 // Create a random entity type.
 func RandomEntityType() proto.EntityDTO_EntityType {
-	return proto.EntityDTO_EntityType(mathrand.Int31n(42))
+	return proto.EntityDTO_EntityType(rand.Int31n(42))
 }
 
 // Create a random commodity type.
 func RandomCommodityType() proto.CommodityDTO_CommodityType {
-	return proto.CommodityDTO_CommodityType(mathrand.Int31n(77))
+	return proto.CommodityDTO_CommodityType(rand.Int31n(77))
 }
 
 // Create a random power state value, range from 1 to 4.
 func RandomPowerState() proto.EntityDTO_PowerState {
-	return proto.EntityDTO_PowerState(mathrand.Int31n(4) + 1)
+	return proto.EntityDTO_PowerState(rand.Int31n(4) + 1)
 }
 
 // Create a random entity origin, range from 1 to 2.
 func RandomOrigin() proto.EntityDTO_EntityOrigin {
-	return proto.EntityDTO_EntityOrigin(mathrand.Int31n(2) + 1)
+	return proto.EntityDTO_EntityOrigin(rand.Int31n(2) + 1)
 }
 
 // Create a random commodityDTO bought.
@@ -69,7 +68,7 @@ func RandomCommodityDTOBought() *proto.CommodityDTO {
 	// a random key
 	key := String(5)
 	// a random used
-	used := mathrand.Float64()
+	used := rand.Float64()
 	return &proto.CommodityDTO{
 		CommodityType: &cType,
 		Key:           &key,
@@ -85,9 +84,9 @@ func RandomCommodityDTOSold() *proto.CommodityDTO {
 	// a random key
 	key := String(5)
 	// a random capacity
-	capacity := mathrand.Float64()
+	capacity := rand.Float64()
 	// a random used
-	used := mathrand.Float64()
+	used := rand.Float64()
 	return &proto.CommodityDTO{
 		CommodityType: &cType,
 		Key:           &key,
@@ -131,7 +130,7 @@ func RandomProvider() *proto.Provider {
 }
 
 func RandomProviderConsumerRelationship() proto.Provider_ProviderType {
-	return proto.Provider_ProviderType(mathrand.Int31n(2))
+	return proto.Provider_ProviderType(rand.Int31n(2))
 }
 
 func RandomApplicationData() *proto.EntityDTO_ApplicationData {
@@ -140,6 +139,33 @@ func RandomApplicationData() *proto.EntityDTO_ApplicationData {
 	return &proto.EntityDTO_ApplicationData{
 		Type:      &t,
 		IpAddress: &i,
+	}
+}
+
+func RandomVirtualMachineData() *proto.EntityDTO_VirtualMachineData {
+	ipAddress := []string{String(14)}
+	gName := String(5)
+	return &proto.EntityDTO_VirtualMachineData{
+		IpAddress:      ipAddress,
+		VmState:        RandomVMState(),
+		GuestName:      &gName,
+		AnnotationNote: []*proto.EntityDTO_VirtualMachineData_AnnotationNote{RandomAnnotationNote()},
+	}
+}
+
+func RandomVMState() *proto.EntityDTO_VMState {
+	connected := rand.Int31n(2) == 1
+	return &proto.EntityDTO_VMState{
+		Connected: &connected,
+	}
+}
+
+func RandomAnnotationNote() *proto.EntityDTO_VirtualMachineData_AnnotationNote {
+	key := String(5)
+	value := String(5)
+	return &proto.EntityDTO_VirtualMachineData_AnnotationNote{
+		Key:   &key,
+		Value: &value,
 	}
 }
 
