@@ -1,19 +1,21 @@
 package probe
 
 import (
+	"fmt"
 	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 // Turbo Probe Abstraction
-// Consists of clients that handle probe registration and discovery for different probe targets
+// Consists of clients that handle probe registration metadata, discovery and action execution for different probe targets
 type TurboProbe struct {
 	ProbeType          string
 	ProbeCategory      string
 	RegistrationClient TurboRegistrationClient
 	DiscoveryClientMap map[string]TurboDiscoveryClient
-	ActionExecutor     ActionExecutorClient //TODO:
+
+	ActionClient TurboActionExecutorClient
 }
 
 type TurboRegistrationClient interface {
@@ -24,21 +26,23 @@ type TurboRegistrationClient interface {
 }
 
 type TurboDiscoveryClient interface {
-	Discover(accountValues []*proto.AccountValue) *proto.DiscoveryResponse
-	Validate(accountValues []*proto.AccountValue) *proto.ValidationResponse
+	Discover(accountValues []*proto.AccountValue) (*proto.DiscoveryResponse, error)
+	Validate(accountValues []*proto.AccountValue) (*proto.ValidationResponse, error)
 	GetAccountValues() *TurboTargetInfo
 }
-
-type DiscoveryClientInstantiateFunc func(accountValues []*proto.AccountValue) TurboDiscoveryClient
 
 type ProbeConfig struct {
 	ProbeType     string
 	ProbeCategory string
 }
 
-// ==============================================================================================================
+type TurboTargetConf interface {
+	GetAccountValues() []*proto.AccountValue
+}
 
-func NewTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
+// ===========================================    New Probe ==========================================================
+
+func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 	if probeConf.ProbeType == "" {
 		return nil, ErrorInvalidProbeType()
 	}
@@ -53,25 +57,9 @@ func NewTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 		DiscoveryClientMap: make(map[string]TurboDiscoveryClient),
 	}
 
-	glog.Infof("[NewTurboProbe] Created TurboProbe %s\n", myProbe)
+	glog.Infof("[NewTurboProbe] Created TurboProbe \n %s", myProbe)
 	return myProbe, nil
 }
-
-func (theProbe *TurboProbe) SetProbeRegistrationClient(registrationClient TurboRegistrationClient) {
-	theProbe.RegistrationClient = registrationClient
-}
-
-func (theProbe *TurboProbe) SetDiscoveryClient(targetIdentifier string, discoveryClient TurboDiscoveryClient) {
-	theProbe.DiscoveryClientMap[targetIdentifier] = discoveryClient
-}
-
-//
-//// TODO: CreateClient func as input
-//func (theProbe *TurboProbe) SetDiscoveryClientFunc(targetIdentifier string, accountValues[] *proto.AccountValue),
-//							createClientFunc DiscoveryClientInstantiateFunc) {
-//	discoveryClient := createClientFunc(accountValues)
-//	theProbe.DiscoveryClientMap[targetIdentifier] = discoveryClient
-//}
 
 func (theProbe *TurboProbe) getDiscoveryClient(targetIdentifier string) TurboDiscoveryClient {
 	return theProbe.DiscoveryClientMap[targetIdentifier]
@@ -102,25 +90,22 @@ func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) 
 	glog.Infof("Discover Target : ", accountValues)
 	var handler TurboDiscoveryClient
 	handler = theProbe.GetTurboDiscoveryClient(accountValues)
+	if handler == nil {
+		description := "Non existent target"
+		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_CRITICAL)
+	}
 	var discoveryResponse *proto.DiscoveryResponse
-	if handler != nil {
-		discoveryResponse = handler.Discover(accountValues)
-	}
-	if discoveryResponse == nil {
-		description := "Null Entity DTOs"
-		severity := proto.ErrorDTO_CRITICAL
-		errorDTO := &proto.ErrorDTO{
-			Severity:    &severity,
-			Description: &description,
-		}
-		var errorDtoList []*proto.ErrorDTO
-		errorDtoList = append(errorDtoList, errorDTO)
 
-		discoveryResponse = &proto.DiscoveryResponse{
-			ErrorDTO: errorDtoList,
-		}
+	glog.V(2).Infof("Send discovery request to handler %s\n", handler)
+	discoveryResponse, err := handler.Discover(accountValues)
+
+	if err != nil {
+		description := fmt.Sprintf("Error discovering target %s",  err)
+		severity := proto.ErrorDTO_CRITICAL
+
+		discoveryResponse = theProbe.createDiscoveryErrorDTO(description, severity)
+		glog.Errorf("Error discovering target %s", discoveryResponse)
 	}
-	glog.Infof("Error discovering target %s", discoveryResponse)
 	return discoveryResponse
 }
 
@@ -128,31 +113,44 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) 
 	glog.Infof("Validate Target : ", accountValues)
 	var handler TurboDiscoveryClient
 	handler = theProbe.GetTurboDiscoveryClient(accountValues)
-
-	if handler != nil {
-		glog.Infof("Send validation request to handler %s\n", handler)
-		return handler.Validate(accountValues)
+	if handler == nil {
+		description := "Target not found"
+		severity := proto.ErrorDTO_CRITICAL
+		return theProbe.createValidationErrorDTO(description, severity)
 	}
+
+	var validationResponse *proto.ValidationResponse
+	glog.V(2).Infof("Send validation request to handler %s\n", handler)
+	validationResponse, err := handler.Validate(accountValues)
 
 	// TODO: if the handler is nil, implies the target is added from the UI
 	// Create a new discovery client for this target and add it to the map of discovery clients
 	// allow to pass a func to instantiate a default discovery client
+	if err != nil {
+		description := fmt.Sprintf("Error validating target %s", err)
+		severity := proto.ErrorDTO_CRITICAL
 
-	description := "Target not found"
-	severity := proto.ErrorDTO_CRITICAL
-
-	errorDTO := &proto.ErrorDTO{
-		Severity:    &severity,
-		Description: &description,
+		validationResponse = theProbe.createValidationErrorDTO(description, severity)
+		glog.Errorf("Error validating target %s", validationResponse)
 	}
-	var errorDtoList []*proto.ErrorDTO
-	errorDtoList = append(errorDtoList, errorDTO)
-
-	validationResponse := &proto.ValidationResponse{
-		ErrorDTO: errorDtoList,
-	}
-	glog.Infof("Error validating target %s", validationResponse)
 	return validationResponse
+}
+
+func (theProbe *TurboProbe) ExecuteAction(actionExecutionDTO *proto.ActionExecutionDTO, accountValues []*proto.AccountValue,
+	progressTracker ActionProgressTracker) *proto.ActionResult {
+	if theProbe.ActionClient == nil {
+		glog.Infof("ActionClient not defined for Probe ", theProbe.ProbeType)
+		return theProbe.createActionErrorDTO("ActionClient not defined for Probe " + theProbe.ProbeType)
+	}
+	glog.Infof("Execute Action for Target : ", accountValues)
+	response, err := theProbe.ActionClient.ExecuteAction(actionExecutionDTO, accountValues, progressTracker)
+
+	if err != nil {
+		description := fmt.Sprintf("Error executing action %s", err)
+		glog.Errorf("Error executing action")
+		return theProbe.createActionErrorDTO(description)
+	}
+	return response
 }
 
 // ==============================================================================================================
@@ -221,4 +219,22 @@ func (theProbe *TurboProbe) createDiscoveryErrorDTO(errMsg string, severity prot
 		ErrorDTO: errorDtoList,
 	}
 	return discoveryResponse
+}
+
+func (theProbe *TurboProbe) createActionErrorDTO(errMsg string) *proto.ActionResult {
+	var progress int32
+	progress = 100
+	state := proto.ActionResponseState_FAILED
+	// build ActionResponse
+	actionResponse := &proto.ActionResponse{
+		ActionResponseState: &state,
+		ResponseDescription: &errMsg,
+		Progress:            &progress,
+	}
+
+	response := &proto.ActionResult{
+		Response: actionResponse,
+	}
+
+	return response
 }
