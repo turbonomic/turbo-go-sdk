@@ -106,6 +106,7 @@ func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) 
 		discoveryResponse = theProbe.createDiscoveryErrorDTO(description, severity)
 		glog.Errorf("Error discovering target %s", discoveryResponse)
 	}
+	glog.V(2).Infof("Discovery response : %s", discoveryResponse)
 	return discoveryResponse
 }
 
