@@ -116,7 +116,7 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 		},
 	}
 	for _, item := range table {
-		err := item.config.validateTurboCommunicationConfig()
+		err := item.config.ValidateTurboCommunicationConfig()
 		if item.expectErr {
 			if err == nil {
 				t.Errorf("Expects error, but go no error: %v", item.config)
