@@ -31,7 +31,7 @@ type TurboCommunicationConfig struct {
 	RestAPIConfig                      `json:"restAPIConfig,omitempty"`
 }
 
-func (turboCommConfig *TurboCommunicationConfig) validateTurboCommunicationConfig() error {
+func (turboCommConfig *TurboCommunicationConfig) ValidateTurboCommunicationConfig() error {
 	// validate the config
 	if err := turboCommConfig.ValidateServerMeta(); err != nil {
 		return err
@@ -53,7 +53,7 @@ func ParseTurboCommunicationConfig(configFile string) (*TurboCommunicationConfig
 	}
 	glog.V(3).Infof("TurboCommunicationConfig Config: %v", turboCommConfig)
 
-	if err := turboCommConfig.validateTurboCommunicationConfig(); err != nil {
+	if err := turboCommConfig.ValidateTurboCommunicationConfig(); err != nil {
 		return nil, err
 	}
 	glog.V(3).Info("Turbo communication config validation passed.")
