@@ -64,8 +64,7 @@ func CreateMediationContainer(containerConfig *MediationContainerConfig) *mediat
 // Start the RemoteMediationClient
 func InitMediationContainer(probeRegisteredMsg chan bool) {
 	theContainer := singletonMediationContainer()
-	//func (theContainer *mediationContainer) Init(probeRegisteredMsg chan bool) {
-	glog.Infof("[MediationContainer] Initializing Mediation Container .....")
+	glog.Infof("Initializing mediation container .....")
 	// Assert that the probes are registered before starting the handshake
 	if len(theContainer.allProbes) == 0 {
 		glog.Errorf("No probes are registered with the container")
@@ -78,15 +77,15 @@ func InitMediationContainer(probeRegisteredMsg chan bool) {
 	remoteMediationClient.Init(probeRegisteredMsg)
 }
 
-func (theContainer *mediationContainer) Close() {
+func CloseMediationContainer() {
+	glog.Infof("[CloseMediationContainer] Closing mediation container .....")
+	theContainer := singletonMediationContainer()
 	theContainer.theRemoteMediationClient.Stop()
 	// TODO: clear probe map ?
 }
 
 // ============================= Probe Management ==================
 func LoadProbe(probe *probe.TurboProbe) error {
-	//func (theContainer *mediationContainer) LoadProbe(probe *probe.TurboProbe)
-
 	// load the probe config
 	config := &ProbeSignature{
 		ProbeCategory: probe.ProbeCategory,
@@ -99,7 +98,7 @@ func LoadProbe(probe *probe.TurboProbe) error {
 	}
 	theContainer := singletonMediationContainer()
 	if theContainer == nil {
-		return errors.New("[LoadProbe] **** Null mediation container ****")
+		return errors.New("[LoadProbe] Null mediation container")
 	}
 	// TODO: check if the probe type already exists and warn before overwriting
 	theContainer.allProbes[config.ProbeType] = probeProp
@@ -110,7 +109,7 @@ func LoadProbe(probe *probe.TurboProbe) error {
 func GetProbe(probeType string) (*probe.TurboProbe, error) {
 	theContainer := singletonMediationContainer()
 	if theContainer == nil {
-		return nil, errors.New("[GetProbe] **** Null mediation container ****")
+		return nil, errors.New("[GetProbe] Null mediation container")
 	}
 	probeProps := theContainer.allProbes[probeType]
 

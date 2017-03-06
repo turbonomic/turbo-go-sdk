@@ -8,35 +8,38 @@ import (
 )
 
 type SdkClientProtocol struct {
-	allProbes      map[string]*ProbeProperties
-	TransportReady chan bool
+	allProbes map[string]*ProbeProperties
+	//TransportReady chan bool
 }
 
-func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties, done chan bool) *SdkClientProtocol {
+func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties) *SdkClientProtocol {
 	return &SdkClientProtocol{
-		allProbes:      allProbes,
-		TransportReady: done,
+		allProbes: allProbes,
+		//TransportReady: done,
 	}
 }
 
-func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITransport) {
+func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITransport, transportReady chan bool) {
 	glog.Infof("Starting Protocol Negotiation ....")
 	status := clientProtocol.NegotiateVersion(transport)
 
 	if !status {
 		glog.Errorf("Failure during Protocol Negotiation, Registration message will not be sent")
-		clientProtocol.TransportReady <- false
+		transportReady <- false
+		// clientProtocol.TransportReady <- false
 		return
 	}
 	glog.Infof("[SdkClientProtocol] Starting Probe Registration ....")
 	status = clientProtocol.HandleRegistration(transport)
 	if !status {
 		glog.Errorf("Failure during Registration, cannot receive server messages")
-		clientProtocol.TransportReady <- false
+		transportReady <- false
+		// clientProtocol.TransportReady <- false
 		return
 	}
 
-	clientProtocol.TransportReady <- true
+	transportReady <- true
+	// clientProtocol.TransportReady <- true
 }
 
 // ============================== Protocol Version Negotiation =========================
@@ -56,7 +59,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 		ProtobufMessage: request,
 	}
 	endpoint.Send(endMsg)
-	defer close(endpoint.MessageReceiver())
+	//defer close(endpoint.MessageReceiver())
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
 	serverMsg, ok := <-endpoint.MessageReceiver()
 	if !ok {
@@ -104,7 +107,7 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 		ProtobufMessage: containerInfo,
 	}
 	endpoint.Send(endMsg)
-	defer close(endpoint.MessageReceiver())
+	//defer close(endpoint.MessageReceiver())
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
 	serverMsg, ok := <-endpoint.MessageReceiver()
 	if !ok {

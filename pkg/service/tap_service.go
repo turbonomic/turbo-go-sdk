@@ -20,25 +20,22 @@ type TAPService struct {
 	// Interface to the Turbo Server
 	*probe.TurboProbe
 	*restclient.Client
+	disconnectFromTurbo chan struct{}
 }
 
+func (tapService *TAPService) DisconnectFromTurbo() {
+	glog.Infof("[DisconnectFromTurbo] Enter *******")
+	close(tapService.disconnectFromTurbo)
+	glog.Infof("[DisconnectFromTurbo] End *********")
+}
 func (tapService *TAPService) ConnectToTurbo() {
+	glog.Infof("[ConnectToTurbo] Enter ******* ")
 	IsRegistered := make(chan bool, 1)
-	defer close(IsRegistered)
 
 	// start a separate go routine to connect to the Turbo server
 	go mediationcontainer.InitMediationContainer(IsRegistered)
-	//go tapService.mediationContainer.Init(IsRegistered)
 
 	// Wait for probe registration complete to create targets in turbo server
-	tapService.createTurboTargets(IsRegistered)
-}
-
-// Invokes the Turbo Rest API to create VMTTarget representing the target environment
-// that is being controlled by the TAP service.
-// Targets are created only after the service is notified of successful registration with the server
-func (tapService *TAPService) createTurboTargets(IsRegistered chan bool) {
-	glog.Infof("********* Waiting for registration complete .... %s\n", IsRegistered)
 	// Block till a message arrives on the channel
 	status := <-IsRegistered
 	if !status {
@@ -52,13 +49,26 @@ func (tapService *TAPService) createTurboTargets(IsRegistered chan bool) {
 		glog.V(4).Infof("Now adding target %v", target)
 		resp, err := tapService.AddTarget(target)
 		if err != nil {
-			glog.Errorf("Error during add target %v: %s", targetInfo, err)
+			glog.Errorf("Error while adding target %v: %s", targetInfo, err)
 			// TODO, do we want to return an error?
 			continue
 		}
 		glog.V(3).Infof("Successfully add target: %v", resp)
 	}
+
+	close(IsRegistered)
+	glog.Infof("[ConnectToTurbo] End ******")
+
+	// Once connected the mediation container will keep running till a disconnect message is sent to the tap service
+	tapService.disconnectFromTurbo = make(chan struct{})
+	select {
+	case <-tapService.disconnectFromTurbo:
+		mediationcontainer.CloseMediationContainer()
+		return
+	}
 }
+
+// ==============================================================================
 
 // Convenience builder for building a TAPService
 type TAPServiceBuilder struct {

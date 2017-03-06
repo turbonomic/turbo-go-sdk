@@ -3,42 +3,44 @@ package mediationcontainer
 import (
 	"github.com/golang/glog"
 	goproto "github.com/golang/protobuf/proto"
+	"time"
 )
 
 // =====================================================================================================
 // Implementation of ProtobufEndpoint to handle all the server protobuf messages sent to the client
 type ClientProtobufEndpoint struct {
-	Name string
+	Name              string
+	singleMessageMode bool
 	// Transport used to send and receive messages
 	transport ITransport
 	// Parser for the message - this will vary with the type of message communication the endpoint is being used for
 	messageHandler ProtobufMessage
-	// Channel where the endpoint will send the incoming parsed messages
-	//MessageChannel chan goproto.Message
-	ParsedMessageChannel chan *ParsedMessage
-	closeReceived  bool
+	// Channel where the endpoint will send the parsed messages
+	ParsedMessageChannel chan *ParsedMessage// unbuffered channel
 	// TODO: add message waiting policy
+	stopMsgWaitCh chan bool // buffered channel
 }
-
 
 // Create a new instance of the ClientProtobufEndpoint that handles communication
 // for a specific message type using the given transport point
-func CreateClientProtobufEndpoint(name string, transport ITransport, messageHandler ProtobufMessage, singleMessage bool) ProtobufEndpoint {
+func CreateClientProtobufEndpoint(name string, transport ITransport, messageHandler ProtobufMessage, singleMessageMode bool) ProtobufEndpoint {
 	endpoint := &ClientProtobufEndpoint{
 		Name: name,
-
 		transport:      transport, // the transport
-		//MessageChannel: make(chan goproto.Message),
 		ParsedMessageChannel: make(chan *ParsedMessage),
 		messageHandler: messageHandler, // the message parser
+		singleMessageMode: singleMessageMode,
 	}
 
 	glog.Infof("Created Protobuf Endpoint " + endpoint.GetName())
 	// Start a Message Handling routine to wait for messages arriving on the transport point
-	if singleMessage {
-		go endpoint.waitForSingleServerMessage() // TODO: redo using MessageWaiting policy
+	if singleMessageMode {
+		endpoint.ParsedMessageChannel = make(chan *ParsedMessage, 1)
+		endpoint.waitForSingleServerMessage() // TODO: redo using MessageWaiting policy
 	} else {
-		go endpoint.waitForServerMessage()
+		endpoint.ParsedMessageChannel = make(chan *ParsedMessage)
+		endpoint.stopMsgWaitCh = make(chan bool, 1)
+		endpoint.waitForServerMessage()
 	}
 
 	return endpoint
@@ -52,9 +54,6 @@ func (endpoint *ClientProtobufEndpoint) GetTransport() ITransport {
 	return endpoint.transport
 }
 
-//func (endpoint *ClientProtobufEndpoint) MessageReceiver() chan goproto.Message {
-//	return endpoint.MessageChannel
-//}
 func (endpoint *ClientProtobufEndpoint) MessageReceiver() chan *ParsedMessage {
 	return endpoint.ParsedMessageChannel
 }
@@ -64,81 +63,98 @@ func (endpoint *ClientProtobufEndpoint) GetMessageHandler() ProtobufMessage {
 }
 
 func (endpoint *ClientProtobufEndpoint) CloseEndpoint() {
-	endpoint.closeReceived = true
-	glog.Infof("["+endpoint.Name+"] : CLOSING, close=", endpoint.closeReceived)
-	//TODO: close the channel
-	//close(endpoint.MessageReceiver())
+	glog.Infof("[" + endpoint.Name + "] : closing endpoint and listener routine")
+	// Send close to the listener routine
+	if endpoint.stopMsgWaitCh != nil {
+		glog.Infof("["+endpoint.Name+"] closing stopMsgWaitCh %+v", endpoint.stopMsgWaitCh)
+		endpoint.stopMsgWaitCh <- true
+		close(endpoint.stopMsgWaitCh)
+		glog.Infof("["+endpoint.Name+"] closed stopMsgWaitCh %+v", endpoint.stopMsgWaitCh)
+	}
 }
 
 func (endpoint *ClientProtobufEndpoint) Send(messageToSend *EndpointMessage) {
-	glog.Infof("[" + endpoint.Name + "] : SENDING Protobuf message") // %s", messageToSend.ProtobufMessage)
+	glog.Infof("[" + endpoint.Name + "] : Sending protobuf message") // %s", messageToSend.ProtobufMessage)
 	// Marshal protobuf message to raw bytes
 	msgMarshalled, err := goproto.Marshal(messageToSend.ProtobufMessage) // marshal to byte array
 	if err != nil {
-		glog.Errorf("[ClientProtobufEndpoint] During Send - marshaling error: ", err)
+		glog.Errorf("[ClientProtobufEndpoint] during send - marshaling error: ", err)
 		return
 	}
 	// Send using the underlying transport
 	tmsg := &TransportMessage{
 		RawMsg: msgMarshalled,
 	}
-	endpoint.transport.Send(tmsg) // TODO: catch any exceptions during send
+	err = endpoint.transport.Send(tmsg)
+	if err != nil {
+		glog.Errorf("[ClientProtobufEndpoint] during send - transport error: ", err)
+		return
+	}
 }
 
 func (endpoint *ClientProtobufEndpoint) waitForServerMessage() {
-	glog.Infof("[" + endpoint.Name + "][waitForServerMessage] : Waiting for server request")
 
-	// main loop for listening server message until its message receiver channel is closed.
-	for {
-		glog.V(2).Infof("["+endpoint.Name+"] : Waiting for server request ...", endpoint.closeReceived)
-		if endpoint.closeReceived {
-			glog.Errorf("[" + endpoint.Name + "] : Endpoint is closed")
-			break
-		}
-		// Get the message bytes from the transport channel,
-		// - this will block till the message appears on the channel
-		rawBytes, ok := <-endpoint.transport.RawMessageReceiver()
-		if !ok {
-			glog.Errorf("[" + endpoint.Name + "] : Transport Message Receiver channel is closed")
-			break
-			// TODO: initiate reconnection ?
-		} else {
-			glog.Infof("[" + endpoint.Name + "] : Received message on Transport Receiver channel")
-		}
+	logPrefix := "["+endpoint.Name+"][[waitForServerMessage] : "
+	glog.V(2).Infof(logPrefix + " %s : ENTER  ", time.Now())
 
-		// Parse the input stream using the registered message handler
-		messageHandler := endpoint.GetMessageHandler()
-		parsedMsg, err := messageHandler.parse(rawBytes)
+	go func() {
+		// main loop for listening server message until its message receiver channel is closed.
+		for {
+			glog.V(2).Infof("[" + endpoint.Name + "][waitForServerMessage] : waiting for server request at endpoint %s", endpoint)
+			select {
+			case <-endpoint.stopMsgWaitCh:
+				glog.Infof(logPrefix + " Exit routine *************")
+				glog.Infof(logPrefix + " closing MessageChannel %+v", endpoint.ParsedMessageChannel)
+				close(endpoint.ParsedMessageChannel)	// This listener routine is the writer for this channel
+				glog.Infof(logPrefix + " closed MessageChannel %+v", endpoint.ParsedMessageChannel)
+				return
+			//default:
+			case rawBytes, ok := <-endpoint.transport.RawMessageReceiver(): // block till  the message bytes from the transport channel,
 
-		if err != nil {
-			glog.Errorf("["+endpoint.Name+"][waitForServerMessage] : Received null message, dropping it")
-			continue
-		}
+				// Get the message bytes from the transport channel,
+				// - this will block till the message appears on the channel
+				//rawBytes, ok := <-endpoint.transport.RawMessageReceiver()
+				if !ok {
+					glog.Errorf(logPrefix + "transport message channel is closed")
+					break
+				}
+				// Parse the input stream using the registered message handler
+				messageHandler := endpoint.GetMessageHandler()
+				parsedMsg, err := messageHandler.parse(rawBytes)
 
-		glog.Infof("["+endpoint.Name+"][waitForServerMessage] : Received: %s\n", parsedMsg)
+				if err != nil {
+					glog.Errorf(logPrefix + "received null message, dropping it")
+					continue
+				}
 
-		// Put the parsed message on the endpoint's channel
-		// - this will block till the upper layer receives this message
-		msgChannel := endpoint.MessageReceiver()
-		if msgChannel != nil { // checking if the channel was closed before putting the message
-			msgChannel <- parsedMsg
-		}
+				glog.V(2).Infof(logPrefix + "received: %s\n", parsedMsg)
 
-		glog.Infof("[" + endpoint.Name + "] : Parsed server message delivered on the message channel, continue to listen from transport ...")
-	}
-	glog.V(2).Infof("[" + endpoint.Name + "][waitForServerMessage] : DONE, Waiting for server request")
+				// Put the parsed message on the endpoint's channel
+				// - this will block till the upper layer receives this message
+				msgChannel := endpoint.MessageReceiver()
+				if msgChannel != nil { // checking if the channel was closed before putting the message
+					msgChannel <- parsedMsg
+				}
+
+				glog.Infof(logPrefix + "parsed message delivered on the message channel, continue to listen from transport ...")
+			} //end select
+		} //end for
+	}()
+	glog.Infof(logPrefix + "DONE")
 }
 
 func (endpoint *ClientProtobufEndpoint) waitForSingleServerMessage() {
-	glog.V(2).Infof("[" + endpoint.Name + "][waitForSingleServerMessage] : Waiting for server response")
+	logPrefix := "["+endpoint.Name+"][[waitForSingleServerMessage] : "
+	glog.Infof(logPrefix + "waiting for server response")
 
-	// listen for server message
-	// - this will block till the message appears on the channel
-	rawBytes := <-endpoint.transport.RawMessageReceiver()
+	go func() {
 
-	// Parse the input stream using the registered message handler
-	messageHandler := endpoint.GetMessageHandler()
-	parsedMsg, err := messageHandler.parse(rawBytes)
+		// listen for server message
+		// - this will block till the message appears on the channel
+		rawBytes := <-endpoint.transport.RawMessageReceiver()
+
+		messageHandler := endpoint.GetMessageHandler()
+		parsedMsg, err := messageHandler.parse(rawBytes)
 
 	if err != nil {
 		glog.Errorf("["+endpoint.Name+"][waitForSingleServerMessage] : Received null message, dropping it")
@@ -153,11 +169,14 @@ func (endpoint *ClientProtobufEndpoint) waitForSingleServerMessage() {
 		msgChannel <- parsedMsg
 	}
 
-	glog.V(2).Infof("[" + endpoint.Name + "][waitForSingleServerMessage] : DONE Waiting for server response")
+
+		glog.Infof(logPrefix + "parsed message delivered on the message channel")
+		glog.Infof(logPrefix + "DONE")
+	}()
 }
 
 // =====================================================================================
-
+// ---------------------------------------- Not used -----------------------------------
 type MessageWaiter interface {
 	getMessage(endpoint ProtobufEndpoint) goproto.Message
 }
@@ -166,7 +185,24 @@ type SingleMessageWaiter struct {
 }
 
 func (messageWaiter *SingleMessageWaiter) getMessage(endpoint ProtobufEndpoint) {
-	glog.Infof("[" + endpoint.GetName() + "] : ########## Waiting for server request #######")
+	go func() {
+		getSingleMessage(endpoint)
+	}()
+}
+
+type ContinuousMessageWaiter struct {
+}
+
+func (messageWaiter *ContinuousMessageWaiter) getMessage(endpoint ProtobufEndpoint) {
+	go func() {
+		for {
+			getSingleMessage(endpoint)
+		}
+	}()
+}
+
+func getSingleMessage(endpoint ProtobufEndpoint) {
+	glog.Infof("[" + endpoint.GetName() + "][waitForSingleServerMessage]: ########## Waiting for server request #######")
 	// listen for server message
 	// - this will block till the message appears on the channel
 	transport := endpoint.GetTransport()
@@ -185,17 +221,7 @@ func (messageWaiter *SingleMessageWaiter) getMessage(endpoint ProtobufEndpoint) 
 
 	// - this will block till the upper layer receives this message
 	msgChannel := endpoint.MessageReceiver()
-	if msgChannel != nil { // checking if the channel was closed before putting the message
+	if msgChannel != nil { // TODO: checking if the channel was closed before putting the message
 		msgChannel <- parsedMsg
 	}
-}
-
-
-type ContinousMessageWaiter struct {
-}
-
-func (messageWaiter *ContinousMessageWaiter) getMessage(endpoint ProtobufEndpoint) {
-	go func() {
-
-	} ()
 }
