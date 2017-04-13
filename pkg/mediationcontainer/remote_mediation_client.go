@@ -3,9 +3,10 @@ package mediationcontainer
 import (
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+
+	"github.com/golang/glog"
 )
 
 // Abstraction to establish session using the specified protocol with the server
@@ -21,11 +22,11 @@ type remoteMediationClient struct {
 	MessageHandlers  map[RequestType]RequestHandler
 	stopMsgHandlerCh chan bool
 	// Channel for receiving responses from the registered probes to be sent to the server
-	probeResponseChan     chan *proto.MediationClientMessage
+	probeResponseChan chan *proto.MediationClientMessage
 	// Channel to stop the mediation client and the underlying transport and message handling
 	stopMediationClientCh chan struct{}
 	//  Channel to stop the routine that monitors the underlying transport connection
-	closeWatcherCh        chan bool
+	closeWatcherCh chan bool
 }
 
 func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
@@ -38,20 +39,19 @@ func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
 		stopMediationClientCh: make(chan struct{}),
 	}
 
-	glog.V(2).Infof("Created channels : probeResponseChan %s, stopMediationClientCh %s\n",
+	glog.V(4).Infof("Created channels : probeResponseChan %s, stopMediationClientCh %s\n",
 		remoteMediationClient.probeResponseChan, remoteMediationClient.stopMediationClientCh)
 
 	// Create message handlers
 	remoteMediationClient.createMessageHandlers(remoteMediationClient.probeResponseChan)
 
-	glog.Infof("Created remote mediation client")
+	glog.V(2).Infof("Created remote mediation client")
 
 	return remoteMediationClient
 }
 
-// Establish connection with the Turbo server -  Blocks till websocket connection is open
+// Establish connection with the Turbo server -  Blocks till WebSocket connection is open
 // Complete the probe registration protocol with the server and then wait for server messages
-//
 func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh chan bool) {
 	// TODO: Assert that the probes are registered before starting the handshake ??
 
@@ -69,18 +69,18 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 	sdkProtocolHandler := CreateSdkClientProtocolHandler(remoteMediationClient.allProbes)
 	// ------ Websocket transport
 
-	transport := CreateClientWebSocketTransport(connConfig)	//, transportClosedNotificationCh)
+	transport := CreateClientWebSocketTransport(connConfig) //, transportClosedNotificationCh)
 	remoteMediationClient.closeWatcherCh = make(chan bool, 1)
 	// Routine to monitor the websocket connection
 	go func() {
-		glog.Infof("[Reconnect] start monitoring the transport connection")
+		glog.V(3).Infof("[Reconnect] start monitoring the transport connection")
 		for {
 			select {
 			case <-remoteMediationClient.closeWatcherCh:
-				glog.Infof("[Reconnect] Exit routine *************")
+				glog.V(4).Infof("[Reconnect] Exit routine *************")
 				return
 			case <-transport.NotifyClosed():
-				glog.Infof("[Reconnect] transport endpoint is closed, starting reconnect ...")
+				glog.V(2).Infof("[Reconnect] transport endpoint is closed, starting reconnect ...")
 				// stop transport layer message listener
 				transport.StopListenForMessages()
 
@@ -88,8 +88,8 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 				remoteMediationClient.stopMessageHandler()
 				// Reconnect
 				err := transport.Connect()
-				// handle websocket creation errors
-				if err != nil {		//transport.ws == nil {
+				// handle WebSocket creation errors
+				if err != nil { //transport.ws == nil {
 					glog.Errorf("[Reconnect] Initialization of remote mediation client failed, null transport")
 					remoteMediationClient.Stop()
 					break
@@ -106,17 +106,14 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 				// start listener for server messages
 				remoteMediationClient.stopMsgHandlerCh = make(chan bool)
 				go remoteMediationClient.RunServerMessageHandler(remoteMediationClient.Transport)
-				glog.Infof("[Reconnect] transport endpoint connect complete")
-			default:
-				// Do other stuff
-				// Do nothing
+				glog.V(3).Infof("[Reconnect] transport endpoint connect complete")
 			} //end select
 		} // end for
 	}() // end go routine
 	err = transport.Connect() // TODO: blocks till websocket connection is open or until transport is closed
 
-	// handle websocket creation errors
-	if err != nil {		//transport.ws == nil {
+	// handle WebSocket creation errors
+	if err != nil { //transport.ws == nil {
 		glog.Errorf("Initialization of remote mediation client failed, null transport")
 		remoteMediationClient.Stop()
 		probeRegisteredMsgCh <- false
@@ -134,7 +131,7 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 
 	status := <-sdkProtocolDoneCh
 
-	glog.Infof("Sdk client protocol complete, status = ", status)
+	glog.V(4).Infof("Sdk client protocol complete, status = ", status)
 	if !status {
 		glog.Errorf("Registration with server failed")
 		probeRegisteredMsgCh <- status
@@ -149,13 +146,13 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 	defer close(probeRegisteredMsgCh)
 	defer close(sdkProtocolDoneCh)
 	probeRegisteredMsgCh <- status
-	glog.V(2).Infof("Sent registration status on channel %s\n", probeRegisteredMsgCh)
+	glog.V(3).Infof("Sent registration status on channel %s\n", probeRegisteredMsgCh)
 
-	glog.Infof("Remote mediation initialization complete")
+	glog.V(3).Infof("Remote mediation initialization complete")
 	// --------- Wait for exit notification
 	select {
 	case <-remoteMediationClient.stopMediationClientCh:
-		glog.Infof("[Init] Exit routine *************")
+		glog.V(4).Infof("[Init] Exit routine *************")
 		return
 	}
 }
@@ -180,13 +177,13 @@ func (remoteMediationClient *remoteMediationClient) stopMessageHandler() {
 	close(remoteMediationClient.stopMsgHandlerCh)
 }
 
-// Checks for incoming server messages received by the protobuf endpoint created to handle server requests
+// Checks for incoming server messages received by the ProtoBuf endpoint created to handle server requests
 func (remoteMediationClient *remoteMediationClient) RunServerMessageHandler(transport ITransport) {
 	glog.V(2).Infof("[handleServerMessages] %s : ENTER  ", time.Now())
 
 	// Create Protobuf Endpoint to handle server messages
 	protoMsg := &MediationRequest{} // parser for the server requests
-	endpoint := CreateClientProtobufEndpoint("ServerRequestEndpoint", transport, protoMsg, false)
+	endpoint := CreateClientProtoBufEndpoint("ServerRequestEndpoint", transport, protoMsg, false)
 	logPrefix := "[handleServerMessages][" + endpoint.GetName() + "] : "
 
 	// Spawn a new go routine that serves as a Callback for Probes when their response is ready
@@ -198,15 +195,15 @@ func (remoteMediationClient *remoteMediationClient) RunServerMessageHandler(tran
 		// Wait for the server request to be received and parsed by the protobuf endpoint
 		select {
 		case <-remoteMediationClient.stopMsgHandlerCh:
-			glog.Infof(logPrefix + "Exit routine ***************")
+			glog.V(4).Infof(logPrefix + "Exit routine ***************")
 			endpoint.CloseEndpoint() //to stop the message listener and close the channel
 			return
 		case parsedMsg, ok := <-endpoint.MessageReceiver(): // block till a message appears on the endpoint's message channel
 			if !ok {
 				glog.Errorf(logPrefix + "endpoint message channel is closed")
-				break	// return or continue ?
+				break // return or continue ?
 			}
-			glog.Infof(logPrefix + "received: %s\n", parsedMsg)
+			glog.V(3).Infof(logPrefix+"received: %s\n", parsedMsg)
 
 			// Handler response - find the handler to handle the message
 			serverRequest := parsedMsg.ServerMsg
@@ -229,26 +226,27 @@ func (remoteMediationClient *remoteMediationClient) RunServerMessageHandler(tran
 // Run probe callback to the probe response to the server.
 // Probe responses put on the probeResponseChan by the different message handlers are sent to the server
 func (remoteMediationClient *remoteMediationClient) runProbeCallback(endpoint ProtobufEndpoint) {
-	glog.V(2).Infof("[runProbeCallback] %s : ENTER  ", time.Now())
+	glog.V(4).Infof("[runProbeCallback] %s : ENTER  ", time.Now())
 	for {
-		glog.V(2).Infof("[probeCallback] waiting for probe responses ..... on  %s\n", remoteMediationClient.probeResponseChan)
+		glog.V(2).Infof("[probeCallback] waiting for probe responses")
+		glog.V(4).Infof("[probeCallback] waiting for probe responses ..... on  %v\n", remoteMediationClient.probeResponseChan)
 		select {
 		case <-remoteMediationClient.stopMsgHandlerCh:
-			glog.Infof("[probeCallback] Exit routine *************")
+			glog.V(4).Infof("[probeCallback] Exit routine *************")
 			return
 		case msg, ok := <-remoteMediationClient.probeResponseChan:
 			if !ok {
 				glog.Errorf("[probeCallback] probe response channel is closed")
 				break
 			}
-			glog.V(2).Infof("[probeCallback] received response on probe channel %s\n ", remoteMediationClient.probeResponseChan)
+			glog.V(4).Infof("[probeCallback] received response on probe channel %v\n ", remoteMediationClient.probeResponseChan)
 			endMsg := &EndpointMessage{
 				ProtobufMessage: msg,
 			}
 			endpoint.Send(endMsg)
 		} // end select
 	}
-	glog.Infof("[probeCallback] DONE")
+	glog.V(4).Infof("[probeCallback] DONE")
 }
 
 // ======================== Message Handlers ============================
@@ -299,7 +297,7 @@ func (remoteMediationClient *remoteMediationClient) createMessageHandlers(probeM
 	for k := range remoteMediationClient.MessageHandlers {
 		keys = append(keys, k)
 	}
-	glog.Infof("Created message handlers for server message types : [%s]", keys)
+	glog.V(4).Infof("Created message handlers for server message types : [%s]", keys)
 }
 
 // -------------------------------- Discovery Request Handler -----------------------------------
@@ -314,10 +312,10 @@ func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest proto
 
 	probeProps, exist := discReqHandler.probes[*probeType]
 	if !exist {
-		glog.Errorf("Received: discovery request for unknown probe type : " + *probeType)
+		glog.Errorf("Received: discovery request for unknown probe type: %s", *probeType)
 		return
 	}
-	glog.Infof("Received: discovery for probe type :, %s\n "+*probeType, serverRequest)
+	glog.V(3).Infof("Received: discovery for probe type: %s", *probeType)
 
 	turboProbe := probeProps.Probe
 	msgID := serverRequest.GetMessageID()
@@ -331,7 +329,7 @@ func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest proto
 			t := time.NewTimer(time.Second * 10)
 			select {
 			case <-stopCh:
-				glog.Infof("******** Cancel keep alive for msgID ", msgID)
+				glog.V(4).Infof("Cancel keep alive for msgID ", msgID)
 				return
 			case <-t.C:
 			}
@@ -345,14 +343,14 @@ func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest proto
 
 	// Send the response on the callback channel to send to the server
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.Infof("Sent discovery response for ", clientMsg.GetMessageID())
+	glog.V(3).Infof("Sent discovery response for %d", clientMsg.GetMessageID())
 
 	// Send empty response to signal completion of discovery
 	discoveryResponse = &proto.DiscoveryResponse{}
 	clientMsg = NewClientMessageBuilder(msgID).SetDiscoveryResponse(discoveryResponse).Create()
 
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.V(2).Infof("Sent empty discovery response for ", clientMsg.GetMessageID())
+	glog.V(3).Infof("Discovery has finished for %d", clientMsg.GetMessageID())
 
 	// Cancel keep alive
 	// Note  : Keep alive routine is cancelled when the stopCh is closed at the end of this method
@@ -366,7 +364,7 @@ func (discReqHandler *DiscoveryRequestHandler) keepDiscoveryAlive(msgID int32, p
 
 	// Send the response on the callback channel to send to the server
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.Infof("Sent keep alive response ", clientMsg.GetMessageID())
+	glog.V(3).Infof("Sent keep alive response ", clientMsg.GetMessageID())
 }
 
 // -------------------------------- Validation Request Handler -----------------------------------
@@ -380,10 +378,10 @@ func (valReqHandler *ValidationRequestHandler) HandleMessage(serverRequest proto
 	probeType := request.ProbeType
 	probeProps, exist := valReqHandler.probes[*probeType]
 	if !exist {
-		glog.Errorf("Received: validation request for unknown probe type : " + *probeType)
+		glog.Errorf("Received: validation request for unknown probe type : %s", *probeType)
 		return
 	}
-	glog.Infof("Received: validation for probe type :, %s\n "+*probeType, serverRequest)
+	glog.V(3).Infof("Received: validation for probe type: %s\n ", *probeType)
 	turboProbe := probeProps.Probe
 
 	var validationResponse *proto.ValidationResponse
@@ -394,7 +392,7 @@ func (valReqHandler *ValidationRequestHandler) HandleMessage(serverRequest proto
 
 	// Send the response on the callback channel to send to the server
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.Infof("Sent validation response ", clientMsg.GetMessageID())
+	glog.V(3).Infof("Sent validation response ", clientMsg.GetMessageID())
 }
 
 // -------------------------------- Action Request Handler -----------------------------------
@@ -407,7 +405,7 @@ type ActionMessageHandler struct {
 
 func (actionReqHandler *ActionMessageHandler) HandleMessage(serverRequest proto.MediationServerMessage,
 	probeMsgChan chan *proto.MediationClientMessage) {
-	glog.Infof("[ActionMessageHandler] Received: action %s request", serverRequest)
+	glog.V(4).Infof("[ActionMessageHandler] Received: action %s request", serverRequest)
 	request := serverRequest.GetActionRequest()
 	probeType := request.ProbeType
 	if actionReqHandler.probes[*probeType] == nil {
@@ -415,12 +413,12 @@ func (actionReqHandler *ActionMessageHandler) HandleMessage(serverRequest proto.
 		return
 	}
 
-	glog.Infof("Received: action %s request for probe type :, %s\n ", request.ActionExecutionDTO.ActionType, probeType)
+	glog.V(3).Infof("Received: action %s request for probe type: %s\n ",
+		request.ActionExecutionDTO.ActionType, *probeType)
 	probeProps := actionReqHandler.probes[*probeType]
 	turboProbe := probeProps.Probe
 
 	msgID := serverRequest.GetMessageID()
-
 	worker := NewActionResponseWorker(msgID, turboProbe,
 		request.ActionExecutionDTO, request.GetAccountValue(), probeMsgChan)
 	worker.start()
@@ -447,7 +445,8 @@ func NewActionResponseWorker(msgId int32, turboProbe *probe.TurboProbe,
 		accountValues:      accountValues,
 		probeMsgChan:       probeMsgChan,
 	}
-	glog.Infof("**** New ActionResponseProtocolWorker for %s %s %s", msgId, turboProbe, actionExecutionDto.ActionType)
+	glog.V(4).Infof("New ActionResponseProtocolWorker for %s %s %s", msgId, turboProbe,
+		actionExecutionDto.ActionType)
 	return worker
 }
 
@@ -458,9 +457,8 @@ func (actionWorker *ActionResponseWorker) start() {
 	clientMsg := NewClientMessageBuilder(actionWorker.msgId).SetActionResponse(actionResult).Create()
 
 	// Send the response on the callback channel to send to the server
-	//glog.Infof("[ActionResponseProtocolWorker] send action response %s on %s\n", clientMsg, actionWorker.probeMsgChan)
 	actionWorker.probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.Infof("Sent action response for ", clientMsg.GetMessageID())
+	glog.V(3).Infof("Sent action response for %d.", clientMsg.GetMessageID())
 }
 
 func (actionWorker *ActionResponseWorker) UpdateProgress(actionState proto.ActionResponseState,
@@ -478,9 +476,8 @@ func (actionWorker *ActionResponseWorker) UpdateProgress(actionState proto.Actio
 
 	clientMsg := NewClientMessageBuilder(actionWorker.msgId).SetActionProgress(actionProgress).Create()
 	// Send the response on the callback channel to send to the server
-	//glog.Infof("[ActionResponseProtocolWorker] send action progress %s on %s\n", clientMsg, actionWorker.probeMsgChan)
 	actionWorker.probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.Infof("Sent action progress for ", clientMsg.GetMessageID())
+	glog.V(3).Infof("Sent action progress for %d.", clientMsg.GetMessageID())
 
 }
 
@@ -493,5 +490,5 @@ func (intMsgHandler *InterruptMessageHandler) HandleMessage(serverRequest proto.
 	probeMsgChan chan *proto.MediationClientMessage) {
 
 	msgID := serverRequest.GetMessageID()
-	glog.Infof("******** Received: Interrupt Message for message Id: %d, %s\n ", msgID, serverRequest)
+	glog.V(3).Infof("Received: Interrupt Message for message ID: %d, %s\n ", msgID, serverRequest)
 }

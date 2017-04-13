@@ -3,9 +3,9 @@ package mediationcontainer
 import (
 	"errors"
 	"fmt"
+	"net/url"
 
 	"github.com/golang/glog"
-	"net/url"
 )
 
 const (

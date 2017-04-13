@@ -2,9 +2,10 @@ package probe
 
 import (
 	"fmt"
-	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+
+	"github.com/golang/glog"
 )
 
 // Turbo Probe Abstraction
@@ -57,7 +58,7 @@ func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 		DiscoveryClientMap: make(map[string]TurboDiscoveryClient),
 	}
 
-	glog.Infof("[NewTurboProbe] Created TurboProbe \n %s", myProbe)
+	glog.V(2).Infof("[NewTurboProbe] Created TurboProbe: %s", myProbe)
 	return myProbe, nil
 }
 
@@ -78,16 +79,16 @@ func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues []*proto.Accou
 	target := theProbe.getDiscoveryClient(address)
 
 	if target == nil {
-		glog.Errorf("****** [GetTurboDiscoveryClient] Cannot find Target for address : " + address)
+		glog.Errorf("[GetTurboDiscoveryClient] Cannot find Target for address: " + address)
 		//TODO: CreateDiscoveryClient(address, accountValues, )
 		return nil
 	}
-	glog.Infof("[GetTurboDiscoveryClient] Found Target for address : " + address)
+	glog.V(2).Infof("[GetTurboDiscoveryClient] Found Target for address: %s", address)
 	return target
 }
 
 func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
-	glog.Infof("Discover Target : ", accountValues)
+	glog.V(2).Infof("Discover Target: %s", accountValues)
 	var handler TurboDiscoveryClient
 	handler = theProbe.GetTurboDiscoveryClient(accountValues)
 	if handler == nil {
@@ -96,22 +97,22 @@ func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) 
 	}
 	var discoveryResponse *proto.DiscoveryResponse
 
-	glog.V(2).Infof("Send discovery request to handler %s\n", handler)
+	glog.V(4).Infof("Send discovery request to handler %v", handler)
 	discoveryResponse, err := handler.Discover(accountValues)
 
 	if err != nil {
-		description := fmt.Sprintf("Error discovering target %s",  err)
+		description := fmt.Sprintf("Error discovering target %s", err)
 		severity := proto.ErrorDTO_CRITICAL
 
 		discoveryResponse = theProbe.createDiscoveryErrorDTO(description, severity)
 		glog.Errorf("Error discovering target %s", discoveryResponse)
 	}
-	glog.V(2).Infof("Discovery response : %s", discoveryResponse)
+	glog.V(3).Infof("Discovery response: %s", discoveryResponse)
 	return discoveryResponse
 }
 
 func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) *proto.ValidationResponse {
-	glog.Infof("Validate Target : ", accountValues)
+	glog.V(2).Infof("Validate Target: %++v", accountValues)
 	var handler TurboDiscoveryClient
 	handler = theProbe.GetTurboDiscoveryClient(accountValues)
 	if handler == nil {
@@ -121,7 +122,7 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) 
 	}
 
 	var validationResponse *proto.ValidationResponse
-	glog.V(2).Infof("Send validation request to handler %s\n", handler)
+	glog.V(3).Infof("Send validation request to handler %s", handler)
 	validationResponse, err := handler.Validate(accountValues)
 
 	// TODO: if the handler is nil, implies the target is added from the UI
@@ -134,16 +135,17 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) 
 		validationResponse = theProbe.createValidationErrorDTO(description, severity)
 		glog.Errorf("Error validating target %s", validationResponse)
 	}
+	glog.V(3).Infof("Validation response: %s", validationResponse)
 	return validationResponse
 }
 
 func (theProbe *TurboProbe) ExecuteAction(actionExecutionDTO *proto.ActionExecutionDTO, accountValues []*proto.AccountValue,
 	progressTracker ActionProgressTracker) *proto.ActionResult {
 	if theProbe.ActionClient == nil {
-		glog.Infof("ActionClient not defined for Probe ", theProbe.ProbeType)
+		glog.V(3).Infof("ActionClient not defined for Probe %s", theProbe.ProbeType)
 		return theProbe.createActionErrorDTO("ActionClient not defined for Probe " + theProbe.ProbeType)
 	}
-	glog.Infof("Execute Action for Target : ", accountValues)
+	glog.V(3).Infof("Execute Action for Target: %s", accountValues)
 	response, err := theProbe.ActionClient.ExecuteAction(actionExecutionDTO, accountValues, progressTracker)
 
 	if err != nil {
