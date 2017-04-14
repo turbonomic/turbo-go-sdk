@@ -5,17 +5,17 @@ import (
 )
 
 const (
-	defaultAPIPath = "vmturbo/api/"
+	defaultAPIPath = "vmturbo/rest/"
 )
 
 type Config struct {
-	// ServerAddress is  a string, which must be a host:port pair.
-	ServerAddress *url.URL
+	// ServerAddress is A URL, including <Scheme>://<IP>:<Port>.
+	serverAddress *url.URL
 	// APIPath is a sub-path that points to an API root.
-	APIPath string
+	apiPath       string
 
-	// For Basic authentication
-	BasicAuth *BasicAuthentication
+	// For Basic authentication.
+	basicAuth     *BasicAuthentication
 }
 
 type ConfigBuilder struct {
@@ -45,14 +45,14 @@ func (cb *ConfigBuilder) BasicAuthentication(usrn, passd string) *ConfigBuilder 
 
 func (cb *ConfigBuilder) Create() *Config {
 	return &Config{
-		ServerAddress: cb.serverAddress,
+		serverAddress: cb.serverAddress,
 		// If API path not specified, use the default API path.
-		APIPath: func() string {
+		apiPath: func() string {
 			if cb.apiPath == "" {
 				return defaultAPIPath
 			}
 			return cb.apiPath
 		}(),
-		BasicAuth: cb.basicAuth,
+		basicAuth: cb.basicAuth,
 	}
 }
