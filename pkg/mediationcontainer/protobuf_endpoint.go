@@ -1,12 +1,13 @@
 package mediationcontainer
 
 import (
-	"github.com/golang/glog"
-	goproto "github.com/golang/protobuf/proto"
+	"fmt"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/pkg/version"
-	"fmt"
+
+	"github.com/golang/glog"
+	goproto "github.com/golang/protobuf/proto"
 )
 
 // Endpoint to handle communication of a particular protobuf message type with the server
@@ -56,7 +57,6 @@ func (sr *MediationRequest) GetMessage() goproto.Message {
 }
 
 func (sr *MediationRequest) parse(rawMsg []byte) (*ParsedMessage, error) {
-	glog.V(2).Infof("Parsing %s\n", rawMsg)
 	// Parse the input stream
 	serverMsg := &proto.MediationServerMessage{}
 	err := goproto.Unmarshal(rawMsg, serverMsg)
@@ -81,7 +81,7 @@ func (nr *NegotiationResponse) parse(rawMsg []byte) (*ParsedMessage, error) {
 	serverMsg := &version.NegotiationAnswer{}
 	err := goproto.Unmarshal(rawMsg, serverMsg)
 	if err != nil {
-		glog.Error("[NegotiationResponse] unmarshaling error: ", err)
+		glog.Errorf("[NegotiationResponse] unmarshaling error: %s", err)
 		return nil, fmt.Errorf("[NegotiationResponse] Error unmarshalling transport input stream to protobuf message : %s", err)
 	}
 	nr.NegotiationMsg = serverMsg
@@ -96,7 +96,7 @@ func (rr *RegistrationResponse) GetMessage() goproto.Message {
 }
 
 func (rr *RegistrationResponse) parse(rawMsg []byte) (*ParsedMessage, error) {
-	glog.V(2).Infof("Parsing %s\n", rawMsg)
+	glog.V(3).Infof("Parsing %s\n", rawMsg)
 	// Parse the input stream
 	serverMsg := &proto.Ack{}
 	err := goproto.Unmarshal(rawMsg, serverMsg)

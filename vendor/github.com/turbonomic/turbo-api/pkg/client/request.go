@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -41,6 +42,7 @@ type Request struct {
 
 type Result struct {
 	statusCode int
+	status     string
 	body       string
 	err        error
 }
@@ -69,7 +71,7 @@ func (r *Request) Resource(resource api.ResourceType) *Request {
 	}
 
 	if r.resource != "" {
-		r.err = fmt.Errorf("Resource has already been set. Cannot be changed!")
+		r.err = errors.New("Resource has already been set. Cannot be changed!")
 		return r
 	}
 	r.resource = resource
@@ -86,7 +88,7 @@ func (r *Request) Name(resourceName string) *Request {
 		return r
 	}
 	if len(resourceName) == 0 {
-		r.err = fmt.Errorf("Resource name cannot be empty.")
+		r.err = errors.New("Resource name cannot be empty.")
 		return r
 	}
 	r.resourceName = resourceName
@@ -175,7 +177,6 @@ func (r *Request) request(fn func(*http.Response)) error {
 
 	url := r.URL().String()
 	glog.V(4).Infof("The request url is %s", url)
-	fmt.Printf("The request url is %s\n", url)
 	req, err := http.NewRequest(r.verb, url, r.data)
 	if err != nil {
 		return err
@@ -203,7 +204,7 @@ func (r *Request) request(fn func(*http.Response)) error {
 func parseHTTPResponse(resp *http.Response) Result {
 	if resp == nil {
 		return Result{
-			err: fmt.Errorf("response sent in is nil"),
+			err: errors.New("response sent in is nil"),
 		}
 	}
 
@@ -216,6 +217,7 @@ func parseHTTPResponse(resp *http.Response) Result {
 
 	return Result{
 		statusCode: resp.StatusCode,
+		status:     resp.Status,
 		body:       string(content),
 		err:        nil,
 	}

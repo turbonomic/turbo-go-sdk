@@ -1,10 +1,10 @@
 package mediationcontainer
 
 import (
-	"github.com/golang/glog"
-
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/pkg/version"
+
+	"github.com/golang/glog"
 )
 
 type SdkClientProtocol struct {
@@ -20,7 +20,7 @@ func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties) *SdkC
 }
 
 func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITransport, transportReady chan bool) {
-	glog.Infof("Starting Protocol Negotiation ....")
+	glog.V(2).Infof("Starting Protocol Negotiation ....")
 	status := clientProtocol.NegotiateVersion(transport)
 
 	if !status {
@@ -29,7 +29,7 @@ func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITranspo
 		// clientProtocol.TransportReady <- false
 		return
 	}
-	glog.Infof("[SdkClientProtocol] Starting Probe Registration ....")
+	glog.V(2).Infof("[SdkClientProtocol] Starting Probe Registration ....")
 	status = clientProtocol.HandleRegistration(transport)
 	if !status {
 		glog.Errorf("Failure during Registration, cannot receive server messages")
@@ -49,11 +49,11 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 	request := &version.NegotiationRequest{
 		ProtocolVersion: &versionStr,
 	}
-	glog.V(2).Infof("Send negotiation message: %+v", request)
+	glog.V(3).Infof("Send negotiation message: %+v", request)
 
 	// Create Protobuf Endpoint to send and handle negotiation messages
 	protoMsg := &NegotiationResponse{} // handler for the response
-	endpoint := CreateClientProtobufEndpoint("NegotiationEndpoint", transport, protoMsg, true)
+	endpoint := CreateClientProtoBufEndpoint("NegotiationEndpoint", transport, protoMsg, true)
 
 	endMsg := &EndpointMessage{
 		ProtobufMessage: request,
@@ -63,16 +63,16 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
 	serverMsg, ok := <-endpoint.MessageReceiver()
 	if !ok {
-		glog.Errorf("[" + endpoint.GetName() + "] : Endpoint Receiver channel is closed")
+		glog.Errorf("[%s] : Endpoint Receiver channel is closed", endpoint.GetName())
 		endpoint.CloseEndpoint()
 		return false
 	}
-	glog.V(2).Infof("["+endpoint.GetName()+"] : Received: %s\n", serverMsg)
+	glog.V(3).Infof("["+endpoint.GetName()+"] : Received: %s\n", serverMsg)
 
 	// Handler response
 	negotiationResponse := protoMsg.NegotiationMsg
 	if negotiationResponse == nil {
-		glog.Errorf("Probe Protocol failed, null negotiation response")
+		glog.Error("Probe Protocol failed, null negotiation response")
 		endpoint.CloseEndpoint()
 		return false
 	}
@@ -83,7 +83,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 			negotiationResponse.GetNegotiationResult().String()+") :"+negotiationResponse.GetDescription())
 		return false
 	}
-	glog.Infof("[SdkClientProtocol] Protocol version is accepted by server: {}", negotiationResponse.GetDescription())
+	glog.V(4).Infof("[SdkClientProtocol] Protocol version is accepted by server: %s", negotiationResponse.GetDescription())
 	endpoint.CloseEndpoint()
 	return true
 }
@@ -101,7 +101,7 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 
 	// Create Protobuf Endpoint to send and handle registration messages
 	protoMsg := &RegistrationResponse{}
-	endpoint := CreateClientProtobufEndpoint("RegistrationEndpoint", transport, protoMsg, true)
+	endpoint := CreateClientProtoBufEndpoint("RegistrationEndpoint", transport, protoMsg, true)
 
 	endMsg := &EndpointMessage{
 		ProtobufMessage: containerInfo,

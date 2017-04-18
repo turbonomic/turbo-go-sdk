@@ -24,12 +24,12 @@ type TAPService struct {
 }
 
 func (tapService *TAPService) DisconnectFromTurbo() {
-	glog.Infof("[DisconnectFromTurbo] Enter *******")
+	glog.V(4).Infof("[DisconnectFromTurbo] Enter *******")
 	close(tapService.disconnectFromTurbo)
-	glog.Infof("[DisconnectFromTurbo] End *********")
+	glog.V(4).Infof("[DisconnectFromTurbo] End *********")
 }
 func (tapService *TAPService) ConnectToTurbo() {
-	glog.Infof("[ConnectToTurbo] Enter ******* ")
+	glog.V(4).Infof("[ConnectToTurbo] Enter ******* ")
 	IsRegistered := make(chan bool, 1)
 
 	// start a separate go routine to connect to the Turbo server
@@ -42,14 +42,15 @@ func (tapService *TAPService) ConnectToTurbo() {
 		glog.Infof("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " is not registered")
 		return
 	}
-	glog.Infof("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " Registered : === Add Targets ===")
+	glog.V(3).Infof("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " Registered : === Add Targets ===")
 	targetInfos := tapService.GetProbeTargets()
 	for _, targetInfo := range targetInfos {
 		target := targetInfo.GetTargetInstance()
 		glog.V(4).Infof("Now adding target %v", target)
 		resp, err := tapService.AddTarget(target)
 		if err != nil {
-			glog.Errorf("Error while adding target %v: %s", targetInfo, err)
+			glog.Errorf("Error while adding %s %s target: %s", targetInfo.TargetCategory(),
+				targetInfo.TargetType(), err)
 			// TODO, do we want to return an error?
 			continue
 		}
@@ -57,7 +58,7 @@ func (tapService *TAPService) ConnectToTurbo() {
 	}
 
 	close(IsRegistered)
-	glog.Infof("[ConnectToTurbo] End ******")
+	glog.V(4).Infof("[ConnectToTurbo] End ******")
 
 	// Once connected the mediation container will keep running till a disconnect message is sent to the tap service
 	tapService.disconnectFromTurbo = make(chan struct{})

@@ -2,9 +2,9 @@ package mediationcontainer
 
 import (
 	"testing"
+	"reflect"
 
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
-	"reflect"
 )
 
 func TestValidateServerMeta(t *testing.T) {
