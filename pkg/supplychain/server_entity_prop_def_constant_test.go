@@ -11,13 +11,13 @@ import (
 // DirectlyApply is tested to be false
 func TestGetIpHandler(t *testing.T) {
 	assert := assert.New(t)
-	propertyHandler := getIpHandler()
+	propertyHandler := getIPHandler()
 	assert.NotNil(propertyHandler.EntityType)
 	if assert.NotNil(propertyHandler.DirectlyApply) {
 		assert.Equal(false, *propertyHandler.DirectlyApply)
 	}
 	if assert.NotNil(propertyHandler.MethodName) {
-		assert.Equal("getAddress", *propertyHandler.MethodName)
+		assert.Equal(getIPAddressMethodName, *propertyHandler.MethodName)
 	}
 }
 
@@ -26,11 +26,20 @@ func TestGetIpHandler(t *testing.T) {
 // tests that the attribute string type member variable is "UsesEndPoints"
 func TestGetVirtualMachineIpProperty(t *testing.T) {
 	assert := assert.New(t)
-	serverEntityProp := getVirtualMachineIpProperty()
+	serverEntityProp := getVirtualMachineIPProperty()
 	if assert.NotNil(serverEntityProp.Attribute) {
-		assert.Equal("UsesEndPoints", *serverEntityProp.Attribute)
+		assert.Equal(serverIPProperty, *serverEntityProp.Attribute)
 
 	}
 	assert.NotNil(serverEntityProp.Entity)
 	assert.NotNil(serverEntityProp.PropertyHandler)
+}
+
+func TestGetVirtualMachineUUIDProperty(t *testing.T) {
+	assert := assert.New(t)
+	serverEntityProp := getVirtualMachineUUIDProperty()
+	if assert.NotNil(serverEntityProp.Attribute) {
+		assert.Equal(serverUUIDProperty, *serverEntityProp.Attribute)
+	}
+	assert.NotNil(serverEntityProp.Entity)
 }
