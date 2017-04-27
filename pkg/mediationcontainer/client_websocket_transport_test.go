@@ -73,3 +73,27 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 		}
 	}
 }
+
+// Test the status changes after function call.
+func TestCloseAndResetWebSocket(t *testing.T) {
+	table := []struct {
+		currStatus TransportStatus
+	}{
+		{
+			currStatus:Closed,
+		},
+		{
+			currStatus:Ready,
+		},
+	}
+
+	for _, item:= range table {
+		// A fake WebSocket transport only for testing status change.
+		fakeWebSocketTransport := &ClientWebSocketTransport{}
+		fakeWebSocketTransport.status = item.currStatus
+		fakeWebSocketTransport.closeAndResetWebSocket()
+		if fakeWebSocketTransport.status != Closed {
+			t.Errorf("Expected status is %s, got %s", Closed, fakeWebSocketTransport.status)
+		}
+	}
+}

@@ -10,7 +10,6 @@ type ITransport interface {
 	// Receive
 	ListenForMessages()
 	RawMessageReceiver() chan []byte // Queue or channel for putting byte[] received on the transport
-	StopListenForMessages()
 	// Close
 	CloseTransportPoint()
 	NotifyClosed() chan bool // Channel where connection closed notification is sent
