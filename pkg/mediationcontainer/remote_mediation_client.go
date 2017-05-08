@@ -81,8 +81,6 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 				return
 			case <-transport.NotifyClosed():
 				glog.V(2).Infof("[Reconnect] transport endpoint is closed, starting reconnect ...")
-				// stop transport layer message listener
-				transport.StopListenForMessages()
 
 				// stop server messages listener
 				remoteMediationClient.stopMessageHandler()
