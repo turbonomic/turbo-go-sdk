@@ -1,11 +1,11 @@
 package client
 
 import (
+	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-	"crypto/tls"
-	"errors"
 
 	"github.com/turbonomic/turbo-api/pkg/api"
 )
@@ -38,12 +38,12 @@ func (c *Client) DiscoverTarget(uuid string) (*Result, error) {
 		return nil, fmt.Errorf("Failed to discover target %s: %s", uuid, err)
 	}
 	if response.statusCode != 200 {
-		return nil, fmt.Errorf("Unsuccessful discovery response: %s", response.status)
+		return nil, buildResponseError("target discovery", response.status, response.body)
 	}
 	return &response, nil
 }
 
-//Add a target usign API
+//Add a target using API
 func (c *Client) AddTarget(target *api.Target) (*Result, error) {
 	targetData, err := json.Marshal(target)
 	if err != nil {
@@ -58,7 +58,17 @@ func (c *Client) AddTarget(target *api.Target) (*Result, error) {
 		return nil, fmt.Errorf("Failed to add target: %s", err)
 	}
 	if response.statusCode != 200 {
-		return nil, fmt.Errorf("Unsuccessful target addition response: %s", response.status)
+		return nil, buildResponseError("target addition", response.status, response.body)
 	}
 	return &response, nil
+}
+
+func buildResponseError(requestDesc string, status string, content string) error {
+	errorMsg := fmt.Sprintf("unsuccessful %s response: %s.", requestDesc, status)
+	errorDTO, err := parseAPIErrorDTO(content)
+	if err == nil && errorDTO.Message != "" {
+		// Add error message only if we can parse result content to errorDTO.
+		errorMsg = errorMsg + fmt.Sprintf(" %s.", errorDTO.Message)
+	}
+	return fmt.Errorf("%s", errorMsg)
 }
