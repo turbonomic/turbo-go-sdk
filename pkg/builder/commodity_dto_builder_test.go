@@ -125,6 +125,40 @@ func TestCommodityDTOBuilder_Used(t *testing.T) {
 	}
 }
 
+func TestCommodityDTOBuilder_Reservation(t *testing.T) {
+	table := []struct {
+		reservation        float64
+		existingErr error
+	}{
+		{
+			reservation:        mathrand.Float64(),
+			existingErr: fmt.Errorf("Fake"),
+		},
+		{
+			reservation: mathrand.Float64(),
+		},
+	}
+
+	for _, item := range table {
+		base := randomBaseCommodityDTOBuilder()
+		var reservation *float64
+		if item.existingErr != nil {
+			base.err = item.existingErr
+		} else {
+			reservation = &item.reservation
+		}
+		expectedBuilder := &CommodityDTOBuilder{
+			commodityType: base.commodityType,
+			reservation:          reservation,
+			err:           item.existingErr,
+		}
+		builder := base.Reservation(item.reservation)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+		}
+	}
+}
+
 func TestCommodityDTOBuilder_Capacity(t *testing.T) {
 	table := []struct {
 		capacity    float64
