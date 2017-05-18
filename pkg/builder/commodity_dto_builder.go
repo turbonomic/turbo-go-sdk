@@ -99,6 +99,14 @@ func (cb *CommodityDTOBuilder) Used(used float64) *CommodityDTOBuilder {
 	return cb
 }
 
+func (cb *CommodityDTOBuilder) Reservation(reservation float64) *CommodityDTOBuilder {
+	if cb.err != nil {
+		return cb
+	}
+	cb.reservation = &reservation
+	return cb
+}
+
 func (cb *CommodityDTOBuilder) Resizable(resizable bool) *CommodityDTOBuilder {
 	if cb.err != nil {
 		return cb
