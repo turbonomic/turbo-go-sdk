@@ -12,8 +12,6 @@ import (
 	"strings"
 
 	"github.com/turbonomic/turbo-api/pkg/api"
-
-	"github.com/golang/glog"
 )
 
 type HTTPClient interface {
@@ -175,9 +173,8 @@ func (r *Request) request(fn func(*http.Response)) error {
 		return r.err
 	}
 
-	url := r.URL().String()
-	glog.V(4).Infof("The request url is %s", url)
-	req, err := http.NewRequest(r.verb, url, r.data)
+	requestURL := r.URL().String()
+	req, err := http.NewRequest(r.verb, requestURL, r.data)
 	if err != nil {
 		return err
 	}
@@ -211,7 +208,7 @@ func parseHTTPResponse(resp *http.Response) Result {
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return Result{
-			err: fmt.Errorf("Error reading response body:%++v", err),
+			err: fmt.Errorf("Error reading response body: %++v", err),
 		}
 	}
 

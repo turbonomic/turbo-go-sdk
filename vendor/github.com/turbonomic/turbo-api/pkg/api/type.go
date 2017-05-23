@@ -65,3 +65,9 @@ type Link struct {
 }
 
 type List struct{}
+
+type APIErrorDTO struct {
+	ResponseType int    `json:"type"`
+	Exception    string `json:"exception,omitempty"`
+	Message      string `json:"message"`
+}
