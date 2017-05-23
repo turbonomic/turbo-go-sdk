@@ -301,7 +301,7 @@ func TestEntityDTOBuilder_ApplicationData(t *testing.T) {
 			expectedBuilder.err = item.existingErr
 		} else {
 			if item.entityDataHasSetFlag {
-				expectedBuilder.err =  fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.appData)
+				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.appData)
 
 			} else {
 				expectedBuilder.applicationData = item.appData
@@ -317,21 +317,21 @@ func TestEntityDTOBuilder_ApplicationData(t *testing.T) {
 
 func TestEntityDTOBuilder_VirtualMachineData(t *testing.T) {
 	table := []struct {
-		vmData               *proto.EntityDTO_VirtualMachineData
+		vmData *proto.EntityDTO_VirtualMachineData
 
 		entityDataHasSetFlag bool
 		existingErr          error
 	}{
 		{
-			vmData:     rand.RandomVirtualMachineData(),
+			vmData:      rand.RandomVirtualMachineData(),
 			existingErr: fmt.Errorf("Error"),
 		},
 		{
-			vmData:              rand.RandomVirtualMachineData(),
+			vmData:               rand.RandomVirtualMachineData(),
 			entityDataHasSetFlag: false,
 		},
 		{
-			vmData:              rand.RandomVirtualMachineData(),
+			vmData:               rand.RandomVirtualMachineData(),
 			entityDataHasSetFlag: true,
 		},
 	}
@@ -348,7 +348,7 @@ func TestEntityDTOBuilder_VirtualMachineData(t *testing.T) {
 			expectedBuilder.err = item.existingErr
 		} else {
 			if item.entityDataHasSetFlag {
-				expectedBuilder.err =  fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.vmData)
+				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.vmData)
 
 			} else {
 				expectedBuilder.virtualMachineData = item.vmData
@@ -359,6 +359,80 @@ func TestEntityDTOBuilder_VirtualMachineData(t *testing.T) {
 		if !reflect.DeepEqual(builder, expectedBuilder) {
 			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
 		}
+	}
+}
+
+func TestBuildCommodityBoughtFromMap(t *testing.T) {
+	table := []struct {
+		providerCount int
+
+		provider1  string
+		commodity1 []*proto.CommodityDTO
+
+		provider2  string
+		commodity2 []*proto.CommodityDTO
+	}{
+		{
+			providerCount: 0,
+		},
+		{
+			providerCount: 1,
+
+			provider1: rand.String(5),
+			commodity1: []*proto.CommodityDTO{
+				rand.RandomCommodityDTOSold(),
+				rand.RandomCommodityDTOSold(),
+			},
+		},
+		{
+			providerCount: 2,
+
+			provider1: rand.String(5),
+			commodity1: []*proto.CommodityDTO{
+				rand.RandomCommodityDTOSold(),
+			},
+
+			provider2: rand.String(5),
+			commodity2: []*proto.CommodityDTO{
+				rand.RandomCommodityDTOSold(),
+			},
+		},
+	}
+	for i, item := range table {
+		inputMap := make(map[string][]*proto.CommodityDTO)
+		if item.providerCount > 0 {
+			if item.provider1 != "" {
+				inputMap[item.provider1] = item.commodity1
+			}
+			if item.provider2 != "" {
+				inputMap[item.provider2] = item.commodity2
+			}
+		}
+
+		var expectedCommoditiesBought []*proto.EntityDTO_CommodityBought
+		if item.providerCount > 0 {
+			if item.provider1 != "" {
+				expectedCommoditiesBought = append(expectedCommoditiesBought,
+					&proto.EntityDTO_CommodityBought{
+						ProviderId: &item.provider1,
+						Bought:     item.commodity1,
+					})
+			}
+			if item.provider2 != "" {
+				expectedCommoditiesBought = append(expectedCommoditiesBought,
+					&proto.EntityDTO_CommodityBought{
+						ProviderId: &item.provider2,
+						Bought:     item.commodity2,
+					})
+			}
+		}
+
+		gotCommoditiesBought := buildCommodityBoughtFromMap(inputMap)
+		if !reflect.DeepEqual(expectedCommoditiesBought, gotCommoditiesBought) {
+			t.Errorf("Test case %d failed. Expected: %++v, got %++v", i, expectedCommoditiesBought,
+				gotCommoditiesBought)
+		}
+
 	}
 }
 

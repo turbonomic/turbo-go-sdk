@@ -277,13 +277,14 @@ func (eb *EntityDTOBuilder) VirtualMachineData(vmData *proto.EntityDTO_VirtualMa
 }
 
 func buildCommodityBoughtFromMap(providerCommoditiesMap map[string][]*proto.CommodityDTO) []*proto.EntityDTO_CommodityBought {
-	if len(providerCommoditiesMap) == 0 {
-		return nil
-	}
 	var commoditiesBought []*proto.EntityDTO_CommodityBought
+	if len(providerCommoditiesMap) == 0 {
+		return commoditiesBought
+	}
 	for providerId, commodities := range providerCommoditiesMap {
+		p := providerId
 		commoditiesBought = append(commoditiesBought, &proto.EntityDTO_CommodityBought{
-			ProviderId: &providerId,
+			ProviderId: &p,
 			Bought:     commodities,
 		})
 	}
