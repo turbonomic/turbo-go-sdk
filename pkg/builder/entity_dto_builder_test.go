@@ -409,30 +409,44 @@ func TestBuildCommodityBoughtFromMap(t *testing.T) {
 			}
 		}
 
-		var expectedCommoditiesBought []*proto.EntityDTO_CommodityBought
+		expectedCommoditiesBought := make(map[string]*proto.EntityDTO_CommodityBought)
 		if item.providerCount > 0 {
 			if item.provider1 != "" {
-				expectedCommoditiesBought = append(expectedCommoditiesBought,
+				expectedCommoditiesBought[item.provider1] =
 					&proto.EntityDTO_CommodityBought{
 						ProviderId: &item.provider1,
 						Bought:     item.commodity1,
-					})
+					}
 			}
 			if item.provider2 != "" {
-				expectedCommoditiesBought = append(expectedCommoditiesBought,
+				expectedCommoditiesBought[item.provider2] =
 					&proto.EntityDTO_CommodityBought{
 						ProviderId: &item.provider2,
 						Bought:     item.commodity2,
-					})
+					}
 			}
 		}
 
 		gotCommoditiesBought := buildCommodityBoughtFromMap(inputMap)
-		if !reflect.DeepEqual(expectedCommoditiesBought, gotCommoditiesBought) {
-			t.Errorf("Test case %d failed. Expected: %++v, got %++v", i, expectedCommoditiesBought,
-				gotCommoditiesBought)
+		for _, commBought := range gotCommoditiesBought {
+			found := false
+			if expectedComm, exists := expectedCommoditiesBought[commBought.GetProviderId()]; exists {
+				if !reflect.DeepEqual(expectedComm, commBought) {
+					t.Errorf("Test case %d failed. Expected %++v, got %++v", i,
+						expectedComm, commBought)
+					continue
+				}
+				found = true
+				delete(expectedCommoditiesBought, commBought.GetProviderId())
+			}
+			if !found {
+				t.Errorf("Test case %d failed. Unexpected commodity bought %++v", i, commBought)
+			}
 		}
-
+		if len(expectedCommoditiesBought) != 0 {
+			t.Errorf("Test case %d failed. Expected commodities bought %++v NOT found.", i,
+				expectedCommoditiesBought)
+		}
 	}
 }
 
