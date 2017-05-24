@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"errors"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
 )
@@ -358,6 +359,53 @@ func TestEntityDTOBuilder_VirtualMachineData(t *testing.T) {
 		builder := base.VirtualMachineData(item.vmData)
 		if !reflect.DeepEqual(builder, expectedBuilder) {
 			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+		}
+	}
+}
+
+func TestEntityDTOBuilder_VirtualApplicationData(t *testing.T) {
+	table := []struct {
+		vAppData *proto.EntityDTO_VirtualApplicationData
+
+		entityDataHasSetFlag bool
+		existingErr          error
+	}{
+		{
+			vAppData:    rand.RandomVirtualApplicationData(),
+			existingErr: errors.New("Error"),
+		},
+		{
+			vAppData:             rand.RandomVirtualApplicationData(),
+			entityDataHasSetFlag: false,
+		},
+		{
+			vAppData:             rand.RandomVirtualApplicationData(),
+			entityDataHasSetFlag: true,
+		},
+	}
+	for i, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		base.entityDataHasSet = item.entityDataHasSetFlag
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:       base.entityType,
+			id:               base.id,
+			entityDataHasSet: base.entityDataHasSet,
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			if item.entityDataHasSetFlag {
+				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.vAppData)
+
+			} else {
+				expectedBuilder.virtualApplicationData = item.vAppData
+				expectedBuilder.entityDataHasSet = true
+			}
+		}
+		builder := base.VirtualApplicationData(item.vAppData)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Test case %d failed. Expected %+v, \ngot      %+v", i, expectedBuilder, builder)
 		}
 	}
 }
