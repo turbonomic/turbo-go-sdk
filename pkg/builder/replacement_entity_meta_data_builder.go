@@ -11,8 +11,8 @@ type ReplacementEntityMetaDataBuilder struct {
 func NewReplacementEntityMetaDataBuilder() *ReplacementEntityMetaDataBuilder {
 	replacementEntityMetaData := &proto.EntityDTO_ReplacementEntityMetaData{
 		IdentifyingProp:  []string{},
-		BuyingCommTypes:  []proto.CommodityDTO_CommodityType{},
-		SellingCommTypes: []proto.CommodityDTO_CommodityType{},
+		BuyingCommTypes:  []*proto.EntityDTO_ReplacementCommodityPropertyData{},
+		SellingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{},
 	}
 	return &ReplacementEntityMetaDataBuilder{
 		metaData: replacementEntityMetaData,
@@ -36,13 +36,19 @@ func (builder *ReplacementEntityMetaDataBuilder) Matching(property string) *Repl
 // Set the commodity type whose metric values will be transferred to the entity
 // builder DTO will be replaced by.
 func (builder *ReplacementEntityMetaDataBuilder) PatchBuying(commType proto.CommodityDTO_CommodityType) *ReplacementEntityMetaDataBuilder {
-	builder.metaData.BuyingCommTypes = append(builder.metaData.GetBuyingCommTypes(), commType)
+	builder.metaData.BuyingCommTypes = append(builder.metaData.GetBuyingCommTypes(),
+		&proto.EntityDTO_ReplacementCommodityPropertyData{
+			CommodityType: &commType,
+		})
 	return builder
 }
 
 // Set the commodity type whose metric values will be transferred to the entity
 //  builder DTO will be replaced by.
 func (builder *ReplacementEntityMetaDataBuilder) PatchSelling(commType proto.CommodityDTO_CommodityType) *ReplacementEntityMetaDataBuilder {
-	builder.metaData.SellingCommTypes = append(builder.metaData.GetSellingCommTypes(), commType)
+	builder.metaData.SellingCommTypes = append(builder.metaData.GetSellingCommTypes(),
+		&proto.EntityDTO_ReplacementCommodityPropertyData{
+			CommodityType: &commType,
+		})
 	return builder
 }

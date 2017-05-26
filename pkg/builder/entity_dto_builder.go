@@ -42,12 +42,19 @@ type EntityDTOBuilder struct {
 	providerPolicy               *proto.EntityDTO_ProviderPolicy
 	ownedBy                      *string
 	notification                 []*proto.NotificationDTO
-	storageData                  *proto.EntityDTO_StorageData
-	diskArrayData                *proto.EntityDTO_DiskArrayData
-	applicationData              *proto.EntityDTO_ApplicationData
-	virtualMachineData           *proto.EntityDTO_VirtualMachineData
-	physicalMachineData          *proto.EntityDTO_PhysicalMachineData
-	virtualDataCenterData        *proto.EntityDTO_VirtualDatacenterData
+	keepStandalone               *bool
+	profileID                    *string
+
+	storageData            *proto.EntityDTO_StorageData
+	diskArrayData          *proto.EntityDTO_DiskArrayData
+	applicationData        *proto.EntityDTO_ApplicationData
+	virtualMachineData     *proto.EntityDTO_VirtualMachineData
+	physicalMachineData    *proto.EntityDTO_PhysicalMachineData
+	virtualDataCenterData  *proto.EntityDTO_VirtualDatacenterData
+	storageControllerData  *proto.EntityDTO_StorageControllerData
+	logicalPoolData        *proto.EntityDTO_LogicalPoolData
+	virtualApplicationData *proto.EntityDTO_VirtualApplicationData
+
 	virtualMachineRelatedData    *proto.EntityDTO_VirtualMachineRelatedData
 	physicalMachineRelatedData   *proto.EntityDTO_PhysicalMachineRelatedData
 	storageControllerRelatedData *proto.EntityDTO_StorageControllerRelatedData
@@ -99,6 +106,12 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		entityDTO.EntityData = &proto.EntityDTO_PhysicalMachineData_{eb.physicalMachineData}
 	} else if eb.virtualDataCenterData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_VirtualDatacenterData_{eb.virtualDataCenterData}
+	} else if eb.storageControllerData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_StorageControllerData_{eb.storageControllerData}
+	} else if eb.logicalPoolData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_LogicalPoolData_{eb.logicalPoolData}
+	} else if eb.virtualApplicationData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_VirtualApplicationData_{eb.virtualApplicationData}
 	}
 
 	if eb.virtualMachineRelatedData != nil {
@@ -272,6 +285,20 @@ func (eb *EntityDTOBuilder) VirtualMachineData(vmData *proto.EntityDTO_VirtualMa
 		return eb
 	}
 	eb.virtualMachineData = vmData
+	eb.entityDataHasSet = true
+	return eb
+}
+
+func (eb *EntityDTOBuilder) VirtualApplicationData(vAppData *proto.EntityDTO_VirtualApplicationData) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	if eb.entityDataHasSet {
+		eb.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", vAppData)
+
+		return eb
+	}
+	eb.virtualApplicationData = vAppData
 	eb.entityDataHasSet = true
 	return eb
 }
