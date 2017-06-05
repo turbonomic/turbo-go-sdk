@@ -203,7 +203,10 @@ func TestCommodityDTOBuilder_Resizable(t *testing.T) {
 			resizable:   mathrand.Int31n(2) == 1,
 		},
 		{
-			resizable: mathrand.Int31n(2) == 1,
+			resizable: true,
+		},
+		{
+			resizable: false,
 		},
 	}
 
