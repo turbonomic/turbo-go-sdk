@@ -50,7 +50,7 @@ func (cb *CommodityDTOBuilder) Create() (*proto.CommodityDTO, error) {
 		Limit:         cb.limit,
 		Peak:          cb.peak,
 		Active:        cb.active,
-		Resizable:     cb.active,
+		Resizable:     cb.resizable,
 		DisplayName:   cb.displayName,
 		Thin:          cb.thin,
 		ComputedUsed:  cb.computedUsed,
