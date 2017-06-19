@@ -1,17 +1,18 @@
 package mediationcontainer
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 
+	"github.com/turbonomic/turbo-go-sdk/pkg/version"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
 )
 
 func TestValidateServerMeta(t *testing.T) {
 	table := []struct {
 		turboServer string
-
-		expectErr bool
+		version     string
+		expectErr   bool
 	}{
 		{
 			turboServer: "",
@@ -22,13 +23,19 @@ func TestValidateServerMeta(t *testing.T) {
 			expectErr:   false,
 		},
 		{
+			turboServer: "https://localhost:8080",
+			version:     "random",
+			expectErr:   false,
+		},
+		{
 			turboServer: "invalid-url",
 			expectErr:   true,
 		},
 	}
 	for _, item := range table {
 		meta := &ServerMeta{
-			item.turboServer,
+			TurboServer: item.turboServer,
+			Version:     item.version,
 		}
 		err := meta.ValidateServerMeta()
 		if item.expectErr {
@@ -39,6 +46,36 @@ func TestValidateServerMeta(t *testing.T) {
 			if err != nil {
 				t.Errorf("Unexpected error: %s", err)
 			}
+		}
+	}
+}
+
+func TestValidateServerMetaVersion(t *testing.T) {
+	table := []struct {
+		version string
+
+		expectedVersion string
+	}{
+		{
+			version:         "",
+			expectedVersion: string(version.PROTOBUF_VERSION),
+		},
+		{
+			version:         "random",
+			expectedVersion: "random",
+		},
+	}
+	for i, item := range table {
+		meta := &ServerMeta{
+			TurboServer: "http://localhost:8080",
+			Version:     item.version,
+		}
+		err := meta.ValidateServerMeta()
+		if err != nil {
+			t.Errorf("Unexpected error: %s", err)
+		}
+		if meta.Version != item.expectedVersion {
+			t.Errorf("Test case %d failed. Expected %s, got %s", i, item.expectedVersion, meta.Version)
 		}
 	}
 }
@@ -117,8 +154,6 @@ func TestValidateWebSocketConfig(t *testing.T) {
 	}
 }
 
-
-
 func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T) {
 	table := []struct {
 		containerConfig *MediationContainerConfig
@@ -127,7 +162,7 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 		{
 			containerConfig: &MediationContainerConfig{
 				ServerMeta{
-					"invalid",
+					TurboServer: "invalid",
 				},
 				WebSocketConfig{
 					LocalAddress:      "http://127.0.0.1",
@@ -142,7 +177,7 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 		{
 			containerConfig: &MediationContainerConfig{
 				ServerMeta{
-					"http:/127.0.0.1",
+					TurboServer: "http:/127.0.0.1",
 				},
 				WebSocketConfig{
 					LocalAddress: "invalid",
@@ -153,7 +188,7 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 		{
 			containerConfig: &MediationContainerConfig{
 				ServerMeta: ServerMeta{
-					"http:/127.0.0.1",
+					TurboServer: "http:/127.0.0.1",
 				},
 			},
 			expectErr: false,
@@ -172,4 +207,3 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 		}
 	}
 }
-

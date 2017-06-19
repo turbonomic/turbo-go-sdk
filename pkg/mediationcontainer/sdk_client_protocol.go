@@ -9,12 +9,14 @@ import (
 
 type SdkClientProtocol struct {
 	allProbes map[string]*ProbeProperties
+	version   string
 	//TransportReady chan bool
 }
 
-func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties) *SdkClientProtocol {
+func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties, version string) *SdkClientProtocol {
 	return &SdkClientProtocol{
 		allProbes: allProbes,
+		version:   version,
 		//TransportReady: done,
 	}
 }
@@ -45,7 +47,7 @@ func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITranspo
 // ============================== Protocol Version Negotiation =========================
 
 func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) bool {
-	versionStr := string(proto.PROTOBUF_VERSION)
+	versionStr := clientProtocol.version
 	request := &version.NegotiationRequest{
 		ProtocolVersion: &versionStr,
 	}
