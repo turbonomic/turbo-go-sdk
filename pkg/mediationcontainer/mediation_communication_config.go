@@ -6,6 +6,7 @@ import (
 	"net/url"
 
 	"github.com/golang/glog"
+	"github.com/turbonomic/turbo-go-sdk/pkg/version"
 )
 
 const (
@@ -17,6 +18,7 @@ const (
 
 type ServerMeta struct {
 	TurboServer string `json:"turboServer,omitempty"`
+	Version     string `json:"version,omitempty"`
 }
 
 func (meta *ServerMeta) ValidateServerMeta() error {
@@ -25,6 +27,9 @@ func (meta *ServerMeta) ValidateServerMeta() error {
 	}
 	if _, err := url.ParseRequestURI(meta.TurboServer); err != nil {
 		return fmt.Errorf("Invalid turbo address url: %v", meta)
+	}
+	if meta.Version == "" {
+		meta.Version = string(version.PROTOBUF_VERSION)
 	}
 	return nil
 }
