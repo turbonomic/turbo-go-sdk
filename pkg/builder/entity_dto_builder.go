@@ -7,23 +7,23 @@ import (
 )
 
 type ProviderDTO struct {
-	providerType *proto.EntityDTO_EntityType
-	Id           string
+	providerType proto.EntityDTO_EntityType
+	id           string
 }
 
 func CreateProvider(pType proto.EntityDTO_EntityType, id string) *ProviderDTO {
 	return &ProviderDTO{
-		providerType: &pType,
-		Id:           id,
+		providerType: pType,
+		id:           id,
 	}
 }
 
-func (pDto *ProviderDTO) getProviderType() *proto.EntityDTO_EntityType {
+func (pDto *ProviderDTO) GetProviderType() proto.EntityDTO_EntityType {
 	return pDto.providerType
 }
 
-func (pDto *ProviderDTO) getId() string {
-	return pDto.Id
+func (pDto *ProviderDTO) GetId() string {
+	return pDto.id
 }
 
 type EntityDTOBuilder struct {
@@ -193,12 +193,12 @@ func (eb *EntityDTOBuilder) BuysCommodity(commDTO *proto.CommodityDTO) *EntityDT
 	}
 
 	// add commodity bought to map
-	commoditiesSoldByCurrentProvider, exist := eb.commoditiesBoughtProviderMap[eb.currentProvider.Id]
+	commoditiesSoldByCurrentProvider, exist := eb.commoditiesBoughtProviderMap[eb.currentProvider.id]
 	if !exist {
 		commoditiesSoldByCurrentProvider = []*proto.CommodityDTO{}
 	}
 	commoditiesSoldByCurrentProvider = append(commoditiesSoldByCurrentProvider, commDTO)
-	eb.commoditiesBoughtProviderMap[eb.currentProvider.Id] = commoditiesSoldByCurrentProvider
+	eb.commoditiesBoughtProviderMap[eb.currentProvider.id] = commoditiesSoldByCurrentProvider
 
 	return eb
 }
