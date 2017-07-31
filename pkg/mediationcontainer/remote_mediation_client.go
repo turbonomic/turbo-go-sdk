@@ -72,43 +72,7 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 
 	transport := CreateClientWebSocketTransport(connConfig) //, transportClosedNotificationCh)
 	remoteMediationClient.closeWatcherCh = make(chan bool, 1)
-	// Routine to monitor the websocket connection
-	go func() {
-		glog.V(3).Infof("[Reconnect] start monitoring the transport connection")
-		for {
-			select {
-			case <-remoteMediationClient.closeWatcherCh:
-				glog.V(4).Infof("[Reconnect] Exit routine *************")
-				return
-			case <-transport.NotifyClosed():
-				glog.V(2).Infof("[Reconnect] transport endpoint is closed, starting reconnect ...")
 
-				// stop server messages listener
-				remoteMediationClient.stopMessageHandler()
-				// Reconnect
-				err := transport.Connect()
-				// handle WebSocket creation errors
-				if err != nil { //transport.ws == nil {
-					glog.Errorf("[Reconnect] Initialization of remote mediation client failed, null transport")
-					remoteMediationClient.Stop()
-					break
-				}
-				// sdk registration protocol
-				transportReady := make(chan bool, 1)
-				sdkProtocolHandler.handleClientProtocol(transport, transportReady)
-				endProtocol := <-transportReady
-				if !endProtocol {
-					glog.Errorf("[Reconnect] Registration with server failed")
-					remoteMediationClient.Stop()
-					break
-				}
-				// start listener for server messages
-				remoteMediationClient.stopMsgHandlerCh = make(chan bool)
-				go remoteMediationClient.RunServerMessageHandler(remoteMediationClient.Transport)
-				glog.V(3).Infof("[Reconnect] transport endpoint connect complete")
-			} //end select
-		} // end for
-	}() // end go routine
 	err = transport.Connect() // TODO: blocks till websocket connection is open or until transport is closed
 
 	// handle WebSocket creation errors
@@ -137,6 +101,45 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 		remoteMediationClient.Stop()
 		return
 	}
+
+	// Routine to monitor the websocket connection
+	go func() {
+		glog.V(3).Infof("[Reconnect] start monitoring the transport connection")
+		for {
+			select {
+			case <-remoteMediationClient.closeWatcherCh:
+				glog.V(4).Infof("[Reconnect] Exit routine *************")
+				return
+			case <-transport.NotifyClosed():
+				glog.V(2).Infof("[Reconnect] transport endpoint is closed, starting reconnect ...")
+
+			// stop server messages listener
+				remoteMediationClient.stopMessageHandler()
+			// Reconnect
+				err := transport.Connect()
+			// handle WebSocket creation errors
+				if err != nil { //transport.ws == nil {
+					glog.Errorf("[Reconnect] Initialization of remote mediation client failed, null transport")
+					remoteMediationClient.Stop()
+					break
+				}
+			// sdk registration protocol
+				transportReady := make(chan bool, 1)
+				sdkProtocolHandler.handleClientProtocol(transport, transportReady)
+				endProtocol := <-transportReady
+				if !endProtocol {
+					glog.Errorf("[Reconnect] Registration with server failed")
+					remoteMediationClient.Stop()
+					break
+				}
+			// start listener for server messages
+				remoteMediationClient.stopMsgHandlerCh = make(chan bool)
+				go remoteMediationClient.RunServerMessageHandler(remoteMediationClient.Transport)
+				glog.V(3).Infof("[Reconnect] transport endpoint connect complete")
+			} //end select
+		} // end for
+	}() // end go routine
+	
 	// --------- Listen for server messages
 	remoteMediationClient.stopMsgHandlerCh = make(chan bool)
 	go remoteMediationClient.RunServerMessageHandler(remoteMediationClient.Transport)
@@ -173,7 +176,9 @@ func (remoteMediationClient *remoteMediationClient) Stop() {
 // ======================== Listen for server messages ===================
 // Sends message to the server message listener to close the protobuf endpoint and message listener
 func (remoteMediationClient *remoteMediationClient) stopMessageHandler() {
-	close(remoteMediationClient.stopMsgHandlerCh)
+	if remoteMediationClient.stopMsgHandlerCh != nil {
+		close(remoteMediationClient.stopMsgHandlerCh)
+	}
 }
 
 // Checks for incoming server messages received by the ProtoBuf endpoint created to handle server requests

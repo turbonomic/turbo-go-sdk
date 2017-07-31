@@ -39,7 +39,7 @@ func (tapService *TAPService) ConnectToTurbo() {
 	// Block till a message arrives on the channel
 	status := <-IsRegistered
 	if !status {
-		glog.Infof("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " is not registered")
+		glog.Fatalf("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " is not registered")
 		return
 	}
 	glog.V(3).Infof("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " Registered : === Add Targets ===")
