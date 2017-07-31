@@ -69,7 +69,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 		endpoint.CloseEndpoint()
 		return false
 	}
-	glog.V(3).Infof("["+endpoint.GetName()+"] : Received: %s\n", serverMsg)
+	glog.V(3).Infof("[%s] : Received: %++v\n", endpoint.GetName(),serverMsg)
 
 	// Handler response
 	negotiationResponse := protoMsg.NegotiationMsg
@@ -113,11 +113,11 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
 	serverMsg, ok := <-endpoint.MessageReceiver()
 	if !ok {
-		glog.Errorf("[HandleRegistration] [" + endpoint.GetName() + "] : Endpoint Receiver channel is closed")
+		glog.Errorf("[HandleRegistration] [%s] : Endpoint Receiver channel is closed", endpoint.GetName())
 		endpoint.CloseEndpoint()
 		return false
 	}
-	glog.V(2).Infof("[HandleRegistration] ["+endpoint.GetName()+"] : Received: %s\n", serverMsg)
+	glog.V(2).Infof("[HandleRegistration] [%s] : Received: %++v\n", endpoint.GetName(), serverMsg)
 
 	// Handler response
 	registrationResponse := protoMsg.RegistrationMsg

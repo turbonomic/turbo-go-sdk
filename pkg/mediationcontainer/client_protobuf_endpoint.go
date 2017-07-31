@@ -110,9 +110,6 @@ func (endpoint *ClientProtobufEndpoint) waitForServerMessage() {
 				return
 			//default:
 			case rawBytes, ok := <-endpoint.transport.RawMessageReceiver(): // block till  the message bytes from the transport channel,
-				// Get the message bytes from the transport channel,
-				// - this will block till the message appears on the channel
-				//rawBytes, ok := <-endpoint.transport.RawMessageReceiver()
 				if !ok {
 					glog.Errorf(logPrefix + "transport message channel is closed")
 					break

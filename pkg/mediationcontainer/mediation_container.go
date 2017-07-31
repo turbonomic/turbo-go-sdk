@@ -71,7 +71,7 @@ func InitMediationContainer(probeRegisteredMsg chan bool) {
 		return
 	}
 	// Open connection to the server and start server handshake to register probes
-	glog.V(2).Infof("Registering ", len(theContainer.allProbes), " probes")
+	glog.V(2).Infof("Registering %d probes", len(theContainer.allProbes))
 
 	remoteMediationClient := theContainer.theRemoteMediationClient
 	remoteMediationClient.Init(probeRegisteredMsg)
