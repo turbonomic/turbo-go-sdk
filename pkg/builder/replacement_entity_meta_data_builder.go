@@ -50,9 +50,14 @@ func (builder *ReplacementEntityMetaDataBuilder) Matching(property string) *Repl
 // Set the commodity type whose metric values will be transferred to the entity
 // builder DTO will be replaced by.
 func (builder *ReplacementEntityMetaDataBuilder) PatchBuying(commType proto.CommodityDTO_CommodityType) *ReplacementEntityMetaDataBuilder {
+	return builder.PatchBuyingWithProperty(commType, defaultPropertyNames)
+}
+
+func (builder *ReplacementEntityMetaDataBuilder) PatchBuyingWithProperty(commType proto.CommodityDTO_CommodityType, names []string) *ReplacementEntityMetaDataBuilder {
 	builder.metaData.BuyingCommTypes = append(builder.metaData.GetBuyingCommTypes(),
 		&proto.EntityDTO_ReplacementCommodityPropertyData{
 			CommodityType: &commType,
+			PropertyName: names,
 		})
 	return builder
 }
