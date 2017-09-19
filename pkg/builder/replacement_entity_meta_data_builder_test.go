@@ -78,6 +78,7 @@ func TestReplacementEntityMetaDataBuilder_PatchBuying(t *testing.T) {
 			BuyingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{
 				{
 					CommodityType: &commType,
+					PropertyName: defaultPropertyNames,
 				},
 			},
 			SellingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{},
@@ -105,11 +106,71 @@ func TestReplacementEntityMetaDataBuilder_PatchSelling(t *testing.T) {
 			SellingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{
 				{
 					CommodityType: &commType,
+					PropertyName: defaultPropertyNames,
 				},
 			},
 		},
 	}
 	builder := base.PatchSelling(commType)
+	if !reflect.DeepEqual(builder, expectedBuilder) {
+		t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+	}
+}
+
+
+func TestReplacementEntityMetaDataBuilder_PatchSellingWithProperty(t *testing.T) {
+	base := &ReplacementEntityMetaDataBuilder{
+		&proto.EntityDTO_ReplacementEntityMetaData{
+			IdentifyingProp:  []string{},
+			BuyingCommTypes:  []*proto.EntityDTO_ReplacementCommodityPropertyData{},
+			SellingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{},
+		},
+	}
+
+	propertyNames := []string{PropertyCapacity, PropertyUsed}
+	commType := rand.RandomCommodityType()
+	expectedBuilder := &ReplacementEntityMetaDataBuilder{
+		&proto.EntityDTO_ReplacementEntityMetaData{
+			IdentifyingProp: []string{},
+			BuyingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{},
+			SellingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{
+				{
+					CommodityType: &commType,
+					PropertyName: propertyNames,
+				},
+			},
+		},
+	}
+
+	builder := base.PatchSellingWithProperty(commType, propertyNames)
+	if !reflect.DeepEqual(builder, expectedBuilder) {
+		t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+	}
+}
+
+func TestReplacementEntityMetaDataBuilder_PatchBuyingWithProperty(t *testing.T) {
+	base := &ReplacementEntityMetaDataBuilder{
+		&proto.EntityDTO_ReplacementEntityMetaData{
+			IdentifyingProp:  []string{},
+			BuyingCommTypes:  []*proto.EntityDTO_ReplacementCommodityPropertyData{},
+			SellingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{},
+		},
+	}
+	propertyNames := []string{PropertyUsed, PropertyCapacity}
+	commType := rand.RandomCommodityType()
+	expectedBuilder := &ReplacementEntityMetaDataBuilder{
+		&proto.EntityDTO_ReplacementEntityMetaData{
+			IdentifyingProp: []string{},
+			BuyingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{
+				{
+					CommodityType: &commType,
+					PropertyName: propertyNames,
+				},
+			},
+			SellingCommTypes: []*proto.EntityDTO_ReplacementCommodityPropertyData{},
+		},
+	}
+	builder := base.PatchBuyingWithProperty(commType, propertyNames)
 	if !reflect.DeepEqual(builder, expectedBuilder) {
 		t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
 	}
