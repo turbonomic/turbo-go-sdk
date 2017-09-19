@@ -207,7 +207,7 @@ func (remoteMediationClient *remoteMediationClient) RunServerMessageHandler(tran
 				glog.Errorf(logPrefix + "endpoint message channel is closed")
 				break // return or continue ?
 			}
-			glog.V(3).Infof(logPrefix+"received: %s\n", parsedMsg)
+			glog.V(3).Infof(logPrefix+"received: %++v\n", parsedMsg)
 
 			// Handler response - find the handler to handle the message
 			serverRequest := parsedMsg.ServerMsg
@@ -232,17 +232,12 @@ func (remoteMediationClient *remoteMediationClient) RunServerMessageHandler(tran
 func (remoteMediationClient *remoteMediationClient) runProbeCallback(endpoint ProtobufEndpoint) {
 	glog.V(4).Infof("[runProbeCallback] %s : ENTER  ", time.Now())
 	for {
-		glog.V(2).Infof("[probeCallback] waiting for probe responses")
-		glog.V(4).Infof("[probeCallback] waiting for probe responses ..... on  %v\n", remoteMediationClient.probeResponseChan)
+		glog.V(4).Infof("[probeCallback] waiting for probe responses")
 		select {
 		case <-remoteMediationClient.stopMsgHandlerCh:
 			glog.V(4).Infof("[probeCallback] Exit routine *************")
 			return
-		case msg, ok := <-remoteMediationClient.probeResponseChan:
-			if !ok {
-				glog.Errorf("[probeCallback] probe response channel is closed")
-				break
-			}
+		case msg:= <-remoteMediationClient.probeResponseChan:
 			glog.V(4).Infof("[probeCallback] received response on probe channel %v\n ", remoteMediationClient.probeResponseChan)
 			endMsg := &EndpointMessage{
 				ProtobufMessage: msg,
@@ -368,7 +363,7 @@ func (discReqHandler *DiscoveryRequestHandler) keepDiscoveryAlive(msgID int32, p
 
 	// Send the response on the callback channel to send to the server
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.V(3).Infof("Sent keep alive response ", clientMsg.GetMessageID())
+	glog.V(3).Infof("Sent keep alive response %d", clientMsg.GetMessageID())
 }
 
 // -------------------------------- Validation Request Handler -----------------------------------
@@ -396,7 +391,7 @@ func (valReqHandler *ValidationRequestHandler) HandleMessage(serverRequest proto
 
 	// Send the response on the callback channel to send to the server
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.V(3).Infof("Sent validation response ", clientMsg.GetMessageID())
+	glog.V(3).Infof("Sent validation response %d", clientMsg.GetMessageID())
 }
 
 // -------------------------------- Action Request Handler -----------------------------------

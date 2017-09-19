@@ -143,9 +143,8 @@ func (clientTransport *ClientWebSocketTransport) ListenForMessages() {
 			glog.V(4).Infof("[ListenForMessages] waiting for messages on websocket transport : %++v", clientTransport)
 			select {
 			case <-clientTransport.stopListenerCh:
-				glog.V(3).Infof("[ListenForMessages] closing inputStreamCh %+v", clientTransport.inputStreamCh)
 				close(clientTransport.inputStreamCh) // This listener routine is the writer for this channel
-				glog.V(3).Infof("[ListenForMessages] closed inputStreamCh %+v", clientTransport.inputStreamCh)
+				glog.V(4).Infof("[ListenForMessages] closed inputStreamCh %+v", clientTransport.inputStreamCh)
 				return
 			default:
 				if clientTransport.status != Ready {
@@ -217,7 +216,7 @@ func (clientTransport *ClientWebSocketTransport) Send(messageToSend *TransportMe
 		glog.Errorf("Error sending message on client transport: %s", err)
 		return fmt.Errorf("Error sending message on client transport: %s", err)
 	}
-	glog.V(3).Infof("Successfully sent message on client transport")
+	glog.V(4).Infof("Successfully sent message on client transport")
 	return nil
 }
 
