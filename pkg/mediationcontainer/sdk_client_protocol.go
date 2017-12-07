@@ -81,7 +81,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 	negotiationResponse.GetNegotiationResult()
 
 	if negotiationResponse.GetNegotiationResult().String() != version.NegotiationAnswer_ACCEPTED.String() {
-		glog.Errorf("Protocol version negotiation failed",
+		glog.Errorf("Protocol version negotiation failed %s",
 			negotiationResponse.GetNegotiationResult().String()+") :"+negotiationResponse.GetDescription())
 		return false
 	}

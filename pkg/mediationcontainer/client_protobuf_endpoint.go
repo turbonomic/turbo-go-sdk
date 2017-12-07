@@ -79,7 +79,7 @@ func (endpoint *ClientProtobufEndpoint) Send(messageToSend *EndpointMessage) {
 	// Marshal protobuf message to raw bytes
 	msgMarshalled, err := goproto.Marshal(messageToSend.ProtobufMessage) // marshal to byte array
 	if err != nil {
-		glog.Errorf("[ClientProtobufEndpoint] during send - marshaling error: ", err)
+		glog.Errorf("[ClientProtobufEndpoint] during send - marshaling error: %s", err)
 		return
 	}
 	// Send using the underlying transport
@@ -88,7 +88,7 @@ func (endpoint *ClientProtobufEndpoint) Send(messageToSend *EndpointMessage) {
 	}
 	err = endpoint.transport.Send(tmsg)
 	if err != nil {
-		glog.Errorf("[ClientProtobufEndpoint] during send - transport error: ", err)
+		glog.Errorf("[ClientProtobufEndpoint] during send - transport error: %s", err)
 		return
 	}
 }
