@@ -63,7 +63,7 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 
 	dc := probe.getDiscoveryClient(targetId)
 	if !reflect.DeepEqual(discoveryClient, dc) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", dc)
+		t.Errorf("\nExpected %+v, \ngot      %+v", discoveryClient, dc)
 	}
 }
 
