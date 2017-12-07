@@ -79,7 +79,7 @@ func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues []*proto.Accou
 	target := theProbe.getDiscoveryClient(address)
 
 	if target == nil {
-		glog.Errorf("[GetTurboDiscoveryClient] Cannot find Target for address: " + address)
+		glog.Errorf("[GetTurboDiscoveryClient] Cannot find Target for address: %s", address)
 		//TODO: CreateDiscoveryClient(address, accountValues, )
 		return nil
 	}

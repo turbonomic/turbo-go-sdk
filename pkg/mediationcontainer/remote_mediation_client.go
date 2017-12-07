@@ -408,7 +408,7 @@ func (actionReqHandler *ActionMessageHandler) HandleMessage(serverRequest proto.
 	request := serverRequest.GetActionRequest()
 	probeType := request.ProbeType
 	if actionReqHandler.probes[*probeType] == nil {
-		glog.Errorf("Received: Action request for unknown probe type : ", *probeType)
+		glog.Errorf("Received: Action request for unknown probe type : %s", *probeType)
 		return
 	}
 
