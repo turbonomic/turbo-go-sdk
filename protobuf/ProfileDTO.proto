@@ -1,0 +1,132 @@
+package proto;
+
+option java_package = "com.vmturbo.platform.common.dto";
+option java_outer_classname = "ProfileDTO";
+
+import "CommonDTO.proto";
+
+// This file lists all the objects related to Service Entity profiles
+// created by user in environment or in VMTurbo
+message EntityProfileDTO {
+   // id of the entity profile.  This should allow access to the object
+   // in the system it was discovered from and it should be unique in VMT also.
+   required string id = 1;
+   // display name to be displayed to the user
+   required string displayName = 2;
+   // Type of entity this profile applies to
+   required EntityDTO.EntityType entityType = 3;
+   // The profile should contain multiple related commodity profiles for example
+   // profile for MEM, CPU, VSTORAGE...
+   repeated CommodityProfileDTO commodityProfile = 4;
+
+   // Model related to the profile
+   optional string model = 5;
+   // Vendor related to the profile
+   optional string vendor = 6;
+   // Description of the profile
+   optional string description = 7;
+
+   // If this is a profile for VMs, vmProfileDTO must be specified
+   // If this is a profile for PMs, pmProfileDTO must be specified
+   // If this is a profile for DBs or DBInstances, dbProfileDTO must be specified
+   oneof EntityTypeSpecificData {
+      VMProfileDTO vmProfileDTO = 8;
+      PMProfileDTO pmProfileDTO = 9;
+      DBProfileDTO dbProfileDTO = 13;
+   }
+
+   // This flag indicates where existing entities can be matched against this profile
+   optional bool enableProvisionMatch = 10;
+   // This flag indicates whether a resize action may use this profile to resize to
+   optional bool enableResizeMatch = 11;
+
+   // Allow entity properties to be specified related to the entity profile dto.
+   // Entity properties are a list of <string, string, string> namespace, key, value triplets
+   repeated EntityDTO.EntityProperty entityProperties = 12;
+
+   // Specific data related to a vm profile
+   message VMProfileDTO {
+      // At least one of numVCPUs and vCPUSpeed should be specified.
+      // One of the two can be derived from the other using the capacity
+      // from the commodityDTO
+      // number of VCPUs
+      optional int32 numVCPUs = 1;
+      // VCPU speed
+      optional float vCPUSpeed = 2;
+      // Number of storage entities that this VM will use storage from
+      optional int32 numStorageConsumed = 3;
+      // Disk type related to the VM
+      optional string diskType = 4;
+   }
+
+   // Specific data related to a pm profile
+   message PMProfileDTO {
+      // At least one of numCores and cpuCoreSpeed should be specified
+      // The other can be derived from the cpu capacity in
+      // the commodity dto.
+      optional int32 numCores = 1;
+      optional float cpuCoreSpeed = 2;
+   }
+
+   // Specific data related to a db profile or db instance profile
+   // Only used by vendors: AWS and Azure
+   message DBProfileDTO {
+      // region
+      optional string region = 1;
+      // database code, only used by AWS
+      optional int32 dbCode = 2;
+      // database edition
+      optional string dbEdition = 3;
+      // database engine
+      optional string dbEngine = 4;
+      // deployment option
+      optional string deploymentOption = 5;
+      // number of VCPUs
+      optional int32 numVCPUs = 6;
+   }
+}
+
+// Data related to a commodity profile used in an entity profile
+// Note typically only a subset of these fields may be specified in a profile for
+// each commmodity.
+message CommodityProfileDTO {
+   // The type of commodity such as MEM, CPU, STORAGE
+   required CommodityDTO.CommodityType commodityType = 1;
+   // The capacity of the commodity
+   optional float capacity = 2;
+   // Consumed factor may be used to calculate consumed based on capacity
+   optional float consumedFactor = 3;
+   // Consumed value to be used in the profile
+   optional float consumed = 4;
+   // A reservation related to this commodity
+   optional float reservation = 5;
+   // Overhead related to this commodity - for example overheadMem
+   optional float overhead = 6;
+}
+
+
+// This represents a deployment profile (service catalog item) which is related
+// to a service entity profile (template)
+// This DTO ties image information with scope and a profile to allow for
+// the deployment of an entity related to a profile
+message DeploymentProfileDTO {
+   // id related to this.  This may be an id from the system where this was discovered 
+   // it must be unique in VMTurbo
+   required string id = 1;
+   // Display name for the deployment profile
+   required string profileName = 2;
+
+   // Context data needed to actually invoke deploy - such as URIs
+   repeated ContextData contextData = 3;
+
+   // related service entity profiles (templates)
+   repeated string relatedEntityProfileId = 4;
+
+   // scopes in which this can be used for example cluster, network
+   repeated string relatedScopeId = 5;
+
+   // accessible scopes in which this can be used for example clusters
+   // this id allows for a set of clusters, where the relatedScopeId would typically
+   // only allow for 1 cluster or data center.  This is treated as an OR of scopes
+   repeated string accessibleScopeId = 6;
+}

@@ -1,0 +1,156 @@
+package proto;
+
+option java_package = "com.vmturbo.platform.common.dto";
+option java_outer_classname = "ActionExecution";
+
+// These messages are used by the SDK only
+
+import "CommonDTO.proto";
+import "ProfileDTO.proto";
+import "NonMarketEntityDTO.proto";
+
+// ActionPolicyDTO defines action execution policy for an EntityType.
+// Every EntityType can be associated with a list of actions and execution modes.
+// E.g., 'Resize' action can be defined as 'Recommend' for Virtual Machines.
+message ActionPolicyDTO {
+    // Entity type which the policy is applied to
+    required EntityDTO.EntityType entityType = 1;
+
+    // Action policy elements (for every supported action type)
+    repeated ActionPolicyElement policyElement = 2;
+
+    // Policy applied to a particular action type
+    message ActionPolicyElement {
+        // Action type
+        required ActionItemDTO.ActionType actionType = 1;
+
+        // Action execution capability
+        required ActionCapability actionCapability = 2;
+    }
+
+    // Defines how action can be executed by the probe
+    enum ActionCapability {
+        // The action does not make sense for the probe. Actions of this type should not be shown
+        // to the user.
+        NOT_SUPPORTED = 1;
+
+        // The probe does not support executing the action, but it may still make sense to display
+        // actions of this type to the user. For example, VSTORAGE resize is not supported in VCenter,
+        // but many users still wish to see actions of this type.
+        NOT_EXECUTABLE = 2;
+
+        // The probe supports execution of the action. Actions of this type are displayed to the user.
+        SUPPORTED = 3;
+    }
+}
+
+// ActionExecutionDTO may contain one or more action items related to the overall action to be
+// executed.
+message ActionExecutionDTO {
+  // Overall action type.  In most cases this action type will be the same as the action type
+  // specified in the action items contained within this.
+  required ActionItemDTO.ActionType actionType = 1;
+
+  // One or more action items related to the overall action to be executed
+  repeated ActionItemDTO actionItem = 2;
+
+  // Action Execution Progress
+  optional int64 progress = 3;
+
+  // There may be an action orchestration workflow
+  // associated with the execution of an action
+  optional NonMarketEntityDTO workflow = 4;
+}
+
+// This message holds values necessary for executing actions on Service Entity discovered with SDK probe
+message ActionItemDTO {
+    // ActionType of the action
+    required ActionType actionType = 1;
+
+    // ActionItem's uuid
+    required string uuid = 2;
+
+    // EntityDTO for the Target ServiceEntity on which the action should be applied
+    required EntityDTO targetSE = 3;
+
+    // EntityDTO for the service entity which hosts the targetSE
+    optional EntityDTO hostedBySE = 4;
+
+    // EntityDTO for the ServiceEntity by which the Target ServiceEntity is hosted now (for Move action only)
+    optional EntityDTO currentSE = 5;
+
+    // EntityDTO for the ServiceEntity by which the Target ServiceEntity will be hosted
+    // after applied the action (for Move action only)
+    optional EntityDTO newSE = 6;
+
+    // CommodityDTO for the commodity on which the action
+    // should be applied (current values)
+    optional CommodityDTO currentComm = 7;
+
+    // CommodityDTO for the commodity on which the action
+    // should be applied (after the action is applied)
+    optional CommodityDTO newComm = 8;
+
+    // CommodityAttribute enum notifying type of changed attribute
+    optional CommodityAttribute commodityAttribute = 10;
+
+    // Information for providers of the targetSE.
+    repeated ProviderInfo providers = 11;
+
+	// Profile related information used in executing a deploy action
+    optional EntityProfileDTO entityProfileDTO = 12;
+
+    // Context data used in executing actions
+    repeated ContextData contextData = 13;
+
+    // This message holds provider information for the target SE of this ActionItem.
+    message ProviderInfo {
+        required EntityDTO.EntityType entityType = 1;
+        repeated string ids = 2;
+    }
+
+    enum ActionType {
+        NONE = 0;
+        START = 1;
+        MOVE = 2;
+        SUSPEND = 3;
+        TERMINATE = 4;
+        SPAWN = 5;
+        ADD_PROVIDER = 6;
+        CHANGE = 7;
+        REMOVE_PROVIDER = 8;
+        PROVISION = 9;
+        RECONFIGURE = 10;
+        RESIZE = 11;
+        RESIZE_CAPACITY = 12;
+        WARN = 13;
+        RECONFIGURE_THRESHOLD = 14;
+        DELETE = 15;
+        RIGHT_SIZE = 16;
+        RESERVE_ON_PM = 17;
+        RESERVE_ON_DS = 18;
+        RESIZE_FOR_EFFICIENCY = 19;
+        RESIZE_FOR_PERFORMANCE = 20;
+        CROSS_TARGET_MOVE = 21;
+        MOVE_TOGETHER = 22;
+        RESERVE_ON_DA = 23;
+    }
+
+    enum CommodityAttribute {
+        Capacity = 0;
+        Limit = 1;
+        Reservation = 2;
+    }
+}
+
+enum ActionResponseState {
+    PENDING_ACCEPT = 0;
+    ACCEPTED = 1;
+    REJECTED = 2;
+    IN_PROGRESS = 3;
+    SUCCEEDED = 4;
+    FAILED = 5;
+    RECOMMENDED = 6;
+    DISABLED = 7;
+    QUEUED = 8;
+}

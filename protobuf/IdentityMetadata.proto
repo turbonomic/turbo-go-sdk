@@ -1,0 +1,65 @@
+syntax = "proto2";
+package proto;
+
+option java_package = "com.vmturbo.platform.sdk.common";
+
+import "CommonDTO.proto";
+
+// EntityIdentityMetadata supplies meta information describing the properties used to
+// identify an entity of a specific entity type.
+message EntityIdentityMetadata {
+    // The EntityType this metadata is for
+    required EntityDTO.EntityType entityType = 1;
+    // The version of the identifying properties for this entity type
+    optional int32 version = 2 [default = 0];
+
+    // Metadata properties must be unique across all classifications 
+    // (nonVolatile, volatile, heuristic).
+    //
+    // The following example is a valid metadata specification:
+    // ---------------------------------------
+    // nonVolatileProperties = [ "ID" ];
+    // volatileProperties = [ "IP_ADDRESS", "STORAGE_TYPE" ];
+    // heuristicProperties = [ "PROCESSOR", "MEMORY" ];
+    //
+    // While this is an invalid group specification:
+    // ---------------------------------------
+    // nonVolatileProperties = [ "ID" ];
+    // volatileProperties = [
+    //   "IP_ADDRESS",
+    //   "STORAGE_TYPE",
+    //   "STORAGE_TYPE"            <-- ERROR: properties must be unique across all classifications
+    // ];
+    // heuristicProperties = [
+    //   "IP_ADDRESS",             <-- ERROR: properties must be unique across all classifications (already in volatile)
+    //   "MEMORY"
+    // ];
+
+    message PropertyMetadata {
+        // The name of the property.
+        optional string name = 1;
+    }
+
+    // The non-volatile identifying properties to be used
+    // for this entity type. non-volatile identifying properties are the set of properties
+    // necessary to identify an entity that will not change over the lifetime of the entity.
+    // For example, "ID" will be a non-volatile identifying property for most entity types.
+    repeated PropertyMetadata nonVolatileProperties = 3;
+    // The volatile identifying properties to be used for this entity type.
+    // Volatile identifying properties are the set of properties necessary to identify
+    // an entity that may change over the lifetime of the entity. For example, for a VM,
+    // the "PM_UUID" may be identifying, but moving the VM will cause the value of this property
+    // to change.
+    repeated PropertyMetadata volatileProperties = 4;
+    // The heuristic properties to be used for this entity type. Heuristic properties
+    // are used to fuzzy match an entity's identity when an exact match using the
+    // identifying non-volatile and volatile properties fails.
+    repeated PropertyMetadata heuristicProperties = 5;
+
+    // The heuristic threshold is used by the identity service when matching heuristic properties
+    // to determine what percentage of heuristic properties must match in order to consider
+    // two objects to be the same. A heuristicThreshold of 50 would mean that at least 1/2 of
+    // the heuristic properties must match for two entities to be considered to be the same.
+    // This must be a value between 0 and 100.
+    optional int32 heuristicThreshold = 6 [default = 75];
+}

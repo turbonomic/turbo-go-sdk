@@ -191,7 +191,7 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	// Fields that serve to uniquely identify a target
 	id := theProbe.RegistrationClient.GetIdentifyingFields()
 
-	probeInfo.TargetIdentifierField = &id
+	probeInfo.TargetIdentifierField = []string{id}
 
 	return probeInfo, nil
 }

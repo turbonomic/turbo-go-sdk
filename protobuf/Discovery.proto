@@ -1,0 +1,230 @@
+package proto;
+
+option java_package = "com.vmturbo.platform.common.dto";
+option java_outer_classname = "Discovery";
+
+// These messages are used by the SDK only
+
+import "CommonDTO.proto";
+import "ProfileDTO.proto";
+import "NonMarketEntityDTO.proto";
+
+// ValidateResponse is the response of a ValidateRequest message.
+// It contains the response, and any errors encountered during the target validation attempt.
+message ValidationResponse {
+    // Errors, discovered during external probe operation
+    repeated ErrorDTO errorDTO = 1;
+}
+
+// Mediation container response for target discovery request. Holds both errors and discovered
+// entities. If errors occurred, any entities can be sent nevertheless. Only those entities should
+// be updated in the operations manager.
+//
+// Errors do not prevent anything. They are just displayed to users in the UI
+message DiscoveryResponse {
+    // Errors, discovered during external probe operation
+    repeated ErrorDTO errorDTO = 1;
+
+    // Entities, discovered by external probe.
+    repeated EntityDTO entityDTO = 2;
+
+    // Constraints defined in external probe
+    repeated GroupDTO discoveredGroup = 3;
+
+    // ServiceEntityProfile (template)
+    repeated EntityProfileDTO entityProfile = 4;
+
+    // Deployment Profile (ServiceCatalogItem)
+    repeated DeploymentProfileDTO deploymentProfile = 5;
+
+    // Notifications for global (not entity-specific) events
+    repeated NotificationDTO notification = 6;
+
+    // Custom Metadata DTO
+    repeated CustomMetadataDTO metadataDTO = 7;
+
+    // Derived targets' creation requests
+    repeated DerivedTargetSpecificationDTO derivedTarget = 8;
+
+    // Non market entities, discovered by external probe
+    repeated NonMarketEntityDTO nonMarketEntityDTO = 9;
+
+}
+
+
+// Custom user-defined account values. These construction is used, when SDK probe writers
+// define their own account values, instead of reusing existing ones.
+// Custom fields should be used, when there is not predefined field to match the purpose
+// of the field required by the probe.
+message CustomAccountDefEntry {
+    // The name of this entry field. The name must be unique for all of the entries you
+    // define for this probe.
+    required string name = 1;
+
+    // The display name of this entry. This is the name that appears in the user interface.
+    required string displayName = 2;
+
+    // Optional description of what this entry represents.
+    required string description = 3;
+
+    // A regular expression to validate a field. If the user's input matches the
+    // regular expression, then the entry is valid.
+    // For example, you can validate that the entered text is only numbers and period characters
+    // for an IP address. To disable validation (allow any text), pass {@code ".*"}.
+    optional string verificationRegex = 4 [default = ".*"];
+
+    // Specifies if the value for the entry can be disclosed (in the log file or wherever else).
+    optional bool isSecret = 5 [default = false];
+
+    // Field type describes, what data type is expected to be put into this field
+    oneof fieldType {
+        // Field just holds a value of primitive type
+        PrimitiveValue primitive_value = 6;
+        // Set of entity properties (e.g. IP addresses) for group scope target discovery
+        GroupScopePropertySet group_scope = 7;
+    }
+
+    // Entity type with a set of properties for group scope account definition
+    message GroupScopePropertySet {
+        // Entity type
+        required EntityDTO.EntityType entityType = 1;
+
+        // Set of properties
+        repeated GroupScopeProperty property = 2;
+    }
+
+    // Entity property for group scope selection
+    message GroupScopeProperty {
+        // The name of the property
+        required string propertyName = 1;
+
+        // Checks if property is mandatory or optional
+        optional bool isMandatory = 2 [default = true];
+    }
+
+    // Enum, determining the type of primitive value. All the primitive values are
+    // always stored in string value holder, but are interpreted differently
+    enum PrimitiveValue {
+        // Value should be interpreted as string
+        STRING = 1;
+        // Value should be interpreted as numeric
+        NUMERIC = 2;
+        // Value should be interpreted as boolean
+        BOOLEAN = 3;
+    }
+}
+
+// The AccountDefinitionEntry class defines a single field that is part of the account credentials
+// a user must specify to connect to a target of this probe type. Note that for every probe, the
+// 'TARGET_IDENTIFIER' is a mandatory field.
+//
+// It's the responsibility of your probe to define the credentials it needs to attach to a target. When adding an associated target to
+// Operations Manager via the REST API, the API call includes parameters for each of the credentials defined here.
+// When attaching via the Operations Manager GUI, the credentials defined here appear in the GUI as individual fields.
+// For a given probe, you define the credentials as a Set of AccountDefinitionEntry objects.
+message AccountDefEntry {
+
+    // Type of account definition
+    oneof definition {
+        // predefined - used do not specify anything for the field definition
+        // All the available options are defined in PredefinedAccountDefinition enum.
+        // String value, put into this field should be exactly enum's name() (case
+        // sensitive).
+        string predefined_definition = 2;
+        // custom - user is free to define all the configuration for the required field.
+        CustomAccountDefEntry custom_definition = 3;
+    }
+
+    // Whether this field is mandatory (true) or optional (false). Default is mandatory
+    optional bool mandatory = 4 [default = true];
+
+    // Default value the probe declares for this field. This can only be set if the field is
+    // optional.
+    optional string defaultValue = 5;
+}
+
+// Error DTO. Represent some errors, occurred during operations inside the Mediation Container.
+message ErrorDTO {
+    // Error severity. Used to specify the colour of the message, shown to the end user.
+    required ErrorSeverity severity = 1;
+
+    // Error description. Should not be null.
+    required string description = 2;
+
+    // UUID of the entity the error is related to, if any.
+    optional string entityUuid = 3;
+
+    // Type of the entity the error is related to, if any.
+    optional string entityType = 4;
+    enum ErrorSeverity {
+        CRITICAL = 0;
+        WARNING = 1;
+    }
+}
+
+// Custom Metadata DTO.
+// Represents custom data that will used by the Operations Manager server for different features.
+// Example : for injecting metadata for computing custom pricing for certain commodities.
+message CustomMetadataDTO {
+
+    // Namespace of the handler for this DTO in the server to handle the metadata
+    required CustomTypeDef.MetadataNamespace namespace = 1;
+
+    // Key in the namespace for the data
+    optional string key = 2;
+
+    // Type of data
+    required Type dataType = 3;
+
+    // Serializable Data
+    required string payload = 4;
+
+    // Type of the serialized data
+    enum Type {
+        JSON = 0;
+        XML = 1;
+    }
+}
+
+// Structure to hold account parameters, passed to probe to connect and authenticate
+// to target.
+message AccountValue {
+    // Name of the parameter. Should refer to the "name" field of AccountDefEntry message,
+    // which is returned by the probe in registration phase, for example "userName",
+    // "password" and so on.
+    required string key = 1;
+
+    // String representation of the parameter value, for example "secretpassword",
+    // "192.168.111.3" and so on.
+    optional string stringValue = 2;
+
+    // Set of property value lists
+    repeated PropertyValueList groupScopePropertyValues = 3;
+
+    message PropertyValueList {
+        repeated string value = 1;
+    }
+}
+
+// Use to create (or update) derived targets as a result of certain discovery.
+message DerivedTargetSpecificationDTO {
+    // String identifier to define the type of the probe.
+    // If a probe of that type is not registered with the mediation container of current probe,
+    // the derived target creation should fail.
+    required string probeType = 1;
+
+    // Account values provide entry data to the probe.
+    // If for any of the keys of these values there is no account definition in the probe registered with probeType,
+    // or this set is missing some mandatory account values, the derived target creation should fail.
+    // When updating an existing target, all the values that do not constitute target identifier, should be updated.
+    repeated AccountValue accountValue = 2;
+
+    // Whether the target should be visible in UI.
+    // When an existing target is updated, this should be updated too.
+    optional bool hidden = 3 [default = true];
+
+    // Whether the target should be created with dependence on the target being discovered.
+    // When updating an existing target, it can change from independent to dependent.
+    // But not from dependent to independent, or to dependent from another target.
+    optional bool dependent = 4 [default = true];
+}
