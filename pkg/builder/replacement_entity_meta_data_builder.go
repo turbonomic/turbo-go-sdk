@@ -5,11 +5,11 @@ import (
 )
 
 const (
-	PropertyUsed = "used"
-	PropertyCapacity = "capacity"
-	PropertyResizable = "resizable"
-	PropertyLimit = "limit"
-	PropertyPeak = "peak"
+	PropertyUsed        = "used"
+	PropertyCapacity    = "capacity"
+	PropertyResizable   = "resizable"
+	PropertyLimit       = "limit"
+	PropertyPeak        = "peak"
 	PropertyComputeUsed = "computeUsed"
 	PropertyReservation = "reservation"
 )
@@ -57,7 +57,7 @@ func (builder *ReplacementEntityMetaDataBuilder) PatchBuyingWithProperty(commTyp
 	builder.metaData.BuyingCommTypes = append(builder.metaData.GetBuyingCommTypes(),
 		&proto.EntityDTO_ReplacementCommodityPropertyData{
 			CommodityType: &commType,
-			PropertyName: names,
+			PropertyName:  names,
 		})
 	return builder
 }
@@ -72,7 +72,7 @@ func (builder *ReplacementEntityMetaDataBuilder) PatchSellingWithProperty(commTy
 	builder.metaData.SellingCommTypes = append(builder.metaData.GetSellingCommTypes(),
 		&proto.EntityDTO_ReplacementCommodityPropertyData{
 			CommodityType: &commType,
-			PropertyName: names,
+			PropertyName:  names,
 		})
 
 	return builder

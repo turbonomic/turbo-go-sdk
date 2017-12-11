@@ -9,36 +9,65 @@ import (
 )
 
 // Turbo Probe Abstraction
-// Consists of clients that handle probe registration metadata, discovery and action execution for different probe targets
+// Consists of clients that handle probe registration metadata,
+// and the discovery and action execution for different probe targets
 type TurboProbe struct {
+	ProbeConfiguration ProbeConfig
 	ProbeType          string
 	ProbeCategory      string
-	RegistrationClient TurboRegistrationClient
-	DiscoveryClientMap map[string]TurboDiscoveryClient
+	RegistrationClient *ProbeRegistrationAgent
+	DiscoveryClientMap map[string]*TargetDiscoveryAgent
 
 	ActionClient TurboActionExecutorClient
 }
 
+type ProbeRegistrationAgent struct {
+	ISupplyChainProvider
+	IAccountDefinitionProvider
+	IActionPolicyProvider
+	IEntityMetadataProvider
+	discoveryMetadata *DiscoveryMetadata
+}
+
 type TurboRegistrationClient interface {
-	GetAccountDefinition() []*proto.AccountDefEntry
-	GetSupplyChainDefinition() []*proto.TemplateDTO
-	GetIdentifyingFields() string
-	// TODO: - add methods to get entity metadata, action policy data
+	ISupplyChainProvider
+	IAccountDefinitionProvider
+}
+
+func NewProbeRegistrator() *ProbeRegistrationAgent {
+	registrator := &ProbeRegistrationAgent{}
+	registrator.discoveryMetadata = NewDiscoveryMetadata()
+	return registrator
+}
+
+type TargetDiscoveryAgent struct {
+	TargetId string
+	TurboDiscoveryClient
+	IIncrementalDiscovery
+	IPerformanceDiscovery
+}
+
+func NewTargetDiscoveryAgent(targetId string) *TargetDiscoveryAgent {
+	targetAgent := &TargetDiscoveryAgent{TargetId: targetId}
+	return targetAgent
 }
 
 type TurboDiscoveryClient interface {
+	// Discovers the target, creating an EntityDTO representation of every object
+	// discovered by the  probe.
+	// @param accountValues object, holding all the account values
+	// @return discovery response, consisting of both entities and errors, if any
 	Discover(accountValues []*proto.AccountValue) (*proto.DiscoveryResponse, error)
 	Validate(accountValues []*proto.AccountValue) (*proto.ValidationResponse, error)
 	GetAccountValues() *TurboTargetInfo
 }
 
 type ProbeConfig struct {
-	ProbeType     string
-	ProbeCategory string
-}
-
-type TurboTargetConf interface {
-	GetAccountValues() []*proto.AccountValue
+	ProbeType            string
+	ProbeCategory        string
+	FullDiscovery        int32
+	IncrementalDiscovery int32
+	PerformanceDiscovery int32
 }
 
 // ===========================================    New Probe ==========================================================
@@ -55,15 +84,29 @@ func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 	myProbe := &TurboProbe{
 		ProbeType:          probeConf.ProbeType,
 		ProbeCategory:      probeConf.ProbeCategory,
-		DiscoveryClientMap: make(map[string]TurboDiscoveryClient),
+		DiscoveryClientMap: make(map[string]*TargetDiscoveryAgent),
 	}
+
+	// registration client defaults
+	registrationClient := NewProbeRegistrator()
+	registrationClient.discoveryMetadata.SetFullRediscoveryIntervalSeconds(probeConf.FullDiscovery)
+	registrationClient.discoveryMetadata.SetIncrementalRediscoveryIntervalSeconds(probeConf.IncrementalDiscovery)
+	registrationClient.discoveryMetadata.SetPerformanceRediscoveryIntervalSeconds(probeConf.PerformanceDiscovery)
+
+	myProbe.RegistrationClient = registrationClient
 
 	glog.V(2).Infof("[NewTurboProbe] Created TurboProbe: %s", myProbe)
 	return myProbe, nil
 }
 
 func (theProbe *TurboProbe) getDiscoveryClient(targetIdentifier string) TurboDiscoveryClient {
-	return theProbe.DiscoveryClientMap[targetIdentifier]
+	target, exists := theProbe.DiscoveryClientMap[targetIdentifier]
+
+	if !exists {
+		glog.Errorf("[GetTurboDiscoveryClient] Cannot find Target for address: %s", targetIdentifier)
+		return nil
+	}
+	return target.TurboDiscoveryClient
 }
 
 // TODO: this method should be synchronized
@@ -71,20 +114,28 @@ func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues []*proto.Accou
 	var address string
 	identifyingField := theProbe.RegistrationClient.GetIdentifyingFields()
 
-	for _, accVal := range accountValues {
-		if accVal.GetKey() == identifyingField {
-			address = accVal.GetStringValue()
-		}
-	}
-	target := theProbe.getDiscoveryClient(address)
+	address = findTargetId(accountValues, identifyingField)
+	target, exists := theProbe.DiscoveryClientMap[address]
 
-	if target == nil {
+	if !exists {
 		glog.Errorf("[GetTurboDiscoveryClient] Cannot find Target for address: %s", address)
 		//TODO: CreateDiscoveryClient(address, accountValues, )
 		return nil
 	}
 	glog.V(2).Infof("[GetTurboDiscoveryClient] Found Target for address: %s", address)
-	return target
+	return target.TurboDiscoveryClient
+}
+
+func findTargetId(accountValues []*proto.AccountValue, identifyingField string) string {
+	var address string
+
+	for _, accVal := range accountValues {
+		if accVal.GetKey() == identifyingField {
+			address = accVal.GetStringValue()
+			return address
+		}
+	}
+	return address
 }
 
 func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
@@ -139,6 +190,70 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) 
 	return validationResponse
 }
 
+func (theProbe *TurboProbe) DiscoverTargetIncremental(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
+	glog.V(2).Infof("Incremental discovery for Target: %s", accountValues)
+	targetId := findTargetId(accountValues, theProbe.RegistrationClient.GetIdentifyingFields())
+	var handler IIncrementalDiscovery
+	target, exists := theProbe.DiscoveryClientMap[targetId]
+
+	if !exists {
+		description := "Non existent target"
+		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_CRITICAL)
+	}
+
+	handler = target.IIncrementalDiscovery
+	if handler == nil {
+		description := "Incremental discovery not supported"
+		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_WARNING)
+	}
+	var discoveryResponse *proto.DiscoveryResponse
+
+	glog.V(4).Infof("Send incremental discovery request to handler %v", handler)
+	discoveryResponse, err := handler.DiscoverIncremental(accountValues)
+
+	if err != nil {
+		description := fmt.Sprintf("Error during incremental discovering target %s", err)
+		severity := proto.ErrorDTO_CRITICAL
+
+		discoveryResponse = theProbe.createDiscoveryErrorDTO(description, severity)
+		glog.Errorf("Error during incremental discovery of target %s", discoveryResponse)
+	}
+	glog.V(3).Infof("Incremental Discovery response: %s", discoveryResponse)
+	return discoveryResponse
+}
+
+func (theProbe *TurboProbe) DiscoverTargetPerformance(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
+	glog.V(2).Infof("Performance discovery for Target: %s", accountValues)
+	targetId := findTargetId(accountValues, theProbe.RegistrationClient.GetIdentifyingFields())
+	var handler IPerformanceDiscovery
+	target, exists := theProbe.DiscoveryClientMap[targetId]
+
+	if !exists {
+		description := "Non existent target"
+		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_CRITICAL)
+	}
+
+	handler = target.IPerformanceDiscovery
+	if handler == nil {
+		description := "Performance discovery not supported"
+		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_WARNING)
+	}
+	var discoveryResponse *proto.DiscoveryResponse
+
+	glog.V(4).Infof("Send performance discovery request to handler %v", handler)
+	discoveryResponse, err := handler.DiscoverPerformance(accountValues)
+
+	if err != nil {
+		description := fmt.Sprintf("Error during performance discovery of target %s", err)
+		severity := proto.ErrorDTO_CRITICAL
+
+		discoveryResponse = theProbe.createDiscoveryErrorDTO(description, severity)
+		glog.Errorf("Error during performance discovery of target %s", discoveryResponse)
+	}
+	glog.V(3).Infof("Performance Discovery response: %s", discoveryResponse)
+	return discoveryResponse
+}
+
 func (theProbe *TurboProbe) ExecuteAction(actionExecutionDTO *proto.ActionExecutionDTO, accountValues []*proto.AccountValue,
 	progressTracker ActionProgressTracker) *proto.ActionResult {
 	if theProbe.ActionClient == nil {
@@ -174,24 +289,42 @@ func (theProbe *TurboProbe) GetProbeTargets() []*TurboTargetInfo {
 
 // The ProbeInfo for the probe
 func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
-	// 1. Get the account definition for probe
-	var acctDefProps []*proto.AccountDefEntry
-	var templateDtos []*proto.TemplateDTO
-
-	acctDefProps = theProbe.RegistrationClient.GetAccountDefinition()
-
-	// 2. Get the supply chain.
-	templateDtos = theProbe.RegistrationClient.GetSupplyChainDefinition()
-
-	// 3. construct the example probe info.
+	// 1. construct the basic probe info.
 	probeCat := theProbe.ProbeCategory
 	probeType := theProbe.ProbeType
-	probeInfo := builder.NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
+	probeInfoBuilder := builder.NewBasicProbeInfoBuilder(probeType, probeCat)
 
-	// Fields that serve to uniquely identify a target
-	id := theProbe.RegistrationClient.GetIdentifyingFields()
+	registrationClient := theProbe.RegistrationClient
+	// 2. Get the supply chain.
+	if registrationClient.ISupplyChainProvider != nil {
+		probeInfoBuilder.WithSupplyChain(registrationClient.GetSupplyChainDefinition())
+	}
 
-	probeInfo.TargetIdentifierField = &id
+	// 3. Get the account definition
+	if registrationClient.IAccountDefinitionProvider != nil {
+		probeInfoBuilder.WithAccountDefinition(registrationClient.GetAccountDefinition())
+	}
+
+	// 4. Fields that serve to uniquely identify a target
+	probeInfoBuilder = probeInfoBuilder.WithIdentifyingField(registrationClient.GetIdentifyingFields())
+
+	// 5. discovery intervals metadata
+	probeInfoBuilder.WithFullDiscoveryInterval(registrationClient.discoveryMetadata.GetFullRediscoveryIntervalSeconds())
+	probeInfoBuilder.WithIncrementalDiscoveryInterval(registrationClient.discoveryMetadata.GetIncrementalRediscoveryIntervalSeconds())
+	probeInfoBuilder.WithPerformanceDiscoveryInterval(registrationClient.discoveryMetadata.GetPerformanceRediscoveryIntervalSeconds())
+
+	// 6. action policy metadata
+	if registrationClient.IActionPolicyProvider != nil {
+		probeInfoBuilder.WithActionPolicySet(registrationClient.GetActionPolicy())
+	}
+
+	// 7. entity metadata
+	if registrationClient.IEntityMetadataProvider != nil {
+		probeInfoBuilder.WithEntityMetadata(registrationClient.GetEntityMetadata())
+	}
+
+	probeInfo := probeInfoBuilder.Create()
+	glog.V(2).Infof("ProbeInfo %++v\n", probeInfo)
 
 	return probeInfo, nil
 }

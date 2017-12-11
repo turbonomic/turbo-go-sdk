@@ -304,7 +304,6 @@ func TestBuildExternalEntityLinkProperty(t *testing.T) {
 	}
 }
 
-
 // Create a random EntityDTOBuilder.
 func randomBaseSupplyChainNodeBuilder() *SupplyChainNodeBuilder {
 	return NewSupplyChainNodeBuilder(rand.RandomEntityType())

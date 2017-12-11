@@ -183,7 +183,7 @@ func TestExternalEntityLinkBuilder_ExternalEntityPropertyDef(t *testing.T) {
 			propertyDef: nil,
 		},
 		{
-			propertyDef:rand.RandomExternalEntityLink_ServerEntityPropDef(),
+			propertyDef: rand.RandomExternalEntityLink_ServerEntityPropDef(),
 		},
 	}
 
