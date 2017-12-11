@@ -1,0 +1,30 @@
+package version_dto;
+
+option java_package = "com.vmturbo.communication.version";
+option java_outer_classname = "VersionNegotiation";
+
+// Version negotiation request. This should be sent by client to server
+message NegotiationRequest {
+    // This is the version of protocol at the client side
+    required string protocol_version = 1;
+}
+
+// Negotiation result. Server answers with this message to a request by NegotiationRequest
+message NegotiationAnswer {
+    enum NegotiationStatus {
+        // Server accepts the version of client's protocol, which is fully functional.
+        ACCEPTED = 0;
+        // Server either do not know about this version (server is obsolete)
+        // or the version is no longer supported
+        REJECTED = 1;
+        // Used for specific cases, where protocol version can be used, but some another conditions failed
+        OTHER = 2;
+    }
+
+    // The status, that shows, whether this certain version of protocol can be used to
+    // communicate between client and server
+    required NegotiationStatus negotiation_result = 1;
+
+    // Description section, explaining the reasons and details of the certain status
+    required string description = 2;
+}
