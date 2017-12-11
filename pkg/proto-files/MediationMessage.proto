@@ -34,6 +34,8 @@ message MediationServerMessage {
         // The valuse is a message id of the server request, that triggered
         // the operation (discovery Request, validationRequest and so on)
         int32 interruptOperation = 5;
+        // Modify the properties at the container side
+        SetProperties properties = 6;
     }
 
     // this is always required in reality. it's optional here because
@@ -96,6 +98,16 @@ message KeepAlive {
 message Ack {
 }
 
+// This message is sent from the server to the client when the client is successfully registered
+// and contains important initialization information.  For the time being, this message ensures
+// that, if probe properties are available at the server site, then they can be transferred to the
+// client site at least once.
+// Later, this message may contain more initialization information that a client must obtain at
+// least once.
+message InitializationContent {
+    required SetProperties probeProperties = 1;
+}
+
 message ValidationRequest {
     required string probeType = 1;
     repeated AccountValue accountValue = 2;
@@ -104,6 +116,8 @@ message ValidationRequest {
 message DiscoveryRequest {
     required string probeType = 1;
     repeated AccountValue accountValue = 2;
+    // the type of discovery defined by this request
+    required DiscoveryType discoveryType = 3;
 }
 
 // The ProbeInfo class provides a description of the probe that enables users to
@@ -173,7 +187,7 @@ message ProbeInfo {
     // The value is specified in seconds. If no value is provided for rediscoveryIntervalSeconds
     // a default of 600 seconds (10 minutes) will be used. The minimum value allowed for this
     // field is 60 seconds (1 minute).
-    optional int32 rediscoveryIntervalSeconds = 6;
+    optional int32 fullRediscoveryIntervalSeconds = 6;
 
     // EntityIdentityMetadata supplies meta information describing the properties used to identify
     // all of the entities that a probe may discover. There should be one EntityIdentityMetadata
@@ -186,5 +200,20 @@ message ProbeInfo {
     // Indicates whether the probe discovers ServiceEntities and thus has a SupplyChain and
     // identity meta data.
     optional bool discoversSupplyChain = 9 [default = true];
+
+    // Specifies the interval at which incremental discoveries will be executed for this probe.
+    // The value is specified in seconds. If no value is provided for incrementalRediscoveryIntervalSeconds
+    // a default of -1 will be used, which means the probe doesn't support incremental discovery
+    optional int32 incrementalRediscoveryIntervalSeconds = 10;
+
+    // Specifies the interval at which performance discoveries will be executed for this probe.
+    // The value is specified in seconds. If no value is provided for performanceRediscoveryIntervalSeconds
+    // a default of -1 will be used, which means the probe doesn't support performance discovery
+    optional int32 performanceRediscoveryIntervalSeconds = 11;
 }
 
+// The {@code SetProperties} message sends a collection of properties to a target in the form
+// of a map from string to string.
+message SetProperties {
+    map<string, string> properties = 4;
+}

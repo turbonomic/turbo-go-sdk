@@ -49,6 +49,11 @@ message DiscoveryResponse {
     // Non market entities, discovered by external probe
     repeated NonMarketEntityDTO nonMarketEntityDTO = 9;
 
+    // Reserved Instance DTO
+    repeated ReservedInstanceDTO reservedInstanceDTO = 10;
+
+    // Flows, discovered by external probe
+    repeated FlowDTO flowDTO = 11;
 }
 
 
@@ -227,4 +232,16 @@ message DerivedTargetSpecificationDTO {
     // When updating an existing target, it can change from independent to dependent.
     // But not from dependent to independent, or to dependent from another target.
     optional bool dependent = 4 [default = true];
+}
+
+// The types of discovery supported by SDK framework. FULL discovery is supported by default.
+enum DiscoveryType {
+    // Full discovery which discovers everything
+    FULL = 0;
+
+    // Incremetal discovery which discovers changed entities (removed, added, etc.)
+    INCREMENTAL = 1;
+
+    // Performance discovery which discovers utilization data
+    PERFORMANCE = 2;
 }

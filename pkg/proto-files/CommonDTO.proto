@@ -44,7 +44,7 @@ message EntityDTO {
 
     // List of the IDs of the entities that this entity is underlying. For example, an IO Module can underly
     // physical machines, or a physical machine can underly datastores.
-    repeated string underlying = 6;
+    repeated string underlying = 6 [deprecated=true];
 
     // list of <string, string, string> namespace, key, value triplets
     repeated EntityProperty entityProperties = 7;
@@ -86,6 +86,21 @@ message EntityDTO {
     // If there is a related profile, the id can be specified here
     optional string profileId = 17;
 
+    // Specifies entity DTO type (can be a new/existing entity or deleted entity).
+    optional UpdateType updateType = 18 [default = UPDATED];
+
+    // List of the IDs of the entities that this entity is layeredOver. For example, a datastore
+    // can be layeredOver physical machines; a physical machine can be layeredOver IO Module.
+    repeated string layeredOver = 19;
+
+    // An entity may replace one or more other entities in the topology
+    // This attribute allows specification of specific entity or entities to replace based on
+    // their id. For example - a VDC may replace a set of resource pools
+    repeated string replacesEntityId = 20;
+
+    // Notifies if the entity is in maintenance.
+    optional bool maintenance = 21 [default = false];
+
     // Collection of entity type's specific data
     oneof entity_data {
         StorageData storage_data = 500;
@@ -97,6 +112,7 @@ message EntityDTO {
         StorageControllerData storage_controller_data = 506;
         LogicalPoolData logical_pool_data = 507;
         VirtualApplicationData virtual_application_data = 508;
+        ProcessorPoolData processor_pool_data = 509;
     }
 
     // Data for entities related to the given entity but not specifically part of the
@@ -113,7 +129,7 @@ message EntityDTO {
         VIRTUAL_DATACENTER = 1;
         STORAGE = 2;
         SERVICE = 3;
-        DATABASE = 4;
+        DATABASE_SERVER = 4;
         SAVINGS = 5;
         OPERATOR = 6;
         WEB_SERVER = 7;
@@ -155,9 +171,11 @@ message EntityDTO {
         CLOUD_SERVICE = 43;
         DPOD = 44;
         VPOD = 45;
-        DATABASE_INSTANCE = 46;
+        DATABASE = 46;
         LOAD_BALANCER = 47;
-        STORAGE_VOLUME = 48;
+        BUSINESS_APPLICATION = 48;
+        PROCESSOR_POOL = 49;
+        STORAGE_VOLUME = 50;
 
         // 2047 is the largest tag value encoded in 2 bytes
         UNKNOWN = 2047;
@@ -185,18 +203,18 @@ message EntityDTO {
         optional SubDivisionData subDivision = 4;
     }
 
-        message SubDivisionData {
-            // id of the SubDivision
-            required string subDivisionId = 1;
-            // String identifying the replication type needed for cost calculations
-            optional string redundancyType = 2;
-            // float iops capacity of SubDivision needed for cost calculations
-            optional float storageAccessCapacity = 3;
-            // float storage capacity of SubDivision needed for cost calculations
-            optional float storageAmountCapacity = 4;
-            // display name for the SubDivision
-            optional string displayName = 5;
-        }
+    message SubDivisionData {
+        // id of the SubDivision
+        required string subDivisionId = 1;
+        // String identifying the replication type needed for cost calculations
+        optional string redundancyType = 2;
+        // float iops capacity of SubDivision needed for cost calculations
+        optional float storageAccessCapacity = 3;
+        // float storage capacity of SubDivision needed for cost calculations
+        optional float storageAmountCapacity = 4;
+        // display name for the SubDivision
+        optional string displayName = 5;
+    }
 
     message StorageData {
         optional StorageType storageType = 1;
@@ -206,10 +224,11 @@ message EntityDTO {
         optional string lunUuid = 5;
         optional int32 lunId = 6;
         optional string wwn = 7;
-        repeated string externalName = 8;
+        optional bool notClusterable = 8 [default = false];
+        repeated string externalName = 9;
 
         // Files residing on the storage, if available
-        repeated StorageFileDescriptor file = 9;
+        repeated StorageFileDescriptor file = 10;
 
         message StorageFileDescriptor {
             // Full pathname with Unix-style separators
@@ -413,7 +432,9 @@ message EntityDTO {
 
     message PMState {
         // Notifies if the PhysicalMachine is in maintenance.
-        optional bool maintenance = 1 [default = false];
+        // The is only used by PM, for any other entity please use the 'maintenance'
+        // field in EntityDTO.
+        optional bool maintenance = 1 [default = false, deprecated = true];
 
         // Notifies if the PhysicalMachine is for failover.
         optional bool failover = 2 [default = false];
@@ -551,7 +572,7 @@ message EntityDTO {
         repeated ReplacementCommodityPropertyData buyingCommTypes = 2;
         repeated ReplacementCommodityPropertyData sellingCommTypes = 3;
 
-        // Metadata for matching external entity. 
+        // Metadata for matching external entity.
         // Name of the external property whose values will be examined
         // and matched to the values of the entity DTO properties listed above
         repeated string extEntityProp = 4;
@@ -560,20 +581,34 @@ message EntityDTO {
     // Data to specify which commodity types and properties
     // should be patched when updating data in an entity from
     // a proxy entity
-     message ReplacementCommodityPropertyData {
+    message ReplacementCommodityPropertyData {
         required CommodityDTO.CommodityType commodityType = 1;
         repeated string propertyName = 2;
-     }
-
-     message ConsumerPolicy {
-       optional bool shopsTogether = 1 [default = false];
     }
 
-     message ProviderPolicy {
+    message ConsumerPolicy {
+        // Boolean property to indicate if the entity will shop together with other associated
+        // entities in the Market for resources.
+        optional bool shopsTogether = 1 [default = false];
+        // Boolean property to indicate if the entity is controllable by Market.
+        // Set as false if the entity cannot be moved, righted size, etc...
+        optional bool controllable = 2 [default = true];
+    }
+
+    message ProviderPolicy {
         // Provides availableForPlacement placement policy
         optional bool availableForPlacement = 1 [default = true];
         // Provides localSupported placement policy
         optional bool localSupported = 2 [default = false];
+    }
+
+    message ProcessorPoolData {
+        // Upper boundary of the Processing Units that can be utilized by VMs on the Processor Pool
+        required float maximumProcessingUnits = 1;
+        // Available Processing Units for VM on the Processor Pool
+        required float availableProcessingUnits = 2;
+        // Used by Uncapped VMs during busy time
+        optional float reservedProcessingUnits = 3;
     }
 }
 
@@ -760,6 +795,7 @@ message CommodityDTO {
         HEAP = 77;
         DISK_ARRAY_ACCESS = 78;
         SERVICE_LEVEL_CLUSTER = 79;
+        PROCESSING_UNITS = 80;
 
         // 2047 is the largest tag value encoded in 2 bytes
         UNKNOWN = 2047;
@@ -806,7 +842,9 @@ message CommodityDTO {
 // GroupDTO message carries information to setup Group and Constraint in server.
 message GroupDTO {
     // Type of entities included in this group
-    required EntityDTO.EntityType entity_type = 1;
+    // Entity type is optional. If group already exists it can be retrieved from group entities.
+    // Entity type can be empty for incremental discovery.
+    optional EntityDTO.EntityType entity_type = 1;
 
     // Display name for the group
     optional string display_name = 2;
@@ -827,11 +865,15 @@ message GroupDTO {
     oneof members {
         SelectionSpecList selection_spec_list = 5;
         MembersList member_list = 6;
-        string source_group_id = 7;
+        AddedAndRemovedMembersList added_and_removed_members = 7;
+        string source_group_id = 8;
     }
 
     // list of <string, string, string> namespace, key, value triplets
-    repeated EntityDTO.EntityProperty entityProperties = 8;
+    repeated EntityDTO.EntityProperty entityProperties = 9;
+
+    // Specifies group DTO type (can be a new/existing group or deleted group).
+    optional UpdateType updateType = 10 [default = UPDATED];
 
     // ConstraintInfo contains all necessary information specific for Group associated with Constraint
     message ConstraintInfo {
@@ -866,6 +908,12 @@ message GroupDTO {
     // List of member uuids
     message MembersList {
         repeated string member = 1;
+    }
+
+    // List of members added and removed from the group.
+    message AddedAndRemovedMembersList {
+        repeated string addedMembers = 1;
+        repeated string removedMembers = 2;
     }
 
     message BuyerMetaData {
@@ -968,5 +1016,57 @@ message CustomTypeDef {
     enum MetadataNamespace {
         UNKNOWN = 0;
         NETWORK_POLICY_EPG = 1;
+    }
+}
+
+// Enumerates supported DTO types
+enum UpdateType {
+    // The DTO represents complete state of a new or existing entity.
+    UPDATED = 0;
+
+    // Entity was deleted. DTO must contain only identifying property that are necessary
+    // to locate the entity on the server side.
+    DELETED = 1;
+}
+
+// This message is mainly used to identify an entity such as VM, via the fields ipAddress,
+// port (we can add more identifiers later).
+message EntityIdentityData {
+    // The target entity's IP address.
+    required string ipAddress = 1;
+    // The target entity's port number.
+    required int32 port = 2;
+}
+
+// The Flow DTO. This data is used for describing the communication between two entities
+// (VMs in NCM). It includes the source, destination entity identity data and flow data
+// (protocol, flow amount, latency).
+message FlowDTO {
+    // Source entity identity data
+    required EntityIdentityData sourceEntityIdentityData = 1;
+
+    // Destination entity identity data
+    required EntityIdentityData destEntityIdentityData = 2;
+
+    // The protocol.
+    required Protocol protocol = 3;
+
+    // Flow Amount
+    required int64 flowAmount = 4;
+
+    // Flow latency
+    required int64 latency = 5;
+
+    // Transmitted amount
+    required int64 transmittedAmount = 6;
+
+    // Received amount
+    required int64 receivedAmount = 7;
+
+    // Only TCP and UDP are supported.
+    enum Protocol {
+        TCP = 1;
+        UDP = 2;
+        UNKNOWN_PROTO = 1000;
     }
 }

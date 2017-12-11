@@ -57,6 +57,10 @@ message EntityProfileDTO {
       optional int32 numStorageConsumed = 3;
       // Disk type related to the VM
       optional string diskType = 4;
+      // If this VM profile supports dedicated network for VM storage
+      optional bool dedicatedStorageNetworkSupported = 5;
+      // If dedicated network storage is enabled by default in VMs created based on this profile
+      optional bool dedicatedStorageNetworkEnabledByDefault = 6;
    }
 
    // Specific data related to a pm profile
@@ -110,7 +114,7 @@ message CommodityProfileDTO {
 // This DTO ties image information with scope and a profile to allow for
 // the deployment of an entity related to a profile
 message DeploymentProfileDTO {
-   // id related to this.  This may be an id from the system where this was discovered 
+   // id related to this.  This may be an id from the system where this was discovered
    // it must be unique in VMTurbo
    required string id = 1;
    // Display name for the deployment profile
@@ -129,4 +133,93 @@ message DeploymentProfileDTO {
    // this id allows for a set of clusters, where the relatedScopeId would typically
    // only allow for 1 cluster or data center.  This is treated as an OR of scopes
    repeated string accessibleScopeId = 6;
+}
+
+// This represents a Reserved Instance which is a reservation of resource and capacity.
+message ReservedInstanceDTO {
+   // This is the uuid constructed from the cloud service providers reserved instance id.
+   required string id = 1;
+
+   // Reserved Instance Id obtained from Cloud Service Provider.
+   required string reservedInstanceId = 2;
+
+   // display name to be displayed to the user. This is the template name.
+   // eg : t2.micro, Standard_A1.
+   required string displayName = 3;
+
+   // The start timestamp of the reservation in milliseconds.
+   required int64 startTime = 4;
+
+   // The duration of the reservation in milliseconds.
+   required int64 duration = 5;
+
+   // Tenancy of the Reserved Instance.
+   required InstanceTenancy instanceTenancy = 6;
+   enum InstanceTenancy {
+      DEFAULT = 1; // instance runs on shared/default hardware
+      DEDICATED = 2; // instance runs on single-tenant hardware.
+      HOST = 3; // instance runs on a Dedicated Host.
+   }
+
+   // Class of RI.
+   required OfferingClass offeringClass = 7;
+   enum OfferingClass {
+      STANDARD = 1; // cannot be exchanged.
+      CONVERTIBLE = 2; //can be exchanged for different Convertible RIs of equal or greater value.
+   }
+
+   // Represents the payment options.
+   required OfferingType offeringType = 8;
+   enum OfferingType {
+      ALL_UPFRONT = 1;
+      PARTIAL_UPFRONT = 2;
+      NO_UPFRONT = 3;
+   }
+
+   // By selecting an Availability Zone, the RI you purchase will provide a capacity reservation 
+   // and a discount for the use of instances in the selected Availability Zone.
+   // When an Availability Zone isn’t specified, the RI is regional.
+   optional string availabilityZone = 9;
+
+   // The operating system for this RI; e.g. Linux.
+   required Platform platform = 10;
+   enum Platform {
+      UNKNOWN = 1;
+      LINUX = 2;
+      RHEL = 3;
+      SUSE = 4;
+      WINDOWS = 5;
+      WINDOWS_SQL_STANDARD = 6;
+      WINDOWS_SQL_WEB = 7;
+      WINDOWS_SQL_SERVER_ENTERPRISE = 8;
+   }
+
+   // A quantitative way to compare different instance types in a family.
+   required int32 numberOfCoupons = 11;
+
+   // The up front cost paid for this RI.
+   required double fixedCost = 12;
+
+   // Hourly cost for usage.
+   required double usageCost = 13;
+
+   // Amount you are billed every hour, regardless of usage.
+   required double recurringCost = 14;
+
+   // The region in which this RI is applicable. A Regional RI can be applied to a VM running 
+   // in any availability zone in this region.
+   required string region = 15;
+
+   // The number of instances covered in this reservation.
+   required int32 instanceCount = 16;
+
+   // list of <string, string> key, value pairs
+   repeated EntityProperty entityProperties = 17;
+   message EntityProperty {
+      required string key = 1;
+      required string value = 2;
+    }
+
+    // id of VirtualMachineProfile related with this Reserved Instance. e.g. aws::VMPROFILE::c1.medium
+    required string relatedProfileId = 18;
 }
