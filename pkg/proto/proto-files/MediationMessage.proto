@@ -1,0 +1,190 @@
+package common_dto;
+
+option java_package = "com.vmturbo.platform.sdk.common";
+option java_outer_classname = "MediationMessage";
+
+import "ActionExecution.proto";
+import "Discovery.proto";
+import "SupplyChain.proto";
+import "IdentityMetadata.proto";
+
+// Messages, sent from client to server
+message MediationClientMessage {
+    oneof mediation_client_message {
+        ValidationResponse validationResponse = 2;
+        DiscoveryResponse discoveryResponse = 3;
+        KeepAlive keepAlive = 4;
+        ActionProgress actionProgress = 5;
+        ActionResult actionResponse = 6;
+    }
+
+    // this is always required in reality. it's optional here because
+    // we don't know if in the future, with embedded targets, we will
+    // still use it or not
+    optional int32 messageID = 15;
+}
+
+// Messages, sent from server to client
+message MediationServerMessage {
+    oneof mediation_server_message {
+        ValidationRequest validationRequest = 2;
+        DiscoveryRequest discoveryRequest = 3;
+        ActionRequest actionRequest = 4;
+        // Interrupt the specified operation, running on the client side
+        // The valuse is a message id of the server request, that triggered
+        // the operation (discovery Request, validationRequest and so on)
+        int32 interruptOperation = 5;
+    }
+
+    // this is always required in reality. it's optional here because
+    // we don't know if in the future, with embedded targets, we will
+    // still use it or not
+    optional int32 messageID = 15;
+}
+
+// Request for action to be performed in probe
+message ActionRequest {
+    required string probeType = 1;
+    // Account values provide data to allow the probe to allow it to connect
+    // to the probe
+    repeated AccountValue accountValue = 2;
+    // An action execution DTO contains one or more action items
+    required ActionExecutionDTO actionExecutionDTO = 3;
+    // For Cross Destination actions (from one target to another) 2 sets of account
+    // values are needed
+    repeated AccountValue secondaryAccountValue = 4;
+}
+
+// Result of the action execution. It is translated only once
+// after action execution is either completed or failed
+message ActionResult {
+    required ActionResponse response = 1;
+}
+
+// Progress of the currently executed action. Can be send multiple times
+// for each action
+message ActionProgress {
+    required ActionResponse response = 1;
+}
+
+// This class holds response information about executing action. It contains: response: the
+// ActionResponseState code representing the state of executing action responseDescription: the
+// description message notifying detailed information about current status of executing action
+message ActionResponse {
+    // current action state
+    required ActionResponseState actionResponseState = 1;
+
+    // current action progress (0..100)
+    required int32 progress = 2;
+
+    // action state description, for example ("Moving VM...")
+    required string responseDescription = 3;
+}
+
+// ContainerInfo message to the Operations Manager server.
+// This message passes probe descriptions to the server.
+message ContainerInfo {
+    // Set of ProbeInfo objects, each one will carry information about one of the probe
+    // that the container has loaded internally.
+    repeated ProbeInfo probes = 1;
+}
+
+
+message KeepAlive {
+}
+
+message Ack {
+}
+
+message ValidationRequest {
+    required string probeType = 1;
+    repeated AccountValue accountValue = 2;
+}
+
+message DiscoveryRequest {
+    required string probeType = 1;
+    repeated AccountValue accountValue = 2;
+}
+
+// The ProbeInfo class provides a description of the probe that enables users to
+// attach Operations Manager to a target, and enables the probe to add entities to the
+// Operations Manager market as valid members of the supply chain.
+//
+// To enable users to use this probe, the ProbeInfo includes a probe type and
+// the set of fields a user must give to provide credentials and other data necessary to
+// attach to a target. The probe type is an arbitrary string, but REST API calls that
+// invoke this probe must refer to it by the same type.
+//
+// To enable adding entities to the Operations Manager market, the ProbeInfo includes a
+// set of {@link TemplateDTO} objects called the supplyChainDefinitionSet.
+// Each template object describes an entity type that
+// the probe can discover and add to the market. This description includes an EntityDTO object
+// and its corresponding lists of bought and sold {@code CommodityDTO} objects. As the probe
+// discovers entities, it must create instances that map to members of the supplyChainDefinitionSet.
+message ProbeInfo {
+    // probeType is a string identifier to define the type of the probe. You specify the value for this string in the
+    // {@code probe-conf.xml} file for your probe. Note that for a given instance of Operations Manager,
+    // every probe communicating with the server must have a unique type.
+    //
+    // The probe you create must include a type
+    // to display in the user interface. The string you provide for the probe type appears
+    // in the Target Configuration form as one of the choices for the category that you set for the probe.
+    //
+    // For example, in the standard targets, Hypervisor is a category. If your probe
+    // category is also {@code Hypervisor} and you specify a type of 'MyProbe', then MyProbe
+    // will appear in the user interface as an additional Hypervisor choice.
+    // On the other hand, if the category you provide does not match one of the standard categories,
+    // MyProbe will appear as a choice in the CUSTOM category.
+    required string probeType = 1;
+
+    // String identifier to define the category of the probe. You specify the value for this string in the
+    // 'probe-conf.xml' file for your probe.
+    //
+    // The probe you create must include a category.
+    // If the category you provide matches one of the standard categories, then your probe will appear
+    // as a choice in the Target Configuration form alongside the other members of that category.
+    // For example, in the standard targets, 'Hypervisor' is a category. If your probe
+    // category is also 'Hypervisor' and you specify a type of 'MyProbe', then MyProbe
+    // will appear in the user interface as an additional 'Hypervisor' choice.
+    // On the other hand, if the category you provide does not match one of the standard categories,
+    // MyProbe will appear as a choice in the 'CUSTOM' category.
+    //
+    // The set of standard categories is defined in the 'ProbeCategory' enumeration.
+    required string probeCategory = 2;
+
+    // Set of TemplateDTO objects that defines the types of entities the probe discovers, and
+    // what their bought and sold commodities are. Any entity instances the probe creates must match
+    // members of this set.
+    repeated TemplateDTO supplyChainDefinitionSet = 3;
+
+    // List of AccountDefEntry objects that describe the fields users provide as
+    // input (i.e. ip, user, pass, ...). These fields appear in the Operations Manager user interface
+    // when users add targets of this probe's type. REST API calls to add targets also provide data
+    // for these fields (i.e. ip, user, password, ...).
+    //
+    // Order of elements in the list specifyes the order they appear in the UI.
+    // List must not contain entries with equal "name" field. This is up to client to ensure this.
+    repeated AccountDefEntry accountDefinition = 4;
+
+    // The field name, that should be treated as target identifier. There must be at least 1 value
+    repeated string targetIdentifierField = 5;
+
+    // Specifies the interval at which discoveries will be executed for this probe.
+    // The value is specified in seconds. If no value is provided for rediscoveryIntervalSeconds
+    // a default of 600 seconds (10 minutes) will be used. The minimum value allowed for this
+    // field is 60 seconds (1 minute).
+    optional int32 rediscoveryIntervalSeconds = 6;
+
+    // EntityIdentityMetadata supplies meta information describing the properties used to identify
+    // all of the entities that a probe may discover. There should be one EntityIdentityMetadata
+    // for each type of entity that a probe may discover.
+    repeated EntityIdentityMetadata entityMetadata = 7;
+
+    // Action policy provides data about entity types and actions that can be applied to them
+    repeated ActionPolicyDTO actionPolicy = 8;
+
+    // Indicates whether the probe discovers ServiceEntities and thus has a SupplyChain and
+    // identity meta data.
+    optional bool discoversSupplyChain = 9 [default = true];
+}
+
