@@ -11,19 +11,32 @@ import (
 // Turbo Probe Abstraction
 // Consists of clients that handle probe registration metadata, discovery and action execution for different probe targets
 type TurboProbe struct {
+	ProbeConfiguration ProbeConfig
 	ProbeType          string
 	ProbeCategory      string
-	RegistrationClient TurboRegistrationClient
+	RegistrationClient *ProbeRegistrator
 	DiscoveryClientMap map[string]TurboDiscoveryClient
 
 	ActionClient TurboActionExecutorClient
 }
 
+type ProbeRegistrator struct {
+	ISupplyChainProvider
+	IAccountDefinitionProvider
+	IActionPolicyProvider
+	IEntityMetadataProvider
+	discoveryMetadata *DiscoveryMetadata
+}
+
 type TurboRegistrationClient interface {
-	GetAccountDefinition() []*proto.AccountDefEntry
-	GetSupplyChainDefinition() []*proto.TemplateDTO
-	GetIdentifyingFields() string
-	// TODO: - add methods to get entity metadata, action policy data
+	ISupplyChainProvider
+	IAccountDefinitionProvider
+}
+
+func NewProbeRegistrator() *ProbeRegistrator {
+	registrator :=  &ProbeRegistrator {}
+	registrator.discoveryMetadata =  NewDiscoveryMetadata()
+	return registrator
 }
 
 type TurboDiscoveryClient interface {
@@ -35,6 +48,9 @@ type TurboDiscoveryClient interface {
 type ProbeConfig struct {
 	ProbeType     string
 	ProbeCategory string
+	FullDiscovery int32
+	IncrementalDiscovery int32
+	PerformanceDiscovery int32
 }
 
 type TurboTargetConf interface {
@@ -57,6 +73,14 @@ func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 		ProbeCategory:      probeConf.ProbeCategory,
 		DiscoveryClientMap: make(map[string]TurboDiscoveryClient),
 	}
+
+	// registration client defaults
+	registrationClient := NewProbeRegistrator()
+	registrationClient.discoveryMetadata.SetFullRediscoveryIntervalSeconds(probeConf.FullDiscovery)
+	registrationClient.discoveryMetadata.SetIncrementalRediscoveryIntervalSeconds(probeConf.IncrementalDiscovery)
+	registrationClient.discoveryMetadata.SetPerformanceRediscoveryIntervalSeconds(probeConf.PerformanceDiscovery)
+
+	myProbe.RegistrationClient = registrationClient
 
 	glog.V(2).Infof("[NewTurboProbe] Created TurboProbe: %s", myProbe)
 	return myProbe, nil
@@ -174,24 +198,42 @@ func (theProbe *TurboProbe) GetProbeTargets() []*TurboTargetInfo {
 
 // The ProbeInfo for the probe
 func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
-	// 1. Get the account definition for probe
-	var acctDefProps []*proto.AccountDefEntry
-	var templateDtos []*proto.TemplateDTO
-
-	acctDefProps = theProbe.RegistrationClient.GetAccountDefinition()
-
-	// 2. Get the supply chain.
-	templateDtos = theProbe.RegistrationClient.GetSupplyChainDefinition()
-
-	// 3. construct the example probe info.
+	// 1. construct the basic probe info.
 	probeCat := theProbe.ProbeCategory
 	probeType := theProbe.ProbeType
-	probeInfo := builder.NewProbeInfoBuilder(probeType, probeCat, templateDtos, acctDefProps).Create()
+	probeInfoBuilder := builder.NewBasicProbeInfoBuilder(probeType, probeCat)
 
-	// Fields that serve to uniquely identify a target
-	id := theProbe.RegistrationClient.GetIdentifyingFields()
+	registrationClient := theProbe.RegistrationClient
+	// 2. Get the supply chain.
+	if registrationClient.ISupplyChainProvider != nil {
+		probeInfoBuilder.WithSupplyChain(registrationClient.GetSupplyChainDefinition())
+	}
 
-	probeInfo.TargetIdentifierField = append(probeInfo.TargetIdentifierField , id)
+	// 3. Get the account definition
+	if registrationClient.IAccountDefinitionProvider != nil {
+		probeInfoBuilder.WithAccountDefinition(registrationClient.GetAccountDefinition())
+	}
+
+	// 4. Fields that serve to uniquely identify a target
+	probeInfoBuilder = probeInfoBuilder.WithIdentifyingField(registrationClient.GetIdentifyingFields())
+
+	// 5. discovery intervals metadata
+	probeInfoBuilder.WithFullDiscoveryInterval(registrationClient.discoveryMetadata.GetFullRediscoveryIntervalSeconds())
+	probeInfoBuilder.WithIncrementalDiscoveryInterval(registrationClient.discoveryMetadata.GetIncrementalRediscoveryIntervalSeconds())
+	probeInfoBuilder.WithPerformanceDiscoveryInterval(registrationClient.discoveryMetadata.GetPerformanceRediscoveryIntervalSeconds())
+
+	// 6. action policy metadata
+	if registrationClient.IActionPolicyProvider != nil {
+		probeInfoBuilder.WithActionPolicySet(registrationClient.GetActionPolicy())
+	}
+
+	// 7. entity metadata
+	if registrationClient.IEntityMetadataProvider != nil {
+		probeInfoBuilder.WithEntityMetadata(registrationClient.GetEntityMetadata())
+	}
+
+	probeInfo := probeInfoBuilder.Create()
+	glog.V(2).Infof("ProbeInfo %++v\n", probeInfo)
 
 	return probeInfo, nil
 }
