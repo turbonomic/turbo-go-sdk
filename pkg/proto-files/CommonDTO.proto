@@ -1,0 +1,1072 @@
+package common_dto;
+
+option java_package = "com.vmturbo.platform.common.dto";
+option java_outer_classname = "CommonDTO";
+
+// These messages are used by all the mediation and core modules across the VMTurbo appliance.
+// Used to transfer descriptions of entities.
+
+//
+// The EntityDTO message represents an Entity discovered in the target that your probe is
+// monitoring
+//
+// Each entity must have a unique ID to identify it in the Operations Manager market.
+// Many targets provide unique IDs for their entities, or you can generate your own.
+// To guarantee that it's unique, you can give the ID a prefix that identifies your
+// probe and the given target.
+//
+// Specify entity type by setting an 'EntityType' value to the 'entity' field.
+//
+// The 'displayName' value appears in the product GUI and in reports to identify the entity.
+//
+// An entity can maintain a list of commodities that it sells (see 'CommodityDTO').
+//
+// An entity can maintain a map of commodities bought (see {@code CommodityDTO}). Each map key is the unique ID of the
+// provider entity. For each provider, the map entry is a list of the commodities bought from that provider.
+//
+// The entity's list of properties stores metadata about the entity - for example, you would store
+// the entity's IP address as a property. To stitch this entity into the Operations Manager topology,
+// you will create an ExternalEntityLink. That link includes the properties
+// that Operations Manager can use to match the discovered entity and stitch it in.
+//
+message EntityDTO {
+    required EntityType entityType = 1;
+    required string id = 2;
+    optional string displayName = 3;
+
+    // The {@link CommodityDTO} items this entity sells to its consumers.
+    // This is a map of sold commodities where
+    repeated CommodityDTO commoditiesSold = 4;
+
+    // The {@link CommodityDTO} items this entity buys from the different providers.
+    // This is a map of bought commodities where:<ul>
+    repeated CommodityBought commoditiesBought = 5;
+
+    // List of the IDs of the entities that this entity is underlying. For example, an IO Module can underly
+    // physical machines, or a physical machine can underly datastores.
+    repeated string underlying = 6 [deprecated=true];
+
+    // list of <string, string, string> namespace, key, value triplets
+    repeated EntityProperty entityProperties = 7;
+
+    // Specifies the source of the entity (ie DISCOVERED or PROXY).
+    // For further details see the comments for EntityOrigin.
+    optional EntityOrigin origin = 8 [default = DISCOVERED];
+
+    // Proxy entities may be replaced by entities discovered by another probe.
+    // Some proxy entities are aware of the entity replacing them based on a set of property values.
+    // Before replacing they may also transfer the commodity data to the server entity
+    optional ReplacementEntityMetaData replacementEntityData = 9;
+
+    // Specifies if the entity is monitored or not.
+    // If this field is false, state of the entity will be set to NOT_MONITORED in server.
+    // NOT_MONITORED state will imply that the entity is not participating in the Market Analysis.
+    optional bool monitored = 10 [default = true];
+
+    // Specifies the power state of the entity.
+    optional PowerState powerState = 11 [default = POWERED_ON];
+
+    // Specified properties required for the behavior of the entity as a consumer.
+    optional ConsumerPolicy consumerPolicy = 12;
+
+     // Specified properties required for the behavior of the entity as a provider.
+    optional ProviderPolicy providerPolicy = 13;
+
+    // Specifies ID of the entity that this entity is owned by. For example, an Chassis is
+    // owned by Network.
+    optional string ownedBy = 14;
+
+    // Notifications associated with the entity
+    repeated NotificationDTO notification = 15;
+
+    // This flag indicates if proxy entity should be kept in repository if it cannot be merged
+    // with any real entity. The flag has effect on proxy entities only.
+    optional bool keepStandalone = 16 [default = true];
+
+    // If there is a related profile, the id can be specified here
+    optional string profileId = 17;
+
+    // Specifies entity DTO type (can be a new/existing entity or deleted entity).
+    optional UpdateType updateType = 18 [default = UPDATED];
+
+    // List of the IDs of the entities that this entity is layeredOver. For example, a datastore
+    // can be layeredOver physical machines; a physical machine can be layeredOver IO Module.
+    repeated string layeredOver = 19;
+
+    // An entity may replace one or more other entities in the topology
+    // This attribute allows specification of specific entity or entities to replace based on
+    // their id. For example - a VDC may replace a set of resource pools
+    repeated string replacesEntityId = 20;
+
+    // Notifies if the entity is in maintenance.
+    optional bool maintenance = 21 [default = false];
+
+    // Collection of entity type's specific data
+    oneof entity_data {
+        StorageData storage_data = 500;
+        DiskArrayData disk_array_data = 501;
+        ApplicationData application_data = 502;
+        VirtualMachineData virtual_machine_data = 503;
+        PhysicalMachineData physical_machine_data = 504;
+        VirtualDatacenterData virtual_datacenter_data = 505;
+        StorageControllerData storage_controller_data = 506;
+        LogicalPoolData logical_pool_data = 507;
+        VirtualApplicationData virtual_application_data = 508;
+        ProcessorPoolData processor_pool_data = 509;
+    }
+
+    // Data for entities related to the given entity but not specifically part of the
+    // the market. For example, PhysicalMachines are related to
+    // Memory, Processor, and IO entities through a composedOf relationship.
+    oneof related_entity_data {
+        VirtualMachineRelatedData virtual_machine_related_data = 1000;
+        PhysicalMachineRelatedData physical_machine_related_data = 1001;
+        StorageControllerRelatedData storage_controller_related_data = 1002;
+    }
+
+    enum EntityType {
+        SWITCH = 0;
+        VIRTUAL_DATACENTER = 1;
+        STORAGE = 2;
+        SERVICE = 3;
+        DATABASE_SERVER = 4;
+        SAVINGS = 5;
+        OPERATOR = 6;
+        WEB_SERVER = 7;
+        RIGHT_SIZER = 8;
+        THREE_TIER_APPLICATION = 9;
+        VIRTUAL_MACHINE = 10;
+        DISK_ARRAY = 11;
+        DATACENTER = 12;
+        INFRASTRUCTURE = 13;
+        PHYSICAL_MACHINE = 14;
+        CHASSIS = 15;
+        LICENSING_SERVICE = 16;
+        BUSINESS_USER = 17;
+        STORAGE_CONTROLLER = 18;
+        HYPERVISOR = 19;
+        BUSINESS_ENTITY = 20;
+        IO_MODULE = 21;
+        ACTION_MANAGER = 22;
+        VLAN = 23;
+        APPLICATION_SERVER = 24;
+        BUSINESS = 25;
+        VIRTUAL_APPLICATION = 26;
+        NETWORKING_ENDPOINT = 27;
+        BUSINESS_ACCOUNT = 28;
+        IP = 29;
+        SERVICE_ENTITY_TEMPLATE = 30;
+        PORT = 31;
+        NETWORK = 32;
+        APPLICATION = 33;
+        THIS_ENTITY = 34;
+        COMPUTE_RESOURCE = 35;
+        MAC = 36;
+        INTERNET = 37;
+        MOVER = 38;
+        DISTRIBUTED_VIRTUAL_PORTGROUP = 39;
+        CONTAINER = 40;
+        CONTAINER_POD = 41;
+        LOGICAL_POOL = 42;
+        CLOUD_SERVICE = 43;
+        DPOD = 44;
+        VPOD = 45;
+        DATABASE = 46;
+        LOAD_BALANCER = 47;
+        BUSINESS_APPLICATION = 48;
+        PROCESSOR_POOL = 49;
+        STORAGE_VOLUME = 50;
+
+        // 2047 is the largest tag value encoded in 2 bytes
+        UNKNOWN = 2047;
+    }
+
+    // Enum for power state.
+    enum PowerState {
+        POWERED_ON = 1;
+        POWERED_OFF = 2;
+        SUSPENDED = 3;
+        POWERSTATE_UNKNOWN = 4;
+    }
+
+    message CommodityBought {
+        // ID of the provider entity
+        required string providerId = 1;
+
+        // list of CommodityDTO items bought from the provider entity
+        repeated CommodityDTO bought = 2;
+
+        // The provider type should be specified along with the provider id
+        optional EntityType providerType = 3;
+
+        // Define a related sub division of the commodities bought - for example vDisk
+        optional SubDivisionData subDivision = 4;
+    }
+
+    message SubDivisionData {
+        // id of the SubDivision
+        required string subDivisionId = 1;
+        // String identifying the replication type needed for cost calculations
+        optional string redundancyType = 2;
+        // float iops capacity of SubDivision needed for cost calculations
+        optional float storageAccessCapacity = 3;
+        // float storage capacity of SubDivision needed for cost calculations
+        optional float storageAmountCapacity = 4;
+        // display name for the SubDivision
+        optional string displayName = 5;
+    }
+
+    message StorageData {
+        optional StorageType storageType = 1;
+        optional string ipAddress = 2;
+        optional string exportPath = 3;
+        optional string storageId = 4;
+        optional string lunUuid = 5;
+        optional int32 lunId = 6;
+        optional string wwn = 7;
+        optional bool notClusterable = 8 [default = false];
+        repeated string externalName = 9;
+
+        // Files residing on the storage, if available
+        repeated StorageFileDescriptor file = 10;
+
+        message StorageFileDescriptor {
+            // Full pathname with Unix-style separators
+            required string path = 1;
+
+            // File size
+            required int64 sizeKb = 2;
+
+            // Modification time in UTC milliseconds since epoch
+            required int64 modificationTimeMs = 3;
+
+            // Type of the file, if known
+            optional VirtualMachineFileType type = 4;
+
+            // IOPS provisioned needed for cost calculations
+            optional int32 iopsProvisioned = 5;
+
+            // String identifying the replication type needed for cost calculations
+            optional string redundancyType = 6;
+
+        }
+    }
+
+    // Enum for storage type.
+    enum StorageType {
+        GENERIC_BLOCK = 1;
+        ISCSI = 2;
+        FIBER_CHANNEL = 3;
+        FCOE = 4;
+        OBJECT = 5;
+        GENERIC_FILE_SYSTEM = 6;
+        NFS = 7;
+        CIFS_SMB = 8;
+        LOCAL = 9;
+        OTHER = 10;
+        VMFS = 11;
+    }
+
+    // Type of a file in use by the virtual machine
+    enum VirtualMachineFileType {
+        CONFIGURATION = 1;
+        DISK = 2;
+        SNAPSHOT = 3;
+        MEMORY = 4;
+        SWAP = 5;
+        LOG = 6;
+        ISO = 7;
+        ESXCONSOLE = 8;
+    }
+
+    message DiskArrayData {
+        repeated string storageId = 1;
+
+        // Optionally provide information about the IOPS the disk array is capable of.
+        // Either provide the exact IOPS capacity directly, or supply
+        // the counts for various types of disks so that it can be computed.
+        oneof iops_data {
+            int64 iopsCapacity = 2;
+            DiskCountData diskCounts = 3;
+        }
+
+        optional bool supportsVolumeResize = 4 [default = false];
+    }
+
+    message LogicalPoolData {
+        repeated string storageId = 1;
+        optional string serviceLevelObjective = 2;
+        // Optionally provide information about the IOPS the logical pool is capable of.
+        // Either provide the exact IOPS capacity directly, or supply
+        // the counts for various types of disks so that it can be computed.
+        oneof iops_data {
+            int64 iopsCapacity = 3;
+            DiskCountData diskCounts = 4;
+        }
+    }
+
+    message ApplicationData {
+        optional string type = 1;
+        optional string ipAddress = 2;
+        optional string port = 3;
+        // IP address of related application/VM. E.g. it can be database IP for application server.
+        optional string relatedIpAddress = 4;
+    }
+
+    message VirtualApplicationData {
+        optional string type = 1;
+        optional string ipAddress = 2;
+        optional int32 port = 3;
+        optional string serviceType = 4;
+    }
+
+    message VirtualMachineData {
+        repeated string ipAddress = 1;
+
+        // Carries specific properties for setting Entity State of this VM.
+        optional VMState vmState = 2;
+
+        optional string guestName = 3;
+
+        // Annotation notes
+        repeated AnnotationNote annotationNote = 4;
+
+        // Annotation note (currently used in VC only)
+        message AnnotationNote {
+            // Annotation key
+            required string key = 1;
+
+            // Annotation value
+            required string value = 2;
+        }
+
+        // Files in use by vm
+        repeated VirtualMachineFileDescriptor file = 5;
+
+        message VirtualMachineFileDescriptor {
+            // Id of the storage on which the file resides
+            required string storageId = 1;
+
+            // Full pathname with Unix-style separators
+            required string path = 2;
+
+            // Size of the file
+            optional int64 sizeKb = 3;
+
+            // Type of the file, if available
+            optional VirtualMachineFileType type = 4;
+        }
+
+        // Total number of CPUs for the VM
+        optional int32 numCpus = 6;
+
+        // Billing type of a cloud VM -
+        // on-demand vs bidding vs dedicated vs reserved
+        // Please see {@link VMBillingType}
+        //
+        optional VMBillingType billingType = 7;
+
+        enum VMBillingType {
+
+            // Regular on-demand VMs - this is the default type.
+            //
+            ONDEMAND = 0;
+
+            // VM bids for compute resources but could be interrupted - lower pricing.
+            // In AWS, it is called fleet Spot Instances.
+            // In Azure, it is called low priority VMs.
+            // In GCE, it is called preemptible VMs.
+            //
+            BIDDING = 1;
+
+            // VM runs on a dedicated host - higher pricing.
+            //
+            DEDICATED = 2;
+
+            // Reserved in advance - great pricing.
+            //
+            RESERVED = 3;
+        }
+
+        // Cloud bidding VM product description -
+        // which is one of the factors contributing to cloud VM cost
+        //
+        optional string biddingProductDescription = 8;
+
+        // Number of Elastic Ips
+        //
+        optional int32 numElasticIps = 9;
+    }
+
+    message StorageControllerData {
+        // Optionally provide information about the IOPS the storage controller is capable of.
+        // Either provide the exact IOPS capacity directly, or supply
+        // the counts for various types of disks so that it can be computed.
+        oneof iops_data {
+            int64 iopsCapacity = 1;
+            DiskCountData diskCounts = 2;
+        }
+    }
+
+    message VMState {
+        // Notifies if the VirtualMachine is connected.
+        optional bool connected = 1 [default = true];
+    }
+
+    message PhysicalMachineData {
+        // Carries specific properties for setting Entity State of this PM.
+        optional PMState pmState = 1;
+
+        // Total number of CPU sockets on the PM.
+        optional int32 numCpuSockets = 2;
+
+        // Total number of CPU cores on the PM.
+        optional int32 numCpuCores = 3;
+
+        // Total number of physical CPU threads on the PM.
+        optional int32 numCpuThreads = 4;
+
+        // CPU frequency for one CPU core for the PM.
+        optional int32 cpuCoreMhz = 5;
+    }
+
+    message PMState {
+        // Notifies if the PhysicalMachine is in maintenance.
+        // The is only used by PM, for any other entity please use the 'maintenance'
+        // field in EntityDTO.
+        optional bool maintenance = 1 [default = false, deprecated = true];
+
+        // Notifies if the PhysicalMachine is for failover.
+        optional bool failover = 2 [default = false];
+    }
+
+    // A virtual datacenter may be either a consumer or producer
+    enum VirtualDatacenterRole {
+        CONSUMER = 1;
+        PRODUCER = 2;
+    }
+
+    // Properties specific for a particular type of virtual datacenter
+    message VirtualDatacenterTypeProps {
+        optional VirtualDatacenterRole role = 1 [default = CONSUMER];
+        optional bool supportsNesting = 2 [default = false];
+        optional bool nestedConsumer = 3 [default = false];
+    }
+
+    // A virtual datacenter allocation model may be either allocationpool, payasyougo, or
+    // reservationpool
+    enum VirtualDatacenterAllocationModel {
+        ALLOCATION_POOL = 1;
+        PAY_AS_YOU_GO = 2;
+        RESERVATION_POOL = 3;
+    }
+
+    message VirtualDatacenterData {
+        repeated string pmUuid = 1;
+        repeated string vmUuid = 2;
+        optional bool supportsStorage = 3 [default = true];
+        optional VirtualDatacenterTypeProps vdc_type_props = 4;
+        optional VirtualDatacenterAllocationModel vdc_allocation_model = 5;
+    }
+
+    message EntityProperty {
+        required string namespace = 1;
+        required string name = 2;
+        required string value = 3;
+    }
+
+    message VirtualMachineRelatedData {
+        optional MemoryData memory = 1;
+        repeated ProcessorData processor = 2;
+        repeated IoData io = 3;
+    }
+
+    message PhysicalMachineRelatedData {
+        optional MemoryData memory = 1;
+        repeated ProcessorData processor = 2;
+        repeated IoData io = 3;
+    }
+
+    message StorageControllerRelatedData {
+        optional MemoryData memory = 1;
+        repeated ProcessorData processor = 2;
+    }
+
+    message MemoryData {
+        required string id = 1;
+        optional string displayName = 2;
+        optional double capacity = 3;
+    }
+
+    message ProcessorData {
+        required string id = 1;
+        optional string displayName = 2;
+        optional double capacity = 3;
+    }
+
+    message IoData {
+        required string id = 1;
+        optional string displayName = 2;
+        optional double speed = 3;
+        optional string macAddress = 4;
+    }
+
+    // Represents the counts of various types of disk drives in a disk array.
+    // Each count represents the number of discovered disks of that speed.
+    message DiskCountData {
+        // If the hybrid flag is present, it modifies how the included disk counts are
+        // used to compute IOPS capacity.
+        optional bool hybrid = 1 [default = false];
+        // If the flashAvailable flag is present, it modifies how the included disk counts are
+        // used to compute IOPS capacity.
+        optional bool flashAvailable = 2  [default = false];
+        repeated DiskCount disks = 3;
+        // The calculateFromHostedEntities flag defines whether IOPS capacity must be calculated as
+        // sum of capacities of underlying entities (Storages or Disk Arrays)
+        optional bool calculateFromHostedEntities = 4 [default = false];
+    }
+
+    // Names for communicating the number of various types of disks.
+    enum NumDiskNames {
+        // Number of discovered solid state drives.
+        NUM_SSD = 1;
+        // Number of discovered 7200 RPM disks.
+        NUM_7200_DISKS = 2;
+        // Number of discovered 10000 RPM disks.
+        NUM_10K_DISKS = 3;
+        // Number of discovered 15000 RPM disks.
+        NUM_15K_DISKS = 4;
+        // Number of discovered VSeries disks.
+        NUM_VSERIES_DISKS = 5;
+    }
+
+    message DiskCount {
+        // Usually derived from the NumDiskNames enum
+        required string numDiskName = 1;
+        // The number of discovered disks of this type.
+        required int64 numDisks = 2;
+    }
+
+    // Specifies the origin of an entity, either DISCOVERED or PROXY
+    // DISCOVERED: An entity discovered by the probe that maps to a real resource found
+    // when probing the target.
+    // PROXY: An entity supplied by the probe to fill out a required part of the supply chain.
+    // For example, a probe discovering Virtual Machines may supply a Guestload Application proxy
+    // to complete its supply chain.
+    // Some proxy entities may be replaced by discovered entities found by another probe."
+    enum EntityOrigin {
+        DISCOVERED = 1;
+        PROXY = 2;
+        REPLACEABLE = 3;
+    }
+
+    // Meta data representing the entity that will replace this proxy entity
+    message ReplacementEntityMetaData {
+        // Replacement entity is found by matching the values of the specified properties.
+        // The value for the property must be set while building the entity. Specific properties
+        // are pre-defined for some entity types. Generic properties can be set using
+        // the EntityProperty.
+        repeated string identifyingProp = 1;
+
+        // Proxy entities may also transfer their commodity data to the replacement entity
+        repeated ReplacementCommodityPropertyData buyingCommTypes = 2;
+        repeated ReplacementCommodityPropertyData sellingCommTypes = 3;
+
+        // Metadata for matching external entity.
+        // Name of the external property whose values will be examined
+        // and matched to the values of the entity DTO properties listed above
+        repeated string extEntityProp = 4;
+    }
+
+    // Data to specify which commodity types and properties
+    // should be patched when updating data in an entity from
+    // a proxy entity
+    message ReplacementCommodityPropertyData {
+        required CommodityDTO.CommodityType commodityType = 1;
+        repeated string propertyName = 2;
+    }
+
+    message ConsumerPolicy {
+        // Boolean property to indicate if the entity will shop together with other associated
+        // entities in the Market for resources.
+        optional bool shopsTogether = 1 [default = false];
+        // Boolean property to indicate if the entity is controllable by Market.
+        // Set as false if the entity cannot be moved, righted size, etc...
+        optional bool controllable = 2 [default = true];
+    }
+
+    message ProviderPolicy {
+        // Provides availableForPlacement placement policy
+        optional bool availableForPlacement = 1 [default = true];
+        // Provides localSupported placement policy
+        optional bool localSupported = 2 [default = false];
+    }
+
+    message ProcessorPoolData {
+        // Upper boundary of the Processing Units that can be utilized by VMs on the Processor Pool
+        required float maximumProcessingUnits = 1;
+        // Available Processing Units for VM on the Processor Pool
+        required float availableProcessingUnits = 2;
+        // Used by Uncapped VMs during busy time
+        optional float reservedProcessingUnits = 3;
+    }
+}
+
+message CommodityDTO {
+    // Represents the type of commodity. Check {@link Commodity} enumeration for the available
+    // types.
+    required CommodityType commodityType = 1;
+
+    // Represents the key of this commodity.<br>
+    // It is a String that represents a specific constraint for this commodity. A commodity bought
+    // with a specific key can only buy from a commodity sold that has the same specific key (i.e.
+    // those strings should match).
+    optional string key = 2;
+
+    // Represents how much of this resource is used.
+    // Used is meaningful on both the buying and selling side.
+    optional double used = 3;
+
+    // Represents the reservation for this resource.
+    // Reservation is only meaningful on the buying side and reserves resources for the buying
+    // entity. For example, a VirtualMachine may only be using 1GB of RAM, but but if the VM
+    // specifies a reservation of 2GB, it ensures the resources are available if its usage spikes.
+    optional double reservation = 4;
+
+    // Represents the maximum capacity of this resource.
+    // Capacity should only be given on the selling side and is used to specify the quantity of a commodity
+    // being provided by a given entity.
+    optional double capacity = 5;
+
+    // Represents the limit on this resource.
+    // Limit is only meaningful on the selling side and is used to limit the amount of a commodity available
+    // for sale on the market to below the value specified in the capacity. For example, a VM may have
+    // a VMem capacity of 4GB, but 1GB of that is needed by its operating system. In this example, specify
+    // a capacity of 4GB and a limit of 3GB to limit VMem available for sale to applications on the VM.
+    optional double limit = 6;
+    optional double peak = 7;
+
+    // Has meaning on both the buying and selling side.
+    // Represents whether the commodity is active and currently participating in the market.
+    // Commodities that are inactive will not factor into market recommendations but will still be visible
+    // in the Operations Manager UI.
+    // Commodities are active by default.
+    optional bool active = 8 [default = true];
+
+    // Has meaning on both the buying and selling side.
+    // Represents whether the commodity can be resized. This flag is used to signal to the market
+    // whether a commodity is eligible to receive resize up and resize down recommendations.
+    // Commodities are not resizable by default.
+    optional bool resizable = 9 [default = false];
+
+    // The 'displayName' value appears in the product GUI and in reports to identify the commodity.
+    optional string displayName = 10;
+
+    // Implies if the commodity is thin provisioned.
+    // If the commodity is thin provisioned it can be overprovisioned by resizing it.
+    // By setting to false. we say overprovision by resizing up is not allowed.
+    optional bool thin = 11 [default = true];
+
+     // Property to indicate if the 'used' value for the commodity will be computed by the server
+     // or if it is provided by Mediation.
+     // The default is 'false' since the Mediation will provide the used value and that will be
+     // returned by the server.
+     // In situations where Mediation is not able to obtain the used values, it should set
+     // this property to 'true'.
+    optional bool computedUsed = 12 [default = false];
+
+    // Property to indicate the amount by which the commodity will be resized.
+    optional double usedIncrement = 13;
+
+    // Commodity properties map
+    repeated PropertiesList propMap = 14;
+
+    // Specifies if 'used' value is reported as percentage
+    optional bool isUsedPct = 15 [default = false];
+
+    // Maximum acceptable level of resource utilization (as percentage).
+    // All the remainder of the resource above this value is considered as reserved.
+    // E.g. for VMware host with a utilizationThresholdPct of 70, 70% of the commodity would be
+    // permitted for use by consumers of the resource and 30% would be reserved as HA failover
+    // capacity.
+    optional double utilizationThresholdPct = 16;
+
+     // Metadata for the invoking a custom pricing function for the commodity.
+    optional PricingMetadata pricingMetadata = 17;
+
+    // Map property type to list of strings
+    message PropertiesList {
+        required string name = 1;
+        repeated string values = 2;
+    }
+
+    // Collection of commodity type's specific data
+    oneof commodity_data {
+        StorageLatencyData storage_latency_data = 500;
+        StorageAccessData storage_access_data = 501;
+        VStoragePartitionData vstorage_partition_data = 502;
+        StorageProvisionedData storage_provisioned_data = 503;
+    }
+
+    // for VMem and VCpu include info on hot add/hot remove
+    oneof hotresize_data {
+        VMemData vmem_data = 200;
+        VCpuData vcpu_data = 201;
+    }
+
+    enum CommodityType {
+        CLUSTER = 0;
+        THREADS = 1;
+        CPU_ALLOCATION = 2;
+        NUMBER_CONSUMERS = 3;
+        FLOW_ALLOCATION = 4;
+        Q1_VCPU = 5;
+        STORAGE_PROVISIONED = 6;
+        LICENSE_COMMODITY = 7;
+        STORAGE_AMOUNT = 8;
+        Q16_VCPU = 9;
+        Q32_VCPU = 10;
+        SAME_CLUSTER_MOVE_SVC = 11;
+        Q3_VCPU = 12;
+        SLA_COMMODITY = 13;
+        CROSS_CLUSTER_MOVE_SVC = 14;
+        NUMBER_CONSUMERS_PM = 15;
+        STORAGE_ALLOCATION = 16;
+        Q8_VCPU  = 17;
+        SPACE = 18;
+        Q6_VCPU = 19;
+        POWER = 20;
+        MEM = 21;
+        STORAGE_LATENCY = 22;
+        Q7_VCPU = 23;
+        COOLING = 24;
+        PORT_CHANEL = 25;
+        VCPU = 26;
+        QN_VCPU = 27;
+        CPU_PROVISIONED = 28;
+        RIGHT_SIZE_SVC = 29;
+        MOVE = 30;
+        Q2_VCPU = 31;
+        Q5_VCPU = 32;
+        SWAPPING = 33;
+        SEGMENTATION = 34;
+        FLOW  = 35;
+        DATASTORE = 36;
+        CROSS_CLOUD_MOVE_SVC = 37;
+        RIGHT_SIZE_DOWN = 38;
+        IO_THROUGHPUT = 39;
+        CPU = 40;
+        BALLOONING = 41;
+        VDC = 42;
+        Q64_VCPU = 43;
+        CONNECTION = 44;
+        MEM_PROVISIONED = 45;
+        STORAGE = 46;
+        NET_THROUGHPUT = 47;
+        NUMBER_CONSUMERS_STORAGE = 48;
+        TRANSACTION = 49;
+        MEM_ALLOCATION = 50;
+        DSPM_ACCESS = 51;
+        RESPONSE_TIME = 52;
+        VMEM = 53;
+        ACTION_PERMIT = 54;
+        DATACENTER = 55;
+        APPLICATION = 56;
+        NETWORK = 57;
+        Q4_VCPU = 58;
+        STORAGE_CLUSTER = 59;
+        EXTENT = 60;
+        ACCESS = 61;
+        RIGHT_SIZE_UP = 62;
+        VAPP_ACCESS = 63;
+        STORAGE_ACCESS = 64;
+        VSTORAGE = 65;
+        DRS_SEGMENTATION = 66;
+        DB_MEM = 67;
+        TRANSACTION_LOG = 68;
+        DB_CACHE_HIT_RATE = 69;
+        HOT_STORAGE = 70;
+        COLLECTION_TIME = 71;
+        BUFFER_COMMODITY = 72;
+        SOFTWARE_LICENSE_COMMODITY = 73;
+        VMPM_ACCESS = 74;
+        HA_COMMODITY = 75;
+        NETWORK_POLICY = 76;
+        HEAP = 77;
+        DISK_ARRAY_ACCESS = 78;
+        SERVICE_LEVEL_CLUSTER = 79;
+        PROCESSING_UNITS = 80;
+
+        // 2047 is the largest tag value encoded in 2 bytes
+        UNKNOWN = 2047;
+    }
+
+    message StorageLatencyData {
+        optional bool supportsDiskArrayLatency = 1;
+        optional bool supportsStorageLatency = 2;
+        optional bool supportsLogicalPoolLatency = 3;
+        optional bool supportsLogicalPoolLatencyCapacity = 4;
+    }
+
+    message StorageAccessData {
+        optional bool supportsDiskArrayIOPS = 1;
+        optional bool supportsStorageIOPS = 2;
+        optional bool supportsLogicalPoolIOPS = 3;
+    }
+
+    message StorageProvisionedData {
+        optional double usedAdjustment = 1;
+    }
+
+    message VMemData {
+        optional bool hotAddSupported = 1 [default = false];
+    }
+
+    message VCpuData {
+        optional bool hotAddSupported = 1 [default = false];
+        optional bool hotRemoveSupported = 2 [default = false];
+    }
+
+    // Metadata for invoking a custom pricing function for the commodity
+    message PricingMetadata {
+       // Namespace of the handler for the pricing function for this commodity
+       required CustomTypeDef.MetadataNamespace pricingHandlerNamespace = 1;
+    }
+}
+
+// The partition that the VStorage sits on.  Used for display in the UI.
+    message VStoragePartitionData {
+        optional string partition = 1;
+    }
+
+// GroupDTO message carries information to setup Group and Constraint in server.
+message GroupDTO {
+    // Type of entities included in this group
+    // Entity type is optional. If group already exists it can be retrieved from group entities.
+    // Entity type can be empty for incremental discovery.
+    optional EntityDTO.EntityType entity_type = 1;
+
+    // Display name for the group
+    optional string display_name = 2;
+
+    // Information about the group
+    // If the group is associated with any constraint, this is the place containing constraint information
+    // Otherwise, it will be group name
+    oneof info {
+        string group_name = 3;
+        ConstraintInfo constraint_info = 4;
+    }
+
+    // Members information for the group
+    // The group can be either dynamic or static
+    // For dynamic group, it will be SelectionSpec used to select group members
+    // For static group, it will be MembersList which contains a list of member uuids
+    // For merge policy, it will be cluster uuid
+    oneof members {
+        SelectionSpecList selection_spec_list = 5;
+        MembersList member_list = 6;
+        AddedAndRemovedMembersList added_and_removed_members = 7;
+        string source_group_id = 8;
+    }
+
+    // list of <string, string, string> namespace, key, value triplets
+    repeated EntityDTO.EntityProperty entityProperties = 9;
+
+    // Specifies group DTO type (can be a new/existing group or deleted group).
+    optional UpdateType updateType = 10 [default = UPDATED];
+
+    // ConstraintInfo contains all necessary information specific for Group associated with Constraint
+    message ConstraintInfo {
+        // Constraint type associated with this group.
+        // If it is just a group, then the constraint type should be Group
+        required ConstraintType constraint_type = 1;
+
+        // Constraint id to notify
+        required string constraint_id = 2;
+
+        // Notify if this group is for buyers
+        optional bool is_buyer = 3 [default = false];
+
+        // Notify the type of the seller if it is the buyer group.
+        optional BuyerMetaData buyer_meta_data = 4;
+
+        // Notify if this group is for creating complementary group
+        optional bool need_complementary = 5 [default = false];
+
+        // Name for the constraint
+        required string constraint_name = 6;
+
+        // Consumers that should not be included in the cluster.
+        optional bool forExcludedConsumers = 7 [default = false];
+    }
+
+    // List of SelectionSpec to select group members
+    message SelectionSpecList {
+        repeated SelectionSpec selection_spec = 1;
+    }
+
+    // List of member uuids
+    message MembersList {
+        repeated string member = 1;
+    }
+
+    // List of members added and removed from the group.
+    message AddedAndRemovedMembersList {
+        repeated string addedMembers = 1;
+        repeated string removedMembers = 2;
+    }
+
+    message BuyerMetaData {
+        optional EntityDTO.EntityType seller_type = 1;
+        optional sint32 at_most = 2 [default = -1];
+    }
+
+    // Enum type notifying constraint's type
+    enum ConstraintType {
+        BUYER_SELLER_AFFINITY = 0;
+        BUYER_SELLER_ANTI_AFFINITY = 1;
+        BUYER_BUYER_AFFINITY = 2;
+        BUYER_BUYER_ANTI_AFFINITY = 3;
+        CLUSTER = 4;
+        MERGE = 5;
+        SERVICE_LEVEL_CLUSTER = 6;
+    }
+
+    // SelectionSpec is used to select group members by checking their property values
+    message SelectionSpec {
+        required string property = 1;
+        required ExpressionType expression_type = 2;
+        oneof propertyValue {
+            double property_value_double = 3;
+            string property_value_string = 4;
+            PropertyStringList property_value_string_list = 5;
+            PropertyDoubleList property_value_double_list = 6;
+        }
+
+        // List of string type property value
+        message PropertyStringList {
+            repeated string property_value = 1;
+        }
+
+        // List of double type property value
+        message PropertyDoubleList {
+            repeated double property_value = 1;
+        }
+
+        // Enum notifying expression type used to match entities' property value
+        // with target value in SelectionSpec
+        enum ExpressionType {
+            EQUAL_TO = 0;
+            NOT_EQUAL_TO = 1;
+            LARGER_THAN = 2;
+            LARGER_THAN_OR_EQUAL_TO = 3;
+            SMALLER_THAN = 4;
+            SMALLER_THAN_OR_EQUAL_TO = 5;
+            CONTAINS = 6;
+            NOT_CONTAINS = 7;
+            CONTAINED_BY = 8;
+            NOT_CONTAINED_BY = 9;
+            REGEX = 10;
+            LIST_OVERLAP = 11;
+            LIST_NOT_OVERLAP = 12;
+            LIST_FULL_CONTAINS = 13;
+            LIST_FULL_CONTAINED_BY = 14;
+        }
+    }
+}
+
+// Context data.  This data may be related to action execution
+// or this data may be used more generally.
+message ContextData {
+   required string contextKey = 1;
+   required string contextValue = 2;
+}
+
+// Notification on some event or condition.
+message NotificationDTO {
+    // Event name.
+    required string event = 1;
+
+    // Notification category. For known notification categories use NotificationCategoryDTO enumeration.
+    required string category = 2;
+
+    // Optional notification sub-category.
+    optional string subCategory = 3;
+
+    // Optional notification description.
+    optional string description = 4;
+
+    // Notification severity.
+    optional Severity severity = 5 [default = UNKNOWN];
+
+    enum Severity {
+        UNKNOWN = 0;
+        NORMAL = 1;
+        MINOR = 2;
+        MAJOR = 3;
+        CRITICAL = 4;
+    }
+}
+
+// Metadata for creating custom data objects in the Operations Manager
+message CustomTypeDef {
+    // Unique namespace for the data
+    required MetadataNamespace namespace = 1 [default = UNKNOWN];
+
+    enum MetadataNamespace {
+        UNKNOWN = 0;
+        NETWORK_POLICY_EPG = 1;
+    }
+}
+
+// Enumerates supported DTO types
+enum UpdateType {
+    // The DTO represents complete state of a new or existing entity.
+    UPDATED = 0;
+
+    // Entity was deleted. DTO must contain only identifying property that are necessary
+    // to locate the entity on the server side.
+    DELETED = 1;
+}
+
+// This message is mainly used to identify an entity such as VM, via the fields ipAddress,
+// port (we can add more identifiers later).
+message EntityIdentityData {
+    // The target entity's IP address.
+    required string ipAddress = 1;
+    // The target entity's port number.
+    required int32 port = 2;
+}
+
+// The Flow DTO. This data is used for describing the communication between two entities
+// (VMs in NCM). It includes the source, destination entity identity data and flow data
+// (protocol, flow amount, latency).
+message FlowDTO {
+    // Source entity identity data
+    required EntityIdentityData sourceEntityIdentityData = 1;
+
+    // Destination entity identity data
+    required EntityIdentityData destEntityIdentityData = 2;
+
+    // The protocol.
+    required Protocol protocol = 3;
+
+    // Flow Amount
+    required int64 flowAmount = 4;
+
+    // Flow latency
+    required int64 latency = 5;
+
+    // Transmitted amount
+    required int64 transmittedAmount = 6;
+
+    // Received amount
+    required int64 receivedAmount = 7;
+
+    // Only TCP and UDP are supported.
+    enum Protocol {
+        TCP = 1;
+        UDP = 2;
+        UNKNOWN_PROTO = 1000;
+    }
+}

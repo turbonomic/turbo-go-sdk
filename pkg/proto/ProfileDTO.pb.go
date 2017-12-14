@@ -13,6 +13,174 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+type ReservedInstanceDTO_InstanceTenancy int32
+
+const (
+	ReservedInstanceDTO_DEFAULT   ReservedInstanceDTO_InstanceTenancy = 1
+	ReservedInstanceDTO_DEDICATED ReservedInstanceDTO_InstanceTenancy = 2
+	ReservedInstanceDTO_HOST      ReservedInstanceDTO_InstanceTenancy = 3
+)
+
+var ReservedInstanceDTO_InstanceTenancy_name = map[int32]string{
+	1: "DEFAULT",
+	2: "DEDICATED",
+	3: "HOST",
+}
+var ReservedInstanceDTO_InstanceTenancy_value = map[string]int32{
+	"DEFAULT":   1,
+	"DEDICATED": 2,
+	"HOST":      3,
+}
+
+func (x ReservedInstanceDTO_InstanceTenancy) Enum() *ReservedInstanceDTO_InstanceTenancy {
+	p := new(ReservedInstanceDTO_InstanceTenancy)
+	*p = x
+	return p
+}
+func (x ReservedInstanceDTO_InstanceTenancy) String() string {
+	return proto.EnumName(ReservedInstanceDTO_InstanceTenancy_name, int32(x))
+}
+func (x *ReservedInstanceDTO_InstanceTenancy) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(ReservedInstanceDTO_InstanceTenancy_value, data, "ReservedInstanceDTO_InstanceTenancy")
+	if err != nil {
+		return err
+	}
+	*x = ReservedInstanceDTO_InstanceTenancy(value)
+	return nil
+}
+func (ReservedInstanceDTO_InstanceTenancy) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{3, 0}
+}
+
+type ReservedInstanceDTO_OfferingClass int32
+
+const (
+	ReservedInstanceDTO_STANDARD    ReservedInstanceDTO_OfferingClass = 1
+	ReservedInstanceDTO_CONVERTIBLE ReservedInstanceDTO_OfferingClass = 2
+)
+
+var ReservedInstanceDTO_OfferingClass_name = map[int32]string{
+	1: "STANDARD",
+	2: "CONVERTIBLE",
+}
+var ReservedInstanceDTO_OfferingClass_value = map[string]int32{
+	"STANDARD":    1,
+	"CONVERTIBLE": 2,
+}
+
+func (x ReservedInstanceDTO_OfferingClass) Enum() *ReservedInstanceDTO_OfferingClass {
+	p := new(ReservedInstanceDTO_OfferingClass)
+	*p = x
+	return p
+}
+func (x ReservedInstanceDTO_OfferingClass) String() string {
+	return proto.EnumName(ReservedInstanceDTO_OfferingClass_name, int32(x))
+}
+func (x *ReservedInstanceDTO_OfferingClass) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(ReservedInstanceDTO_OfferingClass_value, data, "ReservedInstanceDTO_OfferingClass")
+	if err != nil {
+		return err
+	}
+	*x = ReservedInstanceDTO_OfferingClass(value)
+	return nil
+}
+func (ReservedInstanceDTO_OfferingClass) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{3, 1}
+}
+
+type ReservedInstanceDTO_OfferingType int32
+
+const (
+	ReservedInstanceDTO_ALL_UPFRONT     ReservedInstanceDTO_OfferingType = 1
+	ReservedInstanceDTO_PARTIAL_UPFRONT ReservedInstanceDTO_OfferingType = 2
+	ReservedInstanceDTO_NO_UPFRONT      ReservedInstanceDTO_OfferingType = 3
+)
+
+var ReservedInstanceDTO_OfferingType_name = map[int32]string{
+	1: "ALL_UPFRONT",
+	2: "PARTIAL_UPFRONT",
+	3: "NO_UPFRONT",
+}
+var ReservedInstanceDTO_OfferingType_value = map[string]int32{
+	"ALL_UPFRONT":     1,
+	"PARTIAL_UPFRONT": 2,
+	"NO_UPFRONT":      3,
+}
+
+func (x ReservedInstanceDTO_OfferingType) Enum() *ReservedInstanceDTO_OfferingType {
+	p := new(ReservedInstanceDTO_OfferingType)
+	*p = x
+	return p
+}
+func (x ReservedInstanceDTO_OfferingType) String() string {
+	return proto.EnumName(ReservedInstanceDTO_OfferingType_name, int32(x))
+}
+func (x *ReservedInstanceDTO_OfferingType) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(ReservedInstanceDTO_OfferingType_value, data, "ReservedInstanceDTO_OfferingType")
+	if err != nil {
+		return err
+	}
+	*x = ReservedInstanceDTO_OfferingType(value)
+	return nil
+}
+func (ReservedInstanceDTO_OfferingType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{3, 2}
+}
+
+type ReservedInstanceDTO_Platform int32
+
+const (
+	ReservedInstanceDTO_UNKNOWN                       ReservedInstanceDTO_Platform = 1
+	ReservedInstanceDTO_LINUX                         ReservedInstanceDTO_Platform = 2
+	ReservedInstanceDTO_RHEL                          ReservedInstanceDTO_Platform = 3
+	ReservedInstanceDTO_SUSE                          ReservedInstanceDTO_Platform = 4
+	ReservedInstanceDTO_WINDOWS                       ReservedInstanceDTO_Platform = 5
+	ReservedInstanceDTO_WINDOWS_SQL_STANDARD          ReservedInstanceDTO_Platform = 6
+	ReservedInstanceDTO_WINDOWS_SQL_WEB               ReservedInstanceDTO_Platform = 7
+	ReservedInstanceDTO_WINDOWS_SQL_SERVER_ENTERPRISE ReservedInstanceDTO_Platform = 8
+)
+
+var ReservedInstanceDTO_Platform_name = map[int32]string{
+	1: "UNKNOWN",
+	2: "LINUX",
+	3: "RHEL",
+	4: "SUSE",
+	5: "WINDOWS",
+	6: "WINDOWS_SQL_STANDARD",
+	7: "WINDOWS_SQL_WEB",
+	8: "WINDOWS_SQL_SERVER_ENTERPRISE",
+}
+var ReservedInstanceDTO_Platform_value = map[string]int32{
+	"UNKNOWN":                       1,
+	"LINUX":                         2,
+	"RHEL":                          3,
+	"SUSE":                          4,
+	"WINDOWS":                       5,
+	"WINDOWS_SQL_STANDARD":          6,
+	"WINDOWS_SQL_WEB":               7,
+	"WINDOWS_SQL_SERVER_ENTERPRISE": 8,
+}
+
+func (x ReservedInstanceDTO_Platform) Enum() *ReservedInstanceDTO_Platform {
+	p := new(ReservedInstanceDTO_Platform)
+	*p = x
+	return p
+}
+func (x ReservedInstanceDTO_Platform) String() string {
+	return proto.EnumName(ReservedInstanceDTO_Platform_name, int32(x))
+}
+func (x *ReservedInstanceDTO_Platform) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(ReservedInstanceDTO_Platform_value, data, "ReservedInstanceDTO_Platform")
+	if err != nil {
+		return err
+	}
+	*x = ReservedInstanceDTO_Platform(value)
+	return nil
+}
+func (ReservedInstanceDTO_Platform) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{3, 3}
+}
+
 // This file lists all the objects related to Service Entity profiles
 // created by user in environment or in VMTurbo
 type EntityProfileDTO struct {
@@ -34,11 +202,13 @@ type EntityProfileDTO struct {
 	Description *string `protobuf:"bytes,7,opt,name=description" json:"description,omitempty"`
 	// If this is a profile for VMs, vmProfileDTO must be specified
 	// If this is a profile for PMs, pmProfileDTO must be specified
+	// If this is a profile for DBs or DBInstances, dbProfileDTO must be specified
 	//
-	// Types that are valid to be assigned to VMOrPMProfileData:
+	// Types that are valid to be assigned to EntityTypeSpecificData:
 	//	*EntityProfileDTO_VmProfileDTO
 	//	*EntityProfileDTO_PmProfileDTO
-	VMOrPMProfileData isEntityProfileDTO_VMOrPMProfileData `protobuf_oneof:"VMOrPMProfileData"`
+	//	*EntityProfileDTO_DbProfileDTO
+	EntityTypeSpecificData isEntityProfileDTO_EntityTypeSpecificData `protobuf_oneof:"EntityTypeSpecificData"`
 	// This flag indicates where existing entities can be matched against this profile
 	EnableProvisionMatch *bool `protobuf:"varint,10,opt,name=enableProvisionMatch" json:"enableProvisionMatch,omitempty"`
 	// This flag indicates whether a resize action may use this profile to resize to
@@ -52,10 +222,10 @@ type EntityProfileDTO struct {
 func (m *EntityProfileDTO) Reset()                    { *m = EntityProfileDTO{} }
 func (m *EntityProfileDTO) String() string            { return proto.CompactTextString(m) }
 func (*EntityProfileDTO) ProtoMessage()               {}
-func (*EntityProfileDTO) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{0} }
+func (*EntityProfileDTO) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{0} }
 
-type isEntityProfileDTO_VMOrPMProfileData interface {
-	isEntityProfileDTO_VMOrPMProfileData()
+type isEntityProfileDTO_EntityTypeSpecificData interface {
+	isEntityProfileDTO_EntityTypeSpecificData()
 }
 
 type EntityProfileDTO_VmProfileDTO struct {
@@ -64,13 +234,17 @@ type EntityProfileDTO_VmProfileDTO struct {
 type EntityProfileDTO_PmProfileDTO struct {
 	PmProfileDTO *EntityProfileDTO_PMProfileDTO `protobuf:"bytes,9,opt,name=pmProfileDTO,oneof"`
 }
+type EntityProfileDTO_DbProfileDTO struct {
+	DbProfileDTO *EntityProfileDTO_DBProfileDTO `protobuf:"bytes,13,opt,name=dbProfileDTO,oneof"`
+}
 
-func (*EntityProfileDTO_VmProfileDTO) isEntityProfileDTO_VMOrPMProfileData() {}
-func (*EntityProfileDTO_PmProfileDTO) isEntityProfileDTO_VMOrPMProfileData() {}
+func (*EntityProfileDTO_VmProfileDTO) isEntityProfileDTO_EntityTypeSpecificData() {}
+func (*EntityProfileDTO_PmProfileDTO) isEntityProfileDTO_EntityTypeSpecificData() {}
+func (*EntityProfileDTO_DbProfileDTO) isEntityProfileDTO_EntityTypeSpecificData() {}
 
-func (m *EntityProfileDTO) GetVMOrPMProfileData() isEntityProfileDTO_VMOrPMProfileData {
+func (m *EntityProfileDTO) GetEntityTypeSpecificData() isEntityProfileDTO_EntityTypeSpecificData {
 	if m != nil {
-		return m.VMOrPMProfileData
+		return m.EntityTypeSpecificData
 	}
 	return nil
 }
@@ -125,15 +299,22 @@ func (m *EntityProfileDTO) GetDescription() string {
 }
 
 func (m *EntityProfileDTO) GetVmProfileDTO() *EntityProfileDTO_VMProfileDTO {
-	if x, ok := m.GetVMOrPMProfileData().(*EntityProfileDTO_VmProfileDTO); ok {
+	if x, ok := m.GetEntityTypeSpecificData().(*EntityProfileDTO_VmProfileDTO); ok {
 		return x.VmProfileDTO
 	}
 	return nil
 }
 
 func (m *EntityProfileDTO) GetPmProfileDTO() *EntityProfileDTO_PMProfileDTO {
-	if x, ok := m.GetVMOrPMProfileData().(*EntityProfileDTO_PmProfileDTO); ok {
+	if x, ok := m.GetEntityTypeSpecificData().(*EntityProfileDTO_PmProfileDTO); ok {
 		return x.PmProfileDTO
+	}
+	return nil
+}
+
+func (m *EntityProfileDTO) GetDbProfileDTO() *EntityProfileDTO_DBProfileDTO {
+	if x, ok := m.GetEntityTypeSpecificData().(*EntityProfileDTO_DbProfileDTO); ok {
+		return x.DbProfileDTO
 	}
 	return nil
 }
@@ -164,13 +345,14 @@ func (*EntityProfileDTO) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buff
 	return _EntityProfileDTO_OneofMarshaler, _EntityProfileDTO_OneofUnmarshaler, _EntityProfileDTO_OneofSizer, []interface{}{
 		(*EntityProfileDTO_VmProfileDTO)(nil),
 		(*EntityProfileDTO_PmProfileDTO)(nil),
+		(*EntityProfileDTO_DbProfileDTO)(nil),
 	}
 }
 
 func _EntityProfileDTO_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 	m := msg.(*EntityProfileDTO)
-	// VMOrPMProfileData
-	switch x := m.VMOrPMProfileData.(type) {
+	// EntityTypeSpecificData
+	switch x := m.EntityTypeSpecificData.(type) {
 	case *EntityProfileDTO_VmProfileDTO:
 		b.EncodeVarint(8<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.VmProfileDTO); err != nil {
@@ -181,9 +363,14 @@ func _EntityProfileDTO_OneofMarshaler(msg proto.Message, b *proto.Buffer) error 
 		if err := b.EncodeMessage(x.PmProfileDTO); err != nil {
 			return err
 		}
+	case *EntityProfileDTO_DbProfileDTO:
+		b.EncodeVarint(13<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.DbProfileDTO); err != nil {
+			return err
+		}
 	case nil:
 	default:
-		return fmt.Errorf("EntityProfileDTO.VMOrPMProfileData has unexpected type %T", x)
+		return fmt.Errorf("EntityProfileDTO.EntityTypeSpecificData has unexpected type %T", x)
 	}
 	return nil
 }
@@ -191,21 +378,29 @@ func _EntityProfileDTO_OneofMarshaler(msg proto.Message, b *proto.Buffer) error 
 func _EntityProfileDTO_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
 	m := msg.(*EntityProfileDTO)
 	switch tag {
-	case 8: // VMOrPMProfileData.vmProfileDTO
+	case 8: // EntityTypeSpecificData.vmProfileDTO
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
 		msg := new(EntityProfileDTO_VMProfileDTO)
 		err := b.DecodeMessage(msg)
-		m.VMOrPMProfileData = &EntityProfileDTO_VmProfileDTO{msg}
+		m.EntityTypeSpecificData = &EntityProfileDTO_VmProfileDTO{msg}
 		return true, err
-	case 9: // VMOrPMProfileData.pmProfileDTO
+	case 9: // EntityTypeSpecificData.pmProfileDTO
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
 		msg := new(EntityProfileDTO_PMProfileDTO)
 		err := b.DecodeMessage(msg)
-		m.VMOrPMProfileData = &EntityProfileDTO_PmProfileDTO{msg}
+		m.EntityTypeSpecificData = &EntityProfileDTO_PmProfileDTO{msg}
+		return true, err
+	case 13: // EntityTypeSpecificData.dbProfileDTO
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(EntityProfileDTO_DBProfileDTO)
+		err := b.DecodeMessage(msg)
+		m.EntityTypeSpecificData = &EntityProfileDTO_DbProfileDTO{msg}
 		return true, err
 	default:
 		return false, nil
@@ -214,8 +409,8 @@ func _EntityProfileDTO_OneofUnmarshaler(msg proto.Message, tag, wire int, b *pro
 
 func _EntityProfileDTO_OneofSizer(msg proto.Message) (n int) {
 	m := msg.(*EntityProfileDTO)
-	// VMOrPMProfileData
-	switch x := m.VMOrPMProfileData.(type) {
+	// EntityTypeSpecificData
+	switch x := m.EntityTypeSpecificData.(type) {
 	case *EntityProfileDTO_VmProfileDTO:
 		s := proto.Size(x.VmProfileDTO)
 		n += proto.SizeVarint(8<<3 | proto.WireBytes)
@@ -224,6 +419,11 @@ func _EntityProfileDTO_OneofSizer(msg proto.Message) (n int) {
 	case *EntityProfileDTO_PmProfileDTO:
 		s := proto.Size(x.PmProfileDTO)
 		n += proto.SizeVarint(9<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *EntityProfileDTO_DbProfileDTO:
+		s := proto.Size(x.DbProfileDTO)
+		n += proto.SizeVarint(13<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case nil:
@@ -245,15 +445,19 @@ type EntityProfileDTO_VMProfileDTO struct {
 	// Number of storage entities that this VM will use storage from
 	NumStorageConsumed *int32 `protobuf:"varint,3,opt,name=numStorageConsumed" json:"numStorageConsumed,omitempty"`
 	// Disk type related to the VM
-	DiskType         *string `protobuf:"bytes,4,opt,name=diskType" json:"diskType,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	DiskType *string `protobuf:"bytes,4,opt,name=diskType" json:"diskType,omitempty"`
+	// If this VM profile supports dedicated network for VM storage
+	DedicatedStorageNetworkSupported *bool `protobuf:"varint,5,opt,name=dedicatedStorageNetworkSupported" json:"dedicatedStorageNetworkSupported,omitempty"`
+	// If dedicated network storage is enabled by default in VMs created based on this profile
+	DedicatedStorageNetworkEnabledByDefault *bool  `protobuf:"varint,6,opt,name=dedicatedStorageNetworkEnabledByDefault" json:"dedicatedStorageNetworkEnabledByDefault,omitempty"`
+	XXX_unrecognized                        []byte `json:"-"`
 }
 
 func (m *EntityProfileDTO_VMProfileDTO) Reset()         { *m = EntityProfileDTO_VMProfileDTO{} }
 func (m *EntityProfileDTO_VMProfileDTO) String() string { return proto.CompactTextString(m) }
 func (*EntityProfileDTO_VMProfileDTO) ProtoMessage()    {}
 func (*EntityProfileDTO_VMProfileDTO) Descriptor() ([]byte, []int) {
-	return fileDescriptor5, []int{0, 0}
+	return fileDescriptor6, []int{0, 0}
 }
 
 func (m *EntityProfileDTO_VMProfileDTO) GetNumVCPUs() int32 {
@@ -284,6 +488,20 @@ func (m *EntityProfileDTO_VMProfileDTO) GetDiskType() string {
 	return ""
 }
 
+func (m *EntityProfileDTO_VMProfileDTO) GetDedicatedStorageNetworkSupported() bool {
+	if m != nil && m.DedicatedStorageNetworkSupported != nil {
+		return *m.DedicatedStorageNetworkSupported
+	}
+	return false
+}
+
+func (m *EntityProfileDTO_VMProfileDTO) GetDedicatedStorageNetworkEnabledByDefault() bool {
+	if m != nil && m.DedicatedStorageNetworkEnabledByDefault != nil {
+		return *m.DedicatedStorageNetworkEnabledByDefault
+	}
+	return false
+}
+
 // Specific data related to a pm profile
 type EntityProfileDTO_PMProfileDTO struct {
 	// At least one of numCores and cpuCoreSpeed should be specified
@@ -298,7 +516,7 @@ func (m *EntityProfileDTO_PMProfileDTO) Reset()         { *m = EntityProfileDTO_
 func (m *EntityProfileDTO_PMProfileDTO) String() string { return proto.CompactTextString(m) }
 func (*EntityProfileDTO_PMProfileDTO) ProtoMessage()    {}
 func (*EntityProfileDTO_PMProfileDTO) Descriptor() ([]byte, []int) {
-	return fileDescriptor5, []int{0, 1}
+	return fileDescriptor6, []int{0, 1}
 }
 
 func (m *EntityProfileDTO_PMProfileDTO) GetNumCores() int32 {
@@ -311,6 +529,73 @@ func (m *EntityProfileDTO_PMProfileDTO) GetNumCores() int32 {
 func (m *EntityProfileDTO_PMProfileDTO) GetCpuCoreSpeed() float32 {
 	if m != nil && m.CpuCoreSpeed != nil {
 		return *m.CpuCoreSpeed
+	}
+	return 0
+}
+
+// Specific data related to a db profile or db instance profile
+// Only used by vendors: AWS and Azure
+type EntityProfileDTO_DBProfileDTO struct {
+	// region
+	Region *string `protobuf:"bytes,1,opt,name=region" json:"region,omitempty"`
+	// database code, only used by AWS
+	DbCode *int32 `protobuf:"varint,2,opt,name=dbCode" json:"dbCode,omitempty"`
+	// database edition
+	DbEdition *string `protobuf:"bytes,3,opt,name=dbEdition" json:"dbEdition,omitempty"`
+	// database engine
+	DbEngine *string `protobuf:"bytes,4,opt,name=dbEngine" json:"dbEngine,omitempty"`
+	// deployment option
+	DeploymentOption *string `protobuf:"bytes,5,opt,name=deploymentOption" json:"deploymentOption,omitempty"`
+	// number of VCPUs
+	NumVCPUs         *int32 `protobuf:"varint,6,opt,name=numVCPUs" json:"numVCPUs,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (m *EntityProfileDTO_DBProfileDTO) Reset()         { *m = EntityProfileDTO_DBProfileDTO{} }
+func (m *EntityProfileDTO_DBProfileDTO) String() string { return proto.CompactTextString(m) }
+func (*EntityProfileDTO_DBProfileDTO) ProtoMessage()    {}
+func (*EntityProfileDTO_DBProfileDTO) Descriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{0, 2}
+}
+
+func (m *EntityProfileDTO_DBProfileDTO) GetRegion() string {
+	if m != nil && m.Region != nil {
+		return *m.Region
+	}
+	return ""
+}
+
+func (m *EntityProfileDTO_DBProfileDTO) GetDbCode() int32 {
+	if m != nil && m.DbCode != nil {
+		return *m.DbCode
+	}
+	return 0
+}
+
+func (m *EntityProfileDTO_DBProfileDTO) GetDbEdition() string {
+	if m != nil && m.DbEdition != nil {
+		return *m.DbEdition
+	}
+	return ""
+}
+
+func (m *EntityProfileDTO_DBProfileDTO) GetDbEngine() string {
+	if m != nil && m.DbEngine != nil {
+		return *m.DbEngine
+	}
+	return ""
+}
+
+func (m *EntityProfileDTO_DBProfileDTO) GetDeploymentOption() string {
+	if m != nil && m.DeploymentOption != nil {
+		return *m.DeploymentOption
+	}
+	return ""
+}
+
+func (m *EntityProfileDTO_DBProfileDTO) GetNumVCPUs() int32 {
+	if m != nil && m.NumVCPUs != nil {
+		return *m.NumVCPUs
 	}
 	return 0
 }
@@ -337,7 +622,7 @@ type CommodityProfileDTO struct {
 func (m *CommodityProfileDTO) Reset()                    { *m = CommodityProfileDTO{} }
 func (m *CommodityProfileDTO) String() string            { return proto.CompactTextString(m) }
 func (*CommodityProfileDTO) ProtoMessage()               {}
-func (*CommodityProfileDTO) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{1} }
+func (*CommodityProfileDTO) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{1} }
 
 func (m *CommodityProfileDTO) GetCommodityType() CommodityDTO_CommodityType {
 	if m != nil && m.CommodityType != nil {
@@ -407,7 +692,7 @@ type DeploymentProfileDTO struct {
 func (m *DeploymentProfileDTO) Reset()                    { *m = DeploymentProfileDTO{} }
 func (m *DeploymentProfileDTO) String() string            { return proto.CompactTextString(m) }
 func (*DeploymentProfileDTO) ProtoMessage()               {}
-func (*DeploymentProfileDTO) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{2} }
+func (*DeploymentProfileDTO) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{2} }
 
 func (m *DeploymentProfileDTO) GetId() string {
 	if m != nil && m.Id != nil {
@@ -451,58 +736,308 @@ func (m *DeploymentProfileDTO) GetAccessibleScopeId() []string {
 	return nil
 }
 
+// This represents a Reserved Instance which is a reservation of resource and capacity.
+type ReservedInstanceDTO struct {
+	// This is the uuid constructed from the cloud service providers reserved instance id.
+	Id *string `protobuf:"bytes,1,req,name=id" json:"id,omitempty"`
+	// Reserved Instance Id obtained from Cloud Service Provider.
+	ReservedInstanceId *string `protobuf:"bytes,2,req,name=reservedInstanceId" json:"reservedInstanceId,omitempty"`
+	// display name to be displayed to the user. This is the template name.
+	// eg : t2.micro, Standard_A1.
+	DisplayName *string `protobuf:"bytes,3,req,name=displayName" json:"displayName,omitempty"`
+	// The start timestamp of the reservation in milliseconds.
+	StartTime *int64 `protobuf:"varint,4,req,name=startTime" json:"startTime,omitempty"`
+	// The duration of the reservation in milliseconds.
+	Duration *int64 `protobuf:"varint,5,req,name=duration" json:"duration,omitempty"`
+	// Tenancy of the Reserved Instance.
+	InstanceTenancy *ReservedInstanceDTO_InstanceTenancy `protobuf:"varint,6,req,name=instanceTenancy,enum=common_dto.ReservedInstanceDTO_InstanceTenancy" json:"instanceTenancy,omitempty"`
+	// Class of RI.
+	OfferingClass *ReservedInstanceDTO_OfferingClass `protobuf:"varint,7,req,name=offeringClass,enum=common_dto.ReservedInstanceDTO_OfferingClass" json:"offeringClass,omitempty"`
+	// Represents the payment options.
+	OfferingType *ReservedInstanceDTO_OfferingType `protobuf:"varint,8,req,name=offeringType,enum=common_dto.ReservedInstanceDTO_OfferingType" json:"offeringType,omitempty"`
+	// By selecting an Availability Zone, the RI you purchase will provide a capacity reservation
+	// and a discount for the use of instances in the selected Availability Zone.
+	// When an Availability Zone isn’t specified, the RI is regional.
+	AvailabilityZone *string `protobuf:"bytes,9,opt,name=availabilityZone" json:"availabilityZone,omitempty"`
+	// The operating system for this RI; e.g. Linux.
+	Platform *ReservedInstanceDTO_Platform `protobuf:"varint,10,req,name=platform,enum=common_dto.ReservedInstanceDTO_Platform" json:"platform,omitempty"`
+	// A quantitative way to compare different instance types in a family.
+	NumberOfCoupons *int32 `protobuf:"varint,11,req,name=numberOfCoupons" json:"numberOfCoupons,omitempty"`
+	// The up front cost paid for this RI.
+	FixedCost *float64 `protobuf:"fixed64,12,req,name=fixedCost" json:"fixedCost,omitempty"`
+	// Hourly cost for usage.
+	UsageCost *float64 `protobuf:"fixed64,13,req,name=usageCost" json:"usageCost,omitempty"`
+	// Amount you are billed every hour, regardless of usage.
+	RecurringCost *float64 `protobuf:"fixed64,14,req,name=recurringCost" json:"recurringCost,omitempty"`
+	// The region in which this RI is applicable. A Regional RI can be applied to a VM running
+	// in any availability zone in this region.
+	Region *string `protobuf:"bytes,15,req,name=region" json:"region,omitempty"`
+	// The number of instances covered in this reservation.
+	InstanceCount *int32 `protobuf:"varint,16,req,name=instanceCount" json:"instanceCount,omitempty"`
+	// list of <string, string> key, value pairs
+	EntityProperties []*ReservedInstanceDTO_EntityProperty `protobuf:"bytes,17,rep,name=entityProperties" json:"entityProperties,omitempty"`
+	// id of VirtualMachineProfile related with this Reserved Instance. e.g. aws::VMPROFILE::c1.medium
+	RelatedProfileId *string `protobuf:"bytes,18,req,name=relatedProfileId" json:"relatedProfileId,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *ReservedInstanceDTO) Reset()                    { *m = ReservedInstanceDTO{} }
+func (m *ReservedInstanceDTO) String() string            { return proto.CompactTextString(m) }
+func (*ReservedInstanceDTO) ProtoMessage()               {}
+func (*ReservedInstanceDTO) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{3} }
+
+func (m *ReservedInstanceDTO) GetId() string {
+	if m != nil && m.Id != nil {
+		return *m.Id
+	}
+	return ""
+}
+
+func (m *ReservedInstanceDTO) GetReservedInstanceId() string {
+	if m != nil && m.ReservedInstanceId != nil {
+		return *m.ReservedInstanceId
+	}
+	return ""
+}
+
+func (m *ReservedInstanceDTO) GetDisplayName() string {
+	if m != nil && m.DisplayName != nil {
+		return *m.DisplayName
+	}
+	return ""
+}
+
+func (m *ReservedInstanceDTO) GetStartTime() int64 {
+	if m != nil && m.StartTime != nil {
+		return *m.StartTime
+	}
+	return 0
+}
+
+func (m *ReservedInstanceDTO) GetDuration() int64 {
+	if m != nil && m.Duration != nil {
+		return *m.Duration
+	}
+	return 0
+}
+
+func (m *ReservedInstanceDTO) GetInstanceTenancy() ReservedInstanceDTO_InstanceTenancy {
+	if m != nil && m.InstanceTenancy != nil {
+		return *m.InstanceTenancy
+	}
+	return ReservedInstanceDTO_DEFAULT
+}
+
+func (m *ReservedInstanceDTO) GetOfferingClass() ReservedInstanceDTO_OfferingClass {
+	if m != nil && m.OfferingClass != nil {
+		return *m.OfferingClass
+	}
+	return ReservedInstanceDTO_STANDARD
+}
+
+func (m *ReservedInstanceDTO) GetOfferingType() ReservedInstanceDTO_OfferingType {
+	if m != nil && m.OfferingType != nil {
+		return *m.OfferingType
+	}
+	return ReservedInstanceDTO_ALL_UPFRONT
+}
+
+func (m *ReservedInstanceDTO) GetAvailabilityZone() string {
+	if m != nil && m.AvailabilityZone != nil {
+		return *m.AvailabilityZone
+	}
+	return ""
+}
+
+func (m *ReservedInstanceDTO) GetPlatform() ReservedInstanceDTO_Platform {
+	if m != nil && m.Platform != nil {
+		return *m.Platform
+	}
+	return ReservedInstanceDTO_UNKNOWN
+}
+
+func (m *ReservedInstanceDTO) GetNumberOfCoupons() int32 {
+	if m != nil && m.NumberOfCoupons != nil {
+		return *m.NumberOfCoupons
+	}
+	return 0
+}
+
+func (m *ReservedInstanceDTO) GetFixedCost() float64 {
+	if m != nil && m.FixedCost != nil {
+		return *m.FixedCost
+	}
+	return 0
+}
+
+func (m *ReservedInstanceDTO) GetUsageCost() float64 {
+	if m != nil && m.UsageCost != nil {
+		return *m.UsageCost
+	}
+	return 0
+}
+
+func (m *ReservedInstanceDTO) GetRecurringCost() float64 {
+	if m != nil && m.RecurringCost != nil {
+		return *m.RecurringCost
+	}
+	return 0
+}
+
+func (m *ReservedInstanceDTO) GetRegion() string {
+	if m != nil && m.Region != nil {
+		return *m.Region
+	}
+	return ""
+}
+
+func (m *ReservedInstanceDTO) GetInstanceCount() int32 {
+	if m != nil && m.InstanceCount != nil {
+		return *m.InstanceCount
+	}
+	return 0
+}
+
+func (m *ReservedInstanceDTO) GetEntityProperties() []*ReservedInstanceDTO_EntityProperty {
+	if m != nil {
+		return m.EntityProperties
+	}
+	return nil
+}
+
+func (m *ReservedInstanceDTO) GetRelatedProfileId() string {
+	if m != nil && m.RelatedProfileId != nil {
+		return *m.RelatedProfileId
+	}
+	return ""
+}
+
+type ReservedInstanceDTO_EntityProperty struct {
+	Key              *string `protobuf:"bytes,1,req,name=key" json:"key,omitempty"`
+	Value            *string `protobuf:"bytes,2,req,name=value" json:"value,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
+}
+
+func (m *ReservedInstanceDTO_EntityProperty) Reset()         { *m = ReservedInstanceDTO_EntityProperty{} }
+func (m *ReservedInstanceDTO_EntityProperty) String() string { return proto.CompactTextString(m) }
+func (*ReservedInstanceDTO_EntityProperty) ProtoMessage()    {}
+func (*ReservedInstanceDTO_EntityProperty) Descriptor() ([]byte, []int) {
+	return fileDescriptor6, []int{3, 0}
+}
+
+func (m *ReservedInstanceDTO_EntityProperty) GetKey() string {
+	if m != nil && m.Key != nil {
+		return *m.Key
+	}
+	return ""
+}
+
+func (m *ReservedInstanceDTO_EntityProperty) GetValue() string {
+	if m != nil && m.Value != nil {
+		return *m.Value
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*EntityProfileDTO)(nil), "common_dto.EntityProfileDTO")
 	proto.RegisterType((*EntityProfileDTO_VMProfileDTO)(nil), "common_dto.EntityProfileDTO.VMProfileDTO")
 	proto.RegisterType((*EntityProfileDTO_PMProfileDTO)(nil), "common_dto.EntityProfileDTO.PMProfileDTO")
+	proto.RegisterType((*EntityProfileDTO_DBProfileDTO)(nil), "common_dto.EntityProfileDTO.DBProfileDTO")
 	proto.RegisterType((*CommodityProfileDTO)(nil), "common_dto.CommodityProfileDTO")
 	proto.RegisterType((*DeploymentProfileDTO)(nil), "common_dto.DeploymentProfileDTO")
+	proto.RegisterType((*ReservedInstanceDTO)(nil), "common_dto.ReservedInstanceDTO")
+	proto.RegisterType((*ReservedInstanceDTO_EntityProperty)(nil), "common_dto.ReservedInstanceDTO.EntityProperty")
+	proto.RegisterEnum("common_dto.ReservedInstanceDTO_InstanceTenancy", ReservedInstanceDTO_InstanceTenancy_name, ReservedInstanceDTO_InstanceTenancy_value)
+	proto.RegisterEnum("common_dto.ReservedInstanceDTO_OfferingClass", ReservedInstanceDTO_OfferingClass_name, ReservedInstanceDTO_OfferingClass_value)
+	proto.RegisterEnum("common_dto.ReservedInstanceDTO_OfferingType", ReservedInstanceDTO_OfferingType_name, ReservedInstanceDTO_OfferingType_value)
+	proto.RegisterEnum("common_dto.ReservedInstanceDTO_Platform", ReservedInstanceDTO_Platform_name, ReservedInstanceDTO_Platform_value)
 }
 
-func init() { proto.RegisterFile("ProfileDTO.proto", fileDescriptor5) }
+func init() { proto.RegisterFile("ProfileDTO.proto", fileDescriptor6) }
 
-var fileDescriptor5 = []byte{
-	// 660 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0x8c, 0x54, 0x5d, 0x6f, 0xd3, 0x4a,
-	0x10, 0xbd, 0x76, 0x9a, 0xdc, 0x66, 0x92, 0xdb, 0x9b, 0x6e, 0xab, 0xb2, 0x8a, 0x90, 0x6a, 0x45,
-	0xa8, 0x32, 0x12, 0xe4, 0x21, 0x0f, 0x48, 0xbc, 0xa1, 0xa6, 0x45, 0x20, 0x68, 0x13, 0x6d, 0x3f,
-	0x5e, 0xd1, 0xd6, 0x3b, 0xa5, 0x2b, 0x6c, 0xaf, 0xb5, 0xde, 0x44, 0x84, 0x37, 0x7e, 0x02, 0x12,
-	0x7f, 0x95, 0x77, 0xe4, 0x4d, 0x62, 0x6f, 0x3e, 0xa8, 0x78, 0xf3, 0xcc, 0x39, 0x73, 0x66, 0x7c,
-	0x76, 0x67, 0xa1, 0x33, 0xd6, 0xea, 0x5e, 0xc6, 0x78, 0x76, 0x3d, 0xea, 0x67, 0x5a, 0x19, 0x45,
-	0x20, 0x52, 0x49, 0xa2, 0xd2, 0x4f, 0xc2, 0xa8, 0xee, 0xff, 0x43, 0xfb, 0x5d, 0x82, 0xbd, 0x5f,
-	0x0d, 0xe8, 0x9c, 0xa7, 0x46, 0x9a, 0x59, 0x55, 0x47, 0xf6, 0xc0, 0x97, 0x82, 0x7a, 0x81, 0x1f,
-	0x36, 0x99, 0x2f, 0x05, 0x09, 0xa0, 0x25, 0x64, 0x9e, 0xc5, 0x7c, 0x76, 0xc9, 0x13, 0xa4, 0xbe,
-	0x05, 0xdc, 0x14, 0x79, 0x03, 0x80, 0x56, 0xe5, 0x7a, 0x96, 0x21, 0xad, 0x05, 0x7e, 0xb8, 0x37,
-	0x08, 0xfa, 0x55, 0xe3, 0xfe, 0xbc, 0x47, 0xd1, 0xf7, 0xbc, 0xe4, 0x31, 0xa7, 0x86, 0x7c, 0x80,
-	0x8e, 0xa5, 0x8b, 0x6a, 0x14, 0xba, 0x13, 0xd4, 0xc2, 0xd6, 0xe0, 0xd8, 0xd5, 0x19, 0xae, 0x71,
-	0xce, 0xae, 0x47, 0x6c, 0xa3, 0x90, 0x1c, 0x42, 0x3d, 0x51, 0x02, 0x63, 0x5a, 0x0f, 0xbc, 0xb0,
-	0xc9, 0xe6, 0x01, 0x39, 0x82, 0xc6, 0x14, 0x53, 0xa1, 0x34, 0x6d, 0xd8, 0xf4, 0x22, 0xb2, 0xbf,
-	0x87, 0x79, 0xa4, 0x65, 0x66, 0xa4, 0x4a, 0xe9, 0xbf, 0x16, 0x74, 0x53, 0x64, 0x04, 0xed, 0x69,
-	0x52, 0x75, 0xa4, 0xbb, 0x81, 0x17, 0xb6, 0x06, 0xcf, 0x37, 0x7f, 0xd0, 0x31, 0xff, 0xf6, 0xa2,
-	0x0a, 0xde, 0xfd, 0xc3, 0x56, 0x04, 0x0a, 0xc1, 0xcc, 0x15, 0x6c, 0xfe, 0x85, 0xe0, 0x78, 0x4d,
-	0xd0, 0x15, 0x20, 0x03, 0x38, 0xc4, 0x94, 0xdf, 0xc5, 0x38, 0xd6, 0x6a, 0x2a, 0x73, 0xa9, 0xd2,
-	0x0b, 0x6e, 0xa2, 0x07, 0x0a, 0x81, 0x17, 0xee, 0xb2, 0xad, 0x18, 0x79, 0x01, 0xfb, 0xf3, 0x3c,
-	0xc3, 0x5c, 0x7e, 0xc3, 0x79, 0x41, 0xcb, 0x16, 0x6c, 0x02, 0x64, 0x0c, 0x1d, 0x5c, 0x8e, 0x94,
-	0xa1, 0x36, 0x12, 0x73, 0xda, 0xb6, 0x07, 0xf4, 0xec, 0xb1, 0x83, 0x5e, 0xb0, 0x67, 0x6c, 0xa3,
-	0xba, 0xfb, 0xd3, 0x83, 0xb6, 0xeb, 0x12, 0xe9, 0xc2, 0x6e, 0x3a, 0x49, 0x6e, 0x87, 0xe3, 0x9b,
-	0x9c, 0x7a, 0x81, 0x17, 0xd6, 0x59, 0x19, 0x93, 0xa7, 0xd0, 0x9c, 0x0e, 0xc7, 0x37, 0x57, 0x19,
-	0xa2, 0xa0, 0x7e, 0xe0, 0x85, 0x3e, 0xab, 0x12, 0xa4, 0x0f, 0x24, 0x9d, 0x24, 0x57, 0x46, 0x69,
-	0xfe, 0x19, 0x87, 0x2a, 0xcd, 0x27, 0x09, 0x0a, 0x5a, 0xb3, 0x1a, 0x5b, 0x90, 0xa2, 0x93, 0x90,
-	0xf9, 0x17, 0x7b, 0x5b, 0x77, 0xec, 0x79, 0x97, 0x71, 0xf7, 0x12, 0xda, 0xe3, 0xcd, 0xa9, 0x86,
-	0x4a, 0xa3, 0x3b, 0x95, 0x8d, 0x49, 0x0f, 0xda, 0x51, 0x36, 0x29, 0xbe, 0xdd, 0xc1, 0x56, 0x72,
-	0xa7, 0x07, 0xb0, 0x7f, 0x7b, 0x31, 0xd2, 0x95, 0x26, 0x37, 0xbc, 0xf7, 0xdd, 0x87, 0x83, 0x2d,
-	0x77, 0x99, 0x7c, 0x84, 0xff, 0xca, 0xdb, 0x6c, 0xa7, 0xf3, 0xec, 0x2e, 0x9d, 0x6c, 0xdd, 0x81,
-	0xc2, 0xe5, 0xa1, 0xcb, 0x66, 0xab, 0xc5, 0xc5, 0xe8, 0x11, 0xcf, 0x78, 0x24, 0xcd, 0x6c, 0x31,
-	0x5a, 0x19, 0x93, 0x13, 0xd8, 0x8b, 0x16, 0x76, 0xbc, 0xe5, 0x91, 0x51, 0xda, 0xda, 0xe5, 0xb3,
-	0xb5, 0xac, 0xd5, 0x58, 0x1a, 0xba, 0xb3, 0xd0, 0x58, 0xda, 0x18, 0x40, 0x4b, 0x63, 0x8e, 0x7a,
-	0xca, 0xed, 0xe6, 0xd4, 0x2d, 0xec, 0xa6, 0x8a, 0x6a, 0x35, 0x45, 0xfd, 0x80, 0x5c, 0xd8, 0xad,
-	0xf3, 0x59, 0x19, 0xf7, 0x7e, 0xf8, 0x70, 0x78, 0x86, 0x59, 0xac, 0x66, 0x09, 0xa6, 0xe6, 0xf1,
-	0xf7, 0x27, 0x9b, 0xa3, 0xee, 0xfb, 0xe3, 0xa4, 0xc8, 0x6b, 0x68, 0x45, 0x2a, 0x35, 0xf8, 0xd5,
-	0x14, 0xee, 0xd2, 0x9a, 0xbd, 0x97, 0x4f, 0x56, 0x4d, 0x2b, 0x61, 0xe6, 0x72, 0xc9, 0x2b, 0x38,
-	0xd2, 0x18, 0x73, 0x83, 0x62, 0x65, 0xe3, 0xde, 0x0b, 0xfb, 0xfc, 0x34, 0xd9, 0x1f, 0xd0, 0xc2,
-	0xbf, 0x05, 0x72, 0x15, 0xa9, 0xac, 0xe0, 0xd7, 0x2d, 0x7f, 0x2d, 0x5b, 0x6c, 0x19, 0x8f, 0x22,
-	0xcc, 0x73, 0x79, 0x17, 0xe3, 0x92, 0xda, 0xb0, 0xd4, 0x4d, 0xe0, 0xf4, 0x25, 0x1c, 0x47, 0x2a,
-	0xe9, 0x4f, 0x13, 0x33, 0xd1, 0x77, 0xaa, 0x9f, 0xc5, 0xdc, 0xdc, 0x2b, 0x9d, 0x2c, 0xfe, 0xa4,
-	0x2f, 0x8c, 0x3a, 0x85, 0xca, 0xa9, 0xdf, 0x01, 0x00, 0x00, 0xff, 0xff, 0xad, 0xe0, 0x04, 0x86,
-	0xee, 0x05, 0x00, 0x00,
+var fileDescriptor6 = []byte{
+	// 1304 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x56, 0xcd, 0x92, 0xda, 0x46,
+	0x10, 0x8e, 0xc4, 0xb2, 0x0b, 0x0d, 0x2c, 0xf2, 0x78, 0xcb, 0x51, 0x6d, 0x39, 0x65, 0x85, 0x72,
+	0x39, 0x24, 0x65, 0x93, 0xaa, 0x3d, 0xe4, 0xe7, 0x16, 0x90, 0xe4, 0x32, 0x31, 0x06, 0x32, 0xc0,
+	0xae, 0xe3, 0xcb, 0x96, 0x90, 0x86, 0xb5, 0x6a, 0x91, 0x46, 0x25, 0x8d, 0x88, 0xc9, 0x2d, 0x8f,
+	0x90, 0x43, 0xde, 0x24, 0xa7, 0x9c, 0xf2, 0x58, 0x39, 0xa6, 0x66, 0x10, 0xfa, 0x01, 0xec, 0xdd,
+	0x9b, 0xfa, 0xeb, 0xee, 0x6f, 0x86, 0x9e, 0xaf, 0xbb, 0x01, 0x65, 0x1c, 0xd2, 0x85, 0xbb, 0x24,
+	0xc6, 0x74, 0xd4, 0x09, 0x42, 0xca, 0x28, 0x02, 0x9b, 0x7a, 0x1e, 0xf5, 0xaf, 0x1d, 0x46, 0xcf,
+	0x9b, 0xba, 0xf8, 0x4e, 0x9d, 0xad, 0xbf, 0x01, 0x14, 0xd3, 0x67, 0x2e, 0x5b, 0x67, 0x79, 0xe8,
+	0x14, 0x64, 0xd7, 0x51, 0x25, 0x4d, 0x6e, 0x57, 0xb1, 0xec, 0x3a, 0x48, 0x83, 0x9a, 0xe3, 0x46,
+	0xc1, 0xd2, 0x5a, 0x0f, 0x2d, 0x8f, 0xa8, 0xb2, 0x70, 0xe4, 0x21, 0xf4, 0x13, 0x00, 0x11, 0x2c,
+	0xd3, 0x75, 0x40, 0xd4, 0x92, 0x26, 0xb7, 0x4f, 0x2f, 0xb4, 0x4e, 0x76, 0x70, 0x67, 0x73, 0x06,
+	0x3f, 0xd7, 0x4c, 0xe3, 0x70, 0x2e, 0x07, 0xbd, 0x06, 0x45, 0x84, 0x3b, 0xd9, 0x55, 0xd4, 0x23,
+	0xad, 0xd4, 0xae, 0x5d, 0x3c, 0xc9, 0xf3, 0xe8, 0x3b, 0x31, 0xc6, 0x74, 0x84, 0xf7, 0x12, 0xd1,
+	0x19, 0x94, 0x3d, 0xea, 0x90, 0xa5, 0x5a, 0xd6, 0xa4, 0x76, 0x15, 0x6f, 0x0c, 0xf4, 0x08, 0x8e,
+	0x57, 0xc4, 0x77, 0x68, 0xa8, 0x1e, 0x0b, 0x38, 0xb1, 0xc4, 0xcf, 0x23, 0x91, 0x1d, 0xba, 0x01,
+	0x73, 0xa9, 0xaf, 0x9e, 0x08, 0x67, 0x1e, 0x42, 0x23, 0xa8, 0xaf, 0xbc, 0xec, 0x44, 0xb5, 0xa2,
+	0x49, 0xed, 0xda, 0xc5, 0xd7, 0xfb, 0x3f, 0x30, 0x57, 0xfc, 0xcb, 0x37, 0x99, 0xf1, 0xea, 0x33,
+	0x5c, 0x20, 0xe0, 0x84, 0x41, 0x9e, 0xb0, 0x7a, 0x0f, 0xc2, 0xf1, 0x0e, 0x61, 0xb0, 0x43, 0xe8,
+	0xcc, 0x73, 0x84, 0x8d, 0x7b, 0x10, 0x1a, 0xbd, 0x22, 0x61, 0x9e, 0x00, 0x5d, 0xc0, 0x19, 0xf1,
+	0xad, 0xf9, 0x92, 0x8c, 0x43, 0xba, 0x72, 0x23, 0x97, 0xfa, 0x6f, 0x2c, 0x66, 0xbf, 0x57, 0x41,
+	0x93, 0xda, 0x15, 0x7c, 0xd0, 0x87, 0x9e, 0xc3, 0x83, 0x0d, 0x8e, 0x49, 0xe4, 0xfe, 0x4e, 0x36,
+	0x09, 0x35, 0x91, 0xb0, 0xef, 0x40, 0x63, 0x50, 0xc8, 0xf6, 0x4a, 0x01, 0x09, 0x99, 0x4b, 0x22,
+	0xb5, 0x2e, 0x5e, 0xfc, 0xe9, 0xa7, 0x94, 0x93, 0x44, 0xaf, 0xf1, 0x5e, 0xf6, 0xf9, 0x3f, 0x32,
+	0xd4, 0xf3, 0x65, 0x47, 0xe7, 0x50, 0xf1, 0x63, 0xef, 0x52, 0x1f, 0xcf, 0x22, 0x55, 0xd2, 0xa4,
+	0x76, 0x19, 0xa7, 0x36, 0x7a, 0x0c, 0xd5, 0x95, 0x3e, 0x9e, 0x4d, 0x02, 0x42, 0x1c, 0x55, 0xd6,
+	0xa4, 0xb6, 0x8c, 0x33, 0x00, 0x75, 0x00, 0xf9, 0xb1, 0x37, 0x61, 0x34, 0xb4, 0x6e, 0x88, 0x4e,
+	0xfd, 0x28, 0xf6, 0x88, 0xa3, 0x96, 0x04, 0xc7, 0x01, 0x0f, 0x3f, 0xc9, 0x71, 0xa3, 0x5b, 0x21,
+	0xff, 0x23, 0x21, 0xa0, 0xd4, 0x46, 0x3f, 0x83, 0xe6, 0x10, 0xc7, 0xb5, 0x2d, 0x46, 0x9c, 0x24,
+	0x6f, 0x48, 0xd8, 0x6f, 0x34, 0xbc, 0x9d, 0xc4, 0x41, 0x40, 0x43, 0x46, 0x1c, 0x21, 0xd4, 0x0a,
+	0xbe, 0x33, 0x0e, 0xbd, 0x85, 0xaf, 0x3e, 0x12, 0x63, 0x8a, 0x02, 0x3b, 0xbd, 0xb5, 0x41, 0x16,
+	0x56, 0xbc, 0x64, 0x42, 0xe4, 0x15, 0x7c, 0xdf, 0xf0, 0xf3, 0x21, 0xd4, 0xc7, 0xfb, 0xb5, 0xd3,
+	0x69, 0x48, 0xf2, 0xb5, 0x13, 0x36, 0x6a, 0x41, 0xdd, 0x0e, 0x62, 0xfe, 0x9d, 0x2f, 0x5f, 0x01,
+	0x3b, 0xff, 0x57, 0x82, 0x7a, 0x5e, 0x61, 0xbc, 0xfd, 0x42, 0x72, 0xc3, 0x3b, 0x4c, 0xda, 0xb4,
+	0xdf, 0xc6, 0xe2, 0xb8, 0x33, 0xd7, 0xa9, 0x43, 0x04, 0x4d, 0x19, 0x27, 0x16, 0x7f, 0x20, 0x67,
+	0x6e, 0x3a, 0xae, 0x68, 0xca, 0x92, 0x48, 0xc9, 0x00, 0x51, 0xf0, 0xb9, 0xe9, 0xdf, 0xb8, 0x7e,
+	0x56, 0xf0, 0xc4, 0x46, 0xdf, 0x80, 0xe2, 0x90, 0x60, 0x49, 0xd7, 0x1e, 0xf1, 0xd9, 0x68, 0xd3,
+	0xd5, 0x9b, 0x49, 0xb0, 0x87, 0x17, 0x24, 0x72, 0x5c, 0x94, 0x48, 0x4f, 0x85, 0x47, 0xd9, 0xb4,
+	0x9a, 0x04, 0xc4, 0x76, 0x17, 0xae, 0x6d, 0x58, 0xcc, 0x6a, 0xfd, 0x21, 0xc3, 0xc3, 0x03, 0xa3,
+	0x08, 0x0d, 0xa0, 0x91, 0x0e, 0x23, 0xa1, 0x05, 0x49, 0x8c, 0xc2, 0x67, 0x07, 0x47, 0x18, 0xd7,
+	0xb4, 0x9e, 0x8f, 0xc6, 0xc5, 0x64, 0x7e, 0x37, 0xdb, 0x0a, 0x2c, 0xdb, 0x65, 0xeb, 0xa4, 0xc4,
+	0xa9, 0x8d, 0x9e, 0xc1, 0xa9, 0x9d, 0x88, 0xef, 0xa5, 0x65, 0x33, 0x1a, 0x8a, 0x12, 0xc9, 0x78,
+	0x07, 0x15, 0x1c, 0x5b, 0xf9, 0x1e, 0x25, 0x1c, 0x5b, 0xd1, 0x6a, 0x50, 0x0b, 0x49, 0x44, 0xc2,
+	0x95, 0x95, 0x96, 0x48, 0xc6, 0x79, 0x88, 0x67, 0xd3, 0x15, 0x09, 0xdf, 0x13, 0xcb, 0x11, 0xd5,
+	0x91, 0x71, 0x6a, 0xb7, 0xfe, 0x94, 0xe1, 0xcc, 0x48, 0xcb, 0xf9, 0xe9, 0xf5, 0x11, 0x6c, 0xbc,
+	0xf9, 0xf5, 0x91, 0x83, 0xd0, 0x8f, 0x50, 0xb3, 0xa9, 0xcf, 0xc8, 0x07, 0xc6, 0xab, 0xab, 0x96,
+	0xc4, 0x14, 0xf8, 0xbc, 0x58, 0xb4, 0xd4, 0x8d, 0xf3, 0xb1, 0xe8, 0x3b, 0x78, 0x14, 0x92, 0x25,
+	0xd7, 0x77, 0x61, 0xbe, 0xf5, 0x1d, 0xb1, 0x3d, 0xaa, 0xf8, 0x23, 0x5e, 0x5e, 0xbf, 0xc4, 0x33,
+	0xb1, 0x69, 0xc0, 0xe3, 0xcb, 0x22, 0x7e, 0x07, 0xe5, 0x33, 0xcd, 0xb2, 0x6d, 0x12, 0x45, 0xee,
+	0x7c, 0x49, 0xb6, 0xa1, 0xc7, 0x22, 0x74, 0xdf, 0xd1, 0xfa, 0xaf, 0x0a, 0x0f, 0xb1, 0xa8, 0x1f,
+	0x71, 0xfa, 0x7e, 0xc4, 0x2c, 0xdf, 0x3e, 0x58, 0x92, 0x0e, 0xa0, 0x70, 0x27, 0xac, 0xef, 0x24,
+	0x95, 0x39, 0xe0, 0xd9, 0xdd, 0xc0, 0xa5, 0xfd, 0x0d, 0xfc, 0x18, 0xaa, 0x11, 0xb3, 0x42, 0x36,
+	0x75, 0x3d, 0xde, 0x10, 0x72, 0xbb, 0x84, 0x33, 0x40, 0x74, 0x4b, 0x1c, 0x6e, 0x9f, 0x99, 0x3b,
+	0x53, 0x1b, 0xfd, 0x0a, 0x4d, 0x37, 0x39, 0x69, 0x4a, 0x7c, 0xcb, 0xb7, 0xd7, 0xea, 0xb1, 0x50,
+	0xed, 0xb7, 0xf9, 0x07, 0x38, 0xf0, 0xab, 0x3a, 0xfd, 0x62, 0x1a, 0xde, 0xe5, 0x41, 0x13, 0x68,
+	0xd0, 0xc5, 0x82, 0x84, 0xae, 0x7f, 0xa3, 0x2f, 0xad, 0x28, 0x52, 0x4f, 0x04, 0xf1, 0x8b, 0xbb,
+	0x88, 0x47, 0xf9, 0x24, 0x5c, 0xe4, 0x40, 0x63, 0xa8, 0x6f, 0x01, 0xd1, 0x62, 0x15, 0xc1, 0xf9,
+	0xfc, 0xbe, 0x9c, 0xa2, 0xd1, 0x0a, 0x0c, 0x7c, 0x5e, 0x58, 0x2b, 0xcb, 0x5d, 0x5a, 0x73, 0x77,
+	0xe9, 0xb2, 0xf5, 0x3b, 0xea, 0x13, 0xb1, 0x91, 0xab, 0x78, 0x0f, 0x47, 0x06, 0x54, 0x82, 0xa5,
+	0xc5, 0x16, 0x34, 0xf4, 0x54, 0x10, 0x27, 0xb7, 0xef, 0x3a, 0x79, 0x9c, 0xc4, 0xe3, 0x34, 0x13,
+	0xb5, 0xa1, 0xe9, 0xc7, 0xde, 0x9c, 0x84, 0xa3, 0x85, 0x4e, 0xe3, 0x80, 0xfa, 0x91, 0x5a, 0xd3,
+	0xe4, 0x76, 0x19, 0xef, 0xc2, 0xfc, 0x5d, 0x17, 0xee, 0x07, 0xe2, 0xe8, 0x34, 0x62, 0x6a, 0x5d,
+	0x93, 0xdb, 0x12, 0xce, 0x00, 0xee, 0x8d, 0x23, 0xb1, 0x87, 0x22, 0xa6, 0x36, 0x36, 0xde, 0x14,
+	0x40, 0x4f, 0xa1, 0x11, 0x12, 0x3b, 0x0e, 0x45, 0xed, 0x78, 0xc4, 0xa9, 0x88, 0x28, 0x82, 0xb9,
+	0xb9, 0xdc, 0x14, 0xb2, 0xda, 0xce, 0xe5, 0xa7, 0xd0, 0xd8, 0xbe, 0xa7, 0x4e, 0x63, 0x9f, 0xa9,
+	0x8a, 0xb8, 0x61, 0x11, 0x44, 0xef, 0x0e, 0x6c, 0xf1, 0x07, 0xa2, 0x7f, 0x3b, 0x77, 0xd5, 0xe5,
+	0xae, 0x7d, 0xce, 0xdf, 0x25, 0xe9, 0xc6, 0xac, 0xab, 0x91, 0xb8, 0xe3, 0x1e, 0x7e, 0xfe, 0x03,
+	0x9c, 0x16, 0xf9, 0x90, 0x02, 0xa5, 0x5b, 0xb2, 0x4e, 0x9a, 0x8e, 0x7f, 0xf2, 0xbf, 0x85, 0x2b,
+	0x6b, 0x19, 0x6f, 0x47, 0xd0, 0xc6, 0x68, 0x7d, 0x0f, 0xcd, 0x1d, 0x21, 0xa3, 0x1a, 0x9c, 0x18,
+	0xe6, 0xcb, 0xee, 0x6c, 0x30, 0x55, 0x24, 0xd4, 0x80, 0xaa, 0x61, 0x1a, 0x7d, 0xbd, 0x3b, 0x35,
+	0x0d, 0x45, 0x46, 0x15, 0x38, 0x7a, 0x35, 0x9a, 0x4c, 0x95, 0x52, 0xab, 0x03, 0x8d, 0x82, 0x50,
+	0x51, 0x1d, 0x2a, 0x93, 0x69, 0x77, 0x68, 0x74, 0xb1, 0xa1, 0x48, 0xa8, 0x09, 0x35, 0x7d, 0x34,
+	0xbc, 0x34, 0xf1, 0xb4, 0xdf, 0x1b, 0x98, 0x8a, 0xdc, 0x32, 0xa0, 0x9e, 0x17, 0x21, 0x0f, 0xe8,
+	0x0e, 0x06, 0xd7, 0xb3, 0xf1, 0x4b, 0x3c, 0x1a, 0xf2, 0x93, 0x1e, 0x42, 0x73, 0xdc, 0xc5, 0xd3,
+	0x7e, 0x37, 0x03, 0x65, 0x74, 0x0a, 0x30, 0x1c, 0xa5, 0x76, 0xa9, 0xf5, 0x97, 0x04, 0x95, 0xad,
+	0xa2, 0xf8, 0x45, 0x67, 0xc3, 0xd7, 0xc3, 0xd1, 0xd5, 0x50, 0x91, 0x50, 0x15, 0xca, 0x83, 0xfe,
+	0x70, 0xf6, 0x76, 0x73, 0x49, 0xfc, 0xca, 0x1c, 0x28, 0x25, 0xfe, 0x35, 0x99, 0x4d, 0x4c, 0xe5,
+	0x88, 0xc7, 0x5e, 0xf5, 0x87, 0xc6, 0xe8, 0x6a, 0xa2, 0x94, 0x91, 0x0a, 0x67, 0x89, 0x71, 0x3d,
+	0xf9, 0x65, 0x70, 0x9d, 0x5e, 0xfb, 0x98, 0x5f, 0x22, 0xef, 0xb9, 0x32, 0x7b, 0xca, 0x09, 0xfa,
+	0x12, 0xbe, 0x28, 0x84, 0x9b, 0xf8, 0xd2, 0xc4, 0xd7, 0xe6, 0x70, 0x6a, 0xe2, 0x31, 0xee, 0x4f,
+	0x4c, 0xa5, 0xd2, 0x7b, 0x01, 0x4f, 0x6c, 0xea, 0x75, 0x56, 0x1e, 0x8b, 0xc3, 0x39, 0xed, 0x6c,
+	0xa5, 0x9e, 0x88, 0xa0, 0xe3, 0x30, 0xda, 0x83, 0x6c, 0x49, 0xfc, 0x1f, 0x00, 0x00, 0xff, 0xff,
+	0x7a, 0xde, 0xeb, 0xef, 0xa8, 0x0c, 0x00, 0x00,
 }

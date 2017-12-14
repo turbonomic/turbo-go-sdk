@@ -1,0 +1,60 @@
+package common_dto;
+
+option java_package = "com.vmturbo.platform.common.dto";
+option java_outer_classname = "NonMarketDTO";
+
+import "CommonDTO.proto";
+
+// These messages are used by the SDK only
+
+// These messages are used by all the mediation and core modules across the Turbonomic appliance.
+// Used to transfer descriptions of entities.
+
+// The NonMarketEntityDTO message represents an Entity discovered in the target that your probe is
+// monitoring and this entity does not participate in the market.
+//
+// Each entity must have a unique ID to identify it in the Operations Manager repository.
+// Many targets provide unique IDs for their entities, or you can generate your own.
+// To guarantee that it's unique, you can give the ID a prefix that identifies your
+// probe and the given target.
+//
+// Specify entity type by setting a 'NonMarketEntityType' value to the 'entityType' field.
+//
+// The 'displayName' value appears in the product GUI and in reports to identify the entity.
+//
+message NonMarketEntityDTO {
+    required NonMarketEntityType entityType = 1;
+    required string id = 2;    // e.g. UUID
+    optional string displayName = 3;
+    optional string description = 4;
+
+    // Collection of entity type's specific data.
+    oneof entity_data {
+        CloudServiceData cloud_service_data = 500;
+        WorkflowData workflow_data = 501;
+    }
+
+    // enumerate non market entities
+    enum NonMarketEntityType {
+        CLOUD_SERVICE = 0;
+        WORKFLOW = 1;
+        ACCOUNT = 2;
+    }
+
+    message CloudServiceData {
+        required string cloud_provider = 1;
+        required float spend = 2;
+    }
+
+    message WorkflowData {
+        repeated Parameter param = 1;
+        optional EntityDTO.EntityType entityType = 2;
+    }
+
+    message Parameter {
+        required string name = 1;
+        optional string description = 2;
+        required string type = 3 [default = "String"];
+        optional bool mandatory = 4 [default = true];
+    }
+}
