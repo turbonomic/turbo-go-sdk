@@ -57,7 +57,10 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", nil, err)
 	}
 
-	if !reflect.DeepEqual(registrationClient, probe.RegistrationClient) {
+	if !reflect.DeepEqual(registrationClient.GetSupplyChainDefinition(), probe.RegistrationClient.GetSupplyChainDefinition()) {
+		t.Errorf("\nExpected %+v, \ngot      %+v", registrationClient, probe.RegistrationClient)
+	}
+	if !reflect.DeepEqual(registrationClient.GetAccountDefinition(), probe.RegistrationClient.GetAccountDefinition()) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", registrationClient, probe.RegistrationClient)
 	}
 
