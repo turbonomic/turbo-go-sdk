@@ -69,7 +69,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 		endpoint.CloseEndpoint()
 		return false
 	}
-	glog.V(3).Infof("[%s] : Received: %++v\n", endpoint.GetName(),serverMsg)
+	glog.V(3).Infof("[%s] : Received: %++v\n", endpoint.GetName(), serverMsg)
 
 	// Handler response
 	negotiationResponse := protoMsg.NegotiationMsg

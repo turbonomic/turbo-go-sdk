@@ -1,8 +1,8 @@
 package mediationcontainer
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 func TestCreateClientWebSocketTransport(t *testing.T) {
@@ -80,14 +80,14 @@ func TestCloseAndResetWebSocket(t *testing.T) {
 		currStatus TransportStatus
 	}{
 		{
-			currStatus:Closed,
+			currStatus: Closed,
 		},
 		{
-			currStatus:Ready,
+			currStatus: Ready,
 		},
 	}
 
-	for _, item:= range table {
+	for _, item := range table {
 		// A fake WebSocket transport only for testing status change.
 		fakeWebSocketTransport := &ClientWebSocketTransport{}
 		fakeWebSocketTransport.status = item.currStatus

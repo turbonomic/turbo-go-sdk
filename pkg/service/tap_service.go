@@ -16,8 +16,11 @@ const (
 	defaultTurboAPIPath = "/vmturbo/rest"
 )
 
+// Turbonomic Automation Service that will discover the environment for the Turbo server
+// and receive recommendations to control the infrastructure environment
 type TAPService struct {
-	// Interface to the Turbo Server
+	// TurboProbe provides the communication interface between the Turbo server
+	// and the infrastructure environment
 	*probe.TurboProbe
 	*restclient.Client
 	disconnectFromTurbo chan struct{}
@@ -28,6 +31,7 @@ func (tapService *TAPService) DisconnectFromTurbo() {
 	close(tapService.disconnectFromTurbo)
 	glog.V(4).Infof("[DisconnectFromTurbo] End *********")
 }
+
 func (tapService *TAPService) ConnectToTurbo() {
 	glog.V(4).Infof("[ConnectToTurbo] Enter ******* ")
 	IsRegistered := make(chan bool, 1)
@@ -39,10 +43,14 @@ func (tapService *TAPService) ConnectToTurbo() {
 	// Block till a message arrives on the channel
 	status := <-IsRegistered
 	if !status {
-		glog.Fatalf("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " is not registered")
+		glog.Fatalf("Probe " + tapService.ProbeConfiguration.ProbeCategory +
+			"::" + tapService.ProbeConfiguration.ProbeType + " is not registered")
 		return
 	}
-	glog.V(3).Infof("Probe " + tapService.ProbeCategory + "::" + tapService.ProbeType + " Registered : === Add Targets ===")
+	glog.V(3).Infof("Probe " + tapService.ProbeConfiguration.ProbeCategory +
+		"::" + tapService.ProbeConfiguration.ProbeType + " Registered : === Add Targets ===")
+
+	// Register the probe targets
 	targetInfos := tapService.GetProbeTargets()
 	for _, targetInfo := range targetInfos {
 		target := targetInfo.GetTargetInstance()

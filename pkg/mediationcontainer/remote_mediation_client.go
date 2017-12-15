@@ -113,17 +113,17 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 			case <-transport.NotifyClosed():
 				glog.V(2).Infof("[Reconnect] transport endpoint is closed, starting reconnect ...")
 
-			// stop server messages listener
+				// stop server messages listener
 				remoteMediationClient.stopMessageHandler()
-			// Reconnect
+				// Reconnect
 				err := transport.Connect()
-			// handle WebSocket creation errors
+				// handle WebSocket creation errors
 				if err != nil { //transport.ws == nil {
 					glog.Errorf("[Reconnect] Initialization of remote mediation client failed, null transport")
 					remoteMediationClient.Stop()
 					break
 				}
-			// sdk registration protocol
+				// sdk registration protocol
 				transportReady := make(chan bool, 1)
 				sdkProtocolHandler.handleClientProtocol(transport, transportReady)
 				endProtocol := <-transportReady
@@ -132,14 +132,14 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 					remoteMediationClient.Stop()
 					break
 				}
-			// start listener for server messages
+				// start listener for server messages
 				remoteMediationClient.stopMsgHandlerCh = make(chan bool)
 				go remoteMediationClient.RunServerMessageHandler(remoteMediationClient.Transport)
 				glog.V(3).Infof("[Reconnect] transport endpoint connect complete")
 			} //end select
 		} // end for
 	}() // end go routine
-	
+
 	// --------- Listen for server messages
 	remoteMediationClient.stopMsgHandlerCh = make(chan bool)
 	go remoteMediationClient.RunServerMessageHandler(remoteMediationClient.Transport)
@@ -237,7 +237,7 @@ func (remoteMediationClient *remoteMediationClient) runProbeCallback(endpoint Pr
 		case <-remoteMediationClient.stopMsgHandlerCh:
 			glog.V(4).Infof("[probeCallback] Exit routine *************")
 			return
-		case msg:= <-remoteMediationClient.probeResponseChan:
+		case msg := <-remoteMediationClient.probeResponseChan:
 			glog.V(4).Infof("[probeCallback] received response on probe channel %v\n ", remoteMediationClient.probeResponseChan)
 			endMsg := &EndpointMessage{
 				ProtobufMessage: msg,
@@ -336,20 +336,31 @@ func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest proto
 
 	}()
 
+	accountValues := request.GetAccountValue()
 	var discoveryResponse *proto.DiscoveryResponse
-	discoveryResponse = turboProbe.DiscoverTarget(request.GetAccountValue())
+	switch requestType := request.GetDiscoveryType(); requestType {
+	case proto.DiscoveryType_FULL:
+		discoveryResponse = turboProbe.DiscoverTarget(accountValues)
+	case proto.DiscoveryType_INCREMENTAL:
+		discoveryResponse = turboProbe.DiscoverTargetIncremental(accountValues)
+	case proto.DiscoveryType_PERFORMANCE:
+		discoveryResponse = turboProbe.DiscoverTargetPerformance(accountValues)
+	default:
+		discoveryResponse = turboProbe.DiscoverTarget(accountValues)
+	}
+
 	clientMsg := NewClientMessageBuilder(msgID).SetDiscoveryResponse(discoveryResponse).Create()
 
 	// Send the response on the callback channel to send to the server
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.V(3).Infof("Sent discovery response for %d", clientMsg.GetMessageID())
+	glog.V(3).Infof("Sent discovery response for %d:%s", clientMsg.GetMessageID(), request.GetDiscoveryType())
 
 	// Send empty response to signal completion of discovery
 	discoveryResponse = &proto.DiscoveryResponse{}
 	clientMsg = NewClientMessageBuilder(msgID).SetDiscoveryResponse(discoveryResponse).Create()
 
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.V(3).Infof("Discovery has finished for %d", clientMsg.GetMessageID())
+	glog.V(2).Infof("Discovery has finished for %d:%s", clientMsg.GetMessageID(), request.GetDiscoveryType())
 
 	// Cancel keep alive
 	// Note  : Keep alive routine is cancelled when the stopCh is closed at the end of this method

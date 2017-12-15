@@ -127,11 +127,11 @@ func TestCommodityDTOBuilder_Used(t *testing.T) {
 
 func TestCommodityDTOBuilder_Reservation(t *testing.T) {
 	table := []struct {
-		reservation        float64
+		reservation float64
 		existingErr error
 	}{
 		{
-			reservation:        mathrand.Float64(),
+			reservation: mathrand.Float64(),
 			existingErr: fmt.Errorf("Fake"),
 		},
 		{
@@ -149,7 +149,7 @@ func TestCommodityDTOBuilder_Reservation(t *testing.T) {
 		}
 		expectedBuilder := &CommodityDTOBuilder{
 			commodityType: base.commodityType,
-			reservation:          reservation,
+			reservation:   reservation,
 			err:           item.existingErr,
 		}
 		builder := base.Reservation(item.reservation)

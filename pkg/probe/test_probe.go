@@ -1,8 +1,8 @@
 package probe
 
 import (
-	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"fmt"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 type TestProbe struct{}
@@ -13,11 +13,11 @@ type TestProbeActionClient struct{}
 func (handler *TestProbeDiscoveryClient) GetAccountValues() *TurboTargetInfo {
 	return nil
 }
-func (handler *TestProbeDiscoveryClient) Validate(accountValues[] *proto.AccountValue) (*proto.ValidationResponse, error) {
+func (handler *TestProbeDiscoveryClient) Validate(accountValues []*proto.AccountValue) (*proto.ValidationResponse, error) {
 	return nil, fmt.Errorf("TestProbeDiscoveryClient Validate not implemented")
 }
 
-func (handler *TestProbeDiscoveryClient) Discover(accountValues[] *proto.AccountValue) (*proto.DiscoveryResponse, error) {
+func (handler *TestProbeDiscoveryClient) Discover(accountValues []*proto.AccountValue) (*proto.DiscoveryResponse, error) {
 	return nil, fmt.Errorf("TestProbeDiscoveryClient Discover not implemented")
 }
 
@@ -36,5 +36,4 @@ func (actionClient *TestProbeActionClient) ExecuteAction(actionExecutionDTO *pro
 	progressTracker ActionProgressTracker) (*proto.ActionResult, error) {
 
 	return nil, fmt.Errorf("TestProbeDiscoveryClient ExecuteAction not implemented")
-
 }

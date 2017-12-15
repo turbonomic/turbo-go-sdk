@@ -6,12 +6,15 @@ import (
 )
 
 type ProbeBuilder struct {
-	probeType          string
-	probeCategory      string
-	registrationClient TurboRegistrationClient
-	discoveryClientMap map[string]TurboDiscoveryClient
-	actionClient	   TurboActionExecutorClient
-	builderError       error
+	probeConf              *ProbeConfig
+	registrationClient     TurboRegistrationClient
+	discoveryClientMap     map[string]TurboDiscoveryClient
+	actionClient           TurboActionExecutorClient
+	builderError           error
+	supplyChainProvider    ISupplyChainProvider
+	accountDefProvider     IAccountDefinitionProvider
+	actionPolicyProvider   IActionPolicyProvider
+	entityMetadataProvider IEntityMetadataProvider
 }
 
 func ErrorInvalidTargetIdentifier() error {
@@ -29,6 +32,7 @@ func ErrorInvalidProbeCategory() error {
 func ErrorInvalidRegistrationClient() error {
 	return errors.New("Null registration client")
 }
+
 func ErrorInvalidActionClient() error {
 	return errors.New("Null action client")
 }
@@ -45,6 +49,25 @@ func ErrorCreatingProbe(probeType string, probeCategory string) error {
 	return errors.New("Error creating probe for " + probeCategory + "::" + probeType)
 }
 
+// Create an instance of ProbeBuilder using the given probe configuration
+func NewProbeBuilderWithConfig(probeConf *ProbeConfig) *ProbeBuilder {
+	probeBuilder := &ProbeBuilder{}
+	if probeConf.ProbeType == "" {
+		probeBuilder.builderError = ErrorInvalidProbeType()
+		return probeBuilder
+	}
+
+	if probeConf.ProbeCategory == "" {
+		probeBuilder.builderError = ErrorInvalidProbeCategory()
+		return probeBuilder
+	}
+
+	return &ProbeBuilder{
+		probeConf:          probeConf,
+		discoveryClientMap: make(map[string]TurboDiscoveryClient),
+	}
+}
+
 // Get an instance of ProbeBuilder
 func NewProbeBuilder(probeType string, probeCategory string) *ProbeBuilder {
 	// Validate probe type and category
@@ -59,9 +82,16 @@ func NewProbeBuilder(probeType string, probeCategory string) *ProbeBuilder {
 		return probeBuilder
 	}
 
+	probeConf := &ProbeConfig{
+		ProbeCategory:        probeCategory,
+		ProbeType:            probeType,
+		FullDiscovery:        -1,
+		IncrementalDiscovery: -1,
+		PerformanceDiscovery: -1,
+	}
+
 	return &ProbeBuilder{
-		probeCategory:      probeCategory,
-		probeType:          probeType,
+		probeConf:          probeConf,
 		discoveryClientMap: make(map[string]TurboDiscoveryClient),
 	}
 }
@@ -79,24 +109,80 @@ func (pb *ProbeBuilder) Create() (*TurboProbe, error) {
 		return nil, pb.builderError
 	}
 
-	probeConf := &ProbeConfig{
-		ProbeCategory: pb.probeCategory,
-		ProbeType:     pb.probeType,
-	}
-	turboProbe, err := newTurboProbe(probeConf)
+	turboProbe, err := newTurboProbe(pb.probeConf)
 	if err != nil {
-		pb.builderError = ErrorCreatingProbe(pb.probeType, pb.probeCategory)
+		pb.builderError = ErrorCreatingProbe(pb.probeConf.ProbeType, pb.probeConf.ProbeCategory)
 		glog.Errorf(pb.builderError.Error())
 		return nil, pb.builderError
 	}
 
-	turboProbe.RegistrationClient = pb.registrationClient
+	turboProbe.RegistrationClient.ISupplyChainProvider = pb.registrationClient
+	turboProbe.RegistrationClient.IAccountDefinitionProvider = pb.registrationClient
+
+	if pb.supplyChainProvider != nil {
+		turboProbe.RegistrationClient.ISupplyChainProvider = pb.supplyChainProvider
+	}
+
+	if pb.accountDefProvider != nil {
+		turboProbe.RegistrationClient.IAccountDefinitionProvider = pb.accountDefProvider
+	}
+
+	if pb.actionPolicyProvider != nil {
+		turboProbe.RegistrationClient.IActionPolicyProvider = pb.actionPolicyProvider
+	}
+
 	turboProbe.ActionClient = pb.actionClient
 	for targetId, discoveryClient := range pb.discoveryClientMap {
-		turboProbe.DiscoveryClientMap[targetId] = discoveryClient
+		targetDiscoveryAgent := NewTargetDiscoveryAgent(targetId)
+		targetDiscoveryAgent.TurboDiscoveryClient = discoveryClient
+		turboProbe.DiscoveryClientMap[targetId] = targetDiscoveryAgent //discoveryClient
 	}
 
 	return turboProbe, nil
+}
+
+// Set the supply chain provider for the probe
+func (pb *ProbeBuilder) WithSupplyChain(supplyChainProvider ISupplyChainProvider) *ProbeBuilder {
+	if supplyChainProvider == nil {
+		pb.builderError = ErrorInvalidRegistrationClient()
+		return pb
+	}
+	pb.supplyChainProvider = supplyChainProvider
+
+	return pb
+}
+
+// Set the provider that for the account definition for discovering the probe targets
+func (pb *ProbeBuilder) WithAccountDef(accountDefProvider IAccountDefinitionProvider) *ProbeBuilder {
+	if accountDefProvider == nil {
+		pb.builderError = ErrorInvalidRegistrationClient()
+		return pb
+	}
+	pb.accountDefProvider = accountDefProvider
+
+	return pb
+}
+
+// Set the provider for the policies regarding the supported action types
+func (pb *ProbeBuilder) WithActionPolicies(actionPolicyProvider IActionPolicyProvider) *ProbeBuilder {
+	if actionPolicyProvider == nil {
+		pb.builderError = ErrorInvalidRegistrationClient()
+		return pb
+	}
+	pb.actionPolicyProvider = actionPolicyProvider
+
+	return pb
+}
+
+// Set the provider for the metadata for generating unique identifiers for the probe entities
+func (pb *ProbeBuilder) WithEntityMetadata(entityMetadataProvider IEntityMetadataProvider) *ProbeBuilder {
+	if entityMetadataProvider == nil {
+		pb.builderError = ErrorInvalidRegistrationClient()
+		return pb
+	}
+	pb.entityMetadataProvider = entityMetadataProvider
+
+	return pb
 }
 
 // Set the registration client for the probe

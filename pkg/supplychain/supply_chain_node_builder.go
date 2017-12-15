@@ -62,7 +62,7 @@ func (scnb *SupplyChainNodeBuilder) Sells(templateComm *proto.TemplateCommodity)
 
 // set the provider of the SupplyChainNode
 func (scnb *SupplyChainNodeBuilder) Provider(provider proto.EntityDTO_EntityType,
-						pType proto.Provider_ProviderType) *SupplyChainNodeBuilder {
+	pType proto.Provider_ProviderType) *SupplyChainNodeBuilder {
 	if scnb.err != nil {
 		return scnb
 	}

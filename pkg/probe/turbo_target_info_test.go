@@ -3,10 +3,10 @@ package probe
 import (
 	"testing"
 
+	"github.com/turbonomic/turbo-api/pkg/api"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
 	"reflect"
-	"github.com/turbonomic/turbo-api/pkg/api"
 )
 
 func TestNewTurboTargetInfoBuilder(t *testing.T) {
@@ -122,9 +122,9 @@ func TestTurboTargetInfo_GetTargetInstance(t *testing.T) {
 			targetCategory:        item.category,
 			targetType:            item.targetType,
 			targetIdentifierField: item.idField,
-			accountValues:         []*proto.AccountValue{
+			accountValues: []*proto.AccountValue{
 				{
-					Key: &item.acctValueKey,
+					Key:         &item.acctValueKey,
 					StringValue: &item.acctValueStringValue,
 				},
 			},

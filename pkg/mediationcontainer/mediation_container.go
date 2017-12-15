@@ -88,8 +88,8 @@ func CloseMediationContainer() {
 func LoadProbe(probe *probe.TurboProbe) error {
 	// load the probe config
 	config := &ProbeSignature{
-		ProbeCategory: probe.ProbeCategory,
-		ProbeType:     probe.ProbeType,
+		ProbeCategory: probe.ProbeConfiguration.ProbeCategory,
+		ProbeType:     probe.ProbeConfiguration.ProbeType,
 	}
 
 	probeProp := &ProbeProperties{

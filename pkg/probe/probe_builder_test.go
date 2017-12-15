@@ -1,10 +1,9 @@
 package probe
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
-
 
 func TestNewProbeBuilderWithoutRegistrationClient(t *testing.T) {
 	probeType := "Type1"
@@ -21,13 +20,12 @@ func TestNewProbeBuilderWithoutRegistrationClient(t *testing.T) {
 	}
 }
 
-
 func TestNewProbeBuilderWithoutDiscoveryClient(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
 	targetID := "T1"
 
-	registrationClient :=  &TestProbeRegistrationClient{}
+	registrationClient := &TestProbeRegistrationClient{}
 
 	probe, err := createProbe(probeType, probeCat, registrationClient, targetID, nil)
 
@@ -39,7 +37,6 @@ func TestNewProbeBuilderWithoutDiscoveryClient(t *testing.T) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", nil, probe)
 	}
 }
-
 
 func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 	probeType := "Type1"
@@ -57,7 +54,10 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", nil, err)
 	}
 
-	if !reflect.DeepEqual(registrationClient, probe.RegistrationClient) {
+	if !reflect.DeepEqual(registrationClient.GetSupplyChainDefinition(), probe.RegistrationClient.GetSupplyChainDefinition()) {
+		t.Errorf("\nExpected %+v, \ngot      %+v", registrationClient, probe.RegistrationClient)
+	}
+	if !reflect.DeepEqual(registrationClient.GetAccountDefinition(), probe.RegistrationClient.GetAccountDefinition()) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", registrationClient, probe.RegistrationClient)
 	}
 
@@ -76,11 +76,11 @@ func TestNewProbeBuilderWithActionClient(t *testing.T) {
 	actionClient := &TestProbeActionClient{}
 	builder := NewProbeBuilder(probeType, probeCat)
 
-	if (registrationClient != nil) {
+	if registrationClient != nil {
 		builder.RegisteredBy(registrationClient)
 	}
 
-	if (targetId != "" || discoveryClient != nil) {
+	if targetId != "" || discoveryClient != nil {
 		builder.DiscoversTarget(targetId, discoveryClient)
 	}
 	builder.ExecutesActionsBy(actionClient)
@@ -100,14 +100,14 @@ func TestNewProbeBuilderWithInvalidActionClient(t *testing.T) {
 	targetId := "T1"
 	registrationClient := &TestProbeRegistrationClient{}
 	discoveryClient := &TestProbeDiscoveryClient{}
-	var actionClient TurboActionExecutorClient	//:= &TestProbeActionClient{}
+	var actionClient TurboActionExecutorClient //:= &TestProbeActionClient{}
 	builder := NewProbeBuilder(probeType, probeCat)
 
-	if (registrationClient != nil) {
+	if registrationClient != nil {
 		builder.RegisteredBy(registrationClient)
 	}
 
-	if (targetId != "" || discoveryClient != nil) {
+	if targetId != "" || discoveryClient != nil {
 		builder.DiscoversTarget(targetId, discoveryClient)
 	}
 	builder.ExecutesActionsBy(actionClient)
@@ -121,7 +121,6 @@ func TestNewProbeBuilderWithInvalidActionClient(t *testing.T) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", nil, probe)
 	}
 }
-
 
 func TestNewProbeBuilderInvalidTargetId(t *testing.T) {
 	probeType := "Type1"
@@ -168,22 +167,19 @@ func TestNewProbeBuilderInvalidProbeType(t *testing.T) {
 	}
 }
 
-
 func createProbe(probeType, probeCat string,
-			registrationClient TurboRegistrationClient,
-			targetId string, discoveryClient TurboDiscoveryClient) (*TurboProbe, error) {
+	registrationClient TurboRegistrationClient,
+	targetId string, discoveryClient TurboDiscoveryClient) (*TurboProbe, error) {
 
 	builder := NewProbeBuilder(probeType, probeCat)
 
-	if (registrationClient != nil) {
+	if registrationClient != nil {
 		builder.RegisteredBy(registrationClient)
 	}
 
-	if (targetId != "" || discoveryClient != nil) {
+	if targetId != "" || discoveryClient != nil {
 		builder.DiscoversTarget(targetId, discoveryClient)
 	}
 
 	return builder.Create()
 }
-
-
