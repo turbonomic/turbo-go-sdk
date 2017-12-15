@@ -18,14 +18,3 @@ type TurboActionExecutorClient interface {
 type ActionProgressTracker interface {
 	UpdateProgress(actionState proto.ActionResponseState, description string, progress int32)
 }
-
-type ProbeActionExecutor struct {
-	ActionSupportTable map[proto.EntityDTO_EntityType]map[proto.ActionItemDTO_ActionType]ActionExecutor
-	TurboActionExecutorClient
-}
-
-type ActionExecutor struct {
-	EntityType proto.EntityDTO_EntityType
-	ActionType proto.ActionItemDTO_ActionType
-	//DoAction() (*proto.ActionResult, error)
-}

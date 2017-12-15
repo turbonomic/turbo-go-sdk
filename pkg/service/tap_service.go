@@ -44,11 +44,11 @@ func (tapService *TAPService) ConnectToTurbo() {
 	status := <-IsRegistered
 	if !status {
 		glog.Fatalf("Probe " + tapService.ProbeConfiguration.ProbeCategory +
-				"::" + tapService.ProbeConfiguration.ProbeType + " is not registered")
+			"::" + tapService.ProbeConfiguration.ProbeType + " is not registered")
 		return
 	}
 	glog.V(3).Infof("Probe " + tapService.ProbeConfiguration.ProbeCategory +
-				"::" + tapService.ProbeConfiguration.ProbeType + " Registered : === Add Targets ===")
+		"::" + tapService.ProbeConfiguration.ProbeType + " Registered : === Add Targets ===")
 
 	// Register the probe targets
 	targetInfos := tapService.GetProbeTargets()

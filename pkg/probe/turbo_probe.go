@@ -113,7 +113,6 @@ func (theProbe *TurboProbe) GetTurboDiscoveryClient(accountValues []*proto.Accou
 
 	address = findTargetId(accountValues, identifyingField)
 	target, exists := theProbe.DiscoveryClientMap[address]
-
 	if !exists {
 		glog.Errorf("[GetTurboDiscoveryClient] Cannot find Target for address: %s", address)
 		//TODO: CreateDiscoveryClient(address, accountValues, )
@@ -137,22 +136,25 @@ func findTargetId(accountValues []*proto.AccountValue, identifyingField string) 
 
 func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
 	glog.V(2).Infof("Discover Target: %s", accountValues)
-	var handler TurboDiscoveryClient
-	handler = theProbe.GetTurboDiscoveryClient(accountValues)
-	if handler == nil {
-		description := "Non existent target"
-		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_CRITICAL)
-	}
-	var discoveryResponse *proto.DiscoveryResponse
+	targetId := findTargetId(accountValues, theProbe.RegistrationClient.GetIdentifyingFields())
+	target, exists := theProbe.DiscoveryClientMap[targetId]
 
+	if !exists {
+		return theProbe.createNonExistentTargetDiscoveryErrorDTO(targetId)
+	}
+
+	var handler TurboDiscoveryClient
+	handler = target.TurboDiscoveryClient
+	if handler == nil {
+		return theProbe.createNonSupportedDiscoveryErrorDTO("Full", targetId)
+	}
+
+	var discoveryResponse *proto.DiscoveryResponse
 	glog.V(4).Infof("Send discovery request to handler %v", handler)
 	discoveryResponse, err := handler.Discover(accountValues)
 
 	if err != nil {
-		description := fmt.Sprintf("Error discovering target %s", err)
-		severity := proto.ErrorDTO_CRITICAL
-
-		discoveryResponse = theProbe.createDiscoveryErrorDTO(description, severity)
+		discoveryResponse = theProbe.createDiscoveryTargetErrorDTO("Full", targetId, err)
 		glog.Errorf("Error discovering target %s", discoveryResponse)
 	}
 	glog.V(3).Infof("Discovery response: %s", discoveryResponse)
@@ -161,12 +163,16 @@ func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) 
 
 func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) *proto.ValidationResponse {
 	glog.V(2).Infof("Validate Target: %++v", accountValues)
+	targetId := findTargetId(accountValues, theProbe.RegistrationClient.GetIdentifyingFields())
+	target, exists := theProbe.DiscoveryClientMap[targetId]
+	if !exists {
+		return theProbe.createNonExistentTargetValidationErrorDTO(targetId)
+	}
+
 	var handler TurboDiscoveryClient
-	handler = theProbe.GetTurboDiscoveryClient(accountValues)
+	handler = target.TurboDiscoveryClient //theProbe.GetTurboDiscoveryClient(accountValues)
 	if handler == nil {
-		description := "Target not found"
-		severity := proto.ErrorDTO_CRITICAL
-		return theProbe.createValidationErrorDTO(description, severity)
+		return theProbe.createNonSupportedValidationErrorDTO(targetId)
 	}
 
 	var validationResponse *proto.ValidationResponse
@@ -194,14 +200,12 @@ func (theProbe *TurboProbe) DiscoverTargetIncremental(accountValues []*proto.Acc
 	target, exists := theProbe.DiscoveryClientMap[targetId]
 
 	if !exists {
-		description := "Non existent target"
-		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_CRITICAL)
+		return theProbe.createNonExistentTargetDiscoveryErrorDTO(targetId)
 	}
 
 	handler = target.IIncrementalDiscovery
 	if handler == nil {
-		description := "Incremental discovery not supported"
-		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_WARNING)
+		return theProbe.createNonSupportedDiscoveryErrorDTO("Incremental", targetId)
 	}
 	var discoveryResponse *proto.DiscoveryResponse
 
@@ -209,10 +213,7 @@ func (theProbe *TurboProbe) DiscoverTargetIncremental(accountValues []*proto.Acc
 	discoveryResponse, err := handler.DiscoverIncremental(accountValues)
 
 	if err != nil {
-		description := fmt.Sprintf("Error during incremental discovering target %s", err)
-		severity := proto.ErrorDTO_CRITICAL
-
-		discoveryResponse = theProbe.createDiscoveryErrorDTO(description, severity)
+		discoveryResponse = theProbe.createDiscoveryTargetErrorDTO("Incremental", targetId, err)
 		glog.Errorf("Error during incremental discovery of target %s", discoveryResponse)
 	}
 	glog.V(3).Infof("Incremental Discovery response: %s", discoveryResponse)
@@ -226,14 +227,12 @@ func (theProbe *TurboProbe) DiscoverTargetPerformance(accountValues []*proto.Acc
 	target, exists := theProbe.DiscoveryClientMap[targetId]
 
 	if !exists {
-		description := "Non existent target"
-		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_CRITICAL)
+		return theProbe.createNonExistentTargetDiscoveryErrorDTO(targetId)
 	}
 
 	handler = target.IPerformanceDiscovery
 	if handler == nil {
-		description := "Performance discovery not supported"
-		return theProbe.createDiscoveryErrorDTO(description, proto.ErrorDTO_WARNING)
+		return theProbe.createNonSupportedDiscoveryErrorDTO("Performance", targetId)
 	}
 	var discoveryResponse *proto.DiscoveryResponse
 
@@ -241,10 +240,7 @@ func (theProbe *TurboProbe) DiscoverTargetPerformance(accountValues []*proto.Acc
 	discoveryResponse, err := handler.DiscoverPerformance(accountValues)
 
 	if err != nil {
-		description := fmt.Sprintf("Error during performance discovery of target %s", err)
-		severity := proto.ErrorDTO_CRITICAL
-
-		discoveryResponse = theProbe.createDiscoveryErrorDTO(description, severity)
+		discoveryResponse = theProbe.createDiscoveryTargetErrorDTO("Performance", targetId, err)
 		glog.Errorf("Error during performance discovery of target %s", discoveryResponse)
 	}
 	glog.V(3).Infof("Performance Discovery response: %s", discoveryResponse)
@@ -321,9 +317,34 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	}
 
 	probeInfo := probeInfoBuilder.Create()
-	glog.V(2).Infof("ProbeInfo %++v\n", probeInfo)
+	glog.V(3).Infof("ProbeInfo %++v\n", probeInfo)
 
 	return probeInfo, nil
+}
+
+func (theProbe *TurboProbe) createNonExistentTargetValidationErrorDTO(targetId string) *proto.ValidationResponse {
+	errorStr := fmt.Sprintf("Non existent target:%s", targetId)
+	return theProbe.createValidationErrorDTO(errorStr, proto.ErrorDTO_CRITICAL)
+}
+
+func (theProbe *TurboProbe) createNonSupportedValidationErrorDTO(targetId string) *proto.ValidationResponse {
+	errorStr := fmt.Sprintf("Validation not supported for :%s", targetId)
+	return theProbe.createValidationErrorDTO(errorStr, proto.ErrorDTO_CRITICAL)
+}
+
+func (theProbe *TurboProbe) createNonExistentTargetDiscoveryErrorDTO(targetId string) *proto.DiscoveryResponse {
+	errorStr := fmt.Sprintf("Non existent target:%s", targetId)
+	return theProbe.createDiscoveryErrorDTO(errorStr, proto.ErrorDTO_CRITICAL)
+}
+
+func (theProbe *TurboProbe) createNonSupportedDiscoveryErrorDTO(discoveryType string, targetId string) *proto.DiscoveryResponse {
+	errorStr := fmt.Sprintf("%s discovery not supported for :%s", discoveryType, targetId)
+	return theProbe.createDiscoveryErrorDTO(errorStr, proto.ErrorDTO_CRITICAL)
+}
+
+func (theProbe *TurboProbe) createDiscoveryTargetErrorDTO(discoveryType string, targetId string, err error) *proto.DiscoveryResponse {
+	errorStr := fmt.Sprintf("Error during %s discovery of target %s: %s", discoveryType, targetId, err)
+	return theProbe.createDiscoveryErrorDTO(errorStr, proto.ErrorDTO_CRITICAL)
 }
 
 func (theProbe *TurboProbe) createValidationErrorDTO(errMsg string, severity proto.ErrorDTO_ErrorSeverity) *proto.ValidationResponse {

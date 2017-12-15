@@ -5,6 +5,12 @@ import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
+const (
+	DEFAULT_FULL_DISCOVERY_IN_SECS int32 = 600
+	DEFAULT_MIN_DISCOVERY_IN_SECS  int32 = 60
+	DISCOVERY_NOT_SUPPORTED        int32 = -1
+)
+
 // ISupplyChainProvider provides the entities defined in the supply chain for a probe
 type ISupplyChainProvider interface {
 	GetSupplyChainDefinition() []*proto.TemplateDTO
@@ -42,7 +48,7 @@ type IPerformanceDiscoveryMetadata interface {
 	GetPerformanceRediscoveryIntervalSeconds() int32
 }
 
-// Default implementation for the providing the full, incremental, performance
+// Implementation for the providing the full, incremental, performance
 // discovery intervals for the probe.
 type DiscoveryMetadata struct {
 	fullDiscovery        int32
@@ -50,11 +56,15 @@ type DiscoveryMetadata struct {
 	performanceDiscovery int32
 }
 
+// Create a DiscoveryMetadata structure with default values for the different discovery intervals.
+// Full discovery default is set to 600 seconds which means full discovery will occur every 10 minutes.
+// Incremental discovery is set to -1 implies that incremental discovery is not supported by the probe.
+// Performance discovery is set to -1 implies that the performance discovery is not supported by the probe.
 func NewDiscoveryMetadata() *DiscoveryMetadata {
 	return &DiscoveryMetadata{
-		fullDiscovery:        600,
-		incrementalDiscovery: -1,
-		performanceDiscovery: -1,
+		fullDiscovery:        DEFAULT_FULL_DISCOVERY_IN_SECS,
+		incrementalDiscovery: DISCOVERY_NOT_SUPPORTED,
+		performanceDiscovery: DISCOVERY_NOT_SUPPORTED,
 	}
 }
 
@@ -70,27 +80,30 @@ func (dMetadata *DiscoveryMetadata) GetPerformanceRediscoveryIntervalSeconds() i
 	return dMetadata.performanceDiscovery
 }
 
+// Set the discovery interval at which the incremental discovery request will be sent to the probe
 func (dMetadata *DiscoveryMetadata) SetIncrementalRediscoveryIntervalSeconds(incrementalDiscovery int32) {
-	if incrementalDiscovery >= 60 {
+	if incrementalDiscovery >= DEFAULT_MIN_DISCOVERY_IN_SECS {
 		dMetadata.incrementalDiscovery = incrementalDiscovery
 	} else {
-		glog.Errorf("Invalid discovery interval %d", incrementalDiscovery)
+		glog.Errorf("Invalid incremental discovery interval %d", incrementalDiscovery)
 	}
 }
 
+// Set the discovery interval at which the performance discovery request will be sent to the probe
 func (dMetadata *DiscoveryMetadata) SetPerformanceRediscoveryIntervalSeconds(performanceDiscovery int32) {
-	if performanceDiscovery > -1 {
-		dMetadata.fullDiscovery = performanceDiscovery
+	if performanceDiscovery >= DEFAULT_MIN_DISCOVERY_IN_SECS {
+		dMetadata.performanceDiscovery = performanceDiscovery
 	} else {
 		glog.Errorf("Invalid performance discovery interval %d", performanceDiscovery)
 	}
 }
 
+// Set the discovery interval at which the full discovery request will be sent to the probe
 func (dMetadata *DiscoveryMetadata) SetFullRediscoveryIntervalSeconds(fullDiscovery int32) {
-	if fullDiscovery > -1 {
+	if fullDiscovery >= DEFAULT_MIN_DISCOVERY_IN_SECS {
 		dMetadata.fullDiscovery = fullDiscovery
 	} else {
-		glog.Errorf("Invalid incremental discovery interval %d", fullDiscovery)
+		glog.Errorf("Invalid  discovery interval %d", fullDiscovery)
 	}
 }
 

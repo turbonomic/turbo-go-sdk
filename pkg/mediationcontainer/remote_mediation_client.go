@@ -346,7 +346,7 @@ func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest proto
 	case proto.DiscoveryType_PERFORMANCE:
 		discoveryResponse = turboProbe.DiscoverTargetPerformance(accountValues)
 	default:
-		discoveryResponse = turboProbe.DiscoverTarget(request.GetAccountValue())
+		discoveryResponse = turboProbe.DiscoverTarget(accountValues)
 	}
 
 	clientMsg := NewClientMessageBuilder(msgID).SetDiscoveryResponse(discoveryResponse).Create()

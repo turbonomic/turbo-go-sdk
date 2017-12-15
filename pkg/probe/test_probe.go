@@ -36,5 +36,4 @@ func (actionClient *TestProbeActionClient) ExecuteAction(actionExecutionDTO *pro
 	progressTracker ActionProgressTracker) (*proto.ActionResult, error) {
 
 	return nil, fmt.Errorf("TestProbeDiscoveryClient ExecuteAction not implemented")
-
 }

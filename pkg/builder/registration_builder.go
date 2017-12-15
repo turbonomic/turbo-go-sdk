@@ -4,6 +4,11 @@ import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
+const (
+	DEFAULT_FULL_DISCOVERY_IN_SECS int32 = 600
+	DISCOVERY_NOT_SUPPORTED        int32 = -1
+)
+
 //// Helper methods to create AccountDefinition map for sub classes of the probe
 // An AccountDefEntryBuilder builds an AccountDefEntry instance.
 type AccountDefEntryBuilder struct {
@@ -44,41 +49,52 @@ func (builder *AccountDefEntryBuilder) Create() *proto.AccountDefEntry {
 
 // Action Policy Metadata
 type ActionPolicyBuilder struct {
-	ActionPolicyMap map[proto.EntityDTO_EntityType][]*proto.ActionPolicyDTO_ActionPolicyElement
+	ActionPolicyMap map[proto.EntityDTO_EntityType]map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability
 }
 
 func NewActionPolicyBuilder() *ActionPolicyBuilder {
 	return &ActionPolicyBuilder{
-		ActionPolicyMap: make(map[proto.EntityDTO_EntityType][]*proto.ActionPolicyDTO_ActionPolicyElement),
+		ActionPolicyMap: make(map[proto.EntityDTO_EntityType]map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability),
 	}
 }
 
 func (builder *ActionPolicyBuilder) WithEntityActions(entityType proto.EntityDTO_EntityType,
-	actionType *proto.ActionItemDTO_ActionType,
-	actionCapability *proto.ActionPolicyDTO_ActionCapability) *ActionPolicyBuilder {
-	actionPolicy := &proto.ActionPolicyDTO_ActionPolicyElement{
-		ActionType:       actionType,
-		ActionCapability: actionCapability,
-	}
+	actionType proto.ActionItemDTO_ActionType,
+	actionCapability proto.ActionPolicyDTO_ActionCapability) *ActionPolicyBuilder {
+
 	_, exists := builder.ActionPolicyMap[entityType]
 	if !exists {
-		builder.ActionPolicyMap[entityType] = []*proto.ActionPolicyDTO_ActionPolicyElement{}
+		builder.ActionPolicyMap[entityType] =
+			make(map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability)
 	}
-	policies, _ := builder.ActionPolicyMap[entityType]
-	policies = append(policies, actionPolicy)
+	entityPolicies, _ := builder.ActionPolicyMap[entityType]
+	entityPolicies[actionType] = actionCapability
 
-	builder.ActionPolicyMap[entityType] = policies
 	return builder
 }
 
 func (builder *ActionPolicyBuilder) Create() []*proto.ActionPolicyDTO {
 	var policies []*proto.ActionPolicyDTO
 
-	for entityType, policyElements := range builder.ActionPolicyMap {
+	for entityType, entityPolicies := range builder.ActionPolicyMap {
+		policyElements := []*proto.ActionPolicyDTO_ActionPolicyElement{}
+
+		for key, val := range entityPolicies {
+			actionType := key
+			actionCapability := val
+			actionPolicy := &proto.ActionPolicyDTO_ActionPolicyElement{
+				ActionType:       &actionType,
+				ActionCapability: &actionCapability,
+			}
+
+			policyElements = append(policyElements, actionPolicy)
+		}
+		eType := entityType
 		policyDto := &proto.ActionPolicyDTO{
-			EntityType:    &entityType,
+			EntityType:    &eType,
 			PolicyElement: policyElements,
 		}
+
 		policies = append(policies, policyDto)
 	}
 	return policies
@@ -107,10 +123,16 @@ func NewProbeInfoBuilder(probeType, probeCat string,
 
 // NewBasicProbeInfoBuilder builds the ProbeInfo DTO for the given probe
 func NewBasicProbeInfoBuilder(probeType, probeCat string) *ProbeInfoBuilder {
-	// New ProbeInfo protobuf with this input
+	var full, other int32
+	full = DEFAULT_FULL_DISCOVERY_IN_SECS
+	other = DISCOVERY_NOT_SUPPORTED
+
 	probeInfo := &proto.ProbeInfo{
-		ProbeType:     &probeType,
-		ProbeCategory: &probeCat,
+		ProbeType:                             &probeType,
+		ProbeCategory:                         &probeCat,
+		FullRediscoveryIntervalSeconds:        &full,
+		IncrementalRediscoveryIntervalSeconds: &other,
+		PerformanceRediscoveryIntervalSeconds: &other,
 	}
 	return &ProbeInfoBuilder{
 		probeInfo: probeInfo,
