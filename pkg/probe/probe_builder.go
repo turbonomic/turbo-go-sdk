@@ -6,12 +6,6 @@ import (
 )
 
 type ProbeBuilder struct {
-	//probeType              string
-	//probeCategory          string
-	//fullDiscovery          int32
-	//incrementalDiscovery   int32
-	//performanceDiscovery   int32
-	//
 	probeConf              *ProbeConfig
 	registrationClient     TurboRegistrationClient
 	discoveryClientMap     map[string]TurboDiscoveryClient

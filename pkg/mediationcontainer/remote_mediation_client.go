@@ -353,7 +353,7 @@ func (discReqHandler *DiscoveryRequestHandler) HandleMessage(serverRequest proto
 
 	// Send the response on the callback channel to send to the server
 	probeMsgChan <- clientMsg // This will block till the channel is ready to receive
-	glog.V(2).Infof("Sent discovery response for %d:%s", clientMsg.GetMessageID(), request.GetDiscoveryType())
+	glog.V(3).Infof("Sent discovery response for %d:%s", clientMsg.GetMessageID(), request.GetDiscoveryType())
 
 	// Send empty response to signal completion of discovery
 	discoveryResponse = &proto.DiscoveryResponse{}

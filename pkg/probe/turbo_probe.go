@@ -12,9 +12,7 @@ import (
 // Consists of clients that handle probe registration metadata,
 // and the discovery and action execution for different probe targets
 type TurboProbe struct {
-	ProbeConfiguration ProbeConfig
-	ProbeType          string
-	ProbeCategory      string
+	ProbeConfiguration *ProbeConfig
 	RegistrationClient *ProbeRegistrationAgent
 	DiscoveryClientMap map[string]*TargetDiscoveryAgent
 
@@ -82,8 +80,7 @@ func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 	}
 
 	myProbe := &TurboProbe{
-		ProbeType:          probeConf.ProbeType,
-		ProbeCategory:      probeConf.ProbeCategory,
+		ProbeConfiguration: probeConf,
 		DiscoveryClientMap: make(map[string]*TargetDiscoveryAgent),
 	}
 
@@ -257,8 +254,8 @@ func (theProbe *TurboProbe) DiscoverTargetPerformance(accountValues []*proto.Acc
 func (theProbe *TurboProbe) ExecuteAction(actionExecutionDTO *proto.ActionExecutionDTO, accountValues []*proto.AccountValue,
 	progressTracker ActionProgressTracker) *proto.ActionResult {
 	if theProbe.ActionClient == nil {
-		glog.V(3).Infof("ActionClient not defined for Probe %s", theProbe.ProbeType)
-		return theProbe.createActionErrorDTO("ActionClient not defined for Probe " + theProbe.ProbeType)
+		glog.V(3).Infof("ActionClient not defined for Probe %s", theProbe.ProbeConfiguration.ProbeType)
+		return theProbe.createActionErrorDTO("ActionClient not defined for Probe " + theProbe.ProbeConfiguration.ProbeType)
 	}
 	glog.V(3).Infof("Execute Action for Target: %s", accountValues)
 	response, err := theProbe.ActionClient.ExecuteAction(actionExecutionDTO, accountValues, progressTracker)
@@ -279,7 +276,7 @@ func (theProbe *TurboProbe) GetProbeTargets() []*TurboTargetInfo {
 	for targetId, discoveryClient := range theProbe.DiscoveryClientMap {
 
 		targetInfo := discoveryClient.GetAccountValues()
-		targetInfo.targetType = theProbe.ProbeType
+		targetInfo.targetType = theProbe.ProbeConfiguration.ProbeType
 		targetInfo.targetIdentifierField = targetId
 
 		targets = append(targets, targetInfo)
@@ -290,8 +287,8 @@ func (theProbe *TurboProbe) GetProbeTargets() []*TurboTargetInfo {
 // The ProbeInfo for the probe
 func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	// 1. construct the basic probe info.
-	probeCat := theProbe.ProbeCategory
-	probeType := theProbe.ProbeType
+	probeCat := theProbe.ProbeConfiguration.ProbeCategory
+	probeType := theProbe.ProbeConfiguration.ProbeType
 	probeInfoBuilder := builder.NewBasicProbeInfoBuilder(probeType, probeCat)
 
 	registrationClient := theProbe.RegistrationClient

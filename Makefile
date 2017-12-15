@@ -14,4 +14,3 @@ fmtcheck:
 .PHONY: vet
  vet:
 	@go vet $(shell $(PACKAGES))
-
