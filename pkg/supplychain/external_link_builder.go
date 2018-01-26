@@ -14,7 +14,7 @@ type ExternalEntityLinkBuilder struct {
 	key                        *string
 	hasExternalEntity          *bool
 	probeEntityPropertyDef     []*proto.ExternalEntityLink_EntityPropertyDef
-	externalEntityPropertyDefs []*proto.ExternalEntityLink_ServerEntityPropDef
+	externalEntityPropertyDefs []*proto.ServerEntityPropDef
 
 	err error
 }
@@ -89,7 +89,7 @@ func (builder *ExternalEntityLinkBuilder) ProbeEntityPropertyDef(name, descripti
 // The ServerEntityPropertyDef includes metadata for the properties of the  external entity. Operations Manager can
 // use the metadata to stitch entities discovered by the probe together with external entities.
 // An external entity is one that exists in the Operations Manager topology, but has not been discovered by the probe.
-func (builder *ExternalEntityLinkBuilder) ExternalEntityPropertyDef(propertyDef *proto.ExternalEntityLink_ServerEntityPropDef) *ExternalEntityLinkBuilder {
+func (builder *ExternalEntityLinkBuilder) ExternalEntityPropertyDef(propertyDef *proto.ServerEntityPropDef) *ExternalEntityLinkBuilder {
 	if propertyDef == nil {
 		builder.err = fmt.Errorf("Nil service entity property definition.")
 		return builder

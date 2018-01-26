@@ -26,6 +26,8 @@ It has these top-level messages:
 	ContextData
 	NotificationDTO
 	CustomTypeDef
+	ServerEntityPropDef
+	PropertyHandler
 	EntityIdentityData
 	FlowDTO
 	ValidationResponse
@@ -55,7 +57,6 @@ It has these top-level messages:
 	EntityProfileDTO
 	CommodityProfileDTO
 	DeploymentProfileDTO
-	ReservedInstanceDTO
 	TemplateDTO
 	TemplateCommodity
 	Provider
