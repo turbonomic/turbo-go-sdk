@@ -177,7 +177,7 @@ func TestExternalEntityLinkBuilder_ProbeEntityPropertyDef(t *testing.T) {
 
 func TestExternalEntityLinkBuilder_ExternalEntityPropertyDef(t *testing.T) {
 	table := []struct {
-		propertyDef *proto.ServerEntityPropDef
+		propertyDef *proto.ExternalEntityLink_ServerEntityPropDef
 	}{
 		{
 			propertyDef: nil,
@@ -191,7 +191,7 @@ func TestExternalEntityLinkBuilder_ExternalEntityPropertyDef(t *testing.T) {
 		base := &ExternalEntityLinkBuilder{}
 		expectedLinkBuilder := &ExternalEntityLinkBuilder{}
 		if item.propertyDef != nil {
-			expectedLinkBuilder.externalEntityPropertyDefs = []*proto.ServerEntityPropDef{
+			expectedLinkBuilder.externalEntityPropertyDefs = []*proto.ExternalEntityLink_ServerEntityPropDef{
 				item.propertyDef,
 			}
 		} else {

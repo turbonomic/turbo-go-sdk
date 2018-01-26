@@ -96,10 +96,10 @@ func RandomCommodityDTOSold() *proto.CommodityDTO {
 
 }
 
-func RandomExternalEntityLink_ServerEntityPropDef() *proto.ServerEntityPropDef {
+func RandomExternalEntityLink_ServerEntityPropDef() *proto.ExternalEntityLink_ServerEntityPropDef {
 	entity := RandomEntityType()
 	attribute := String(5)
-	return &proto.ServerEntityPropDef{
+	return &proto.ExternalEntityLink_ServerEntityPropDef{
 		Entity:    &entity,
 		Attribute: &attribute,
 	}
