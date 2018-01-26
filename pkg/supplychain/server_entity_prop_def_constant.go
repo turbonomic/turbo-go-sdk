@@ -9,38 +9,38 @@ const (
 	serverUUIDProperty = "Uuid"
 )
 
-func getIPHandler() *proto.ExternalEntityLink_PropertyHandler {
+func getIPHandler() *proto.PropertyHandler {
 	directlyApply := false
 	ipEntityType := proto.EntityDTO_IP
 	methodName := getIPAddressMethodName
 
-	return &proto.ExternalEntityLink_PropertyHandler{
+	return &proto.PropertyHandler{
 		MethodName:    &methodName,
 		DirectlyApply: &directlyApply,
 		EntityType:    &ipEntityType,
 	}
 }
 
-var VM_IP *proto.ExternalEntityLink_ServerEntityPropDef = getVirtualMachineIPProperty()
+var VM_IP *proto.ServerEntityPropDef = getVirtualMachineIPProperty()
 
-func getVirtualMachineIPProperty() *proto.ExternalEntityLink_ServerEntityPropDef {
+func getVirtualMachineIPProperty() *proto.ServerEntityPropDef {
 	attribute := serverIPProperty
 	vmEntityType := proto.EntityDTO_VIRTUAL_MACHINE
 
-	return &proto.ExternalEntityLink_ServerEntityPropDef{
+	return &proto.ServerEntityPropDef{
 		Entity:          &vmEntityType,
 		Attribute:       &attribute,
 		PropertyHandler: getIPHandler(),
 	}
 }
 
-var VM_UUID *proto.ExternalEntityLink_ServerEntityPropDef = getVirtualMachineUUIDProperty()
+var VM_UUID *proto.ServerEntityPropDef = getVirtualMachineUUIDProperty()
 
-func getVirtualMachineUUIDProperty() *proto.ExternalEntityLink_ServerEntityPropDef {
+func getVirtualMachineUUIDProperty() *proto.ServerEntityPropDef {
 	attribute := serverUUIDProperty
 	vmEntityType := proto.EntityDTO_VIRTUAL_MACHINE
 
-	return &proto.ExternalEntityLink_ServerEntityPropDef{
+	return &proto.ServerEntityPropDef{
 		Entity:    &vmEntityType,
 		Attribute: &attribute,
 	}
