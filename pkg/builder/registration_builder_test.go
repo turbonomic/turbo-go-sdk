@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
@@ -111,27 +112,40 @@ func TestActionPolicyBuilder(t *testing.T) {
 
 	expectedMap := make(map[proto.EntityDTO_EntityType]map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability)
 	expectedMap[proto.EntityDTO_VIRTUAL_MACHINE] = map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability{
+		proto.ActionItemDTO_MOVE:      notSupported,
+		proto.ActionItemDTO_RESIZE:    notSupported,
+		proto.ActionItemDTO_PROVISION: proto.ActionPolicyDTO_NOT_EXECUTABLE,
+	}
+	expectedMap[proto.EntityDTO_CONTAINER_POD] = map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability{
 		proto.ActionItemDTO_MOVE:      supported,
+		proto.ActionItemDTO_RESIZE:    notSupported,
+		proto.ActionItemDTO_PROVISION: supported,
+	}
+	expectedMap[proto.EntityDTO_CONTAINER] = map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability{
+		proto.ActionItemDTO_MOVE:      notSupported,
 		proto.ActionItemDTO_RESIZE:    supported,
 		proto.ActionItemDTO_PROVISION: notSupported,
 	}
-	expectedMap[proto.EntityDTO_CONTAINER_POD] = map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability{
-		proto.ActionItemDTO_MOVE:   supported,
-		proto.ActionItemDTO_RESIZE: notSupported,
-	}
-	expectedMap[proto.EntityDTO_CONTAINER] = map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability{
-		proto.ActionItemDTO_MOVE:   notSupported,
-		proto.ActionItemDTO_RESIZE: supported,
-	}
 
 	builder := NewActionPolicyBuilder()
-	for eType, itemMap := range expectedMap {
-		for aType, item := range itemMap {
-			builder.WithEntityActions(eType, aType, item)
-		}
-	}
+	builder.ForEntity(NewEntityActionPolicyBuilder(proto.EntityDTO_VIRTUAL_MACHINE).
+		CanMove(false).
+		CanResize(false).
+		RecommendOnly(proto.ActionItemDTO_PROVISION))
+
+	builder.ForEntity(NewEntityActionPolicyBuilder(proto.EntityDTO_CONTAINER_POD).
+		CanMove(true).
+		CanClone(true).
+		CanResize(false))
+
+	builder.ForEntity(NewEntityActionPolicyBuilder(proto.EntityDTO_CONTAINER).
+		CanMove(false).
+		CanClone(false).
+		CanResize(true))
 
 	actionPolicies := builder.Create()
+
+	fmt.Printf("%++v\n", builder.ActionPolicyMap)
 	for _, actionPolicy := range actionPolicies {
 		policies := actionPolicy.PolicyElement
 		expectedPolicies, exists := expectedMap[*actionPolicy.EntityType]

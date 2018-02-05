@@ -91,6 +91,7 @@ func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 	registrationClient.discoveryMetadata.SetPerformanceRediscoveryIntervalSeconds(probeConf.PerformanceDiscovery)
 
 	myProbe.RegistrationClient = registrationClient
+	myProbe.RegistrationClient.IActionPolicyProvider = &DefaultActionPolicyMetadata{}
 
 	glog.V(2).Infof("[NewTurboProbe] Created TurboProbe: %s", myProbe)
 	return myProbe, nil

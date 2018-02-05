@@ -58,17 +58,12 @@ func NewActionPolicyBuilder() *ActionPolicyBuilder {
 	}
 }
 
-func (builder *ActionPolicyBuilder) WithEntityActions(entityType proto.EntityDTO_EntityType,
-	actionType proto.ActionItemDTO_ActionType,
-	actionCapability proto.ActionPolicyDTO_ActionCapability) *ActionPolicyBuilder {
+// Set up the action policies for the specified entity type.
+// Takes the EntityActionPolicyBuilder as an argument to conveniently set up the policies for
+// different action types for this entity type.
+func (builder *ActionPolicyBuilder) ForEntity(entityActionBuilder *EntityActionPolicyBuilder) *ActionPolicyBuilder {
 
-	_, exists := builder.ActionPolicyMap[entityType]
-	if !exists {
-		builder.ActionPolicyMap[entityType] =
-			make(map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability)
-	}
-	entityPolicies, _ := builder.ActionPolicyMap[entityType]
-	entityPolicies[actionType] = actionCapability
+	builder.ActionPolicyMap[entityActionBuilder.EntityType] = entityActionBuilder.Build()
 
 	return builder
 }
@@ -98,6 +93,78 @@ func (builder *ActionPolicyBuilder) Create() []*proto.ActionPolicyDTO {
 		policies = append(policies, policyDto)
 	}
 	return policies
+}
+
+// Builder for action policies for an entity type
+type EntityActionPolicyBuilder struct {
+	EntityType      proto.EntityDTO_EntityType
+	ActionPolicyMap map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability
+}
+
+// Create a new instance for an entity type to set up the action policies
+func NewEntityActionPolicyBuilder(entityType proto.EntityDTO_EntityType) *EntityActionPolicyBuilder {
+	return &EntityActionPolicyBuilder{
+		EntityType:      entityType,
+		ActionPolicyMap: make(map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability),
+	}
+}
+
+// Lists the action types that can be supported and executed for the entity type
+func (builder *EntityActionPolicyBuilder) Supports(actionTypes ...proto.ActionItemDTO_ActionType) *EntityActionPolicyBuilder {
+	for _, actionType := range actionTypes {
+		builder.ActionPolicyMap[actionType] = proto.ActionPolicyDTO_SUPPORTED
+	}
+	return builder
+}
+
+// Lists the action types that cannot be supported and executed for the entity type
+func (builder *EntityActionPolicyBuilder) DoesNotSupport(actionTypes ...proto.ActionItemDTO_ActionType) *EntityActionPolicyBuilder {
+	for _, actionType := range actionTypes {
+		builder.ActionPolicyMap[actionType] = proto.ActionPolicyDTO_NOT_SUPPORTED
+	}
+	return builder
+}
+
+// Lists the action types that cannot be executed currently for the entity type
+func (builder *EntityActionPolicyBuilder) RecommendOnly(actionTypes ...proto.ActionItemDTO_ActionType) *EntityActionPolicyBuilder {
+	for _, actionType := range actionTypes {
+		builder.ActionPolicyMap[actionType] = proto.ActionPolicyDTO_NOT_EXECUTABLE
+	}
+	return builder
+}
+
+// Specifies if the entity can be moved or not.
+func (builder *EntityActionPolicyBuilder) CanMove(move bool) *EntityActionPolicyBuilder {
+	if move {
+		builder.ActionPolicyMap[proto.ActionItemDTO_MOVE] = proto.ActionPolicyDTO_SUPPORTED
+	} else {
+		builder.ActionPolicyMap[proto.ActionItemDTO_MOVE] = proto.ActionPolicyDTO_NOT_SUPPORTED
+	}
+	return builder
+}
+
+// Specifies if the entity can be resized or not.
+func (builder *EntityActionPolicyBuilder) CanResize(resize bool) *EntityActionPolicyBuilder {
+	if resize {
+		builder.ActionPolicyMap[proto.ActionItemDTO_RESIZE] = proto.ActionPolicyDTO_SUPPORTED
+	} else {
+		builder.ActionPolicyMap[proto.ActionItemDTO_RESIZE] = proto.ActionPolicyDTO_NOT_SUPPORTED
+	}
+	return builder
+}
+
+// Specifies if the entity can be cloned or not.
+func (builder *EntityActionPolicyBuilder) CanClone(clone bool) *EntityActionPolicyBuilder {
+	if clone {
+		builder.ActionPolicyMap[proto.ActionItemDTO_PROVISION] = proto.ActionPolicyDTO_SUPPORTED
+	} else {
+		builder.ActionPolicyMap[proto.ActionItemDTO_PROVISION] = proto.ActionPolicyDTO_NOT_SUPPORTED
+	}
+	return builder
+}
+
+func (builder *EntityActionPolicyBuilder) Build() map[proto.ActionItemDTO_ActionType]proto.ActionPolicyDTO_ActionCapability {
+	return builder.ActionPolicyMap
 }
 
 // A ProbeInfoBuilder builds a ProbeInfo instance.
