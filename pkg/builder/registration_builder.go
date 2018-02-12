@@ -1,15 +1,10 @@
 package builder
 
 import (
+	"github.com/turbonomic/turbo-go-sdk/pkg"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
-const (
-	DEFAULT_FULL_DISCOVERY_IN_SECS int32 = 600
-	DISCOVERY_NOT_SUPPORTED        int32 = -1
-)
-
-//// Helper methods to create AccountDefinition map for sub classes of the probe
 // An AccountDefEntryBuilder builds an AccountDefEntry instance.
 type AccountDefEntryBuilder struct {
 	accountDefEntry *proto.AccountDefEntry
@@ -101,6 +96,7 @@ func (builder *ActionPolicyBuilder) Create() []*proto.ActionPolicyDTO {
 }
 
 // A ProbeInfoBuilder builds a ProbeInfo instance.
+// ProbeInfo structure stores the data necessary to register the Probe with the Turbonomic server.
 type ProbeInfoBuilder struct {
 	probeInfo *proto.ProbeInfo
 }
@@ -123,16 +119,10 @@ func NewProbeInfoBuilder(probeType, probeCat string,
 
 // NewBasicProbeInfoBuilder builds the ProbeInfo DTO for the given probe
 func NewBasicProbeInfoBuilder(probeType, probeCat string) *ProbeInfoBuilder {
-	var full, other int32
-	full = DEFAULT_FULL_DISCOVERY_IN_SECS
-	other = DISCOVERY_NOT_SUPPORTED
 
 	probeInfo := &proto.ProbeInfo{
-		ProbeType:                             &probeType,
-		ProbeCategory:                         &probeCat,
-		FullRediscoveryIntervalSeconds:        &full,
-		IncrementalRediscoveryIntervalSeconds: &other,
-		PerformanceRediscoveryIntervalSeconds: &other,
+		ProbeType:     &probeType,
+		ProbeCategory: &probeCat,
 	}
 	return &ProbeInfoBuilder{
 		probeInfo: probeInfo,
@@ -140,45 +130,71 @@ func NewBasicProbeInfoBuilder(probeType, probeCat string) *ProbeInfoBuilder {
 }
 
 func (builder *ProbeInfoBuilder) WithIdentifyingField(idField string) *ProbeInfoBuilder {
-	builder.probeInfo.TargetIdentifierField = append(builder.probeInfo.TargetIdentifierField, idField)
+	builder.probeInfo.TargetIdentifierField = append(builder.probeInfo.TargetIdentifierField,
+		idField)
 	return builder
 }
 
-func (builder *ProbeInfoBuilder) WithSupplyChain(supplyChainSet []*proto.TemplateDTO) *ProbeInfoBuilder {
+func (builder *ProbeInfoBuilder) WithSupplyChain(supplyChainSet []*proto.TemplateDTO,
+) *ProbeInfoBuilder {
 	builder.probeInfo.SupplyChainDefinitionSet = supplyChainSet
 	return builder
 }
 
-func (builder *ProbeInfoBuilder) WithAccountDefinition(acctDefSet []*proto.AccountDefEntry) *ProbeInfoBuilder {
+func (builder *ProbeInfoBuilder) WithAccountDefinition(acctDefSet []*proto.AccountDefEntry,
+) *ProbeInfoBuilder {
 	builder.probeInfo.AccountDefinition = acctDefSet
 	return builder
 }
 
-func (builder *ProbeInfoBuilder) WithFullDiscoveryInterval(fullDiscoveryInSecs int32) *ProbeInfoBuilder {
+func (builder *ProbeInfoBuilder) WithFullDiscoveryInterval(fullDiscoveryInSecs int32,
+) *ProbeInfoBuilder {
+	// Ignore if the interval is less than DEFAULT_MIN_DISCOVERY_IN_SECS
+	if fullDiscoveryInSecs < pkg.DEFAULT_MIN_DISCOVERY_IN_SECS {
+		return builder
+	}
 	builder.probeInfo.FullRediscoveryIntervalSeconds = &fullDiscoveryInSecs
 	return builder
 }
 
-func (builder *ProbeInfoBuilder) WithIncrementalDiscoveryInterval(incrementalDiscoveryInSecs int32) *ProbeInfoBuilder {
+func (builder *ProbeInfoBuilder) WithIncrementalDiscoveryInterval(incrementalDiscoveryInSecs int32,
+) *ProbeInfoBuilder {
+	// Ignore if the interval implies the DISCOVERY_NOT_SUPPORTED value
+	if incrementalDiscoveryInSecs <= pkg.DISCOVERY_NOT_SUPPORTED {
+		return builder
+	}
 	builder.probeInfo.IncrementalRediscoveryIntervalSeconds = &incrementalDiscoveryInSecs
 	return builder
 }
 
-func (builder *ProbeInfoBuilder) WithPerformanceDiscoveryInterval(performanceDiscoveryInSecs int32) *ProbeInfoBuilder {
+func (builder *ProbeInfoBuilder) WithPerformanceDiscoveryInterval(performanceDiscoveryInSecs int32,
+) *ProbeInfoBuilder {
+	// Ignore if the interval implies the DISCOVERY_NOT_SUPPORTED value
+	if performanceDiscoveryInSecs <= pkg.DISCOVERY_NOT_SUPPORTED {
+		return builder
+	}
 	builder.probeInfo.PerformanceRediscoveryIntervalSeconds = &performanceDiscoveryInSecs
 	return builder
 }
 
-func (builder *ProbeInfoBuilder) WithActionPolicySet(actionPolicySet []*proto.ActionPolicyDTO) *ProbeInfoBuilder {
+func (builder *ProbeInfoBuilder) WithActionPolicySet(actionPolicySet []*proto.ActionPolicyDTO,
+) *ProbeInfoBuilder {
 	builder.probeInfo.ActionPolicy = actionPolicySet
 	return builder
 }
 
-func (builder *ProbeInfoBuilder) WithEntityMetadata(entityMetadataSet []*proto.EntityIdentityMetadata) *ProbeInfoBuilder {
+func (builder *ProbeInfoBuilder) WithEntityMetadata(entityMetadataSet []*proto.EntityIdentityMetadata,
+) *ProbeInfoBuilder {
 	builder.probeInfo.EntityMetadata = entityMetadataSet
 	return builder
 }
 
 func (builder *ProbeInfoBuilder) Create() *proto.ProbeInfo {
+	// Assert that the full discovery interval is set
+	if *builder.probeInfo.FullRediscoveryIntervalSeconds <= 0 {
+		var interval int32
+		interval = pkg.DEFAULT_MIN_DISCOVERY_IN_SECS
+		builder.probeInfo.FullRediscoveryIntervalSeconds = &interval
+	}
 	return builder.probeInfo
 }

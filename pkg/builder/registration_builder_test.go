@@ -2,6 +2,7 @@ package builder
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/turbonomic/turbo-go-sdk/pkg"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
 	"testing"
@@ -77,28 +78,38 @@ func TestProbeInfoBuilder(t *testing.T) {
 	table := []struct {
 		probeType     string
 		probeCategory string
+		full          int32
+		incremental   int32
+		performance   int32
 	}{
-		{"Type1", "Category1"},
-		{"Type2", "Category2"},
+		{"Type1", "Category1", 200, 10, 10},
+		{"Type2", "Category2", 200, 10, 10},
+		{"Type3", "Category3", -1, -1, -1},
 	}
-
-	interval := struct {
-		full        int32
-		incremental int32
-		performance int32
-	}{200, 10, 10}
 
 	for _, item := range table {
 		builder := NewBasicProbeInfoBuilder(item.probeType, item.probeCategory)
-		builder.WithFullDiscoveryInterval(interval.full)
-		builder.WithIncrementalDiscoveryInterval(interval.incremental)
-		builder.WithPerformanceDiscoveryInterval(interval.performance)
+		builder.WithFullDiscoveryInterval(item.full)
+		builder.WithIncrementalDiscoveryInterval(item.incremental)
+		builder.WithPerformanceDiscoveryInterval(item.performance)
 		probeInfo := builder.Create()
 		assert.Equal(t, item.probeType, probeInfo.GetProbeType())
 		assert.Equal(t, item.probeCategory, probeInfo.GetProbeCategory())
-		assert.EqualValues(t, interval.full, probeInfo.GetFullRediscoveryIntervalSeconds())
-		assert.EqualValues(t, interval.incremental, probeInfo.GetIncrementalRediscoveryIntervalSeconds())
-		assert.EqualValues(t, interval.performance, probeInfo.GetPerformanceRediscoveryIntervalSeconds())
+		if item.full < pkg.DEFAULT_MIN_DISCOVERY_IN_SECS {
+			assert.EqualValues(t, pkg.DEFAULT_MIN_DISCOVERY_IN_SECS, probeInfo.GetFullRediscoveryIntervalSeconds())
+		} else {
+			assert.EqualValues(t, item.full, probeInfo.GetFullRediscoveryIntervalSeconds())
+		}
+		if item.incremental <= pkg.DISCOVERY_NOT_SUPPORTED {
+			assert.EqualValues(t, 0, probeInfo.GetIncrementalRediscoveryIntervalSeconds())
+		} else {
+			assert.EqualValues(t, item.incremental, probeInfo.GetIncrementalRediscoveryIntervalSeconds())
+		}
+		if item.performance <= pkg.DISCOVERY_NOT_SUPPORTED {
+			assert.EqualValues(t, 0, probeInfo.GetPerformanceRediscoveryIntervalSeconds())
+		} else {
+			assert.EqualValues(t, item.performance, probeInfo.GetPerformanceRediscoveryIntervalSeconds())
+		}
 		assert.Nil(t, probeInfo.GetActionPolicy())
 		assert.Nil(t, probeInfo.GetEntityMetadata())
 	}
