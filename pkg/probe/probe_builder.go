@@ -2,7 +2,6 @@ package probe
 
 import (
 	"errors"
-	"fmt"
 	"github.com/golang/glog"
 )
 
@@ -52,11 +51,10 @@ func ErrorCreatingProbe(probeType string, probeCategory string) error {
 
 // Get an instance of ProbeBuilder
 func NewProbeBuilder(probeType string, probeCategory string) *ProbeBuilder {
+	probeBuilder := &ProbeBuilder{}
+
 	// Validate probe type and category
 	probeConf, err := NewProbeConfig(probeType, probeCategory)
-
-	probeBuilder := &ProbeBuilder{}
-	probeBuilder.builderError = err
 	if err != nil {
 		probeBuilder.builderError = err
 		return probeBuilder
@@ -83,7 +81,8 @@ func (pb *ProbeBuilder) Create() (*TurboProbe, error) {
 
 	turboProbe, err := newTurboProbe(pb.probeConf)
 	if err != nil {
-		pb.builderError = ErrorCreatingProbe(pb.probeConf.ProbeType, pb.probeConf.ProbeCategory)
+		pb.builderError = ErrorCreatingProbe(pb.probeConf.ProbeType,
+			pb.probeConf.ProbeCategory)
 		glog.Errorf(pb.builderError.Error())
 		return nil, pb.builderError
 	}
@@ -120,7 +119,6 @@ func (pb *ProbeBuilder) WithDiscoveryOptions(options ...DiscoveryMetadataOption)
 	}
 
 	pb.probeConf.SetDiscoveryMetadata(discoveryMetadata)
-	fmt.Printf("Create probe %++v\n", pb.probeConf.discoveryMetadata)
 	return pb
 }
 

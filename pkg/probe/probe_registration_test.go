@@ -13,29 +13,6 @@ func TestNewDiscoveryMetadata(t *testing.T) {
 	assert.EqualValues(t, -1, dm.GetPerformanceRediscoveryIntervalSeconds())
 }
 
-func TestCreateDiscoveryMetadata(t *testing.T) {
-	dm := CreateDiscoveryMetadata()
-	assert.EqualValues(t, 600, dm.GetFullRediscoveryIntervalSeconds())
-	assert.EqualValues(t, -1, dm.GetIncrementalRediscoveryIntervalSeconds())
-	assert.EqualValues(t, -1, dm.GetPerformanceRediscoveryIntervalSeconds())
-
-	dm = CreateDiscoveryMetadata(SetFullRediscoveryIntervalSeconds(1200))
-	assert.EqualValues(t, 1200, dm.GetFullRediscoveryIntervalSeconds())
-	assert.EqualValues(t, -1, dm.GetIncrementalRediscoveryIntervalSeconds())
-	assert.EqualValues(t, -1, dm.GetPerformanceRediscoveryIntervalSeconds())
-
-	dm = CreateDiscoveryMetadata(SetPerformanceRediscoveryIntervalSeconds(600),
-		SetIncrementalRediscoveryIntervalSeconds(900))
-	assert.EqualValues(t, 600, dm.GetFullRediscoveryIntervalSeconds())
-	assert.EqualValues(t, 900, dm.GetIncrementalRediscoveryIntervalSeconds())
-	assert.EqualValues(t, 600, dm.GetPerformanceRediscoveryIntervalSeconds())
-
-	dm = CreateDiscoveryMetadata(SetPerformanceRediscoveryIntervalSeconds(900))
-	assert.EqualValues(t, 600, dm.GetFullRediscoveryIntervalSeconds())
-	assert.EqualValues(t, -1, dm.GetIncrementalRediscoveryIntervalSeconds())
-	assert.EqualValues(t, 900, dm.GetPerformanceRediscoveryIntervalSeconds())
-}
-
 func TestSetDicoveryIntervals(t *testing.T) {
 	table := []struct {
 		full        int32

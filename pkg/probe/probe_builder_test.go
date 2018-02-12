@@ -15,9 +15,12 @@ func TestNewProbeBuilder(t *testing.T) {
 
 	_, _ = builder.Create()
 
-	assert.EqualValues(t, pkg.DEFAULT_FULL_DISCOVERY_IN_SECS, builder.probeConf.discoveryMetadata.GetFullRediscoveryIntervalSeconds())
-	assert.EqualValues(t, pkg.DISCOVERY_NOT_SUPPORTED, builder.probeConf.discoveryMetadata.GetIncrementalRediscoveryIntervalSeconds())
-	assert.EqualValues(t, pkg.DISCOVERY_NOT_SUPPORTED, builder.probeConf.discoveryMetadata.GetPerformanceRediscoveryIntervalSeconds())
+	assert.EqualValues(t, pkg.DEFAULT_FULL_DISCOVERY_IN_SECS,
+		builder.probeConf.discoveryMetadata.GetFullRediscoveryIntervalSeconds())
+	assert.EqualValues(t, pkg.DISCOVERY_NOT_SUPPORTED,
+		builder.probeConf.discoveryMetadata.GetIncrementalRediscoveryIntervalSeconds())
+	assert.EqualValues(t, pkg.DISCOVERY_NOT_SUPPORTED,
+		builder.probeConf.discoveryMetadata.GetPerformanceRediscoveryIntervalSeconds())
 }
 
 func TestNewProbeBuilderWithDiscoveryMetadata(t *testing.T) {
@@ -41,8 +44,9 @@ func TestNewProbeBuilderWithDiscoveryMetadata(t *testing.T) {
 	}
 	for _, item := range table {
 		builder := NewProbeBuilder(probeType, probeCat)
-		builder.WithDiscoveryOptions(SetIncrementalRediscoveryIntervalSeconds(item.incremental),
-			SetFullRediscoveryIntervalSeconds(item.full), SetPerformanceRediscoveryIntervalSeconds(item.performance))
+		builder.WithDiscoveryOptions(IncrementalRediscoveryIntervalSecondsOption(item.incremental),
+			FullRediscoveryIntervalSecondsOption(item.full),
+			PerformanceRediscoveryIntervalSecondsOption(item.performance))
 
 		_, _ = builder.Create()
 
@@ -102,11 +106,15 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", nil, err)
 	}
 
-	if !reflect.DeepEqual(registrationClient.GetSupplyChainDefinition(), probe.RegistrationClient.GetSupplyChainDefinition()) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", registrationClient, probe.RegistrationClient)
+	if !reflect.DeepEqual(registrationClient.GetSupplyChainDefinition(),
+		probe.RegistrationClient.GetSupplyChainDefinition()) {
+		t.Errorf("\nExpected %+v, \ngot      %+v",
+			registrationClient, probe.RegistrationClient)
 	}
-	if !reflect.DeepEqual(registrationClient.GetAccountDefinition(), probe.RegistrationClient.GetAccountDefinition()) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", registrationClient, probe.RegistrationClient)
+	if !reflect.DeepEqual(registrationClient.GetAccountDefinition(),
+		probe.RegistrationClient.GetAccountDefinition()) {
+		t.Errorf("\nExpected %+v, \ngot      %+v",
+			registrationClient, probe.RegistrationClient)
 	}
 
 	dc := probe.getDiscoveryClient(targetId)

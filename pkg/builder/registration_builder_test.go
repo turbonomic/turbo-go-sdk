@@ -85,6 +85,7 @@ func TestProbeInfoBuilder(t *testing.T) {
 		{"Type1", "Category1", 200, 10, 10},
 		{"Type2", "Category2", 200, 10, 10},
 		{"Type3", "Category3", -1, -1, -1},
+		{probeType: "Type4", probeCategory: "Category4"},
 	}
 
 	for _, item := range table {

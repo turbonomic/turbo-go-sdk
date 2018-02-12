@@ -65,31 +65,19 @@ func NewDiscoveryMetadata() *DiscoveryMetadata {
 
 type DiscoveryMetadataOption func(*DiscoveryMetadata)
 
-func CreateDiscoveryMetadata(options ...DiscoveryMetadataOption) *DiscoveryMetadata {
-	dm := &DiscoveryMetadata{
-		fullDiscovery:        pkg.DEFAULT_FULL_DISCOVERY_IN_SECS,
-		incrementalDiscovery: pkg.DISCOVERY_NOT_SUPPORTED,
-		performanceDiscovery: pkg.DISCOVERY_NOT_SUPPORTED,
-	}
-	for _, option := range options {
-		option(dm)
-	}
-	return dm
-}
-
-func SetIncrementalRediscoveryIntervalSeconds(incrementalDiscovery int32) func(dm *DiscoveryMetadata) {
+func IncrementalRediscoveryIntervalSecondsOption(incrementalDiscovery int32) func(dm *DiscoveryMetadata) {
 	return func(dm *DiscoveryMetadata) {
 		dm.SetIncrementalRediscoveryIntervalSeconds(incrementalDiscovery)
 	}
 }
 
-func SetPerformanceRediscoveryIntervalSeconds(performanceDiscovery int32) func(dm *DiscoveryMetadata) {
+func PerformanceRediscoveryIntervalSecondsOption(performanceDiscovery int32) func(dm *DiscoveryMetadata) {
 	return func(dm *DiscoveryMetadata) {
 		dm.SetPerformanceRediscoveryIntervalSeconds(performanceDiscovery)
 	}
 }
 
-func SetFullRediscoveryIntervalSeconds(fullDiscovery int32) func(dm *DiscoveryMetadata) {
+func FullRediscoveryIntervalSecondsOption(fullDiscovery int32) func(dm *DiscoveryMetadata) {
 	return func(dm *DiscoveryMetadata) {
 		dm.SetFullRediscoveryIntervalSeconds(fullDiscovery)
 	}
@@ -135,7 +123,7 @@ func checkSecondaryDiscoveryInterval(secondaryDiscoverySec int32, discoveryType 
 	}
 
 	if secondaryDiscoverySec < pkg.DEFAULT_MIN_DISCOVERY_IN_SECS {
-		glog.Warning("%s discovery interval value of %d is below minimum value allowed."+
+		glog.Warningf("%s discovery interval value of %d is below minimum value allowed."+
 			" Setting %s discovery interval to minimum allowed value of %d seconds.",
 			discoveryType, secondaryDiscoverySec, pkg.DEFAULT_MIN_DISCOVERY_IN_SECS)
 		return pkg.DEFAULT_MIN_DISCOVERY_IN_SECS
@@ -152,7 +140,7 @@ func checkFullRediscoveryInterval(rediscoveryIntervalSec int32) int32 {
 	}
 
 	if rediscoveryIntervalSec < pkg.DEFAULT_MIN_DISCOVERY_IN_SECS {
-		glog.Warning("Rediscovery interval value of %d is below minimum value allowed."+
+		glog.Warningf("Rediscovery interval value of %d is below minimum value allowed."+
 			" Setting full rediscovery interval to minimum allowed value of %d seconds.",
 			rediscoveryIntervalSec, pkg.DEFAULT_MIN_DISCOVERY_IN_SECS)
 		return pkg.DEFAULT_MIN_DISCOVERY_IN_SECS

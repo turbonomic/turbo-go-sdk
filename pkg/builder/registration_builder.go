@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
@@ -129,24 +130,34 @@ func NewBasicProbeInfoBuilder(probeType, probeCat string) *ProbeInfoBuilder {
 	}
 }
 
+// Return the instance of the ProbeInfo DTO created by the builder
+func (builder *ProbeInfoBuilder) Create() *proto.ProbeInfo {
+	checkFullDiscoveryInterval(builder.probeInfo)
+	return builder.probeInfo
+}
+
+// Set the field name whose value is used to uniquely identify the target for this probe
 func (builder *ProbeInfoBuilder) WithIdentifyingField(idField string) *ProbeInfoBuilder {
 	builder.probeInfo.TargetIdentifierField = append(builder.probeInfo.TargetIdentifierField,
 		idField)
 	return builder
 }
 
+// Set the supply chain for the probe
 func (builder *ProbeInfoBuilder) WithSupplyChain(supplyChainSet []*proto.TemplateDTO,
 ) *ProbeInfoBuilder {
 	builder.probeInfo.SupplyChainDefinitionSet = supplyChainSet
 	return builder
 }
 
+// Set the account definition for creating targets for this probe
 func (builder *ProbeInfoBuilder) WithAccountDefinition(acctDefSet []*proto.AccountDefEntry,
 ) *ProbeInfoBuilder {
 	builder.probeInfo.AccountDefinition = acctDefSet
 	return builder
 }
 
+// Set the interval in seconds for running the full discovery of the probe
 func (builder *ProbeInfoBuilder) WithFullDiscoveryInterval(fullDiscoveryInSecs int32,
 ) *ProbeInfoBuilder {
 	// Ignore if the interval is less than DEFAULT_MIN_DISCOVERY_IN_SECS
@@ -157,6 +168,7 @@ func (builder *ProbeInfoBuilder) WithFullDiscoveryInterval(fullDiscoveryInSecs i
 	return builder
 }
 
+// Set the interval in seconds for executing the incremental discovery of the probe
 func (builder *ProbeInfoBuilder) WithIncrementalDiscoveryInterval(incrementalDiscoveryInSecs int32,
 ) *ProbeInfoBuilder {
 	// Ignore if the interval implies the DISCOVERY_NOT_SUPPORTED value
@@ -167,6 +179,7 @@ func (builder *ProbeInfoBuilder) WithIncrementalDiscoveryInterval(incrementalDis
 	return builder
 }
 
+// Set the interval in seconds for executing the performance or metrics discovery of the probe
 func (builder *ProbeInfoBuilder) WithPerformanceDiscoveryInterval(performanceDiscoveryInSecs int32,
 ) *ProbeInfoBuilder {
 	// Ignore if the interval implies the DISCOVERY_NOT_SUPPORTED value
@@ -189,12 +202,23 @@ func (builder *ProbeInfoBuilder) WithEntityMetadata(entityMetadataSet []*proto.E
 	return builder
 }
 
-func (builder *ProbeInfoBuilder) Create() *proto.ProbeInfo {
-	// Assert that the full discovery interval is set
-	if *builder.probeInfo.FullRediscoveryIntervalSeconds <= 0 {
-		var interval int32
-		interval = pkg.DEFAULT_MIN_DISCOVERY_IN_SECS
-		builder.probeInfo.FullRediscoveryIntervalSeconds = &interval
+// Assert that the full discovery interval is set
+func checkFullDiscoveryInterval(probeInfo *proto.ProbeInfo) {
+	var interval int32
+	interval = pkg.DEFAULT_MIN_DISCOVERY_IN_SECS
+
+	defaultFullDiscoveryIntervalMessage := func() {
+		glog.V(2).Infof("No rediscovery interval specified. "+
+			"	Using a default value of %d seconds", interval)
 	}
-	return builder.probeInfo
+
+	if (probeInfo.FullRediscoveryIntervalSeconds == nil) ||
+		(*probeInfo.FullRediscoveryIntervalSeconds <= 0) {
+		probeInfo.FullRediscoveryIntervalSeconds = &interval
+		defaultFullDiscoveryIntervalMessage()
+	}
+	//if *probeInfo.FullRediscoveryIntervalSeconds <= 0 {
+	//	probeInfo.FullRediscoveryIntervalSeconds = &interval
+	//	defaultFullDiscoveryIntervalMessage()
+	//}
 }
