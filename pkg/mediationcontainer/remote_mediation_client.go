@@ -26,7 +26,7 @@ type remoteMediationClient struct {
 	probeResponseChan chan *proto.MediationClientMessage
 	// Channel to stop the mediation client and the underlying transport and message handling
 	stopMediationClientCh  chan struct{}
-	stoppedMediationClient bool // a flag indicating whether the stopMediationClientCh is stopper or not
+	stoppedMediationClient bool // a flag indicating whether the stopMediationClientCh is stopped or not
 }
 
 func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
@@ -69,6 +69,7 @@ func (rclient *remoteMediationClient) Init(probeRegisteredMsg chan bool) {
 
 		if !flag {
 			glog.Errorf("Protocol hand shake failed, exiting ...")
+			// MediationContainer will call rclient.Stop() later
 			//rclient.Stop()
 			return
 		}
