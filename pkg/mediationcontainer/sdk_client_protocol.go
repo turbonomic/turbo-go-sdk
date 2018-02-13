@@ -22,11 +22,11 @@ func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties, versi
 	}
 }
 
-func (clientProtocol *SdkClientProtocol) handleClientProtocolX(transport ITransport) (bool, error) {
+func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITransport) (bool, error) {
 	glog.V(2).Infof("Starting Protocol Negotiation ....")
 
 	//1. negotiation protocol version
-	flag, err := clientProtocol.NegotiateVersionX(transport)
+	flag, err := clientProtocol.NegotiateVersion(transport)
 	if err != nil {
 		glog.Errorf("Protocol negotiation error: %v", err)
 		return flag, err
@@ -50,7 +50,7 @@ func (clientProtocol *SdkClientProtocol) handleClientProtocolX(transport ITransp
 
 // ============================== Protocol Version Negotiation =========================
 // Negotiate protocol version: should retry if error != nil;
-func (clientProtocol *SdkClientProtocol) NegotiateVersionX(transport ITransport) (bool, error) {
+func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) (bool, error) {
 	//1. send request
 	versionStr := clientProtocol.version
 	request := &version.NegotiationRequest{

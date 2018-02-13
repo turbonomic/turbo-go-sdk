@@ -26,10 +26,8 @@ type remoteMediationClient struct {
 	probeResponseChan chan *proto.MediationClientMessage
 	// Channel to stop the mediation client and the underlying transport and message handling
 	stopMediationClientCh chan struct{}
-	//  Channel to stop the routine that monitors the underlying transport connection
-	//closeWatcherCh chan bool
-	stopped bool
-	mux     sync.Mutex
+	stopped               bool
+	mux                   sync.Mutex
 }
 
 func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
@@ -115,7 +113,7 @@ func (rclient *remoteMediationClient) protocolHandShake() bool {
 
 		//2. negotiate version
 		protocolHandler := CreateSdkClientProtocolHandler(rclient.allProbes, rclient.containerConfig.Version)
-		flag, err := protocolHandler.handleClientProtocolX(rclient.Transport)
+		flag, err := protocolHandler.handleClientProtocol(rclient.Transport)
 		if err == nil {
 			if !flag {
 				return false
@@ -224,7 +222,7 @@ func (remoteMediationClient *remoteMediationClient) runProbeCallback(endpoint Pr
 			glog.V(2).Infof("[probeCallback] Exit routine *************")
 			return
 		case msg := <-remoteMediationClient.probeResponseChan:
-			glog.V(3).Infof("[probeCallback] received response on probe channel %v\n ", remoteMediationClient.probeResponseChan)
+			glog.V(3).Info("[probeCallback] received response on probe channel.")
 			endMsg := &EndpointMessage{
 				ProtobufMessage: msg,
 			}
