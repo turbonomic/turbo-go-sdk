@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	waitResponseTimeOut = time.Second * 20
+	waitResponseTimeOut = time.Second * 30
 )
 
 type SdkClientProtocol struct {
@@ -67,7 +67,7 @@ func timeOutRead(name string, du time.Duration, ch chan *ParsedMessage) (*Parsed
 		}
 		return msg, nil
 	case <-timer.C:
-		err := fmt.Errorf("[%s]: wait for message from channel timeout.", name)
+		err := fmt.Errorf("[%s]: wait for message from channel timeout(%v seconds).", name, du.Seconds())
 		glog.Error(err.Error())
 		return nil, err
 	}
