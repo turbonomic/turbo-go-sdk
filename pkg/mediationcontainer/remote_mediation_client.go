@@ -12,14 +12,15 @@ import (
 // Abstraction to establish session using the specified protocol with the server
 // and handle server messages for the different probes in the Mediation Container
 type remoteMediationClient struct {
+	// All the probes
 	allProbes map[string]*ProbeProperties
 	// The container info containing the communication config for all the registered probes
 	containerConfig *MediationContainerConfig
 	// Associated Transport
 	Transport ITransport
 	// Map of Message Handlers to receive server messages
-	MessageHandlers    map[RequestType]RequestHandler
-	stopMsgHandlerCh   chan struct{}
+	MessageHandlers  map[RequestType]RequestHandler
+	stopMsgHandlerCh chan struct{}
 
 	// Channel for receiving responses from the registered probes to be sent to the server
 	probeResponseChan chan *proto.MediationClientMessage
