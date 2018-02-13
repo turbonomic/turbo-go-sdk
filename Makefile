@@ -5,9 +5,9 @@ build:
 	go build ./...
 
 test:
-	@go test -v -race ./pkg/...  
+	@go test -v -race ./pkg/...
 
-.PHONY: fmtcheck 
+.PHONY: fmtcheck
 fmtcheck:
 	@gofmt -l $(SOURCE_DIRS) | grep ".*\.go"; if [ "$$?" = "0" ]; then exit 1; fi
 

@@ -4,8 +4,8 @@ import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/pkg/version"
 
-	"github.com/golang/glog"
 	"fmt"
+	"github.com/golang/glog"
 )
 
 type SdkClientProtocol struct {
@@ -22,7 +22,7 @@ func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties, versi
 	}
 }
 
-func (clientProtocol *SdkClientProtocol) handleClientProtocolX(transport ITransport) (bool, error){
+func (clientProtocol *SdkClientProtocol) handleClientProtocolX(transport ITransport) (bool, error) {
 	glog.V(2).Infof("Starting Protocol Negotiation ....")
 
 	//1. negotiation protocol version
@@ -93,7 +93,6 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersionX(transport ITransport)
 	glog.V(3).Infof("[SdkClientProtocol] Protocol version is accepted by server: %s", negotiationResponse.GetDescription())
 	return true, nil
 }
-
 
 // ======================= Registration ============================
 // Send registration message

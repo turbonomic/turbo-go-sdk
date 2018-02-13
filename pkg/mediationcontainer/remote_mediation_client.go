@@ -31,14 +31,14 @@ type remoteMediationClient struct {
 }
 
 func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
-containerConfig *MediationContainerConfig) *remoteMediationClient {
+	containerConfig *MediationContainerConfig) *remoteMediationClient {
 	remoteMediationClient := &remoteMediationClient{
 		MessageHandlers:       make(map[RequestType]RequestHandler),
 		allProbes:             allProbes,
 		containerConfig:       containerConfig,
 		probeResponseChan:     make(chan *proto.MediationClientMessage),
 		stopMediationClientCh: make(chan struct{}),
-		stopMsgHandlerCh: make(chan struct{}),
+		stopMsgHandlerCh:      make(chan struct{}),
 	}
 
 	glog.V(4).Infof("Created channels : probeResponseChan %s, stopMediationClientCh %s\n",
@@ -52,7 +52,7 @@ containerConfig *MediationContainerConfig) *remoteMediationClient {
 	return remoteMediationClient
 }
 
-func (rclient *remoteMediationClient) Start(probeRegisteredMsg chan bool) {
+func (rclient *remoteMediationClient) Init(probeRegisteredMsg chan bool) {
 	connConfig, err := CreateWebSocketConnectionConfig(rclient.containerConfig)
 	if err != nil {
 		glog.Errorf("Failed to start RemoteMediationClient: failed to create websocket config: %v", err)

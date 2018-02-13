@@ -55,14 +55,14 @@ type ClientWebSocketTransport struct {
 	inputStreamCh            chan []byte // unbuffered channel
 	closeRequested           bool
 	stopListenerCh           chan struct{}
-	mux sync.Mutex
+	mux                      sync.Mutex
 	connClosedNotificationCh chan bool // channel where the transport connection error will be notified
 }
 
 // Instantiate a new ClientWebSocketTransport endpoint for the client
 func CreateClientWebSocketTransport(connConfig *WebSocketConnectionConfig) *ClientWebSocketTransport {
 	transport := &ClientWebSocketTransport{
-		connConfig:               connConfig,
+		connConfig: connConfig,
 	}
 	return transport
 }
@@ -82,7 +82,7 @@ func (clientTransport *ClientWebSocketTransport) Connect() error {
 	glog.V(4).Infof("[Connect] Connected to server " + clientTransport.GetConnectionId())
 
 	clientTransport.stopListenerCh = make(chan struct{}) // Channel to stop the routine that listens for messages
-	clientTransport.inputStreamCh = make(chan []byte)   // Message Queue
+	clientTransport.inputStreamCh = make(chan []byte)    // Message Queue
 	clientTransport.connClosedNotificationCh = make(chan bool)
 	clientTransport.closeRequested = false
 
