@@ -68,7 +68,6 @@ func (endpoint *ClientProtobufEndpoint) CloseEndpoint() {
 	// Send close to the listener routine
 	if endpoint.stopMsgWaitCh != nil {
 		glog.V(4).Infof("["+endpoint.Name+"] closing stopMsgWaitCh %+v", endpoint.stopMsgWaitCh)
-		endpoint.stopMsgWaitCh <- true
 		close(endpoint.stopMsgWaitCh)
 		glog.V(4).Infof("["+endpoint.Name+"] closed stopMsgWaitCh %+v", endpoint.stopMsgWaitCh)
 	}
