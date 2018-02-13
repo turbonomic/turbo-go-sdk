@@ -7,6 +7,7 @@ import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
 	"github.com/golang/glog"
+	"sync"
 )
 
 // Abstraction to establish session using the specified protocol with the server
@@ -28,6 +29,7 @@ type remoteMediationClient struct {
 	//  Channel to stop the routine that monitors the underlying transport connection
 	//closeWatcherCh chan bool
 	stopped bool
+	mux     sync.Mutex
 }
 
 func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
@@ -38,7 +40,6 @@ func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
 		containerConfig:       containerConfig,
 		probeResponseChan:     make(chan *proto.MediationClientMessage),
 		stopMediationClientCh: make(chan struct{}),
-		stopMsgHandlerCh:      make(chan struct{}),
 	}
 
 	glog.V(4).Infof("Created channels : probeResponseChan %s, stopMediationClientCh %s\n",
@@ -59,11 +60,16 @@ func (rclient *remoteMediationClient) Init(probeRegisteredMsg chan bool) {
 		probeRegisteredMsg <- false
 		return
 	}
-	rclient.Transport = CreateClientWebSocketTransport(connConfig)
 
+	firstTime := true
 	for {
-		flag := rclient.protocolHandShake(connConfig)
-		probeRegisteredMsg <- flag
+		rclient.initTransport(connConfig)
+		flag := rclient.protocolHandShake()
+		if firstTime {
+			probeRegisteredMsg <- flag
+			firstTime = false
+		}
+
 		if !flag {
 			glog.Errorf("Protocol hand shake failed, exiting ...")
 			rclient.Stop()
@@ -89,19 +95,19 @@ func (rclient *remoteMediationClient) HandleServerRequests() {
 
 	case <-rclient.Transport.NotifyClosed():
 		glog.V(1).Info("RemoteMediationClient transport is closed, starting reconnection ...")
-		//rclient.stopMessageHandler()
+		rclient.stopTransport()
 		return
 	}
 }
 
 // protocolHandShake will return only when connection has been built, or proposed protocol version is not accepted.
-func (rclient *remoteMediationClient) protocolHandShake(connConfig *WebSocketConnectionConfig) bool {
+func (rclient *remoteMediationClient) protocolHandShake() bool {
 	du := time.Second * 30
 	for {
 		//1. build websocket connection
 		transport := rclient.Transport
 		if err := transport.Connect(); err != nil {
-			glog.Errorf("Initialization of remote mediation client failed, not able to build websocket connection: %v", err)
+			glog.Errorf("Not able to build websocket connection: %v", err)
 			glog.Errorf("Will re-try in %v seconds.", du)
 			time.Sleep(du)
 			continue
@@ -127,21 +133,38 @@ func (rclient *remoteMediationClient) protocolHandShake(connConfig *WebSocketCon
 
 // Stop the remote mediation client by closing the underlying transport and message handler routines
 func (rclient *remoteMediationClient) Stop() {
+	rclient.mux.Lock()
+	defer rclient.mux.Unlock()
+	if rclient.stopped {
+		return
+	}
+
 	rclient.stopped = true
 	// Stop the server message listener
-	rclient.stopMessageHandler()
-	// Close the transport
-	if rclient.Transport != nil {
-		rclient.Transport.CloseTransportPoint()
-	}
+	rclient.stopTransport()
 	// Notify the client to stop
 	close(rclient.stopMediationClientCh)
 }
 
 // ======================== Listen for server messages ===================
-// Sends message to the server message listener to close the protobuf endpoint and message listener
-func (remoteMediationClient *remoteMediationClient) stopMessageHandler() {
-	close(remoteMediationClient.stopMsgHandlerCh)
+func (rclient *remoteMediationClient) initTransport(conf *WebSocketConnectionConfig) {
+	if rclient.Transport != nil && !rclient.Transport.IsClosed() {
+		glog.Errorf("websocket transport is not closed.")
+	}
+
+	rclient.Transport = CreateClientWebSocketTransport(conf)
+	rclient.stopMsgHandlerCh = make(chan struct{})
+}
+
+//This can be called in two cases:
+// (1) From upper layer: mediationClient tries to stop everything;
+// (2) From lower layer: websocket connection is broken;
+func (rclient *remoteMediationClient) stopTransport() {
+	if !rclient.Transport.IsClosed() {
+		rclient.Transport.CloseTransportPoint()
+		close(rclient.stopMsgHandlerCh)
+		rclient.Transport = nil
+	}
 }
 
 // Checks for incoming server messages received by the ProtoBuf endpoint created to handle server requests
@@ -198,10 +221,10 @@ func (remoteMediationClient *remoteMediationClient) runProbeCallback(endpoint Pr
 		glog.V(4).Infof("[probeCallback] waiting for probe responses")
 		select {
 		case <-remoteMediationClient.stopMsgHandlerCh:
-			glog.V(4).Infof("[probeCallback] Exit routine *************")
+			glog.V(2).Infof("[probeCallback] Exit routine *************")
 			return
 		case msg := <-remoteMediationClient.probeResponseChan:
-			glog.V(4).Infof("[probeCallback] received response on probe channel %v\n ", remoteMediationClient.probeResponseChan)
+			glog.V(3).Infof("[probeCallback] received response on probe channel %v\n ", remoteMediationClient.probeResponseChan)
 			endMsg := &EndpointMessage{
 				ProtobufMessage: msg,
 			}
