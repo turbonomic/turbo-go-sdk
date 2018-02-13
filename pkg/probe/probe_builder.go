@@ -49,45 +49,15 @@ func ErrorCreatingProbe(probeType string, probeCategory string) error {
 	return errors.New("Error creating probe for " + probeCategory + "::" + probeType)
 }
 
-// Create an instance of ProbeBuilder using the given probe configuration
-func NewProbeBuilderWithConfig(probeConf *ProbeConfig) *ProbeBuilder {
-	probeBuilder := &ProbeBuilder{}
-	if probeConf.ProbeType == "" {
-		probeBuilder.builderError = ErrorInvalidProbeType()
-		return probeBuilder
-	}
-
-	if probeConf.ProbeCategory == "" {
-		probeBuilder.builderError = ErrorInvalidProbeCategory()
-		return probeBuilder
-	}
-
-	return &ProbeBuilder{
-		probeConf:          probeConf,
-		discoveryClientMap: make(map[string]TurboDiscoveryClient),
-	}
-}
-
 // Get an instance of ProbeBuilder
 func NewProbeBuilder(probeType string, probeCategory string) *ProbeBuilder {
-	// Validate probe type and category
 	probeBuilder := &ProbeBuilder{}
-	if probeType == "" {
-		probeBuilder.builderError = ErrorInvalidProbeType()
-		return probeBuilder
-	}
 
-	if probeCategory == "" {
-		probeBuilder.builderError = ErrorInvalidProbeCategory()
+	// Validate probe type and category
+	probeConf, err := NewProbeConfig(probeType, probeCategory)
+	if err != nil {
+		probeBuilder.builderError = err
 		return probeBuilder
-	}
-
-	probeConf := &ProbeConfig{
-		ProbeCategory:        probeCategory,
-		ProbeType:            probeType,
-		FullDiscovery:        -1,
-		IncrementalDiscovery: -1,
-		PerformanceDiscovery: -1,
 	}
 
 	return &ProbeBuilder{
@@ -111,7 +81,8 @@ func (pb *ProbeBuilder) Create() (*TurboProbe, error) {
 
 	turboProbe, err := newTurboProbe(pb.probeConf)
 	if err != nil {
-		pb.builderError = ErrorCreatingProbe(pb.probeConf.ProbeType, pb.probeConf.ProbeCategory)
+		pb.builderError = ErrorCreatingProbe(pb.probeConf.ProbeType,
+			pb.probeConf.ProbeCategory)
 		glog.Errorf(pb.builderError.Error())
 		return nil, pb.builderError
 	}
@@ -139,6 +110,16 @@ func (pb *ProbeBuilder) Create() (*TurboProbe, error) {
 	}
 
 	return turboProbe, nil
+}
+
+func (pb *ProbeBuilder) WithDiscoveryOptions(options ...DiscoveryMetadataOption) *ProbeBuilder {
+	discoveryMetadata := NewDiscoveryMetadata()
+	for _, option := range options {
+		option(discoveryMetadata)
+	}
+
+	pb.probeConf.SetDiscoveryMetadata(discoveryMetadata)
+	return pb
 }
 
 // Set the supply chain provider for the probe

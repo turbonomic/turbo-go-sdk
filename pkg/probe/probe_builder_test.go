@@ -1,9 +1,61 @@
 package probe
 
 import (
+	"github.com/stretchr/testify/assert"
+	"github.com/turbonomic/turbo-go-sdk/pkg"
 	"reflect"
 	"testing"
 )
+
+func TestNewProbeBuilder(t *testing.T) {
+	probeType := "Type1"
+	probeCat := "Cloud"
+
+	builder := NewProbeBuilder(probeType, probeCat)
+
+	_, _ = builder.Create()
+
+	assert.EqualValues(t, pkg.DEFAULT_FULL_DISCOVERY_IN_SECS,
+		builder.probeConf.discoveryMetadata.GetFullRediscoveryIntervalSeconds())
+	assert.EqualValues(t, pkg.DISCOVERY_NOT_SUPPORTED,
+		builder.probeConf.discoveryMetadata.GetIncrementalRediscoveryIntervalSeconds())
+	assert.EqualValues(t, pkg.DISCOVERY_NOT_SUPPORTED,
+		builder.probeConf.discoveryMetadata.GetPerformanceRediscoveryIntervalSeconds())
+}
+
+func TestNewProbeBuilderWithDiscoveryMetadata(t *testing.T) {
+	probeType := "Type1"
+	probeCat := "Cloud"
+
+	table := []struct {
+		full        int32
+		incremental int32
+		performance int32
+	}{
+		{full: 0, incremental: 0, performance: 0},
+		{full: -1, incremental: -1, performance: -1},
+		{full: 60, incremental: 120, performance: 300},
+		{full: 30, incremental: 20, performance: 30},
+		{full: 30},
+		{full: -1},
+		{full: 1200},
+		{incremental: 20, performance: 30},
+		{incremental: 60, performance: 60},
+	}
+	for _, item := range table {
+		builder := NewProbeBuilder(probeType, probeCat)
+		builder.WithDiscoveryOptions(IncrementalRediscoveryIntervalSecondsOption(item.incremental),
+			FullRediscoveryIntervalSecondsOption(item.full),
+			PerformanceRediscoveryIntervalSecondsOption(item.performance))
+
+		_, _ = builder.Create()
+
+		dm := builder.probeConf.discoveryMetadata
+		checkDiscoveryMetadata(t, item.full, dm, pkg.FULL_DISCOVERY)
+		checkDiscoveryMetadata(t, item.incremental, dm, pkg.INCREMENTAL_DISCOVERY)
+		checkDiscoveryMetadata(t, item.performance, dm, pkg.PERFORMANCE_DISCOVERY)
+	}
+}
 
 func TestNewProbeBuilderWithoutRegistrationClient(t *testing.T) {
 	probeType := "Type1"
@@ -54,11 +106,15 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", nil, err)
 	}
 
-	if !reflect.DeepEqual(registrationClient.GetSupplyChainDefinition(), probe.RegistrationClient.GetSupplyChainDefinition()) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", registrationClient, probe.RegistrationClient)
+	if !reflect.DeepEqual(registrationClient.GetSupplyChainDefinition(),
+		probe.RegistrationClient.GetSupplyChainDefinition()) {
+		t.Errorf("\nExpected %+v, \ngot      %+v",
+			registrationClient, probe.RegistrationClient)
 	}
-	if !reflect.DeepEqual(registrationClient.GetAccountDefinition(), probe.RegistrationClient.GetAccountDefinition()) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", registrationClient, probe.RegistrationClient)
+	if !reflect.DeepEqual(registrationClient.GetAccountDefinition(),
+		probe.RegistrationClient.GetAccountDefinition()) {
+		t.Errorf("\nExpected %+v, \ngot      %+v",
+			registrationClient, probe.RegistrationClient)
 	}
 
 	dc := probe.getDiscoveryClient(targetId)
