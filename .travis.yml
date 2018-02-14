@@ -15,4 +15,4 @@ matrix:
 
 script:
   - make fmtcheck 
-  - if [ "$TRAVIS_GO_VERSION" == "tip" ] ; then make test ; else $HOME/gopath/bin/goveralls -v -race -service=travis-ci ; fi
+  - if [ "$TRAVIS_GO_VERSION" == "tip" ] ; then make test ; else $HOME/gopath/bin/goveralls -v -race -service=travis-ci -ignore="pkg/proto/*" ; fi
