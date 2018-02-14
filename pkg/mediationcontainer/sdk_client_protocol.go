@@ -56,7 +56,7 @@ func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITranspo
 // ============================== Protocol Version Negotiation =========================
 // Negotiate protocol version: should retry if error != nil;
 func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) (bool, error) {
-	//1. send request  
+	//1. send request
 	versionStr := clientProtocol.version
 	request := &version.NegotiationRequest{
 		ProtocolVersion: &versionStr,
@@ -72,12 +72,12 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 		ProtobufMessage: request,
 	}
 	endpoint.Send(endMsg)
-  
-  //2. wait to get response
+
+	//2. wait to get response
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
 	serverMsg, err := timeOutRead(endpoint.GetName(), waitResponseTimeOut, endpoint.MessageReceiver())
-	if !ok {
-		glog.Errorf("[%s] : Endpoint Receiver channel is closed", endpoint.GetName())
+	if err != nil {
+		glog.Errorf("[%s] : read VersionNegotiation response from channel failed: %v", endpoint.GetName(), err)
 		return true, fmt.Errorf("Failed to receive negotiation response.")
 	}
 	glog.V(3).Infof("[%s] : Received negotiation response: %++v\n", endpoint.GetName(), serverMsg)
@@ -86,7 +86,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 	negotiationResponse := protoMsg.NegotiationMsg
 	if negotiationResponse == nil {
 		glog.Error("Probe Protocol failed, null negotiation response")
-    return true, fmt.Errorf("negotiation response is null")
+		return true, fmt.Errorf("negotiation response is null")
 	}
 
 	result := negotiationResponse.GetNegotiationResult()
@@ -95,7 +95,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 			result.String(), negotiationResponse.GetDescription())
 		return false, nil
 	}
-  glog.V(3).Infof("[SdkClientProtocol] Protocol version is accepted by server: %s", negotiationResponse.GetDescription())
+	glog.V(3).Infof("[SdkClientProtocol] Protocol version is accepted by server: %s", negotiationResponse.GetDescription())
 	return true, nil
 }
 
@@ -158,7 +158,7 @@ func (clientProtocol *SdkClientProtocol) MakeContainerInfo() (*proto.ContainerIn
 		Probes: probes,
 	}, nil
 }
-  
+
 func timeOutRead(name string, du time.Duration, ch chan *ParsedMessage) (*ParsedMessage, error) {
 	timer := time.NewTimer(du)
 	select {
@@ -179,4 +179,4 @@ func timeOutRead(name string, du time.Duration, ch chan *ParsedMessage) (*Parsed
 		glog.Error(err.Error())
 		return nil, err
 	}
-}  
+}
