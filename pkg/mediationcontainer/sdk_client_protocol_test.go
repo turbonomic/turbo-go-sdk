@@ -1,13 +1,13 @@
 package mediationcontainer
 
 import (
+	"fmt"
 	"testing"
 	"time"
-	"fmt"
 )
 
 func TestTimeoutRead(t *testing.T) {
-	du := time.Second*3
+	du := time.Second * 3
 	ch := make(chan *ParsedMessage)
 
 	_, err := timeOutRead("test", du, ch)
