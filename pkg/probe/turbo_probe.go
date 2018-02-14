@@ -24,7 +24,6 @@ type ProbeRegistrationAgent struct {
 	IAccountDefinitionProvider
 	IActionPolicyProvider
 	IEntityMetadataProvider
-	discoveryMetadata *DiscoveryMetadata
 }
 
 type TurboRegistrationClient interface {
@@ -34,7 +33,6 @@ type TurboRegistrationClient interface {
 
 func NewProbeRegistrator() *ProbeRegistrationAgent {
 	registrator := &ProbeRegistrationAgent{}
-	registrator.discoveryMetadata = NewDiscoveryMetadata()
 	return registrator
 }
 
@@ -60,37 +58,20 @@ type TurboDiscoveryClient interface {
 	GetAccountValues() *TurboTargetInfo
 }
 
-type ProbeConfig struct {
-	ProbeType            string
-	ProbeCategory        string
-	FullDiscovery        int32
-	IncrementalDiscovery int32
-	PerformanceDiscovery int32
-}
-
 // ===========================================    New Probe ==========================================================
-
+// Create new instance of a probe using the given ProbeConfig.
+// Returns nil if the probe config cannot be validated.
 func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
-	if probeConf.ProbeType == "" {
-		return nil, ErrorInvalidProbeType()
-	}
-
-	if probeConf.ProbeCategory == "" {
-		return nil, ErrorInvalidProbeCategory()
+	err := probeConf.Validate()
+	if err != nil {
+		return nil, err
 	}
 
 	myProbe := &TurboProbe{
 		ProbeConfiguration: probeConf,
 		DiscoveryClientMap: make(map[string]*TargetDiscoveryAgent),
+		RegistrationClient: NewProbeRegistrator(),
 	}
-
-	// registration client defaults
-	registrationClient := NewProbeRegistrator()
-	registrationClient.discoveryMetadata.SetFullRediscoveryIntervalSeconds(probeConf.FullDiscovery)
-	registrationClient.discoveryMetadata.SetIncrementalRediscoveryIntervalSeconds(probeConf.IncrementalDiscovery)
-	registrationClient.discoveryMetadata.SetPerformanceRediscoveryIntervalSeconds(probeConf.PerformanceDiscovery)
-
-	myProbe.RegistrationClient = registrationClient
 
 	glog.V(2).Infof("[NewTurboProbe] Created TurboProbe: %s", myProbe)
 	return myProbe, nil
@@ -283,29 +264,32 @@ func (theProbe *TurboProbe) GetProbeTargets() []*TurboTargetInfo {
 // The ProbeInfo for the probe
 func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	// 1. construct the basic probe info.
-	probeCat := theProbe.ProbeConfiguration.ProbeCategory
-	probeType := theProbe.ProbeConfiguration.ProbeType
+	probeConf := theProbe.ProbeConfiguration
+	probeCat := probeConf.ProbeCategory
+	probeType := probeConf.ProbeType
+
 	probeInfoBuilder := builder.NewBasicProbeInfoBuilder(probeType, probeCat)
 
+	// 2. discovery intervals metadata
+	probeInfoBuilder.WithFullDiscoveryInterval(probeConf.discoveryMetadata.GetFullRediscoveryIntervalSeconds())
+	probeInfoBuilder.WithIncrementalDiscoveryInterval(probeConf.discoveryMetadata.GetIncrementalRediscoveryIntervalSeconds())
+	probeInfoBuilder.WithPerformanceDiscoveryInterval(probeConf.discoveryMetadata.GetPerformanceRediscoveryIntervalSeconds())
+	//probeInfo := probeInfoBuilder.Create()
+	//glog.V(2).Infof("************** ProbeInfo %++v\n", probeInfo)
+
 	registrationClient := theProbe.RegistrationClient
-	// 2. Get the supply chain.
+	// 3. Get the supply chain.
 	if registrationClient.ISupplyChainProvider != nil {
 		probeInfoBuilder.WithSupplyChain(registrationClient.GetSupplyChainDefinition())
 	}
 
-	// 3. Get the account definition
 	if registrationClient.IAccountDefinitionProvider != nil {
+		// 4. Get the account definition
 		probeInfoBuilder.WithAccountDefinition(registrationClient.GetAccountDefinition())
+
+		// 5. Fields that serve to uniquely identify a target
+		probeInfoBuilder = probeInfoBuilder.WithIdentifyingField(registrationClient.GetIdentifyingFields())
 	}
-
-	// 4. Fields that serve to uniquely identify a target
-	probeInfoBuilder = probeInfoBuilder.WithIdentifyingField(registrationClient.GetIdentifyingFields())
-
-	// 5. discovery intervals metadata
-	probeInfoBuilder.WithFullDiscoveryInterval(registrationClient.discoveryMetadata.GetFullRediscoveryIntervalSeconds())
-	probeInfoBuilder.WithIncrementalDiscoveryInterval(registrationClient.discoveryMetadata.GetIncrementalRediscoveryIntervalSeconds())
-	probeInfoBuilder.WithPerformanceDiscoveryInterval(registrationClient.discoveryMetadata.GetPerformanceRediscoveryIntervalSeconds())
-
 	// 6. action policy metadata
 	if registrationClient.IActionPolicyProvider != nil {
 		probeInfoBuilder.WithActionPolicySet(registrationClient.GetActionPolicy())
@@ -317,7 +301,7 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	}
 
 	probeInfo := probeInfoBuilder.Create()
-	glog.V(3).Infof("ProbeInfo %++v\n", probeInfo)
+	glog.V(2).Infof("ProbeInfo %++v\n", probeInfo)
 
 	return probeInfo, nil
 }
