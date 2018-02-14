@@ -1,12 +1,18 @@
 language: go
 
 go:
-  - 1.7
+  - 1.9
   - tip
 
 go_import_path: github.com/turbonomic/turbo-go-sdk
 
 before_install:
-  - go get github.com/mattn/goveralls
+  - go get -v github.com/mattn/goveralls
+
+matrix:
+  allow_failures:
+    - go: tip
+
 script:
-  - $HOME/gopath/bin/goveralls -service=travis-ci -ignore="pkg/proto/*"
+  - make fmtcheck 
+  - if [ "$TRAVIS_GO_VERSION" == "tip" ] ; then make test ; else $HOME/gopath/bin/goveralls -v -race -service=travis-ci -ignore="pkg/proto/*" ; fi
