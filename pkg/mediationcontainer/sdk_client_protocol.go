@@ -6,6 +6,11 @@ import (
 
 	"fmt"
 	"github.com/golang/glog"
+	"time"
+)
+
+const (
+	waitResponseTimeOut = time.Second * 30
 )
 
 type SdkClientProtocol struct {
@@ -51,7 +56,7 @@ func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITranspo
 // ============================== Protocol Version Negotiation =========================
 // Negotiate protocol version: should retry if error != nil;
 func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) (bool, error) {
-	//1. send request
+	//1. send request  
 	versionStr := clientProtocol.version
 	request := &version.NegotiationRequest{
 		ProtocolVersion: &versionStr,
@@ -67,10 +72,10 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 		ProtobufMessage: request,
 	}
 	endpoint.Send(endMsg)
-
-	//2. wait to get response
+  
+  //2. wait to get response
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
-	serverMsg, ok := <-endpoint.MessageReceiver()
+	serverMsg, err := timeOutRead(endpoint.GetName(), waitResponseTimeOut, endpoint.MessageReceiver())
 	if !ok {
 		glog.Errorf("[%s] : Endpoint Receiver channel is closed", endpoint.GetName())
 		return true, fmt.Errorf("Failed to receive negotiation response.")
@@ -81,7 +86,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 	negotiationResponse := protoMsg.NegotiationMsg
 	if negotiationResponse == nil {
 		glog.Error("Probe Protocol failed, null negotiation response")
-		return true, fmt.Errorf("negotiation response is null")
+    return true, fmt.Errorf("negotiation response is null")
 	}
 
 	result := negotiationResponse.GetNegotiationResult()
@@ -90,7 +95,7 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 			result.String(), negotiationResponse.GetDescription())
 		return false, nil
 	}
-	glog.V(3).Infof("[SdkClientProtocol] Protocol version is accepted by server: %s", negotiationResponse.GetDescription())
+  glog.V(3).Infof("[SdkClientProtocol] Protocol version is accepted by server: %s", negotiationResponse.GetDescription())
 	return true, nil
 }
 
@@ -108,20 +113,20 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 	// Create Protobuf Endpoint to send and handle registration messages
 	protoMsg := &RegistrationResponse{}
 	endpoint := CreateClientProtoBufEndpoint("RegistrationEndpoint", transport, protoMsg, true)
+	defer endpoint.CloseEndpoint()
 
 	endMsg := &EndpointMessage{
 		ProtobufMessage: containerInfo,
 	}
 	endpoint.Send(endMsg)
-	//defer close(endpoint.MessageReceiver())
+
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
-	serverMsg, ok := <-endpoint.MessageReceiver()
-	if !ok {
-		glog.Errorf("[HandleRegistration] [%s] : Endpoint Receiver channel is closed", endpoint.GetName())
-		endpoint.CloseEndpoint()
+	serverMsg, err := timeOutRead(endpoint.GetName(), waitResponseTimeOut, endpoint.MessageReceiver())
+	if err != nil {
+		glog.Errorf("[%s] : read Registration response from channel failed: %v", endpoint.GetName(), err)
 		return false
 	}
-	glog.V(2).Infof("[HandleRegistration] [%s] : Received: %++v\n", endpoint.GetName(), serverMsg)
+	glog.V(3).Infof("[%s] : Received: %++v\n", endpoint.GetName(), serverMsg)
 
 	// Handler response
 	registrationResponse := protoMsg.RegistrationMsg
@@ -129,7 +134,6 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 		glog.Errorf("Probe registration failed, null ack")
 		return false
 	}
-	endpoint.CloseEndpoint()
 
 	return true
 }
@@ -154,3 +158,25 @@ func (clientProtocol *SdkClientProtocol) MakeContainerInfo() (*proto.ContainerIn
 		Probes: probes,
 	}, nil
 }
+  
+func timeOutRead(name string, du time.Duration, ch chan *ParsedMessage) (*ParsedMessage, error) {
+	timer := time.NewTimer(du)
+	select {
+	case msg, ok := <-ch:
+		if !ok {
+			err := fmt.Errorf("[%s]: Endpoint Receiver channel is closed.", name)
+			glog.Error(err.Error())
+			return nil, err
+		}
+		if msg == nil {
+			err := fmt.Errorf("[%s]: Endpoint receive null message.", name)
+			glog.Error(err.Error())
+			return nil, err
+		}
+		return msg, nil
+	case <-timer.C:
+		err := fmt.Errorf("[%s]: wait for message from channel timeout(%v seconds).", name, du.Seconds())
+		glog.Error(err.Error())
+		return nil, err
+	}
+}  
