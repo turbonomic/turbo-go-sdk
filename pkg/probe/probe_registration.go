@@ -2,13 +2,8 @@ package probe
 
 import (
 	"github.com/golang/glog"
+	"github.com/turbonomic/turbo-go-sdk/pkg"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
-)
-
-const (
-	DEFAULT_FULL_DISCOVERY_IN_SECS int32 = 600
-	DEFAULT_MIN_DISCOVERY_IN_SECS  int32 = 60
-	DISCOVERY_NOT_SUPPORTED        int32 = -1
 )
 
 // ISupplyChainProvider provides the entities defined in the supply chain for a probe
@@ -62,49 +57,96 @@ type DiscoveryMetadata struct {
 // Performance discovery is set to -1 implies that the performance discovery is not supported by the probe.
 func NewDiscoveryMetadata() *DiscoveryMetadata {
 	return &DiscoveryMetadata{
-		fullDiscovery:        DEFAULT_FULL_DISCOVERY_IN_SECS,
-		incrementalDiscovery: DISCOVERY_NOT_SUPPORTED,
-		performanceDiscovery: DISCOVERY_NOT_SUPPORTED,
+		fullDiscovery:        pkg.DEFAULT_FULL_DISCOVERY_IN_SECS,
+		incrementalDiscovery: pkg.DISCOVERY_NOT_SUPPORTED,
+		performanceDiscovery: pkg.DISCOVERY_NOT_SUPPORTED,
 	}
 }
 
+type DiscoveryMetadataOption func(*DiscoveryMetadata)
+
+func IncrementalRediscoveryIntervalSecondsOption(incrementalDiscovery int32) func(dm *DiscoveryMetadata) {
+	return func(dm *DiscoveryMetadata) {
+		dm.SetIncrementalRediscoveryIntervalSeconds(incrementalDiscovery)
+	}
+}
+
+func PerformanceRediscoveryIntervalSecondsOption(performanceDiscovery int32) func(dm *DiscoveryMetadata) {
+	return func(dm *DiscoveryMetadata) {
+		dm.SetPerformanceRediscoveryIntervalSeconds(performanceDiscovery)
+	}
+}
+
+func FullRediscoveryIntervalSecondsOption(fullDiscovery int32) func(dm *DiscoveryMetadata) {
+	return func(dm *DiscoveryMetadata) {
+		dm.SetFullRediscoveryIntervalSeconds(fullDiscovery)
+	}
+}
+
+// Return the time interval in seconds for running the full discovery
 func (dMetadata *DiscoveryMetadata) GetFullRediscoveryIntervalSeconds() int32 {
 	return dMetadata.fullDiscovery
 }
 
+// Return the time interval in seconds for running the incremental discovery
 func (dMetadata *DiscoveryMetadata) GetIncrementalRediscoveryIntervalSeconds() int32 {
 	return dMetadata.incrementalDiscovery
 }
 
+// Return the time interval in seconds for running the performance discovery
 func (dMetadata *DiscoveryMetadata) GetPerformanceRediscoveryIntervalSeconds() int32 {
 	return dMetadata.performanceDiscovery
 }
 
-// Set the discovery interval at which the incremental discovery request will be sent to the probe
+// Set the time interval in seconds for running the incremental discovery
 func (dMetadata *DiscoveryMetadata) SetIncrementalRediscoveryIntervalSeconds(incrementalDiscovery int32) {
-	if incrementalDiscovery >= DEFAULT_MIN_DISCOVERY_IN_SECS {
-		dMetadata.incrementalDiscovery = incrementalDiscovery
-	} else {
-		glog.Errorf("Invalid incremental discovery interval %d", incrementalDiscovery)
-	}
+	interval := checkSecondaryDiscoveryInterval(incrementalDiscovery, pkg.INCREMENTAL_DISCOVERY)
+	dMetadata.incrementalDiscovery = interval
 }
 
-// Set the discovery interval at which the performance discovery request will be sent to the probe
+// Set the time interval in seconds for running the performance discovery
 func (dMetadata *DiscoveryMetadata) SetPerformanceRediscoveryIntervalSeconds(performanceDiscovery int32) {
-	if performanceDiscovery >= DEFAULT_MIN_DISCOVERY_IN_SECS {
-		dMetadata.performanceDiscovery = performanceDiscovery
-	} else {
-		glog.Errorf("Invalid performance discovery interval %d", performanceDiscovery)
-	}
+	interval := checkSecondaryDiscoveryInterval(performanceDiscovery, pkg.PERFORMANCE_DISCOVERY)
+	dMetadata.performanceDiscovery = interval
 }
 
-// Set the discovery interval at which the full discovery request will be sent to the probe
+// Set the time interval in seconds for running the full discovery
 func (dMetadata *DiscoveryMetadata) SetFullRediscoveryIntervalSeconds(fullDiscovery int32) {
-	if fullDiscovery >= DEFAULT_MIN_DISCOVERY_IN_SECS {
-		dMetadata.fullDiscovery = fullDiscovery
-	} else {
-		glog.Errorf("Invalid  discovery interval %d", fullDiscovery)
+	interval := checkFullRediscoveryInterval(fullDiscovery)
+	dMetadata.fullDiscovery = interval
+}
+
+func checkSecondaryDiscoveryInterval(secondaryDiscoverySec int32, discoveryType pkg.DiscoveryType) int32 {
+	if secondaryDiscoverySec <= 0 {
+		glog.V(3).Infof("%s discovery is not supported.", discoveryType)
+		return pkg.DISCOVERY_NOT_SUPPORTED
 	}
+
+	if secondaryDiscoverySec < pkg.DEFAULT_MIN_DISCOVERY_IN_SECS {
+		glog.Warningf("%s discovery interval value of %d is below minimum value allowed."+
+			" Setting %s discovery interval to minimum allowed value of %d seconds.",
+			discoveryType, secondaryDiscoverySec, pkg.DEFAULT_MIN_DISCOVERY_IN_SECS)
+		return pkg.DEFAULT_MIN_DISCOVERY_IN_SECS
+	}
+
+	return secondaryDiscoverySec
+}
+
+func checkFullRediscoveryInterval(rediscoveryIntervalSec int32) int32 {
+	if rediscoveryIntervalSec <= 0 {
+		glog.V(3).Infof("No rediscovery interval specified. Using a default value of %d seconds",
+			pkg.DEFAULT_FULL_DISCOVERY_IN_SECS)
+		return pkg.DEFAULT_FULL_DISCOVERY_IN_SECS
+	}
+
+	if rediscoveryIntervalSec < pkg.DEFAULT_MIN_DISCOVERY_IN_SECS {
+		glog.Warningf("Rediscovery interval value of %d is below minimum value allowed."+
+			" Setting full rediscovery interval to minimum allowed value of %d seconds.",
+			rediscoveryIntervalSec, pkg.DEFAULT_MIN_DISCOVERY_IN_SECS)
+		return pkg.DEFAULT_MIN_DISCOVERY_IN_SECS
+	}
+
+	return rediscoveryIntervalSec
 }
 
 // IActionPolicyProvider provides the policies for action types supported for
