@@ -165,6 +165,14 @@ func (scnb *SupplyChainNodeBuilder) requireProvider() bool {
 	return true
 }
 
+func (scnb *SupplyChainNodeBuilder) SetPriority(p int32) {
+	scnb.priority = &p
+}
+
+func (scnb *SupplyChainNodeBuilder) SetTemplateType(t proto.TemplateDTO_TemplateType) {
+	scnb.templateType = &t
+}
+
 func buildCommodityBought(
 	providerCommodityBoughtMap map[*proto.Provider][]*proto.TemplateCommodity) []*proto.TemplateDTO_CommBoughtProviderProp {
 	if len(providerCommodityBoughtMap) == 0 {

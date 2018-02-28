@@ -308,3 +308,72 @@ func TestBuildExternalEntityLinkProperty(t *testing.T) {
 func randomBaseSupplyChainNodeBuilder() *SupplyChainNodeBuilder {
 	return NewSupplyChainNodeBuilder(rand.RandomEntityType())
 }
+
+func doTestPriority(t proto.EntityDTO_EntityType, p int32) error {
+	builder := NewSupplyChainNodeBuilder(t)
+	builder.SetPriority(p)
+	pp := p
+	p = p + 1
+
+	dto, err := builder.Create()
+	if err != nil {
+		return err
+	}
+	if dto.GetTemplatePriority() != pp {
+		err := fmt.Errorf("Wrong priority %d Vs. %d", dto.GetTemplatePriority(), p)
+		return err
+	}
+
+	return nil
+}
+
+func TestSupplyChainNodeBuilder_SetPriority_2(t *testing.T) {
+	etypes := []proto.EntityDTO_EntityType{
+		proto.EntityDTO_VIRTUAL_MACHINE,
+		proto.EntityDTO_CONTAINER_POD,
+		proto.EntityDTO_CONTAINER,
+		proto.EntityDTO_APPLICATION,
+		proto.EntityDTO_VIRTUAL_APPLICATION,
+	}
+
+	ps := []int32{0, 1, -1, 2, -2, 3, -3, 100, -100, 1000, -1000}
+	for _, p := range ps {
+		for _, et := range etypes {
+			err := doTestPriority(et, p)
+			if err != nil {
+				t.Errorf("Error: %v", err)
+			}
+		}
+	}
+}
+
+func TestSupplyChainNodeBuilder_SetPriority(t *testing.T) {
+	builder := NewSupplyChainNodeBuilder(proto.EntityDTO_VIRTUAL_MACHINE)
+	p := int32(-8)
+	builder.SetPriority(p)
+
+	dto, err := builder.Create()
+	if err != nil {
+		t.Errorf("Create NodeTemplate failed: %v", err)
+		return
+	}
+	if dto.GetTemplatePriority() != p {
+		t.Errorf("Wrong priority %d Vs. %d", dto.GetTemplatePriority(), p)
+	}
+}
+
+func TestSupplyChainNodeBuilder_SetTemplateType(t *testing.T) {
+	builder := NewSupplyChainNodeBuilder(proto.EntityDTO_VIRTUAL_MACHINE)
+	tt := proto.TemplateDTO_EXTENSION
+	builder.SetTemplateType(tt)
+
+	dto, err := builder.Create()
+	if err != nil {
+		t.Errorf("Create node Template failed: %v", err)
+		return
+	}
+
+	if dto.GetTemplateType() != tt {
+		t.Errorf("Failed to set template type: %v Vs. %v", dto.GetTemplateType(), tt)
+	}
+}
