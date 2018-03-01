@@ -13,6 +13,7 @@ type ITransport interface {
 	// Close
 	CloseTransportPoint()
 	NotifyClosed() chan bool // Channel where connection closed notification is sent
+	IsClosed() bool
 }
 
 type TransportMessage struct {
