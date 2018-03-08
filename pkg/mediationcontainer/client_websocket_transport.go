@@ -11,12 +11,15 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
 const (
-	Closed TransportStatus = "closed"
-	Ready  TransportStatus = "ready"
+	Closed           TransportStatus = "closed"
+	Ready            TransportStatus = "ready"
+	handshakeTimeout                 = 60 * time.Second
+	wsReadLimit                      = 33554432 // 32 MB
+	writeWaitSeconds                 = 120
 )
 
 type TransportStatus string
@@ -114,6 +117,7 @@ func (clientTransport *ClientWebSocketTransport) closeAndResetWebSocket() {
 	}
 	// close WebSocket
 	if clientTransport.ws != nil {
+		clientTransport.ws.WriteMessage(websocket.CloseMessage, []byte{})
 		clientTransport.ws.Close()
 		clientTransport.ws = nil
 	}
@@ -153,8 +157,10 @@ func (clientTransport *ClientWebSocketTransport) ListenForMessages() {
 					continue
 				}
 				glog.V(2).Infof("[ListenForMessages]: connected, waiting for server response ...")
-				var data []byte = make([]byte, 1024)
-				err := websocket.Message.Receive(clientTransport.ws, &data)
+
+				msgType, data, err := clientTransport.ws.ReadMessage()
+				glog.V(3).Infof("Received websocket message of type %d and size %d", msgType, len(data))
+
 				// Notify errors and break
 				if err != nil {
 					//TODO handle err according to possible type. Now reconnect when never there is an error, which may not necessary.
@@ -173,7 +179,8 @@ func (clientTransport *ClientWebSocketTransport) ListenForMessages() {
 					break
 				}
 				// write the message on the channel
-				glog.V(3).Infof("[ListenForMessages] received message on websocket")
+				glog.V(3).Infof("[ListenForMessages] received message on websocket of size %d", len(data))
+
 				clientTransport.queueRawMessage(data) // Note: this will block till the message is read
 				glog.V(4).Infof("[ListenForMessages] delivered websocket message, continue listening for server messages...")
 			} //end select
@@ -208,10 +215,9 @@ func (clientTransport *ClientWebSocketTransport) Send(messageToSend *TransportMe
 		glog.Errorf("Cannot send message : marshalled msg is nil")
 		return errors.New("Cannot send message: marshalled msg is nil")
 	}
-	if clientTransport.ws.IsClientConn() {
-		glog.V(4).Infof("Sending message on client transport %+v", clientTransport.ws)
-	}
-	err := websocket.Message.Send(clientTransport.ws, messageToSend.RawMsg)
+	du := time.Second * time.Duration(writeWaitSeconds)
+	clientTransport.ws.SetWriteDeadline(time.Now().Add(du))
+	err := clientTransport.ws.WriteMessage(websocket.BinaryMessage, messageToSend.RawMsg)
 	if err != nil {
 		glog.Errorf("Error sending message on client transport: %s", err)
 		return fmt.Errorf("Error sending message on client transport: %s", err)
@@ -251,27 +257,32 @@ func (clientTransport *ClientWebSocketTransport) performWebSocketConnection() er
 }
 
 func openWebSocketConn(connConfig *WebSocketConnectionConfig, vmtServerUrl string) (*websocket.Conn, error) {
-	config, err := websocket.NewConfig(vmtServerUrl, connConfig.LocalAddress)
-	if err != nil {
-		glog.Error(err)
-		return nil, err
+	//1. set up dialer
+	d := &websocket.Dialer{
+		HandshakeTimeout: handshakeTimeout,
+		TLSClientConfig:  &tls.Config{InsecureSkipVerify: true},
 	}
-	usrpasswd := []byte(connConfig.WebSocketUsername + ":" + connConfig.WebSocketPassword)
 
-	config.Header = http.Header{
-		"Authorization": {"Basic " + base64.StdEncoding.EncodeToString(usrpasswd)},
-	}
-	config.TlsConfig = &tls.Config{InsecureSkipVerify: true}
-	webs, err := websocket.DialConfig(config)
+	//2. auth header
+	header := getAuthHeader(connConfig.WebSocketUsername, connConfig.WebSocketPassword)
 
+	//3. connect it
+	c, _, err := d.Dial(vmtServerUrl, header)
 	if err != nil {
-		glog.Error(err)
-		if webs == nil {
-			glog.Error("[openWebSocketConn] websocket is null, reset")
-		}
+		glog.Errorf("Failed to connect to server(%s): %v", vmtServerUrl, err)
 		return nil, err
 	}
 
-	glog.V(2).Infof("[openWebSocketConn] created webSocket : %s+v", vmtServerUrl)
-	return webs, nil
+	c.SetReadLimit(wsReadLimit)
+
+	return c, nil
+}
+
+func getAuthHeader(user, password string) http.Header {
+	dat := []byte(fmt.Sprintf("%s:%s", user, password))
+	header := http.Header{
+		"Authorization": {"Basic " + base64.StdEncoding.EncodeToString(dat)},
+	}
+
+	return header
 }
