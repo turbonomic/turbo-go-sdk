@@ -145,7 +145,6 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 	go remoteMediationClient.RunServerMessageHandler(remoteMediationClient.Transport)
 
 	// Send registration status to the upper layer
-	defer close(probeRegisteredMsgCh)
 	defer close(sdkProtocolDoneCh)
 	probeRegisteredMsgCh <- status
 	glog.V(3).Infof("Sent registration status on channel %s\n", probeRegisteredMsgCh)
