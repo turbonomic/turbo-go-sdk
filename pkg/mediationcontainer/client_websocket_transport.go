@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"sync"
 	"time"
+	"net"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
@@ -306,7 +307,10 @@ func setupPingPong(ws *websocket.Conn) {
 		err := ws.WriteControl(websocket.PongMessage, []byte(message), time.Now().Add(writeWaitTimeout))
 		if err == websocket.ErrCloseSent {
 			return nil
+		} else if e, ok := err.(net.Error); ok && e.Temporary() {
+			return nil
 		}
+
 		if err != nil {
 			glog.Errorf("Failed to send PongMessage: %v", err)
 		}
