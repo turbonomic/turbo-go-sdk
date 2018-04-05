@@ -6,11 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
-	"net"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
