@@ -53,7 +53,7 @@ func CreateWebSocketConnectionConfig(connConfig *MediationContainerConfig) (*Web
 // Implementation of the ITransport for WebSocket communication to send and receive serialized protobuf message bytes
 type ClientWebSocketTransport struct {
 	status                   TransportStatus // current status of the transport layer.
-	wsMux                    sync.Mutex      // mux to protect ws from concurrent writing (ws.WriteMessage())
+	wsMux                    sync.Mutex      // protect ws from concurrent writing (ws.WriteMessage())
 	ws                       *websocket.Conn // created during Connect()
 	connConfig               *WebSocketConnectionConfig
 	inputStreamCh            chan []byte // unbuffered channel
@@ -77,6 +77,7 @@ func (clientTransport *ClientWebSocketTransport) Connect() error {
 	clientTransport.closeAndResetWebSocket()
 
 	// loop till server is up or close received
+	clientTransport.closeRequested = false
 	// TODO: give an optional timeout to wait for server in performWebSocketConnection()
 	err := clientTransport.performWebSocketConnection() // Blocks or till transport is closed
 	if err != nil {
@@ -88,7 +89,7 @@ func (clientTransport *ClientWebSocketTransport) Connect() error {
 	clientTransport.stopListenerCh = make(chan bool, 1) // Channel to stop the routine that listens for messages
 	clientTransport.inputStreamCh = make(chan []byte)   // Message Queue
 	// Message handler for received messages
-	go clientTransport.ListenForMessages() // spawns a new routine
+	go clientTransport.ListenForMessages()
 	go clientTransport.startPing()
 	return nil
 }
@@ -104,7 +105,7 @@ func (clientTransport *ClientWebSocketTransport) GetConnectionId() string {
 	return clientTransport.ws.RemoteAddr().String() + "::" + clientTransport.ws.LocalAddr().String()
 }
 
-// Close the WebSocket Transport point
+// Close the WebSocket Transport point: this is called by upper module (remoteMediationClient)
 func (clientTransport *ClientWebSocketTransport) CloseTransportPoint() {
 	glog.V(4).Infof("[CloseTransportPoint] closing transport endpoint and listener routine")
 	clientTransport.closeRequested = true
@@ -114,7 +115,6 @@ func (clientTransport *ClientWebSocketTransport) CloseTransportPoint() {
 }
 
 // Close current WebSocket connection and set it to nil.
-// TODO: add concurrent control
 func (clientTransport *ClientWebSocketTransport) closeAndResetWebSocket() {
 	if clientTransport.status == Closed {
 		return
@@ -160,7 +160,7 @@ func (ws *ClientWebSocketTransport) startPing() {
 }
 
 // ================================================= Message Listener =============================================
-//TODO: add concurrent control, and better way to test the channel is closed or not
+//TODO: avoid close a closed channel
 func (clientTransport *ClientWebSocketTransport) stopListenForMessages() {
 	if clientTransport.stopListenerCh != nil {
 		glog.V(4).Infof("[StopListenForMessages] closing stopListenerCh %+v", clientTransport.stopListenerCh)
@@ -176,6 +176,7 @@ func (clientTransport *ClientWebSocketTransport) stopListenForMessages() {
 //
 func (clientTransport *ClientWebSocketTransport) ListenForMessages() {
 	glog.V(3).Infof("[ListenForMessages] %s : ENTER  ", time.Now())
+	defer close(clientTransport.inputStreamCh) //notify the receiver that websocket stop feeding data
 
 	for {
 		glog.V(4).Info("[ListenForMessages] waiting for messages on websocket transport")
@@ -183,7 +184,6 @@ func (clientTransport *ClientWebSocketTransport) ListenForMessages() {
 		select {
 		case <-clientTransport.stopListenerCh:
 			glog.V(1).Info("[ListenForMessages] stop listening for message")
-			// close(clientTransport.inputStreamCh) // This listener routine is the writer for this channel
 			return
 		default:
 			if clientTransport.status != Ready {
@@ -195,6 +195,11 @@ func (clientTransport *ClientWebSocketTransport) ListenForMessages() {
 
 			msgType, data, err := clientTransport.ws.ReadMessage()
 			glog.V(3).Infof("Received websocket message of type %d and size %d", msgType, len(data))
+
+			if clientTransport.closeRequested {
+				glog.V(1).Infof("stop listening for message because of requested")
+				return
+			}
 
 			// Notify errors and break
 			if err != nil {
@@ -208,7 +213,7 @@ func (clientTransport *ClientWebSocketTransport) ListenForMessages() {
 				clientTransport.closeAndResetWebSocket()
 				clientTransport.stopListenForMessages()
 
-				//notify upper components this connection error
+				//notify upper module that this connection is closed
 				clientTransport.connClosedNotificationCh <- true // Note: this will block till the message is received
 
 				glog.V(1).Infof("[ListenForMessages] websocket error notified, stop lisening for messages.")
