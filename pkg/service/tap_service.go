@@ -34,6 +34,7 @@ func (tapService *TAPService) DisconnectFromTurbo() {
 
 func (tapService *TAPService) ConnectToTurbo() {
 	glog.V(4).Infof("[ConnectToTurbo] Enter ******* ")
+	tapService.disconnectFromTurbo = make(chan struct{})
 	IsRegistered := make(chan bool, 1)
 
 	// start a separate go routine to connect to the Turbo server
@@ -69,10 +70,11 @@ func (tapService *TAPService) ConnectToTurbo() {
 	glog.V(4).Infof("[ConnectToTurbo] End ******")
 
 	// Once connected the mediation container will keep running till a disconnect message is sent to the tap service
-	tapService.disconnectFromTurbo = make(chan struct{})
 	select {
 	case <-tapService.disconnectFromTurbo:
+		glog.V(2).Infof("Begin to stop TAP service.")
 		mediationcontainer.CloseMediationContainer()
+		glog.V(2).Infof("TAP service is stopped.")
 		return
 	}
 }
