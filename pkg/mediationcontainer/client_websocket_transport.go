@@ -303,9 +303,16 @@ func (clientTransport *ClientWebSocketTransport) performWebSocketConnection() er
 func setupPingPong(ws *websocket.Conn) {
 	h := func(message string) error {
 		glog.V(3).Infof("Recevied ping msg")
-		ws.WriteControl(websocket.PongMessage, []byte(message), time.Now().Add(writeWaitTimeout))
-		return nil
+		err := ws.WriteControl(websocket.PongMessage, []byte(message), time.Now().Add(writeWaitTimeout))
+		if err == websocket.ErrCloseSent {
+			return nil
+		}
+		if err != nil {
+			glog.Errorf("Failed to send PongMessage: %v", err)
+		}
+		return err
 	}
+
 	ws.SetPingHandler(h)
 
 	h2 := func(message string) error {
