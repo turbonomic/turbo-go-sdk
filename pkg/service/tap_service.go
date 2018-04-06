@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/url"
+	"time"
 
 	restclient "github.com/turbonomic/turbo-api/pkg/client"
 
@@ -40,8 +41,9 @@ func (tapService *TAPService) addTarget(isRegistered chan bool) {
 	select {
 	case status := <-isRegistered:
 		if !status {
+			glog.Errorf("Probe %v registration failed.", pinfo)
 			close(tapService.disconnectFromTurbo)
-			glog.Fatalf("Probe %v registration failed.", pinfo)
+			glog.Errorf("Notified to close TAP service.")
 			return
 		}
 		break
