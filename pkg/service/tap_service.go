@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"net/url"
-	"time"
 
 	restclient "github.com/turbonomic/turbo-api/pkg/client"
 
