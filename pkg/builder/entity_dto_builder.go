@@ -54,6 +54,7 @@ type EntityDTOBuilder struct {
 	storageControllerData  *proto.EntityDTO_StorageControllerData
 	logicalPoolData        *proto.EntityDTO_LogicalPoolData
 	virtualApplicationData *proto.EntityDTO_VirtualApplicationData
+	containerPodData       *proto.EntityDTO_ContainerPodData
 
 	virtualMachineRelatedData    *proto.EntityDTO_VirtualMachineRelatedData
 	physicalMachineRelatedData   *proto.EntityDTO_PhysicalMachineRelatedData
@@ -112,6 +113,8 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		entityDTO.EntityData = &proto.EntityDTO_LogicalPoolData_{eb.logicalPoolData}
 	} else if eb.virtualApplicationData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_VirtualApplicationData_{eb.virtualApplicationData}
+	} else if eb.containerPodData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_ContainerPodData_{eb.containerPodData}
 	}
 
 	if eb.virtualMachineRelatedData != nil {
@@ -285,6 +288,20 @@ func (eb *EntityDTOBuilder) VirtualMachineData(vmData *proto.EntityDTO_VirtualMa
 		return eb
 	}
 	eb.virtualMachineData = vmData
+	eb.entityDataHasSet = true
+	return eb
+}
+
+func (eb *EntityDTOBuilder) ContainerPodData(podData *proto.EntityDTO_ContainerPodData) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	if eb.entityDataHasSet {
+		eb.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", podData)
+
+		return eb
+	}
+	eb.containerPodData = podData
 	eb.entityDataHasSet = true
 	return eb
 }
