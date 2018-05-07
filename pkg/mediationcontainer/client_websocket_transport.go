@@ -227,8 +227,6 @@ func (clientTransport *ClientWebSocketTransport) ListenForMessages() {
 			glog.V(4).Infof("[ListenForMessages] delivered websocket message, continue listening for server messages...")
 		} //end select
 	} //end for
-
-	glog.V(4).Infof("[ListenForMessages] : END")
 }
 
 func (clientTransport *ClientWebSocketTransport) queueRawMessage(data []byte) {

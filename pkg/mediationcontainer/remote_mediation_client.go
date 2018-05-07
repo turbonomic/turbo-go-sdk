@@ -223,7 +223,6 @@ func (remoteMediationClient *remoteMediationClient) RunServerMessageHandler(tran
 			}
 		} //end select
 	} //end for
-	glog.Infof(logPrefix + "DONE")
 }
 
 // Run probe callback to the probe response to the server.
@@ -244,7 +243,6 @@ func (remoteMediationClient *remoteMediationClient) runProbeCallback(endpoint Pr
 			endpoint.Send(endMsg)
 		} // end select
 	}
-	glog.V(4).Infof("[probeCallback] DONE")
 }
 
 // ======================== Message Handlers ============================
