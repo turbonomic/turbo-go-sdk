@@ -410,6 +410,100 @@ func TestEntityDTOBuilder_VirtualApplicationData(t *testing.T) {
 	}
 }
 
+func TestEntityDTOBuilder_ContainerPodData(t *testing.T) {
+	table := []struct {
+		podData *proto.EntityDTO_ContainerPodData
+
+		entityDataHasSetFlag bool
+		existingErr          error
+	}{
+		{
+			podData:     rand.RandomContainerPodData(),
+			existingErr: errors.New("Error"),
+		},
+		{
+			podData:              rand.RandomContainerPodData(),
+			entityDataHasSetFlag: false,
+		},
+		{
+			podData:              rand.RandomContainerPodData(),
+			entityDataHasSetFlag: true,
+		},
+	}
+	for i, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		base.entityDataHasSet = item.entityDataHasSetFlag
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:       base.entityType,
+			id:               base.id,
+			entityDataHasSet: base.entityDataHasSet,
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			if item.entityDataHasSetFlag {
+				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.podData)
+
+			} else {
+				expectedBuilder.containerPodData = item.podData
+				expectedBuilder.entityDataHasSet = true
+			}
+		}
+		builder := base.ContainerPodData(item.podData)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Test case %d failed. Expected %+v, \ngot      %+v", i, expectedBuilder, builder)
+		}
+	}
+}
+
+func TestEntityDTOBuilder_ContainerData(t *testing.T) {
+	table := []struct {
+		containerData *proto.EntityDTO_ContainerData
+
+		entityDataHasSetFlag bool
+		existingErr          error
+	}{
+		{
+			containerData: rand.RandomContainerData(),
+			existingErr:   errors.New("Error"),
+		},
+		{
+			containerData:        rand.RandomContainerData(),
+			entityDataHasSetFlag: false,
+		},
+		{
+			containerData:        rand.RandomContainerData(),
+			entityDataHasSetFlag: true,
+		},
+	}
+	for i, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		base.entityDataHasSet = item.entityDataHasSetFlag
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:       base.entityType,
+			id:               base.id,
+			entityDataHasSet: base.entityDataHasSet,
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			if item.entityDataHasSetFlag {
+				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.containerData)
+
+			} else {
+				expectedBuilder.containerData = item.containerData
+				expectedBuilder.entityDataHasSet = true
+			}
+		}
+		builder := base.ContainerData(item.containerData)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Test case %d failed. Expected %+v, \ngot      %+v", i, expectedBuilder, builder)
+		}
+	}
+}
+
 func TestBuildCommodityBoughtFromMap(t *testing.T) {
 	table := []struct {
 		providerCount int

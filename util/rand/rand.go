@@ -166,6 +166,34 @@ func RandomVirtualApplicationData() *proto.EntityDTO_VirtualApplicationData {
 	}
 }
 
+func RandomContainerPodData() *proto.EntityDTO_ContainerPodData {
+	ipAddress := String(14)
+	namespace := String(5)
+	name := String(5)
+	port := String(rand.Intn(9999))
+	return &proto.EntityDTO_ContainerPodData{
+		FullName:        &name,
+		Port:        &port,
+		IpAddress:   &ipAddress,
+		Namespace: &namespace,
+	}
+}
+
+func RandomContainerData() *proto.EntityDTO_ContainerData {
+	ipAddress := String(14)
+	namespace := String(5)
+	name := String(5)
+	podName := String(5)
+	port := String(rand.Intn(9999))
+	return &proto.EntityDTO_ContainerData{
+		FullName:        &name,
+		Port:        &port,
+		IpAddress:   &ipAddress,
+		Namespace: &namespace,
+		PodName: &podName,
+	}
+}
+
 func RandomVMState() *proto.EntityDTO_VMState {
 	connected := rand.Int31n(2) == 1
 	return &proto.EntityDTO_VMState{
