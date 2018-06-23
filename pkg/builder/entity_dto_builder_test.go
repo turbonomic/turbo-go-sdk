@@ -430,7 +430,7 @@ func TestEntityDTOBuilder_ConsumerPolicy(t *testing.T) {
 	falsep := false
 	truep := true
 	consumerPolicy = &proto.EntityDTO_ConsumerPolicy{
-		Controllable: &falsep,
+		Controllable:      &falsep,
 		ProviderMustClone: &truep,
 		// ShopsTogether has its default value
 	}
