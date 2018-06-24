@@ -267,6 +267,14 @@ func (eb *EntityDTOBuilder) Monitored(monitored bool) *EntityDTOBuilder {
 	return eb
 }
 
+func (eb *EntityDTOBuilder) ConsumerPolicy(cp *proto.EntityDTO_ConsumerPolicy) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	eb.consumerPolicy = cp
+	return eb
+}
+
 func (eb *EntityDTOBuilder) ApplicationData(appData *proto.EntityDTO_ApplicationData) *EntityDTOBuilder {
 	if eb.err != nil {
 		return eb

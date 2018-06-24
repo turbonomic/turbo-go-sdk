@@ -410,6 +410,81 @@ func TestEntityDTOBuilder_VirtualApplicationData(t *testing.T) {
 	}
 }
 
+func TestEntityDTOBuilder_ConsumerPolicy(t *testing.T) {
+	// Ensure that there is no ConsumerPolicy attached by default
+	builder := randomBaseEntityDTOBuilder()
+	base, err := builder.Create()
+	if err != nil {
+		t.Error("Cannot create a default EntityDTO")
+	}
+	consumerPolicy := base.GetConsumerPolicy()
+	if consumerPolicy != nil {
+		t.Errorf("Default EntityDTO should not contain a ConsumerPolicy")
+	}
+	// Running these tests with consumerPolicy == nil to test defaults
+	checkConsumerPolicyDefaults(t, consumerPolicy)
+	// Create a real ConsumerPolicy and verify that it has default values
+	consumerPolicy = &proto.EntityDTO_ConsumerPolicy{}
+	checkConsumerPolicyDefaults(t, consumerPolicy)
+	// Set some values
+	falsep := false
+	truep := true
+	consumerPolicy = &proto.EntityDTO_ConsumerPolicy{
+		Controllable:      &falsep,
+		ProviderMustClone: &truep,
+		// ShopsTogether has its default value
+	}
+	testCPFlag(t, "Controllable", consumerPolicy.GetControllable(), false)
+	testCPFlag(t, "ProviderMustClone", consumerPolicy.GetProviderMustClone(), true)
+	testCPFlag(t, "ShopsTogether", consumerPolicy.GetShopsTogether(),
+		proto.Default_EntityDTO_ConsumerPolicy_ShopsTogether)
+
+	// Use Reset to revert to defaults and verify
+	consumerPolicy.Reset()
+	checkConsumerPolicyDefaults(t, consumerPolicy)
+
+	// Try to add the ConsumerPolicy to the EntityDTO in the error state
+	builder.ConsumerPolicy(consumerPolicy).err = fmt.Errorf("Dummy error")
+	cpAttached, err := builder.ConsumerPolicy(consumerPolicy).Create()
+	if err == nil {
+		t.Error("EntityDTOBuilder in error state should have returned an error")
+	}
+	if cpAttached.GetConsumerPolicy() != nil {
+		t.Error("Should not be able to attach a ConsumerPolicy to an EntityDTOBuilder in an error state")
+	}
+	// Clear the error condition and attach
+	builder.ConsumerPolicy(consumerPolicy).err = nil
+	cpAttached, err = builder.ConsumerPolicy(consumerPolicy).Create()
+	// Verify that it is accessible
+	if cpAttached.GetConsumerPolicy() != consumerPolicy {
+		t.Error("Could not attach a ConsumerPolicy to an EntityDTO")
+	}
+}
+
+func checkConsumerPolicyDefaults(t *testing.T, consumerPolicy *proto.EntityDTO_ConsumerPolicy) {
+	if consumerPolicy.GetShopsTogether() != proto.Default_EntityDTO_ConsumerPolicy_ShopsTogether {
+		t.Errorf("Expected default ConsumerPolicy.ShopsTogether to be '%v', got '%v'",
+			proto.Default_EntityDTO_ConsumerPolicy_ShopsTogether,
+			consumerPolicy.GetShopsTogether())
+	}
+	if consumerPolicy.GetControllable() != proto.Default_EntityDTO_ConsumerPolicy_Controllable {
+		t.Errorf("Expected default ConsumerPolicy.Controllable to be '%v', got '%v'",
+			proto.Default_EntityDTO_ConsumerPolicy_Controllable,
+			consumerPolicy.GetControllable())
+	}
+	if consumerPolicy.GetProviderMustClone() != proto.Default_EntityDTO_ConsumerPolicy_ProviderMustClone {
+		t.Errorf("Expected default ConsumerPolicy.ProviderMustClone to be '%v', got '%v'",
+			proto.Default_EntityDTO_ConsumerPolicy_ProviderMustClone,
+			consumerPolicy.GetProviderMustClone())
+	}
+}
+
+func testCPFlag(t *testing.T, flagName string, actual bool, expected bool) {
+	if actual != expected {
+		t.Errorf("ConsumerPolicy.%s is '%v', expected '%v'", flagName, actual, expected)
+	}
+}
+
 func TestEntityDTOBuilder_ContainerPodData(t *testing.T) {
 	table := []struct {
 		podData *proto.EntityDTO_ContainerPodData
