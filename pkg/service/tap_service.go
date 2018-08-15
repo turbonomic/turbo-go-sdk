@@ -70,6 +70,12 @@ func (tapService *TAPService) addTarget(isRegistered chan bool) {
 
 func (tapService *TAPService) ConnectToTurbo() {
 	glog.V(4).Infof("[ConnectToTurbo] Enter ******* ")
+
+	if tapService.RESTClient == nil {
+		glog.V(1).Infof("TAP service cannot be started - cannot create target")
+		return
+	}
+
 	tapService.disconnectFromTurbo = make(chan struct{})
 	isRegistered := make(chan bool, 1)
 	defer close(isRegistered)

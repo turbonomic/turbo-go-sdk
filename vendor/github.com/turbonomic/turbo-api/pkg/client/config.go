@@ -12,10 +12,10 @@ type Config struct {
 	// ServerAddress is A URL, including <Scheme>://<IP>:<Port>.
 	serverAddress *url.URL
 	// APIPath is a sub-path that points to an API root.
-	apiPath       string
+	apiPath string
 
 	// For Basic authentication.
-	basicAuth     *BasicAuthentication
+	basicAuth *BasicAuthentication
 }
 
 type ConfigBuilder struct {

@@ -2,7 +2,7 @@ package api
 
 type Target struct {
 	// Category of a probe, i.e. Hypervisor, Storage and so on.
-	Category    string `json:"categroty,omitempty"`
+	Category    string `json:"category,omitempty"`
 	ClassName   string `json:"className,omitempty"`
 	DisplayName string `json:"displayName,omitempty"`
 
