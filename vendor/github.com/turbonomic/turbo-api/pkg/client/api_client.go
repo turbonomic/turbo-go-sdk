@@ -147,32 +147,28 @@ func (c *Client) FindTarget(target *api.Target) (bool, error) {
 	// Iterate over the list of targets to look for the given target
 	// by comparing the category, target type and identifier fields
 	for _, tgt := range targetList {
-		// Instance of api.Target
-		targetInstance := tgt.(map[string]interface{})
+		targetInstance, isMap := tgt.(map[string]interface{})
+		if !isMap {
+			continue
+		}
 		var category, targetType, tgtId string
-		for _, v := range targetInstance {
-			switch val := v.(type) {
-			case string:
-				// category field
-				category, _ = targetInstance["category"].(string)
-				// target type field
-				targetType, _ = targetInstance["type"].(string)
-			case []interface{}:
-				// array of InputFields
-				for _, value := range val {
-					// an instance of InputField
-					inputFieldMap, ok := value.(map[string]interface{})
-					// Get the target identifier value from the
-					// input field named 'targetIdentifier'
-					if ok {
-						field, ok := inputFieldMap["name"].(string)
-						//
-						if ok && field == "targetIdentifier" {
-							tgtId, _ = inputFieldMap["value"].(string)
-						}
+		category, _ = targetInstance["category"].(string)
+		targetType, _ = targetInstance["type"].(string)
+		inputFields, ok := targetInstance["inputFields"].([]interface{})
+		if ok {
+			// array of InputFields
+			for _, value := range inputFields {
+				// an instance of InputField
+				inputFieldMap, isMap := value.(map[string]interface{})
+				// Get the target identifier value from the
+				// input field named 'targetIdentifier'
+				if isMap {
+					field, isNameField := inputFieldMap["name"].(string)
+					//
+					if isNameField && field == "targetIdentifier" {
+						tgtId, _ = inputFieldMap["value"].(string)
 					}
 				}
-			default:
 			}
 		}
 		glog.V(4).Infof("%s::%s::%s\n", category, targetType, tgtId)

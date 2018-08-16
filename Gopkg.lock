@@ -51,14 +51,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:be4db0aca5351ac2c277ec12472a907f2d2bc1f0e386af71c0e2af791642d775"
+  digest = "1:64510e935a9274334439ed06996736b13d97ead708cba43901bb572ae4daea23"
   name = "github.com/turbonomic/turbo-api"
   packages = [
     "pkg/api",
     "pkg/client",
   ]
   pruneopts = "UT"
-  revision = "944acf822d10950c63d021d662812a0eb610cf40"
+  revision = "ed948ba97e7008d35683d082f8c69e3d38d146d0"
 
 [[projects]]
   branch = "master"
@@ -66,7 +66,7 @@
   name = "golang.org/x/net"
   packages = ["websocket"]
   pruneopts = "UT"
-  revision = "c39426892332e1bb5ec0a434a079bf82f5d30c54"
+  revision = "aaf60122140d3fcf75376d319f0554393160eb50"
 
 [solve-meta]
   analyzer-name = "dep"

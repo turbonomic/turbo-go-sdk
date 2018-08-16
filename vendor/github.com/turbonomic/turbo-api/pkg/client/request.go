@@ -226,5 +226,6 @@ func parseHTTPResponse(resp *http.Response) Result {
 		status:     resp.Status,
 		body:       string(content),
 		err:        nil,
+		cookies:    cookieMap,
 	}
 }
