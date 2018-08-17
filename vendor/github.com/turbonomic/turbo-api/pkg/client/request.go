@@ -43,6 +43,7 @@ type Result struct {
 	status     string
 	body       string
 	err        error
+	cookies    map[string]*http.Cookie
 }
 
 func NewRequest(client HTTPClient, verb string, baseURL *url.URL, apiPath string) *Request {
@@ -183,10 +184,10 @@ func (r *Request) request(fn func(*http.Response)) error {
 			req.Header.Set(key, value)
 		}
 	}
-	// Set basic authentication for the request if there is any.
-	if r.basicAuth != nil {
-		req.SetBasicAuth(r.basicAuth.username, r.basicAuth.password)
-	}
+	//// Set basic authentication for the request if there is any.
+	//if r.basicAuth != nil {
+	//	req.SetBasicAuth(r.basicAuth.username, r.basicAuth.password)
+	//}
 
 	resp, err := r.client.Do(req)
 	if err != nil {
@@ -205,6 +206,14 @@ func parseHTTPResponse(resp *http.Response) Result {
 		}
 	}
 
+	// Parse cookies
+	cookies := resp.Cookies()
+	cookieMap := make(map[string]*http.Cookie)
+	for _, cookie := range cookies {
+		cookieMap[cookie.Name] = cookie
+	}
+
+	// Parse response body
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return Result{
@@ -217,5 +226,6 @@ func parseHTTPResponse(resp *http.Response) Result {
 		status:     resp.Status,
 		body:       string(content),
 		err:        nil,
+		cookies:    cookieMap,
 	}
 }
