@@ -1,10 +1,10 @@
 package group
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"testing"
-	"fmt"
 )
 
 func TestGroupBuilderInvalid(t *testing.T) {

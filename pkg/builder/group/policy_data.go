@@ -3,10 +3,9 @@ package group
 import "github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
 type groupData struct {
-	//id             string
 	matchingBuyers *Matching
 	entities       []string
-	entityTypePtr     *proto.EntityDTO_EntityType
+	entityTypePtr  *proto.EntityDTO_EntityType
 }
 
 type BuyerPolicyData struct {
@@ -20,14 +19,14 @@ type SellerPolicyData struct {
 
 func StaticBuyers(buyers []string) *BuyerPolicyData {
 	buyerData := &BuyerPolicyData{
-		groupData: &groupData{entities:buyers,},
+		groupData: &groupData{entities: buyers},
 	}
 	return buyerData
 }
 
 func DynamicBuyers(matchingBuyers *Matching) *BuyerPolicyData {
 	buyerData := &BuyerPolicyData{
-		groupData: &groupData{matchingBuyers:matchingBuyers,},
+		groupData: &groupData{matchingBuyers: matchingBuyers},
 	}
 	return buyerData
 }
@@ -43,13 +42,13 @@ func (buyer *BuyerPolicyData) AtMost(maxBuyers int32) *BuyerPolicyData {
 }
 
 func StaticSellers(buyers []string) *SellerPolicyData {
-	buyerData := &SellerPolicyData{groupData: &groupData{},}
+	buyerData := &SellerPolicyData{groupData: &groupData{}}
 	buyerData.entities = buyers
 	return buyerData
 }
 
 func DynamicSellers(matchingBuyers *Matching) *SellerPolicyData {
-	buyerData := &SellerPolicyData{groupData: &groupData{},}
+	buyerData := &SellerPolicyData{groupData: &groupData{}}
 	buyerData.matchingBuyers = matchingBuyers
 	return buyerData
 }

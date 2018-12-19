@@ -6,14 +6,14 @@ import (
 )
 
 // -------------------------------------------------------------------------------------------------
-
+// Builder for the constraint info data in a Group DTO
 type ConstraintInfoBuilder struct {
-	constraintType proto.GroupDTO_ConstraintType
-	constraintId string
-	constraintName string
+	constraintType        proto.GroupDTO_ConstraintType
+	constraintId          string
+	constraintName        string
 	constraintDisplayName string
-	providerTypePtr *proto.EntityDTO_EntityType
-	isBuyer bool
+	providerTypePtr       *proto.EntityDTO_EntityType
+	isBuyer               bool
 
 	maxBuyers int32
 }
@@ -36,24 +36,27 @@ func (constraintInfoBuilder *ConstraintInfoBuilder) WithDisplayName(constraintDi
 	return constraintInfoBuilder
 }
 
+// Set the entity type of the seller group for the buyer entities
 func (constraintInfoBuilder *ConstraintInfoBuilder) WithSellerType(providerType proto.EntityDTO_EntityType) *ConstraintInfoBuilder {
 	constraintInfoBuilder.providerTypePtr = &providerType
 	return constraintInfoBuilder
 }
 
+// Set the maximum number of buyer entities allowed in the policy
 func (constraintInfoBuilder *ConstraintInfoBuilder) AtMostBuyers(maxBuyers int32) *ConstraintInfoBuilder {
-	//constraintInfoBuilder.BuyerMetaData.AtMost = &maxBuyers
 	constraintInfoBuilder.maxBuyers = maxBuyers
 	return constraintInfoBuilder
 }
 
+// Build the constraint for the buyer group of the policy
 func buyerGroupConstraint(constraintType proto.GroupDTO_ConstraintType, constraintId string) *ConstraintInfoBuilder {
-	constraintInfoBuilder := newConstraintBuilder(constraintType, constraintId)	//.BuyerGroup()
+	constraintInfoBuilder := newConstraintBuilder(constraintType, constraintId) //.BuyerGroup()
 	constraintInfoBuilder.isBuyer = true
 
 	return constraintInfoBuilder
 }
 
+// Build the constraint for the seller group of the policy
 func sellerGroupConstraint(constraintType proto.GroupDTO_ConstraintType, constraintId string) *ConstraintInfoBuilder {
 	constraintInfoBuilder := newConstraintBuilder(constraintType, constraintId)
 	constraintInfoBuilder.isBuyer = false
@@ -61,6 +64,7 @@ func sellerGroupConstraint(constraintType proto.GroupDTO_ConstraintType, constra
 	return constraintInfoBuilder
 }
 
+// Build the ConstraintInfo DTO
 func (constraintInfoBuilder *ConstraintInfoBuilder) Build() (*proto.GroupDTO_ConstraintInfo, error) {
 	constraintInfo := &proto.GroupDTO_ConstraintInfo{
 		ConstraintId:   &constraintInfoBuilder.constraintId,
@@ -70,16 +74,18 @@ func (constraintInfoBuilder *ConstraintInfoBuilder) Build() (*proto.GroupDTO_Con
 	constraintInfo.ConstraintDisplayName = &constraintInfoBuilder.constraintDisplayName
 
 	if constraintInfoBuilder.isBuyer {
+		// buyer group specific metadata
 		constraintInfo.BuyerMetaData = &proto.GroupDTO_BuyerMetaData{}
 		bool := true
 		constraintInfo.IsBuyer = &bool
-		//TODO: exception if providerType is not specified
+		// seller entity type should be provided for buyer seller policies
 		setProvider := (constraintInfoBuilder.constraintType == proto.GroupDTO_BUYER_SELLER_AFFINITY) ||
-					(constraintInfoBuilder.constraintType == proto.GroupDTO_BUYER_SELLER_ANTI_AFFINITY)
+			(constraintInfoBuilder.constraintType == proto.GroupDTO_BUYER_SELLER_ANTI_AFFINITY)
 		if setProvider && constraintInfoBuilder.providerTypePtr == nil {
 			return nil, fmt.Errorf("Seller type required")
 		}
 		constraintInfo.BuyerMetaData.SellerType = constraintInfoBuilder.providerTypePtr
+		// max buyers allowed
 		if constraintInfoBuilder.maxBuyers > 0 {
 			constraintInfo.BuyerMetaData.AtMost = &constraintInfoBuilder.maxBuyers
 		}
@@ -89,7 +95,6 @@ func (constraintInfoBuilder *ConstraintInfoBuilder) Build() (*proto.GroupDTO_Con
 		constraintInfo.NeedComplementary = &needsComplementary
 	}
 
-	//fmt.Printf("[ConstraintInfoBuilder] DTO: %++v\n", constraintInfo)
 	return constraintInfo, nil
 }
 
@@ -106,9 +111,6 @@ func (groupBuilder *AbstractConstraintGroupBuilder) Build() (*proto.GroupDTO, er
 	groupDTO, err := groupBuilder.AbstractBuilder.Build()
 	if err != nil {
 		return nil, fmt.Errorf("[AbstractConstraintGroupBuilder] Error building group")
-	}
-	if groupDTO == nil {
-		return nil, fmt.Errorf("[AbstractConstraintGroupBuilder] NULL GROUP DTO")
 	}
 
 	var constraintInfo *proto.GroupDTO_ConstraintInfo
@@ -291,7 +293,7 @@ func buildBuyerSellerPolicyGroup(policyData *buyerSellerPolicyData) ([]*proto.Gr
 
 // Set up buyer group for a policy
 func createPolicyBuyerGroup(policyId string, constraintType proto.GroupDTO_ConstraintType,
-			buyerData *BuyerPolicyData, sellerData *SellerPolicyData) (*AbstractConstraintGroupBuilder, error) {
+	buyerData *BuyerPolicyData, sellerData *SellerPolicyData) (*AbstractConstraintGroupBuilder, error) {
 
 	var buyerGroup *AbstractBuilder
 	if buyerData.entityTypePtr == nil {
@@ -317,11 +319,11 @@ func createPolicyBuyerGroup(policyId string, constraintType proto.GroupDTO_Const
 		constraintInfoBuilder.AtMostBuyers(buyerData.atMost)
 	}
 	if sellerData != nil && sellerData.entityTypePtr != nil {
-		constraintInfoBuilder.WithSellerType(*sellerData.entityTypePtr )
+		constraintInfoBuilder.WithSellerType(*sellerData.entityTypePtr)
 	}
 
 	buyerConstraintGroup := &AbstractConstraintGroupBuilder{
-		AbstractBuilder: buyerGroup,
+		AbstractBuilder:       buyerGroup,
 		ConstraintInfoBuilder: constraintInfoBuilder,
 	}
 
@@ -330,7 +332,7 @@ func createPolicyBuyerGroup(policyId string, constraintType proto.GroupDTO_Const
 
 // Set up seller group for a policy
 func createPolicySellerGroup(policyId string, constraintType proto.GroupDTO_ConstraintType,
-			sellerData *SellerPolicyData) (*AbstractConstraintGroupBuilder, error) {
+	sellerData *SellerPolicyData) (*AbstractConstraintGroupBuilder, error) {
 
 	var sellerGroup *AbstractBuilder
 	if sellerData.entityTypePtr == nil {
@@ -354,7 +356,7 @@ func createPolicySellerGroup(policyId string, constraintType proto.GroupDTO_Cons
 	constraintInfoBuilder = sellerGroupConstraint(constraintType, policyId)
 
 	sellerConstraintGroup := &AbstractConstraintGroupBuilder{
-		AbstractBuilder: sellerGroup,
+		AbstractBuilder:       sellerGroup,
 		ConstraintInfoBuilder: constraintInfoBuilder,
 	}
 

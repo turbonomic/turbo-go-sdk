@@ -33,7 +33,6 @@ func (matching *Matching) and(entitySpec SelectionSpecBuilder) *Matching {
 type SelectionSpecBuilder interface {
 	isSelectionSpecBuilder()
 	Build() *proto.GroupDTO_SelectionSpec
-	//SetProperty(property interface{}) SelectionSpecBuilder
 }
 
 type GenericSelectionSpecBuilder struct {
@@ -142,57 +141,3 @@ func (builder *GenericSelectionSpecBuilder) Build() *proto.GroupDTO_SelectionSpe
 }
 
 func (builder *GenericSelectionSpecBuilder) isSelectionSpecBuilder() {}
-
-//
-//// ------------------------------------------------------------
-//type StringPropertySelectionSpecBuilder struct {
-//	*GenericSelectionSpecBuilder
-//}
-//
-//func StringProperty() *StringPropertySelectionSpecBuilder {
-//	stringPropertySelectionSpecBuilder := &StringPropertySelectionSpecBuilder{
-//		newGenericSelectionSpecBuilder(),
-//	}
-//	return stringPropertySelectionSpecBuilder
-//}
-//
-//func (builder *StringPropertySelectionSpecBuilder) SetProperty(property interface{}) *StringPropertySelectionSpecBuilder {
-//	var propVal string
-//	propVal, ok := property.(string)
-//	if ok {
-//		propValString := &proto.GroupDTO_SelectionSpec_PropertyValueString{}
-//		propValString.PropertyValueString = propVal
-//		builder.selectionSpec.PropertyValue = propValString
-//	}
-//	return builder
-//}
-//func (builder *StringPropertySelectionSpecBuilder) isSelectionSpecBuilder() {}
-//
-//func (builder *StringPropertySelectionSpecBuilder) Build() *proto.GroupDTO_SelectionSpec {
-//	return builder.Build()
-//}
-//
-//// ------------------------------------------------------------
-//type DoublePropertySelectionSpecBuilder struct {
-//	*GenericSelectionSpecBuilder
-//}
-//
-//func DoubleProperty() *DoublePropertySelectionSpecBuilder {
-//	doublePropertySelectionSpecBuilder := &DoublePropertySelectionSpecBuilder{
-//		newGenericSelectionSpecBuilder(),
-//	}
-//	return doublePropertySelectionSpecBuilder
-//}
-//
-//func (builder *DoublePropertySelectionSpecBuilder) SetProperty(property interface{}) *DoublePropertySelectionSpecBuilder {
-//	var propVal float64
-//	propVal, ok := property.(float64)
-//	if ok {
-//		propValString := &proto.GroupDTO_SelectionSpec_PropertyValueDouble{}
-//		propValString.PropertyValueDouble = propVal
-//		builder.selectionSpec.PropertyValue = propValString
-//	}
-//	return builder
-//}
-//
-//func (builder *DoublePropertySelectionSpecBuilder) isSelectionSpecBuilder() {}

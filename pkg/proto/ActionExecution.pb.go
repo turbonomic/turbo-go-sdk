@@ -80,7 +80,7 @@ It has these top-level messages:
 	ExternalEntityLink
 	MergedEntityMetadata
 */
-package common_dto
+package proto
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"

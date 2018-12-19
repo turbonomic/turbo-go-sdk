@@ -2,55 +2,38 @@ package group
 
 import (
 	"fmt"
-	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 type GroupType string
 
 const (
 	// Static group contains a fixed list of entity id's
-	STATIC_GROUP      GroupType = "Static"
+	STATIC_GROUP GroupType = "Static"
 	// Dynamic group contains selection criteria to select entity id's
-	DYNAMIC_GROUP     GroupType = "Dynamic"
+	DYNAMIC_GROUP GroupType = "Dynamic"
 )
-//
-//type GroupBuilder interface {
-//	OfType(eType proto.EntityDTO_EntityType) *GroupBuilder
-//	WithEntities(entities []string) *GroupBuilder
-//	MatchingEntities(matching *Matching) *GroupBuilder
-//	UpdateType(updateType proto.UpdateType) *GroupBuilder
-//	GroupType(updateType proto.GroupDTO_GroupType) *GroupBuilder
-//}
 
 // Builder for creating a GroupDTO
 type AbstractBuilder struct {
-	groupId string
+	groupId       string
 	entityTypePtr *proto.EntityDTO_EntityType
-	memberList []string
-	matching *Matching
+	memberList    []string
+	matching      *Matching
 	//groupDTO *proto.GroupDTO
-	ec *builder.ErrorCollector
+	ec        *builder.ErrorCollector
 	groupType GroupType
 }
 
 // Create a new instance of AbstractBuilder.
 // Specify the group id and if the group is static or dynamic.
 func newAbstractBuilder(id string, groupType GroupType) *AbstractBuilder {
-	// group id and display name
-	//groupId := &proto.GroupDTO_GroupName{
-	//	GroupName: id,
-	//}
-	//groupDTO := &proto.GroupDTO{
-	//	DisplayName: &id,
-	//	Info: groupId,
-	//}
-
 	groupBuilder := &AbstractBuilder{
-		//groupDTO: groupDTO,
 		groupType: groupType,
-		groupId: id,
-		ec:  new(builder.ErrorCollector),
+		groupId:   id,
+		ec:        new(builder.ErrorCollector),
 	}
 	return groupBuilder
 }
@@ -78,41 +61,30 @@ func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
 	}
 	groupDTO := &proto.GroupDTO{
 		DisplayName: &groupBuilder.groupId,
-		Info: groupId,
+		Info:        groupId,
 	}
 
 	err := groupBuilder.setupEntityType(groupDTO)
 	if err != nil {
-		fmt.Printf("[groupBuilder] %s\n", err)
 		groupBuilder.ec.Collect(err)
 	}
 
 	if groupBuilder.groupType == STATIC_GROUP {
 		err := groupBuilder.setUpStaticMembers(groupDTO)
 		if err != nil {
-			fmt.Printf("[groupBuilder] %s\n", err)
 			groupBuilder.ec.Collect(err)
 		}
 	} else {
 		err := groupBuilder.setUpDynamicGroup(groupDTO)
 		if err != nil {
-			fmt.Printf("[groupBuilder] %s\n", err)
 			groupBuilder.ec.Collect(err)
 		}
 	}
 
 	if groupBuilder.ec.Count() > 0 {
-		fmt.Printf("Error : %s\n", groupBuilder.ec.Error())
-		return nil, fmt.Errorf(groupBuilder.ec.Error())
+		glog.Errorf("GroupBuilder Error %s : %s\n", groupBuilder.groupId, groupBuilder.ec.Error())
+		return nil, fmt.Errorf("%s: %s", groupBuilder.groupId, groupBuilder.ec.Error())
 	}
-
-	//members := groupBuilder.groupDTO.Members
-	//if members == nil {
-	//	fmt.Printf("NULL MEMBERS\n")
-	//}
-	//if groupBuilder.groupDTO == nil {
-	//	return nil, fmt.Errorf("Group dto is null\n")
-	//}
 
 	return groupDTO, nil
 }
@@ -122,7 +94,7 @@ func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
 func (groupBuilder *AbstractBuilder) OfType(eType proto.EntityDTO_EntityType) *AbstractBuilder {
 
 	// Check entity type
-	if groupBuilder.entityTypePtr != nil && *groupBuilder.entityTypePtr !=  eType {
+	if groupBuilder.entityTypePtr != nil && *groupBuilder.entityTypePtr != eType {
 		groupBuilder.ec.Collect(fmt.Errorf("Cannot add members, input EntityType - %s is not consistent with existing EntityType %s ",
 			eType, *groupBuilder.entityTypePtr))
 		return groupBuilder
@@ -134,7 +106,6 @@ func (groupBuilder *AbstractBuilder) OfType(eType proto.EntityDTO_EntityType) *A
 	return groupBuilder
 }
 
-
 func (groupBuilder *AbstractBuilder) setupEntityType(groupDTO *proto.GroupDTO) error {
 	if groupBuilder.entityTypePtr == nil {
 		return fmt.Errorf("Entity type is not set")
@@ -144,7 +115,7 @@ func (groupBuilder *AbstractBuilder) setupEntityType(groupDTO *proto.GroupDTO) e
 	_, valid := proto.EntityDTO_EntityType_name[int32(entityType)]
 
 	if !valid {
-		return fmt.Errorf("invalid entity type %v\n", entityType)
+		return fmt.Errorf("Invalid entity type %v\n", entityType)
 	}
 
 	// Setup entity type
