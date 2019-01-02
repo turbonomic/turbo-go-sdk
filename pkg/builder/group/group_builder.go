@@ -22,6 +22,7 @@ type AbstractBuilder struct {
 	entityTypePtr *proto.EntityDTO_EntityType
 	memberList    []string
 	matching      *Matching
+	consistentResize bool
 	//groupDTO *proto.GroupDTO
 	ec        *builder.ErrorCollector
 	groupType GroupType
@@ -34,6 +35,7 @@ func newAbstractBuilder(id string, groupType GroupType) *AbstractBuilder {
 		groupType: groupType,
 		groupId:   id,
 		ec:        new(builder.ErrorCollector),
+		consistentResize: false,
 	}
 	return groupBuilder
 }
@@ -80,6 +82,8 @@ func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
 			groupBuilder.ec.Collect(err)
 		}
 	}
+
+	groupDTO.IsConsistentResizing = &groupBuilder.consistentResize
 
 	if groupBuilder.ec.Count() > 0 {
 		glog.Errorf("GroupBuilder Error %s : %s\n", groupBuilder.groupId, groupBuilder.ec.Error())
@@ -188,4 +192,9 @@ func (groupBuilder *AbstractBuilder) setUpDynamicGroup(groupDTO *proto.GroupDTO)
 	}
 	groupDTO.Members = selectionSpecList_
 	return nil
+}
+
+func (groupBuilder *AbstractBuilder) ResizeConsistently()  *AbstractBuilder {
+	groupBuilder.consistentResize = true;
+	return groupBuilder
 }

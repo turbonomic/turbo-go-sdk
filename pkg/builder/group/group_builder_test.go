@@ -124,3 +124,31 @@ func TestGroupBuilderStatic(t *testing.T) {
 	assert.EqualValues(t, 2, len(groupDTO.GetMemberList().GetMember()))
 	assert.Nil(t, groupDTO.GetSelectionSpecList())
 }
+
+func TestGroupBuilderSetConsistentResize(t *testing.T) {
+	id := "group1"
+	eType := proto.EntityDTO_CONTAINER
+
+	groupBuilder := StaticGroup(id).
+		OfType(eType).
+		WithEntities([]string{"abc", "xyz"})
+
+	groupDTO, err := groupBuilder.Build()
+	assert.Nil(t, err)
+	consistentResize := groupDTO.GetIsConsistentResizing()
+	assert.False(t, consistentResize)
+
+	fmt.Printf("%++v\n", groupDTO)
+
+	groupBuilder = StaticGroup(id).
+		OfType(eType).
+		WithEntities([]string{"abc", "xyz"}).
+		ResizeConsistently()
+
+	groupDTO, err = groupBuilder.Build()
+	assert.Nil(t, err)
+	consistentResize = groupDTO.GetIsConsistentResizing()
+	assert.True(t, consistentResize)
+
+	fmt.Printf("%++v\n", groupDTO)
+}
