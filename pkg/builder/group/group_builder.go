@@ -18,10 +18,10 @@ const (
 
 // Builder for creating a GroupDTO
 type AbstractBuilder struct {
-	groupId       string
-	entityTypePtr *proto.EntityDTO_EntityType
-	memberList    []string
-	matching      *Matching
+	groupId          string
+	entityTypePtr    *proto.EntityDTO_EntityType
+	memberList       []string
+	matching         *Matching
 	consistentResize bool
 	//groupDTO *proto.GroupDTO
 	ec        *builder.ErrorCollector
@@ -32,9 +32,9 @@ type AbstractBuilder struct {
 // Specify the group id and if the group is static or dynamic.
 func newAbstractBuilder(id string, groupType GroupType) *AbstractBuilder {
 	groupBuilder := &AbstractBuilder{
-		groupType: groupType,
-		groupId:   id,
-		ec:        new(builder.ErrorCollector),
+		groupType:        groupType,
+		groupId:          id,
+		ec:               new(builder.ErrorCollector),
 		consistentResize: false,
 	}
 	return groupBuilder
@@ -194,7 +194,7 @@ func (groupBuilder *AbstractBuilder) setUpDynamicGroup(groupDTO *proto.GroupDTO)
 	return nil
 }
 
-func (groupBuilder *AbstractBuilder) ResizeConsistently()  *AbstractBuilder {
-	groupBuilder.consistentResize = true;
+func (groupBuilder *AbstractBuilder) ResizeConsistently() *AbstractBuilder {
+	groupBuilder.consistentResize = true
 	return groupBuilder
 }
