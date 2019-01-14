@@ -152,3 +152,22 @@ func TestGroupBuilderSetConsistentResize(t *testing.T) {
 
 	fmt.Printf("%++v\n", groupDTO)
 }
+
+func TestGroupBuilderDisplayName(t *testing.T) {
+	id := "group1"
+	eType := proto.EntityDTO_CONTAINER
+
+	groupBuilder := StaticGroup(id).
+		OfType(eType).
+		WithEntities([]string{"abc", "xyz"})
+
+	groupDTO, _ := groupBuilder.Build()
+
+	assert.Equal(t, id, groupDTO.GetDisplayName())
+
+	displayName := "Test Group"
+	groupBuilder.WithDisplayName(displayName)
+	groupDTO, _ = groupBuilder.Build()
+
+	assert.Equal(t, displayName, groupDTO.GetDisplayName())
+}

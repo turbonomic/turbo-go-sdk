@@ -19,6 +19,7 @@ const (
 // Builder for creating a GroupDTO
 type AbstractBuilder struct {
 	groupId          string
+	displayName      string
 	entityTypePtr    *proto.EntityDTO_EntityType
 	memberList       []string
 	matching         *Matching
@@ -66,6 +67,10 @@ func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
 		Info:        groupId,
 	}
 
+	if groupBuilder.displayName != "" {
+		groupDTO.DisplayName = &groupBuilder.displayName
+	}
+
 	err := groupBuilder.setupEntityType(groupDTO)
 	if err != nil {
 		groupBuilder.ec.Collect(err)
@@ -91,6 +96,16 @@ func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
 	}
 
 	return groupDTO, nil
+}
+
+func (groupBuilder *AbstractBuilder) WithDisplayName(displayName string) *AbstractBuilder {
+	if displayName == "" {
+		return groupBuilder
+	}
+	// Setup entity type
+	groupBuilder.displayName = displayName
+
+	return groupBuilder
 }
 
 // Set the entity type for the members of the group.
