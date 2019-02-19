@@ -2,6 +2,7 @@ package probe
 
 import (
 	"fmt"
+
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 
@@ -73,7 +74,7 @@ func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 		RegistrationClient: NewProbeRegistrator(),
 	}
 
-	glog.V(2).Infof("[NewTurboProbe] Created TurboProbe: %s", myProbe)
+	glog.V(2).Infof("[NewTurboProbe] Created TurboProbe: %v", myProbe)
 	return myProbe, nil
 }
 
