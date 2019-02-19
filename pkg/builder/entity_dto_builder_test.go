@@ -69,10 +69,10 @@ func TestCreate(t *testing.T) {
 	}
 	for _, item := range table {
 		builder := &EntityDTOBuilder{
-			entityType: &item.eType,
-			id:         &item.id,
-			powerState: &item.powerState,
-			origin:     &item.origin,
+			entityType:                   &item.eType,
+			id:                           &item.id,
+			powerState:                   &item.powerState,
+			origin:                       &item.origin,
 			commoditiesBoughtProviderMap: item.commoditiesBoughtProviderMap,
 			commoditiesSold:              item.commoditiesSold,
 			err:                          item.err,
