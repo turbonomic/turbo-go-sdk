@@ -294,7 +294,7 @@ func (clientTransport *ClientWebSocketTransport) performWebSocketConnection() er
 			return nil
 		}
 	}
-	glog.V(4).Infof("[performWebSocketConnection] exit connect routine, close = %s ", clientTransport.closeRequested)
+	glog.V(4).Infof("[performWebSocketConnection] exit connect routine, close = %v ", clientTransport.closeRequested)
 	return errors.New("Abort client socket connect, transport is closed")
 }
 

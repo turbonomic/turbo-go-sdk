@@ -111,7 +111,7 @@ func TestSupplyChainBuilder_Entity(t *testing.T) {
 		{
 			newNodes:                 []*proto.TemplateDTO{randomSupplyChainNode()},
 			existingSupplyChainNodes: []*proto.TemplateDTO{},
-			newErr: fmt.Errorf("Must set top supply chain node first."),
+			newErr:                   fmt.Errorf("Must set top supply chain node first."),
 		},
 		{
 			newNodes: []*proto.TemplateDTO{
