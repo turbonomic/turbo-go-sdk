@@ -3,14 +3,22 @@
 
 package proto
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // The unit for the price.
 // The unit affects how to use the price to calculate the cost for an entity,
@@ -51,6 +59,7 @@ var Price_Unit_name = map[int32]string{
 	20: "MILLION_IOPS",
 	21: "GB_MONTH",
 }
+
 var Price_Unit_value = map[string]int32{
 	"HOURS":        1,
 	"DAYS":         2,
@@ -65,9 +74,11 @@ func (x Price_Unit) Enum() *Price_Unit {
 	*p = x
 	return p
 }
+
 func (x Price_Unit) String() string {
 	return proto.EnumName(Price_Unit_name, int32(x))
 }
+
 func (x *Price_Unit) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(Price_Unit_value, data, "Price_Unit")
 	if err != nil {
@@ -76,7 +87,10 @@ func (x *Price_Unit) UnmarshalJSON(data []byte) error {
 	*x = Price_Unit(value)
 	return nil
 }
-func (Price_Unit) EnumDescriptor() ([]byte, []int) { return fileDescriptor7, []int{6, 0} }
+
+func (Price_Unit) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{6, 0}
+}
 
 // The list of prices for a particular compute tier. In the cloud, a compute tier is
 // the seller of CPU/memory (but not storage) to a VM. It is commonly referred to as an
@@ -102,13 +116,35 @@ type ComputeTierPriceList struct {
 	//
 	// The configuration from the base price should not appear in this list.
 	PerConfigurationPriceAdjustments []*ComputeTierPriceList_ComputeTierConfigPrice `protobuf:"bytes,2,rep,name=per_configuration_price_adjustments,json=perConfigurationPriceAdjustments" json:"per_configuration_price_adjustments,omitempty"`
+	XXX_NoUnkeyedLiteral             struct{}                                       `json:"-"`
 	XXX_unrecognized                 []byte                                         `json:"-"`
+	XXX_sizecache                    int32                                          `json:"-"`
 }
 
-func (m *ComputeTierPriceList) Reset()                    { *m = ComputeTierPriceList{} }
-func (m *ComputeTierPriceList) String() string            { return proto.CompactTextString(m) }
-func (*ComputeTierPriceList) ProtoMessage()               {}
-func (*ComputeTierPriceList) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{0} }
+func (m *ComputeTierPriceList) Reset()         { *m = ComputeTierPriceList{} }
+func (m *ComputeTierPriceList) String() string { return proto.CompactTextString(m) }
+func (*ComputeTierPriceList) ProtoMessage()    {}
+func (*ComputeTierPriceList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{0}
+}
+
+func (m *ComputeTierPriceList) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ComputeTierPriceList.Unmarshal(m, b)
+}
+func (m *ComputeTierPriceList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ComputeTierPriceList.Marshal(b, m, deterministic)
+}
+func (m *ComputeTierPriceList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ComputeTierPriceList.Merge(m, src)
+}
+func (m *ComputeTierPriceList) XXX_Size() int {
+	return xxx_messageInfo_ComputeTierPriceList.Size(m)
+}
+func (m *ComputeTierPriceList) XXX_DiscardUnknown() {
+	xxx_messageInfo_ComputeTierPriceList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ComputeTierPriceList proto.InternalMessageInfo
 
 func (m *ComputeTierPriceList) GetBasePrice() *ComputeTierPriceList_ComputeTierConfigPrice {
 	if m != nil {
@@ -134,8 +170,10 @@ type ComputeTierPriceList_ComputeTierConfigPrice struct {
 	Tenancy *Tenancy `protobuf:"varint,2,opt,name=tenancy,enum=common_dto.Tenancy" json:"tenancy,omitempty"`
 	// The available prices for this configuration of the tier. There may be multiple
 	// prices (e.g. an hourly price and a monthly price).
-	Prices           []*Price `protobuf:"bytes,10,rep,name=prices" json:"prices,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Prices               []*Price `protobuf:"bytes,10,rep,name=prices" json:"prices,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *ComputeTierPriceList_ComputeTierConfigPrice) Reset() {
@@ -146,8 +184,26 @@ func (m *ComputeTierPriceList_ComputeTierConfigPrice) String() string {
 }
 func (*ComputeTierPriceList_ComputeTierConfigPrice) ProtoMessage() {}
 func (*ComputeTierPriceList_ComputeTierConfigPrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{0, 0}
+	return fileDescriptor_c8ca90a31766eb8f, []int{0, 0}
 }
+
+func (m *ComputeTierPriceList_ComputeTierConfigPrice) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ComputeTierPriceList_ComputeTierConfigPrice.Unmarshal(m, b)
+}
+func (m *ComputeTierPriceList_ComputeTierConfigPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ComputeTierPriceList_ComputeTierConfigPrice.Marshal(b, m, deterministic)
+}
+func (m *ComputeTierPriceList_ComputeTierConfigPrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ComputeTierPriceList_ComputeTierConfigPrice.Merge(m, src)
+}
+func (m *ComputeTierPriceList_ComputeTierConfigPrice) XXX_Size() int {
+	return xxx_messageInfo_ComputeTierPriceList_ComputeTierConfigPrice.Size(m)
+}
+func (m *ComputeTierPriceList_ComputeTierConfigPrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_ComputeTierPriceList_ComputeTierConfigPrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ComputeTierPriceList_ComputeTierConfigPrice proto.InternalMessageInfo
 
 func (m *ComputeTierPriceList_ComputeTierConfigPrice) GetGuestOsType() OSType {
 	if m != nil && m.GuestOsType != nil {
@@ -194,13 +250,35 @@ type DatabaseTierPriceList struct {
 	//
 	// The configuration from the base price should not appear in this list.
 	ConfigurationPriceAdjustments []*DatabaseTierPriceList_DatabaseTierConfigPrice `protobuf:"bytes,2,rep,name=configuration_price_adjustments,json=configurationPriceAdjustments" json:"configuration_price_adjustments,omitempty"`
+	XXX_NoUnkeyedLiteral          struct{}                                         `json:"-"`
 	XXX_unrecognized              []byte                                           `json:"-"`
+	XXX_sizecache                 int32                                            `json:"-"`
 }
 
-func (m *DatabaseTierPriceList) Reset()                    { *m = DatabaseTierPriceList{} }
-func (m *DatabaseTierPriceList) String() string            { return proto.CompactTextString(m) }
-func (*DatabaseTierPriceList) ProtoMessage()               {}
-func (*DatabaseTierPriceList) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{1} }
+func (m *DatabaseTierPriceList) Reset()         { *m = DatabaseTierPriceList{} }
+func (m *DatabaseTierPriceList) String() string { return proto.CompactTextString(m) }
+func (*DatabaseTierPriceList) ProtoMessage()    {}
+func (*DatabaseTierPriceList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{1}
+}
+
+func (m *DatabaseTierPriceList) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DatabaseTierPriceList.Unmarshal(m, b)
+}
+func (m *DatabaseTierPriceList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DatabaseTierPriceList.Marshal(b, m, deterministic)
+}
+func (m *DatabaseTierPriceList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatabaseTierPriceList.Merge(m, src)
+}
+func (m *DatabaseTierPriceList) XXX_Size() int {
+	return xxx_messageInfo_DatabaseTierPriceList.Size(m)
+}
+func (m *DatabaseTierPriceList) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatabaseTierPriceList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatabaseTierPriceList proto.InternalMessageInfo
 
 func (m *DatabaseTierPriceList) GetBasePrice() *DatabaseTierPriceList_DatabaseTierConfigPrice {
 	if m != nil {
@@ -226,10 +304,16 @@ type DatabaseTierPriceList_DatabaseTierConfigPrice struct {
 	//
 	// May be unset, because open-source database engines often don't have editions.
 	DbEdition *DatabaseEdition `protobuf:"varint,2,opt,name=db_edition,json=dbEdition,enum=common_dto.DatabaseEdition" json:"db_edition,omitempty"`
+	// LicenseModel describes all supported license models in cloud projects.
+	DbLicenseModel *LicenseModel `protobuf:"varint,3,opt,name=db_license_model,json=dbLicenseModel,enum=common_dto.LicenseModel" json:"db_license_model,omitempty"`
+	// // DeploymentType describes all supported deployment types by cloud probes.
+	DbDeploymentType *DeploymentType `protobuf:"varint,4,opt,name=db_deployment_type,json=dbDeploymentType,enum=common_dto.DeploymentType" json:"db_deployment_type,omitempty"`
 	// The available prices for this configuration of the database tier.
 	// There may be different prices (e.g. an hourly price and a monthly price).
-	Prices           []*Price `protobuf:"bytes,20,rep,name=prices" json:"prices,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Prices               []*Price `protobuf:"bytes,20,rep,name=prices" json:"prices,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) Reset() {
@@ -240,8 +324,26 @@ func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) String() string {
 }
 func (*DatabaseTierPriceList_DatabaseTierConfigPrice) ProtoMessage() {}
 func (*DatabaseTierPriceList_DatabaseTierConfigPrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{1, 0}
+	return fileDescriptor_c8ca90a31766eb8f, []int{1, 0}
 }
+
+func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DatabaseTierPriceList_DatabaseTierConfigPrice.Unmarshal(m, b)
+}
+func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DatabaseTierPriceList_DatabaseTierConfigPrice.Marshal(b, m, deterministic)
+}
+func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DatabaseTierPriceList_DatabaseTierConfigPrice.Merge(m, src)
+}
+func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) XXX_Size() int {
+	return xxx_messageInfo_DatabaseTierPriceList_DatabaseTierConfigPrice.Size(m)
+}
+func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_DatabaseTierPriceList_DatabaseTierConfigPrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DatabaseTierPriceList_DatabaseTierConfigPrice proto.InternalMessageInfo
 
 func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) GetDbEngine() DatabaseEngine {
 	if m != nil && m.DbEngine != nil {
@@ -255,6 +357,20 @@ func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) GetDbEdition() DatabaseE
 		return *m.DbEdition
 	}
 	return DatabaseEdition_NONE
+}
+
+func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) GetDbLicenseModel() LicenseModel {
+	if m != nil && m.DbLicenseModel != nil {
+		return *m.DbLicenseModel
+	}
+	return LicenseModel_BRING_YOUR_OWN_LICENSE
+}
+
+func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) GetDbDeploymentType() DeploymentType {
+	if m != nil && m.DbDeploymentType != nil {
+		return *m.DbDeploymentType
+	}
+	return DeploymentType_SINGLE_AZ
 }
 
 func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) GetPrices() []*Price {
@@ -279,14 +395,36 @@ func (m *DatabaseTierPriceList_DatabaseTierConfigPrice) GetPrices() []*Price {
 // Right now the IP Price List is not flexible enough to express all of those options.
 type IpPriceList struct {
 	// The list of IP prices.
-	IpPrice          []*IpPriceList_IpConfigPrice `protobuf:"bytes,1,rep,name=ip_price,json=ipPrice" json:"ip_price,omitempty"`
-	XXX_unrecognized []byte                       `json:"-"`
+	IpPrice              []*IpPriceList_IpConfigPrice `protobuf:"bytes,1,rep,name=ip_price,json=ipPrice" json:"ip_price,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
+	XXX_unrecognized     []byte                       `json:"-"`
+	XXX_sizecache        int32                        `json:"-"`
 }
 
-func (m *IpPriceList) Reset()                    { *m = IpPriceList{} }
-func (m *IpPriceList) String() string            { return proto.CompactTextString(m) }
-func (*IpPriceList) ProtoMessage()               {}
-func (*IpPriceList) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{2} }
+func (m *IpPriceList) Reset()         { *m = IpPriceList{} }
+func (m *IpPriceList) String() string { return proto.CompactTextString(m) }
+func (*IpPriceList) ProtoMessage()    {}
+func (*IpPriceList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{2}
+}
+
+func (m *IpPriceList) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_IpPriceList.Unmarshal(m, b)
+}
+func (m *IpPriceList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_IpPriceList.Marshal(b, m, deterministic)
+}
+func (m *IpPriceList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IpPriceList.Merge(m, src)
+}
+func (m *IpPriceList) XXX_Size() int {
+	return xxx_messageInfo_IpPriceList.Size(m)
+}
+func (m *IpPriceList) XXX_DiscardUnknown() {
+	xxx_messageInfo_IpPriceList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IpPriceList proto.InternalMessageInfo
 
 func (m *IpPriceList) GetIpPrice() []*IpPriceList_IpConfigPrice {
 	if m != nil {
@@ -302,14 +440,36 @@ type IpPriceList_IpConfigPrice struct {
 	FreeIpCount *int32 `protobuf:"varint,2,opt,name=free_ip_count,json=freeIpCount" json:"free_ip_count,omitempty"`
 	// The prices available for this IP Price. There may be different prices (e.g. an hourly
 	// price and a monthly price).
-	Prices           []*Price `protobuf:"bytes,10,rep,name=prices" json:"prices,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Prices               []*Price `protobuf:"bytes,10,rep,name=prices" json:"prices,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *IpPriceList_IpConfigPrice) Reset()                    { *m = IpPriceList_IpConfigPrice{} }
-func (m *IpPriceList_IpConfigPrice) String() string            { return proto.CompactTextString(m) }
-func (*IpPriceList_IpConfigPrice) ProtoMessage()               {}
-func (*IpPriceList_IpConfigPrice) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{2, 0} }
+func (m *IpPriceList_IpConfigPrice) Reset()         { *m = IpPriceList_IpConfigPrice{} }
+func (m *IpPriceList_IpConfigPrice) String() string { return proto.CompactTextString(m) }
+func (*IpPriceList_IpConfigPrice) ProtoMessage()    {}
+func (*IpPriceList_IpConfigPrice) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{2, 0}
+}
+
+func (m *IpPriceList_IpConfigPrice) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_IpPriceList_IpConfigPrice.Unmarshal(m, b)
+}
+func (m *IpPriceList_IpConfigPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_IpPriceList_IpConfigPrice.Marshal(b, m, deterministic)
+}
+func (m *IpPriceList_IpConfigPrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IpPriceList_IpConfigPrice.Merge(m, src)
+}
+func (m *IpPriceList_IpConfigPrice) XXX_Size() int {
+	return xxx_messageInfo_IpPriceList_IpConfigPrice.Size(m)
+}
+func (m *IpPriceList_IpConfigPrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_IpPriceList_IpConfigPrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IpPriceList_IpConfigPrice proto.InternalMessageInfo
 
 func (m *IpPriceList_IpConfigPrice) GetFreeIpCount() int32 {
 	if m != nil && m.FreeIpCount != nil {
@@ -332,14 +492,36 @@ type StorageTierPriceList struct {
 	// Note: Right now this could be replaced by "repeated Price", but using an extra
 	// wrapper is more consistent with the other price lists, and more easily extensible
 	// later down the road.
-	CloudStoragePrice []*StorageTierPriceList_StorageTierPrice `protobuf:"bytes,1,rep,name=cloud_storage_price,json=cloudStoragePrice" json:"cloud_storage_price,omitempty"`
-	XXX_unrecognized  []byte                                   `json:"-"`
+	CloudStoragePrice    []*StorageTierPriceList_StorageTierPrice `protobuf:"bytes,1,rep,name=cloud_storage_price,json=cloudStoragePrice" json:"cloud_storage_price,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                 `json:"-"`
+	XXX_unrecognized     []byte                                   `json:"-"`
+	XXX_sizecache        int32                                    `json:"-"`
 }
 
-func (m *StorageTierPriceList) Reset()                    { *m = StorageTierPriceList{} }
-func (m *StorageTierPriceList) String() string            { return proto.CompactTextString(m) }
-func (*StorageTierPriceList) ProtoMessage()               {}
-func (*StorageTierPriceList) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{3} }
+func (m *StorageTierPriceList) Reset()         { *m = StorageTierPriceList{} }
+func (m *StorageTierPriceList) String() string { return proto.CompactTextString(m) }
+func (*StorageTierPriceList) ProtoMessage()    {}
+func (*StorageTierPriceList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{3}
+}
+
+func (m *StorageTierPriceList) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StorageTierPriceList.Unmarshal(m, b)
+}
+func (m *StorageTierPriceList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StorageTierPriceList.Marshal(b, m, deterministic)
+}
+func (m *StorageTierPriceList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StorageTierPriceList.Merge(m, src)
+}
+func (m *StorageTierPriceList) XXX_Size() int {
+	return xxx_messageInfo_StorageTierPriceList.Size(m)
+}
+func (m *StorageTierPriceList) XXX_DiscardUnknown() {
+	xxx_messageInfo_StorageTierPriceList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StorageTierPriceList proto.InternalMessageInfo
 
 func (m *StorageTierPriceList) GetCloudStoragePrice() []*StorageTierPriceList_StorageTierPrice {
 	if m != nil {
@@ -349,16 +531,36 @@ func (m *StorageTierPriceList) GetCloudStoragePrice() []*StorageTierPriceList_St
 }
 
 type StorageTierPriceList_StorageTierPrice struct {
-	Prices           []*Price `protobuf:"bytes,10,rep,name=prices" json:"prices,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Prices               []*Price `protobuf:"bytes,10,rep,name=prices" json:"prices,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *StorageTierPriceList_StorageTierPrice) Reset()         { *m = StorageTierPriceList_StorageTierPrice{} }
 func (m *StorageTierPriceList_StorageTierPrice) String() string { return proto.CompactTextString(m) }
 func (*StorageTierPriceList_StorageTierPrice) ProtoMessage()    {}
 func (*StorageTierPriceList_StorageTierPrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{3, 0}
+	return fileDescriptor_c8ca90a31766eb8f, []int{3, 0}
 }
+
+func (m *StorageTierPriceList_StorageTierPrice) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StorageTierPriceList_StorageTierPrice.Unmarshal(m, b)
+}
+func (m *StorageTierPriceList_StorageTierPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StorageTierPriceList_StorageTierPrice.Marshal(b, m, deterministic)
+}
+func (m *StorageTierPriceList_StorageTierPrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StorageTierPriceList_StorageTierPrice.Merge(m, src)
+}
+func (m *StorageTierPriceList_StorageTierPrice) XXX_Size() int {
+	return xxx_messageInfo_StorageTierPriceList_StorageTierPrice.Size(m)
+}
+func (m *StorageTierPriceList_StorageTierPrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_StorageTierPriceList_StorageTierPrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StorageTierPriceList_StorageTierPrice proto.InternalMessageInfo
 
 func (m *StorageTierPriceList_StorageTierPrice) GetPrices() []*Price {
 	if m != nil {
@@ -393,14 +595,36 @@ type ReservedInstancePrice struct {
 	//
 	// TODO (roman, July 31 2019): This may need to be a list, to allow
 	// different pricing options. For example, a different hourly vs monthly price.
-	UsagePrice       *Price `protobuf:"bytes,12,opt,name=usage_price,json=usagePrice" json:"usage_price,omitempty"`
-	XXX_unrecognized []byte `json:"-"`
+	UsagePrice           *Price   `protobuf:"bytes,12,opt,name=usage_price,json=usagePrice" json:"usage_price,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ReservedInstancePrice) Reset()                    { *m = ReservedInstancePrice{} }
-func (m *ReservedInstancePrice) String() string            { return proto.CompactTextString(m) }
-func (*ReservedInstancePrice) ProtoMessage()               {}
-func (*ReservedInstancePrice) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{4} }
+func (m *ReservedInstancePrice) Reset()         { *m = ReservedInstancePrice{} }
+func (m *ReservedInstancePrice) String() string { return proto.CompactTextString(m) }
+func (*ReservedInstancePrice) ProtoMessage()    {}
+func (*ReservedInstancePrice) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{4}
+}
+
+func (m *ReservedInstancePrice) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ReservedInstancePrice.Unmarshal(m, b)
+}
+func (m *ReservedInstancePrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ReservedInstancePrice.Marshal(b, m, deterministic)
+}
+func (m *ReservedInstancePrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReservedInstancePrice.Merge(m, src)
+}
+func (m *ReservedInstancePrice) XXX_Size() int {
+	return xxx_messageInfo_ReservedInstancePrice.Size(m)
+}
+func (m *ReservedInstancePrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReservedInstancePrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReservedInstancePrice proto.InternalMessageInfo
 
 func (m *ReservedInstancePrice) GetUpfrontPrice() *Price {
 	if m != nil {
@@ -427,14 +651,36 @@ func (m *ReservedInstancePrice) GetUsagePrice() *Price {
 // Not all service-providers have license price lists. In particular, AWS does not.
 type LicensePriceList struct {
 	// The list of prices.
-	LicensePrice     []*LicensePriceList_LicensePrice `protobuf:"bytes,1,rep,name=license_price,json=licensePrice" json:"license_price,omitempty"`
-	XXX_unrecognized []byte                           `json:"-"`
+	LicensePrice         []*LicensePriceList_LicensePrice `protobuf:"bytes,1,rep,name=license_price,json=licensePrice" json:"license_price,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                         `json:"-"`
+	XXX_unrecognized     []byte                           `json:"-"`
+	XXX_sizecache        int32                            `json:"-"`
 }
 
-func (m *LicensePriceList) Reset()                    { *m = LicensePriceList{} }
-func (m *LicensePriceList) String() string            { return proto.CompactTextString(m) }
-func (*LicensePriceList) ProtoMessage()               {}
-func (*LicensePriceList) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{5} }
+func (m *LicensePriceList) Reset()         { *m = LicensePriceList{} }
+func (m *LicensePriceList) String() string { return proto.CompactTextString(m) }
+func (*LicensePriceList) ProtoMessage()    {}
+func (*LicensePriceList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{5}
+}
+
+func (m *LicensePriceList) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_LicensePriceList.Unmarshal(m, b)
+}
+func (m *LicensePriceList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_LicensePriceList.Marshal(b, m, deterministic)
+}
+func (m *LicensePriceList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LicensePriceList.Merge(m, src)
+}
+func (m *LicensePriceList) XXX_Size() int {
+	return xxx_messageInfo_LicensePriceList.Size(m)
+}
+func (m *LicensePriceList) XXX_DiscardUnknown() {
+	xxx_messageInfo_LicensePriceList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LicensePriceList proto.InternalMessageInfo
 
 func (m *LicensePriceList) GetLicensePrice() []*LicensePriceList_LicensePrice {
 	if m != nil {
@@ -451,16 +697,36 @@ type LicensePriceList_LicensePrice struct {
 	// It's not clear whether these multi-tiered prices actually happen right now.
 	//
 	// Should be non-empty.
-	Prices           []*Price `protobuf:"bytes,10,rep,name=prices" json:"prices,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Prices               []*Price `protobuf:"bytes,10,rep,name=prices" json:"prices,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *LicensePriceList_LicensePrice) Reset()         { *m = LicensePriceList_LicensePrice{} }
 func (m *LicensePriceList_LicensePrice) String() string { return proto.CompactTextString(m) }
 func (*LicensePriceList_LicensePrice) ProtoMessage()    {}
 func (*LicensePriceList_LicensePrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{5, 0}
+	return fileDescriptor_c8ca90a31766eb8f, []int{5, 0}
 }
+
+func (m *LicensePriceList_LicensePrice) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_LicensePriceList_LicensePrice.Unmarshal(m, b)
+}
+func (m *LicensePriceList_LicensePrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_LicensePriceList_LicensePrice.Marshal(b, m, deterministic)
+}
+func (m *LicensePriceList_LicensePrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LicensePriceList_LicensePrice.Merge(m, src)
+}
+func (m *LicensePriceList_LicensePrice) XXX_Size() int {
+	return xxx_messageInfo_LicensePriceList_LicensePrice.Size(m)
+}
+func (m *LicensePriceList_LicensePrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_LicensePriceList_LicensePrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LicensePriceList_LicensePrice proto.InternalMessageInfo
 
 func (m *LicensePriceList_LicensePrice) GetNumberOfCores() int32 {
 	if m != nil && m.NumberOfCores != nil {
@@ -485,15 +751,37 @@ type Price struct {
 	// For example, if the price is $0 for the first 10 X, and $10 for the next 10 X, then
 	// there should be two Prices, with an end_range of 10 for the first one, and
 	// an end_range of 20 for the second. The end is inclusive.
-	EndRangeInUnits  *int64          `protobuf:"varint,6,opt,name=end_range_in_units,json=endRangeInUnits" json:"end_range_in_units,omitempty"`
-	PriceAmount      *CurrencyAmount `protobuf:"bytes,22,opt,name=price_amount,json=priceAmount" json:"price_amount,omitempty"`
-	XXX_unrecognized []byte          `json:"-"`
+	EndRangeInUnits      *int64          `protobuf:"varint,6,opt,name=end_range_in_units,json=endRangeInUnits" json:"end_range_in_units,omitempty"`
+	PriceAmount          *CurrencyAmount `protobuf:"bytes,22,opt,name=price_amount,json=priceAmount" json:"price_amount,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
-func (m *Price) Reset()                    { *m = Price{} }
-func (m *Price) String() string            { return proto.CompactTextString(m) }
-func (*Price) ProtoMessage()               {}
-func (*Price) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{6} }
+func (m *Price) Reset()         { *m = Price{} }
+func (m *Price) String() string { return proto.CompactTextString(m) }
+func (*Price) ProtoMessage()    {}
+func (*Price) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{6}
+}
+
+func (m *Price) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Price.Unmarshal(m, b)
+}
+func (m *Price) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Price.Marshal(b, m, deterministic)
+}
+func (m *Price) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Price.Merge(m, src)
+}
+func (m *Price) XXX_Size() int {
+	return xxx_messageInfo_Price.Size(m)
+}
+func (m *Price) XXX_DiscardUnknown() {
+	xxx_messageInfo_Price.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Price proto.InternalMessageInfo
 
 func (m *Price) GetUnit() Price_Unit {
 	if m != nil && m.Unit != nil {
@@ -533,15 +821,38 @@ type PriceTable struct {
 	// Price table for on-demand instances. this is the "default" pay-per-use option for all cloud
 	// providers.
 	OnDemandPriceTable []*PriceTable_OnDemandPriceTableByRegionEntry `protobuf:"bytes,2,rep,name=on_demand_price_table,json=onDemandPriceTable" json:"on_demand_price_table,omitempty"`
+	SpotPriceTable     []*PriceTable_SpotPriceByRegionEntry          `protobuf:"bytes,4,rep,name=spot_price_table,json=spotPriceTable" json:"spot_price_table,omitempty"`
 	// RI price table
 	ReservedInstancePriceTable []*PriceTable_ReservedInstancePriceTableByRegionEntry `protobuf:"bytes,5,rep,name=reserved_instance_price_table,json=reservedInstancePriceTable" json:"reserved_instance_price_table,omitempty"`
+	XXX_NoUnkeyedLiteral       struct{}                                              `json:"-"`
 	XXX_unrecognized           []byte                                                `json:"-"`
+	XXX_sizecache              int32                                                 `json:"-"`
 }
 
-func (m *PriceTable) Reset()                    { *m = PriceTable{} }
-func (m *PriceTable) String() string            { return proto.CompactTextString(m) }
-func (*PriceTable) ProtoMessage()               {}
-func (*PriceTable) Descriptor() ([]byte, []int) { return fileDescriptor7, []int{7} }
+func (m *PriceTable) Reset()         { *m = PriceTable{} }
+func (m *PriceTable) String() string { return proto.CompactTextString(m) }
+func (*PriceTable) ProtoMessage()    {}
+func (*PriceTable) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{7}
+}
+
+func (m *PriceTable) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PriceTable.Unmarshal(m, b)
+}
+func (m *PriceTable) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PriceTable.Marshal(b, m, deterministic)
+}
+func (m *PriceTable) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PriceTable.Merge(m, src)
+}
+func (m *PriceTable) XXX_Size() int {
+	return xxx_messageInfo_PriceTable.Size(m)
+}
+func (m *PriceTable) XXX_DiscardUnknown() {
+	xxx_messageInfo_PriceTable.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PriceTable proto.InternalMessageInfo
 
 func (m *PriceTable) GetVersion() string {
 	if m != nil && m.Version != nil {
@@ -557,9 +868,92 @@ func (m *PriceTable) GetOnDemandPriceTable() []*PriceTable_OnDemandPriceTableByR
 	return nil
 }
 
+func (m *PriceTable) GetSpotPriceTable() []*PriceTable_SpotPriceByRegionEntry {
+	if m != nil {
+		return m.SpotPriceTable
+	}
+	return nil
+}
+
 func (m *PriceTable) GetReservedInstancePriceTable() []*PriceTable_ReservedInstancePriceTableByRegionEntry {
 	if m != nil {
 		return m.ReservedInstancePriceTable
+	}
+	return nil
+}
+
+// Spot prices for availability zones in this region
+type PriceTable_SpotPriceByRegionEntry struct {
+	// Region
+	RelatedRegion *EntityDTO `protobuf:"bytes,1,opt,name=related_region,json=relatedRegion" json:"related_region,omitempty"`
+	// Availability Zone
+	RelatedZone *EntityDTO `protobuf:"bytes,2,opt,name=related_zone,json=relatedZone" json:"related_zone,omitempty"`
+	// What Compute Tier
+	RelatedComputeTier *EntityDTO `protobuf:"bytes,3,opt,name=related_compute_tier,json=relatedComputeTier" json:"related_compute_tier,omitempty"`
+	GuestOsType        *OSType    `protobuf:"varint,4,opt,name=guest_os_type,json=guestOsType,enum=common_dto.OSType" json:"guest_os_type,omitempty"`
+	// Spot Price For most recent period
+	Price                *Price   `protobuf:"bytes,10,opt,name=price" json:"price,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *PriceTable_SpotPriceByRegionEntry) Reset()         { *m = PriceTable_SpotPriceByRegionEntry{} }
+func (m *PriceTable_SpotPriceByRegionEntry) String() string { return proto.CompactTextString(m) }
+func (*PriceTable_SpotPriceByRegionEntry) ProtoMessage()    {}
+func (*PriceTable_SpotPriceByRegionEntry) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c8ca90a31766eb8f, []int{7, 0}
+}
+
+func (m *PriceTable_SpotPriceByRegionEntry) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PriceTable_SpotPriceByRegionEntry.Unmarshal(m, b)
+}
+func (m *PriceTable_SpotPriceByRegionEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PriceTable_SpotPriceByRegionEntry.Marshal(b, m, deterministic)
+}
+func (m *PriceTable_SpotPriceByRegionEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PriceTable_SpotPriceByRegionEntry.Merge(m, src)
+}
+func (m *PriceTable_SpotPriceByRegionEntry) XXX_Size() int {
+	return xxx_messageInfo_PriceTable_SpotPriceByRegionEntry.Size(m)
+}
+func (m *PriceTable_SpotPriceByRegionEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_PriceTable_SpotPriceByRegionEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PriceTable_SpotPriceByRegionEntry proto.InternalMessageInfo
+
+func (m *PriceTable_SpotPriceByRegionEntry) GetRelatedRegion() *EntityDTO {
+	if m != nil {
+		return m.RelatedRegion
+	}
+	return nil
+}
+
+func (m *PriceTable_SpotPriceByRegionEntry) GetRelatedZone() *EntityDTO {
+	if m != nil {
+		return m.RelatedZone
+	}
+	return nil
+}
+
+func (m *PriceTable_SpotPriceByRegionEntry) GetRelatedComputeTier() *EntityDTO {
+	if m != nil {
+		return m.RelatedComputeTier
+	}
+	return nil
+}
+
+func (m *PriceTable_SpotPriceByRegionEntry) GetGuestOsType() OSType {
+	if m != nil && m.GuestOsType != nil {
+		return *m.GuestOsType
+	}
+	return OSType_UNKNOWN_OS
+}
+
+func (m *PriceTable_SpotPriceByRegionEntry) GetPrice() *Price {
+	if m != nil {
+		return m.Price
 	}
 	return nil
 }
@@ -574,7 +968,11 @@ type PriceTable_OnDemandPriceTableByRegionEntry struct {
 	DatabasePriceTable []*PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry `protobuf:"bytes,3,rep,name=database_price_table,json=databasePriceTable" json:"database_price_table,omitempty"`
 	// The prices for cloud storage tiers in this region
 	StoragePriceTable []*PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry `protobuf:"bytes,4,rep,name=storage_price_table,json=storagePriceTable" json:"storage_price_table,omitempty"`
-	XXX_unrecognized  []byte                                                                     `json:"-"`
+	// The prices for IP addresses in this region
+	IpPrices             *IpPriceList `protobuf:"bytes,5,opt,name=ip_prices,json=ipPrices" json:"ip_prices,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *PriceTable_OnDemandPriceTableByRegionEntry) Reset() {
@@ -585,8 +983,26 @@ func (m *PriceTable_OnDemandPriceTableByRegionEntry) String() string {
 }
 func (*PriceTable_OnDemandPriceTableByRegionEntry) ProtoMessage() {}
 func (*PriceTable_OnDemandPriceTableByRegionEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{7, 0}
+	return fileDescriptor_c8ca90a31766eb8f, []int{7, 1}
 }
+
+func (m *PriceTable_OnDemandPriceTableByRegionEntry) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry.Unmarshal(m, b)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry.Marshal(b, m, deterministic)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry.Merge(m, src)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry) XXX_Size() int {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry.Size(m)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry proto.InternalMessageInfo
 
 func (m *PriceTable_OnDemandPriceTableByRegionEntry) GetRelatedRegion() *EntityDTO {
 	if m != nil {
@@ -616,12 +1032,21 @@ func (m *PriceTable_OnDemandPriceTableByRegionEntry) GetStoragePriceTable() []*P
 	return nil
 }
 
+func (m *PriceTable_OnDemandPriceTableByRegionEntry) GetIpPrices() *IpPriceList {
+	if m != nil {
+		return m.IpPrices
+	}
+	return nil
+}
+
 // The prices for compute related to a specific compute tier
 type PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry struct {
 	// Compute tier for which those prices are relevant.
 	RelatedComputeTier   *EntityDTO            `protobuf:"bytes,1,opt,name=related_compute_tier,json=relatedComputeTier" json:"related_compute_tier,omitempty"`
 	ComputeTierPriceList *ComputeTierPriceList `protobuf:"bytes,2,opt,name=compute_tier_price_list,json=computeTierPriceList" json:"compute_tier_price_list,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
 	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) Reset() {
@@ -632,8 +1057,26 @@ func (m *PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry
 }
 func (*PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) ProtoMessage() {}
 func (*PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{7, 0, 0}
+	return fileDescriptor_c8ca90a31766eb8f, []int{7, 1, 0}
 }
+
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry.Unmarshal(m, b)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry.Marshal(b, m, deterministic)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry.Merge(m, src)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) XXX_Size() int {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry.Size(m)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry proto.InternalMessageInfo
 
 func (m *PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry) GetRelatedComputeTier() *EntityDTO {
 	if m != nil {
@@ -654,7 +1097,9 @@ type PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry st
 	// Database tier for which those prices are relevant.
 	RelatedDatabaseTier   *EntityDTO             `protobuf:"bytes,1,opt,name=related_database_tier,json=relatedDatabaseTier" json:"related_database_tier,omitempty"`
 	DatabaseTierPriceList *DatabaseTierPriceList `protobuf:"bytes,2,opt,name=database_tier_price_list,json=databaseTierPriceList" json:"database_tier_price_list,omitempty"`
+	XXX_NoUnkeyedLiteral  struct{}               `json:"-"`
 	XXX_unrecognized      []byte                 `json:"-"`
+	XXX_sizecache         int32                  `json:"-"`
 }
 
 func (m *PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) Reset() {
@@ -665,8 +1110,26 @@ func (m *PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntr
 }
 func (*PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) ProtoMessage() {}
 func (*PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{7, 0, 1}
+	return fileDescriptor_c8ca90a31766eb8f, []int{7, 1, 1}
 }
+
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry.Unmarshal(m, b)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry.Marshal(b, m, deterministic)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry.Merge(m, src)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) XXX_Size() int {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry.Size(m)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry proto.InternalMessageInfo
 
 func (m *PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry) GetRelatedDatabaseTier() *EntityDTO {
 	if m != nil {
@@ -687,7 +1150,9 @@ type PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry str
 	// Storage tier for which those prices are relevant.
 	RelatedStorageTier   *EntityDTO            `protobuf:"bytes,1,opt,name=related_storage_tier,json=relatedStorageTier" json:"related_storage_tier,omitempty"`
 	StorageTierPriceList *StorageTierPriceList `protobuf:"bytes,2,opt,name=storage_tier_price_list,json=storageTierPriceList" json:"storage_tier_price_list,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
 	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) Reset() {
@@ -698,8 +1163,26 @@ func (m *PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry
 }
 func (*PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) ProtoMessage() {}
 func (*PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{7, 0, 2}
+	return fileDescriptor_c8ca90a31766eb8f, []int{7, 1, 2}
 }
+
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry.Unmarshal(m, b)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry.Marshal(b, m, deterministic)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry.Merge(m, src)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) XXX_Size() int {
+	return xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry.Size(m)
+}
+func (m *PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry proto.InternalMessageInfo
 
 func (m *PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry) GetRelatedStorageTier() *EntityDTO {
 	if m != nil {
@@ -723,7 +1206,9 @@ type PriceTable_ReservedInstancePriceTableByRegionEntry struct {
 	// The RI spec should be considered as a key in a map, so each spec should only be present once
 	// in this whole map.
 	ReservedInstancePriceMap []*PriceTable_ReservedInstancePriceEntry `protobuf:"bytes,2,rep,name=reserved_instance_price_map,json=reservedInstancePriceMap" json:"reserved_instance_price_map,omitempty"`
+	XXX_NoUnkeyedLiteral     struct{}                                 `json:"-"`
 	XXX_unrecognized         []byte                                   `json:"-"`
+	XXX_sizecache            int32                                    `json:"-"`
 }
 
 func (m *PriceTable_ReservedInstancePriceTableByRegionEntry) Reset() {
@@ -734,8 +1219,26 @@ func (m *PriceTable_ReservedInstancePriceTableByRegionEntry) String() string {
 }
 func (*PriceTable_ReservedInstancePriceTableByRegionEntry) ProtoMessage() {}
 func (*PriceTable_ReservedInstancePriceTableByRegionEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{7, 1}
+	return fileDescriptor_c8ca90a31766eb8f, []int{7, 2}
 }
+
+func (m *PriceTable_ReservedInstancePriceTableByRegionEntry) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PriceTable_ReservedInstancePriceTableByRegionEntry.Unmarshal(m, b)
+}
+func (m *PriceTable_ReservedInstancePriceTableByRegionEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PriceTable_ReservedInstancePriceTableByRegionEntry.Marshal(b, m, deterministic)
+}
+func (m *PriceTable_ReservedInstancePriceTableByRegionEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PriceTable_ReservedInstancePriceTableByRegionEntry.Merge(m, src)
+}
+func (m *PriceTable_ReservedInstancePriceTableByRegionEntry) XXX_Size() int {
+	return xxx_messageInfo_PriceTable_ReservedInstancePriceTableByRegionEntry.Size(m)
+}
+func (m *PriceTable_ReservedInstancePriceTableByRegionEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_PriceTable_ReservedInstancePriceTableByRegionEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PriceTable_ReservedInstancePriceTableByRegionEntry proto.InternalMessageInfo
 
 func (m *PriceTable_ReservedInstancePriceTableByRegionEntry) GetRelatedRegion() *EntityDTO {
 	if m != nil {
@@ -757,15 +1260,35 @@ type PriceTable_ReservedInstancePriceEntry struct {
 	ReservedInstanceSpec *ReservedInstanceSpec `protobuf:"bytes,1,opt,name=reserved_instance_spec,json=reservedInstanceSpec" json:"reserved_instance_spec,omitempty"`
 	// the price of the RI spec
 	ReservedInstancePrice *ReservedInstancePrice `protobuf:"bytes,2,opt,name=reserved_instance_price,json=reservedInstancePrice" json:"reserved_instance_price,omitempty"`
+	XXX_NoUnkeyedLiteral  struct{}               `json:"-"`
 	XXX_unrecognized      []byte                 `json:"-"`
+	XXX_sizecache         int32                  `json:"-"`
 }
 
 func (m *PriceTable_ReservedInstancePriceEntry) Reset()         { *m = PriceTable_ReservedInstancePriceEntry{} }
 func (m *PriceTable_ReservedInstancePriceEntry) String() string { return proto.CompactTextString(m) }
 func (*PriceTable_ReservedInstancePriceEntry) ProtoMessage()    {}
 func (*PriceTable_ReservedInstancePriceEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor7, []int{7, 2}
+	return fileDescriptor_c8ca90a31766eb8f, []int{7, 3}
 }
+
+func (m *PriceTable_ReservedInstancePriceEntry) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PriceTable_ReservedInstancePriceEntry.Unmarshal(m, b)
+}
+func (m *PriceTable_ReservedInstancePriceEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PriceTable_ReservedInstancePriceEntry.Marshal(b, m, deterministic)
+}
+func (m *PriceTable_ReservedInstancePriceEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PriceTable_ReservedInstancePriceEntry.Merge(m, src)
+}
+func (m *PriceTable_ReservedInstancePriceEntry) XXX_Size() int {
+	return xxx_messageInfo_PriceTable_ReservedInstancePriceEntry.Size(m)
+}
+func (m *PriceTable_ReservedInstancePriceEntry) XXX_DiscardUnknown() {
+	xxx_messageInfo_PriceTable_ReservedInstancePriceEntry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PriceTable_ReservedInstancePriceEntry proto.InternalMessageInfo
 
 func (m *PriceTable_ReservedInstancePriceEntry) GetReservedInstanceSpec() *ReservedInstanceSpec {
 	if m != nil {
@@ -782,6 +1305,7 @@ func (m *PriceTable_ReservedInstancePriceEntry) GetReservedInstancePrice() *Rese
 }
 
 func init() {
+	proto.RegisterEnum("common_dto.Price_Unit", Price_Unit_name, Price_Unit_value)
 	proto.RegisterType((*ComputeTierPriceList)(nil), "common_dto.ComputeTierPriceList")
 	proto.RegisterType((*ComputeTierPriceList_ComputeTierConfigPrice)(nil), "common_dto.ComputeTierPriceList.ComputeTierConfigPrice")
 	proto.RegisterType((*DatabaseTierPriceList)(nil), "common_dto.DatabaseTierPriceList")
@@ -795,91 +1319,100 @@ func init() {
 	proto.RegisterType((*LicensePriceList_LicensePrice)(nil), "common_dto.LicensePriceList.LicensePrice")
 	proto.RegisterType((*Price)(nil), "common_dto.Price")
 	proto.RegisterType((*PriceTable)(nil), "common_dto.PriceTable")
+	proto.RegisterType((*PriceTable_SpotPriceByRegionEntry)(nil), "common_dto.PriceTable.SpotPriceByRegionEntry")
 	proto.RegisterType((*PriceTable_OnDemandPriceTableByRegionEntry)(nil), "common_dto.PriceTable.OnDemandPriceTableByRegionEntry")
 	proto.RegisterType((*PriceTable_OnDemandPriceTableByRegionEntry_ComputePriceTableByTierEntry)(nil), "common_dto.PriceTable.OnDemandPriceTableByRegionEntry.ComputePriceTableByTierEntry")
 	proto.RegisterType((*PriceTable_OnDemandPriceTableByRegionEntry_DatabasePriceTableByTierEntry)(nil), "common_dto.PriceTable.OnDemandPriceTableByRegionEntry.DatabasePriceTableByTierEntry")
 	proto.RegisterType((*PriceTable_OnDemandPriceTableByRegionEntry_StoragePriceTableByTierEntry)(nil), "common_dto.PriceTable.OnDemandPriceTableByRegionEntry.StoragePriceTableByTierEntry")
 	proto.RegisterType((*PriceTable_ReservedInstancePriceTableByRegionEntry)(nil), "common_dto.PriceTable.ReservedInstancePriceTableByRegionEntry")
 	proto.RegisterType((*PriceTable_ReservedInstancePriceEntry)(nil), "common_dto.PriceTable.ReservedInstancePriceEntry")
-	proto.RegisterEnum("common_dto.Price_Unit", Price_Unit_name, Price_Unit_value)
 }
 
-func init() { proto.RegisterFile("PricingDTO.proto", fileDescriptor7) }
+func init() { proto.RegisterFile("PricingDTO.proto", fileDescriptor_c8ca90a31766eb8f) }
 
-var fileDescriptor7 = []byte{
-	// 1176 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x57, 0x41, 0x6f, 0x1b, 0x45,
-	0x14, 0xd6, 0xd6, 0x49, 0x93, 0x3c, 0xdb, 0x89, 0x33, 0xb1, 0x13, 0x6b, 0x4b, 0xd4, 0xd4, 0x08,
-	0x68, 0x41, 0x58, 0x6a, 0x0e, 0xad, 0xa8, 0x28, 0x22, 0x71, 0xa2, 0xd6, 0x52, 0x12, 0x97, 0xb1,
-	0x5b, 0x28, 0x07, 0x56, 0xeb, 0xdd, 0xb1, 0xb5, 0x60, 0xcf, 0xae, 0x66, 0x66, 0x23, 0xf9, 0x88,
-	0x90, 0x90, 0xf8, 0x1f, 0x9c, 0xb8, 0x20, 0x6e, 0x70, 0x02, 0x09, 0xc1, 0x95, 0x33, 0x7f, 0x83,
-	0x5f, 0x80, 0x66, 0x76, 0xec, 0xcc, 0xda, 0xeb, 0x38, 0x69, 0x6e, 0xbb, 0xdf, 0x7b, 0xdf, 0x9b,
-	0xf7, 0xde, 0xb7, 0xf3, 0x66, 0x16, 0x4a, 0x2f, 0x58, 0xe0, 0x05, 0xb4, 0x7f, 0xd4, 0x69, 0xd5,
-	0x23, 0x16, 0x8a, 0x10, 0x81, 0x17, 0x0e, 0x87, 0x21, 0x75, 0x7c, 0x11, 0xda, 0xa8, 0x31, 0x08,
-	0x63, 0xbf, 0x11, 0x72, 0x31, 0xb1, 0xdb, 0x1b, 0x0d, 0x65, 0x9f, 0x00, 0xb5, 0x1f, 0x73, 0x50,
-	0x6e, 0x84, 0xc3, 0x28, 0x16, 0xa4, 0x13, 0x10, 0x26, 0x03, 0x92, 0x93, 0x80, 0x0b, 0xf4, 0x0a,
-	0xa0, 0xeb, 0x72, 0xe2, 0x44, 0x12, 0xa9, 0x5a, 0x7b, 0xd6, 0xfd, 0xfc, 0xfe, 0xe3, 0xfa, 0x45,
-	0xf8, 0x7a, 0x16, 0xcb, 0x04, 0x1b, 0x21, 0xed, 0x05, 0x7d, 0x65, 0xc2, 0x6b, 0x32, 0x94, 0x7a,
-	0x44, 0xdf, 0x5b, 0xf0, 0x76, 0x44, 0x98, 0xe3, 0x29, 0x73, 0xcc, 0x5c, 0x11, 0x84, 0x34, 0x59,
-	0xc5, 0x71, 0xfd, 0xaf, 0x63, 0x2e, 0x86, 0x84, 0x0a, 0x5e, 0xbd, 0xb5, 0x97, 0xbb, 0xc9, 0x8a,
-	0x7b, 0xd1, 0xf8, 0x5d, 0x2f, 0xa1, 0xe0, 0x83, 0x8b, 0x05, 0xec, 0x9f, 0x2c, 0xd8, 0xce, 0x26,
-	0xa3, 0x47, 0x50, 0xec, 0xc7, 0x84, 0x0b, 0x27, 0xe4, 0x8e, 0x18, 0x45, 0x49, 0xf9, 0xeb, 0xfb,
-	0xc8, 0x4c, 0xa6, 0xd5, 0xee, 0x8c, 0x22, 0x82, 0xf3, 0xca, 0xb1, 0xc5, 0xe5, 0x0b, 0xfa, 0x10,
-	0x56, 0x04, 0xa1, 0x2e, 0xf5, 0x46, 0xd5, 0x5b, 0x8a, 0xb1, 0x65, 0x32, 0x3a, 0x89, 0x09, 0x8f,
-	0x7d, 0xd0, 0x03, 0xb8, 0xad, 0xea, 0xe6, 0x55, 0x50, 0xc5, 0x6e, 0x9a, 0xde, 0x49, 0x19, 0xda,
-	0xa1, 0xf6, 0x4b, 0x0e, 0x2a, 0x47, 0xae, 0x70, 0x65, 0x1f, 0xd3, 0x3a, 0x7d, 0x91, 0xa1, 0xd3,
-	0x47, 0x66, 0xa0, 0x4c, 0x5a, 0x0a, 0x9d, 0xa3, 0xd4, 0xb7, 0x16, 0xdc, 0xbd, 0x9a, 0x4a, 0x37,
-	0x58, 0x6f, 0xd7, 0xbb, 0x54, 0xa4, 0xdf, 0x2c, 0xd8, 0x99, 0x43, 0x45, 0x8f, 0x61, 0xcd, 0xef,
-	0x3a, 0x84, 0xf6, 0x03, 0x3a, 0x56, 0xc8, 0xce, 0x4a, 0xe4, 0x58, 0x79, 0xe0, 0x55, 0xbf, 0x9b,
-	0x3c, 0xa1, 0x27, 0x00, 0x92, 0xe8, 0x07, 0x72, 0x49, 0xad, 0xd4, 0x9d, 0x4c, 0x66, 0xe2, 0x82,
-	0xd7, 0xfc, 0xae, 0x7e, 0x34, 0x34, 0x2b, 0x2f, 0xd2, 0xec, 0x67, 0x0b, 0xf2, 0xcd, 0xe8, 0x42,
-	0xa9, 0x4f, 0x61, 0x35, 0x88, 0x26, 0x3a, 0x49, 0xf2, 0x3b, 0x26, 0xd9, 0x70, 0xad, 0x37, 0x23,
-	0xb3, 0x47, 0x2b, 0x41, 0x62, 0xb2, 0xbf, 0x82, 0x62, 0xca, 0x82, 0x6a, 0x50, 0xec, 0x31, 0x42,
-	0x9c, 0x20, 0x72, 0xbc, 0x30, 0xa6, 0x42, 0x15, 0xb3, 0x8c, 0xf3, 0x12, 0x94, 0x9e, 0x31, 0x15,
-	0xd7, 0xf9, 0xca, 0x7e, 0xb5, 0xa0, 0xdc, 0x16, 0x21, 0x73, 0xfb, 0x53, 0x1f, 0x99, 0x0b, 0x5b,
-	0x9e, 0x1c, 0x26, 0x0e, 0x4f, 0xac, 0xa9, 0x2a, 0x1e, 0x9a, 0x01, 0xb3, 0xe8, 0x33, 0x20, 0xde,
-	0x54, 0xd1, 0x34, 0x9c, 0xd4, 0xf6, 0x14, 0x4a, 0xd3, 0x6e, 0xd7, 0x49, 0xfd, 0x77, 0x0b, 0x2a,
-	0x98, 0x70, 0xc2, 0xce, 0x89, 0xdf, 0xa4, 0x5c, 0xb8, 0xd4, 0x23, 0x93, 0xcd, 0x1c, 0x47, 0x3d,
-	0x16, 0x52, 0xa1, 0xb3, 0x06, 0xb5, 0x47, 0x32, 0x62, 0x15, 0xb4, 0x5f, 0xc2, 0x7b, 0x02, 0x1b,
-	0x8c, 0x78, 0x31, 0x63, 0x01, 0xed, 0x6b, 0x66, 0x7e, 0x1e, 0x73, 0x7d, 0xe2, 0x99, 0x70, 0xf7,
-	0x21, 0x1f, 0xf3, 0x8b, 0x3e, 0x15, 0xe6, 0xf1, 0x40, 0x79, 0xa9, 0xe7, 0xda, 0x5f, 0x16, 0x94,
-	0x4e, 0x02, 0x8f, 0x50, 0xbd, 0xff, 0x54, 0xe3, 0xcf, 0xa0, 0x38, 0x48, 0xb0, 0x54, 0xcb, 0x1f,
-	0x98, 0xa1, 0xa6, 0x49, 0x29, 0x00, 0x17, 0x06, 0xc6, 0x9b, 0xed, 0x42, 0xc1, 0xb4, 0xa2, 0x77,
-	0x61, 0x83, 0xc6, 0xc3, 0x2e, 0x61, 0x4e, 0xd8, 0x73, 0xbc, 0x90, 0x11, 0xae, 0x76, 0xd2, 0x32,
-	0x2e, 0x26, 0x70, 0xab, 0xd7, 0x90, 0xe0, 0x75, 0x94, 0xf8, 0xcf, 0x82, 0xe5, 0x24, 0xf8, 0xfb,
-	0xb0, 0x14, 0xd3, 0x40, 0xe8, 0xbd, 0xb9, 0x3d, 0x43, 0xa9, 0xbf, 0xa4, 0x81, 0xc0, 0xca, 0x07,
-	0x7d, 0x00, 0x88, 0x50, 0xdf, 0x61, 0x2e, 0xed, 0x13, 0x27, 0xa0, 0x8e, 0x04, 0x79, 0xf5, 0xf6,
-	0x9e, 0x75, 0x3f, 0x87, 0x37, 0x08, 0xf5, 0xb1, 0x34, 0x34, 0xa9, 0x64, 0x70, 0xf4, 0x14, 0x0a,
-	0x7a, 0x14, 0x0d, 0xd5, 0x57, 0xbf, 0xad, 0xfa, 0x9b, 0xda, 0xfc, 0x8d, 0x98, 0x31, 0x42, 0xbd,
-	0xd1, 0x81, 0xf2, 0xc0, 0x79, 0xe5, 0x9f, 0xbc, 0xd4, 0x3e, 0x83, 0x25, 0x19, 0x07, 0xad, 0xc1,
-	0xf2, 0xf3, 0xd6, 0x4b, 0xdc, 0x2e, 0x59, 0x68, 0x15, 0x96, 0x8e, 0x0e, 0x5e, 0xb7, 0x4b, 0xb7,
-	0x24, 0x78, 0xda, 0x3a, 0xeb, 0x3c, 0x2f, 0xe5, 0xe4, 0x63, 0xa7, 0xd5, 0x39, 0x38, 0x29, 0x01,
-	0x2a, 0x41, 0xe1, 0xb4, 0x79, 0x72, 0xd2, 0x6c, 0x9d, 0x39, 0xcd, 0xd6, 0x8b, 0x76, 0xa9, 0x8c,
-	0x0a, 0xb0, 0xfa, 0xec, 0xd0, 0x49, 0x5c, 0x2b, 0xb5, 0x1f, 0xd6, 0x01, 0x54, 0x4d, 0x1d, 0xb7,
-	0x3b, 0x20, 0xa8, 0x0a, 0x2b, 0xe7, 0x84, 0x71, 0x39, 0x5e, 0x64, 0xf1, 0x6b, 0x78, 0xfc, 0x8a,
-	0x02, 0xa8, 0xc8, 0x0c, 0xc9, 0xd0, 0xa5, 0xbe, 0x9e, 0xa7, 0x42, 0x52, 0xf4, 0x24, 0x7d, 0x34,
-	0xd3, 0x24, 0x15, 0xb0, 0xde, 0xa2, 0x47, 0x8a, 0x72, 0x01, 0x1d, 0x8e, 0x30, 0xe9, 0x07, 0x21,
-	0x3d, 0xa6, 0x82, 0x8d, 0x30, 0x0a, 0x67, 0x1c, 0xe4, 0xfc, 0xde, 0x65, 0x7a, 0x4b, 0x38, 0x81,
-	0xde, 0x13, 0xa9, 0x35, 0x97, 0xd5, 0x9a, 0x9f, 0xcc, 0x59, 0x33, 0x73, 0x3b, 0x65, 0xac, 0x6d,
-	0xb3, 0xb9, 0x8e, 0xf6, 0x9f, 0xab, 0x70, 0x77, 0x41, 0xee, 0xe8, 0x63, 0x58, 0x67, 0x64, 0xe0,
-	0x0a, 0xe2, 0x3b, 0x4c, 0xc1, 0xfa, 0x14, 0xab, 0x98, 0x79, 0x1d, 0x53, 0x11, 0x88, 0xd1, 0x51,
-	0xa7, 0x85, 0x8b, 0xda, 0x39, 0x09, 0x81, 0xbe, 0xb3, 0x60, 0xcb, 0x4b, 0x8e, 0xf1, 0x8c, 0x7e,
-	0xb6, 0xdf, 0xac, 0x9f, 0xe3, 0x5b, 0x85, 0x69, 0x96, 0x63, 0x29, 0x29, 0x78, 0xd3, 0x9b, 0xb6,
-	0xca, 0x5b, 0x4d, 0xd9, 0xd7, 0xa7, 0x46, 0x2a, 0x8d, 0x9c, 0x4a, 0xa3, 0xf3, 0x86, 0x69, 0x8c,
-	0x0f, 0xa2, 0xec, 0x3c, 0x90, 0x3f, 0x63, 0x56, 0xed, 0x48, 0x0d, 0x69, 0x9d, 0xc7, 0xd2, 0x8d,
-	0xda, 0x61, 0x4e, 0xea, 0xd9, 0x76, 0xf0, 0x69, 0xab, 0xfd, 0x87, 0x05, 0x6f, 0x5d, 0xd6, 0x42,
-	0xf4, 0x0c, 0xca, 0x63, 0xcd, 0xc7, 0xe2, 0x89, 0x80, 0xb0, 0xcb, 0x95, 0x47, 0x9a, 0x62, 0xdc,
-	0xda, 0xd0, 0xe7, 0xb0, 0x63, 0x06, 0xd0, 0x35, 0x0f, 0x02, 0x9e, 0x9c, 0x85, 0xf9, 0xfd, 0xbd,
-	0x45, 0x37, 0x48, 0x5c, 0xf6, 0x32, 0x50, 0xfb, 0x6f, 0x0b, 0x76, 0x2f, 0x6d, 0x3f, 0x6a, 0x42,
-	0x65, 0x5c, 0xc3, 0x44, 0xfa, 0xc5, 0x45, 0x6c, 0x69, 0x8e, 0x79, 0xab, 0x41, 0x5f, 0x42, 0x35,
-	0x15, 0x62, 0xb6, 0x8c, 0x7b, 0x0b, 0xaf, 0x58, 0xb8, 0xe2, 0x67, 0xc1, 0x4a, 0x8b, 0xcb, 0xf4,
-	0x33, 0xb5, 0x18, 0x7f, 0x39, 0x57, 0xd7, 0xc2, 0x38, 0xb3, 0xa5, 0x16, 0x66, 0x80, 0x05, 0x5a,
-	0x64, 0xdd, 0x14, 0x70, 0x99, 0x67, 0xa0, 0xf6, 0xbf, 0x16, 0xbc, 0x77, 0xc5, 0x69, 0x74, 0xc3,
-	0x69, 0x12, 0xc1, 0x9d, 0x79, 0x23, 0x73, 0xe8, 0x46, 0x7a, 0xa8, 0x3c, 0xbc, 0xce, 0xc0, 0x4c,
-	0xf6, 0x48, 0x35, 0x73, 0x46, 0x9e, 0xba, 0x91, 0xfd, 0x8f, 0x05, 0xf6, 0x7c, 0x22, 0x7a, 0x05,
-	0xdb, 0xb3, 0x09, 0xf1, 0x88, 0x78, 0xba, 0xac, 0x54, 0x4b, 0xa7, 0xe3, 0xb4, 0x23, 0xe2, 0xe1,
-	0x32, 0xcb, 0x40, 0xd1, 0x6b, 0xd8, 0x99, 0x53, 0x68, 0xd6, 0x07, 0x97, 0x99, 0x20, 0xae, 0x64,
-	0x16, 0x75, 0x78, 0x4f, 0xfe, 0x36, 0x0c, 0xeb, 0xe7, 0x43, 0x11, 0xb3, 0x6e, 0x58, 0x8f, 0x06,
-	0xae, 0xe8, 0x85, 0x6c, 0x58, 0xe7, 0xfe, 0x37, 0x3a, 0xe6, 0xff, 0x01, 0x00, 0x00, 0xff, 0xff,
-	0x4d, 0xe5, 0xe2, 0xc0, 0xb9, 0x0e, 0x00, 0x00,
+var fileDescriptor_c8ca90a31766eb8f = []byte{
+	// 1326 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x57, 0x4f, 0x6f, 0xdb, 0xc6,
+	0x12, 0x07, 0x6d, 0x2b, 0xb1, 0x47, 0xb2, 0x2d, 0xaf, 0x25, 0x5b, 0x60, 0x5e, 0x10, 0xc7, 0x0f,
+	0xef, 0x25, 0x69, 0x11, 0x01, 0x09, 0x8a, 0xa4, 0x0d, 0x9a, 0xa2, 0xb6, 0x1c, 0x24, 0x02, 0xec,
+	0x28, 0x5d, 0x29, 0x49, 0x93, 0x43, 0x09, 0x8a, 0x5c, 0x0b, 0x6c, 0xa5, 0x5d, 0x62, 0x77, 0x19,
+	0x40, 0xbd, 0x05, 0x05, 0xfa, 0x49, 0x7a, 0xea, 0xa5, 0xd7, 0xa2, 0x97, 0xf6, 0xd2, 0xf6, 0xd8,
+	0x53, 0x0f, 0xfd, 0x1a, 0xbd, 0xf5, 0x56, 0xec, 0x72, 0x29, 0x91, 0x16, 0x69, 0xd9, 0xf1, 0x8d,
+	0x3b, 0x33, 0xbf, 0xf9, 0xbf, 0xb3, 0x43, 0xa8, 0x3e, 0xe3, 0x81, 0x17, 0xd0, 0xc1, 0x41, 0xaf,
+	0xd3, 0x0c, 0x39, 0x93, 0x0c, 0x81, 0xc7, 0x46, 0x23, 0x46, 0x1d, 0x5f, 0x32, 0x1b, 0xb5, 0x86,
+	0x2c, 0xf2, 0x5b, 0x4c, 0xc8, 0x09, 0xdf, 0x5e, 0x6f, 0x69, 0xfe, 0x84, 0xb0, 0xfb, 0xdd, 0x22,
+	0xd4, 0x5a, 0x6c, 0x14, 0x46, 0x92, 0xf4, 0x02, 0xc2, 0x95, 0x42, 0x72, 0x18, 0x08, 0x89, 0x5e,
+	0x00, 0xf4, 0x5d, 0x41, 0x9c, 0x50, 0x51, 0x1a, 0xd6, 0x8e, 0x75, 0xb3, 0x7c, 0xf7, 0x7e, 0x73,
+	0xaa, 0xbe, 0x99, 0x87, 0x4a, 0x13, 0x5b, 0x8c, 0x1e, 0x07, 0x03, 0xcd, 0xc2, 0x2b, 0x4a, 0x95,
+	0xfe, 0x44, 0xdf, 0x5a, 0xf0, 0xdf, 0x90, 0x70, 0xc7, 0xd3, 0xec, 0x88, 0xbb, 0x32, 0x60, 0x34,
+	0xb6, 0xe2, 0xb8, 0xfe, 0x97, 0x91, 0x90, 0x23, 0x42, 0xa5, 0x68, 0x2c, 0xec, 0x2c, 0x5e, 0xc4,
+	0xe2, 0x4e, 0x98, 0x9c, 0x8d, 0x09, 0x4d, 0xde, 0x9b, 0x1a, 0xb0, 0xbf, 0xb7, 0x60, 0x2b, 0x1f,
+	0x8c, 0xee, 0xc1, 0xea, 0x20, 0x22, 0x42, 0x3a, 0x4c, 0x38, 0x72, 0x1c, 0xc6, 0xe1, 0xaf, 0xdd,
+	0x45, 0x69, 0x67, 0x3a, 0xdd, 0xde, 0x38, 0x24, 0xb8, 0xac, 0x05, 0x3b, 0x42, 0x1d, 0xd0, 0x6d,
+	0xb8, 0x2c, 0x09, 0x75, 0xa9, 0x37, 0x6e, 0x2c, 0x68, 0xc4, 0x66, 0x1a, 0xd1, 0x8b, 0x59, 0x38,
+	0x91, 0x41, 0xb7, 0xe0, 0x92, 0x8e, 0x5b, 0x34, 0x40, 0x07, 0xbb, 0x91, 0x96, 0x8e, 0xc3, 0x30,
+	0x02, 0xbb, 0x3f, 0x2f, 0x41, 0xfd, 0xc0, 0x95, 0xae, 0xca, 0x63, 0xb6, 0x4e, 0x9f, 0xe7, 0xd4,
+	0xe9, 0xa3, 0xb4, 0xa2, 0x5c, 0x58, 0x86, 0x5a, 0x50, 0xa9, 0xb7, 0x16, 0x5c, 0x3b, 0x5b, 0x95,
+	0x2e, 0x60, 0xef, 0xaa, 0x77, 0x6a, 0x91, 0x7e, 0x5f, 0x80, 0xed, 0x02, 0x28, 0xba, 0x0f, 0x2b,
+	0x7e, 0xdf, 0x21, 0x74, 0x10, 0xd0, 0xa4, 0x42, 0x76, 0x9e, 0x23, 0x8f, 0xb4, 0x04, 0x5e, 0xf6,
+	0xfb, 0xf1, 0x17, 0x7a, 0x00, 0xa0, 0x80, 0x7e, 0xa0, 0x4c, 0x9a, 0x4a, 0x5d, 0xc9, 0x45, 0xc6,
+	0x22, 0x78, 0xc5, 0xef, 0x9b, 0x4f, 0xb4, 0x0f, 0x55, 0xbf, 0xef, 0x0c, 0x03, 0x8f, 0x50, 0x41,
+	0x9c, 0x11, 0xf3, 0xc9, 0xb0, 0xb1, 0xa8, 0x35, 0x34, 0xd2, 0x1a, 0x0e, 0x63, 0x81, 0x23, 0xc5,
+	0xc7, 0x6b, 0x7e, 0x3f, 0x7d, 0x46, 0x4f, 0x00, 0xf9, 0x7d, 0xc7, 0x27, 0xe1, 0x90, 0x8d, 0x55,
+	0x98, 0x71, 0x8f, 0x2d, 0xe5, 0x44, 0x30, 0x11, 0xd1, 0xbd, 0x56, 0xf5, 0xfb, 0x59, 0x4a, 0xaa,
+	0x83, 0x6a, 0xf3, 0x3a, 0xe8, 0x07, 0x0b, 0xca, 0xed, 0x70, 0xda, 0x37, 0x9f, 0xc2, 0x72, 0x10,
+	0x4e, 0xba, 0x46, 0x81, 0xff, 0x97, 0x06, 0xa7, 0x44, 0x9b, 0xed, 0x30, 0x5d, 0xb1, 0xcb, 0x41,
+	0xcc, 0xb2, 0xbf, 0x80, 0xd5, 0x0c, 0x07, 0xed, 0xc2, 0xea, 0x31, 0x27, 0xc4, 0x09, 0x42, 0xc7,
+	0x63, 0x11, 0x95, 0x3a, 0xb5, 0x25, 0x5c, 0x56, 0x44, 0x25, 0x19, 0x51, 0x79, 0x9e, 0x9e, 0xff,
+	0xd1, 0x82, 0x5a, 0x57, 0x32, 0xee, 0x0e, 0x4e, 0xb4, 0xbc, 0x0b, 0x9b, 0x9e, 0x1a, 0x6d, 0x8e,
+	0x88, 0xb9, 0x99, 0x28, 0xee, 0xa4, 0x15, 0xe6, 0xc1, 0x67, 0x88, 0x78, 0x43, 0x6b, 0x33, 0xe4,
+	0x38, 0xb6, 0x87, 0x50, 0x3d, 0x29, 0x76, 0xae, 0xeb, 0x6a, 0x41, 0x1d, 0x13, 0x41, 0xf8, 0x1b,
+	0xe2, 0xb7, 0xa9, 0x90, 0x2e, 0xf5, 0xc8, 0x64, 0xb4, 0x44, 0xe1, 0x31, 0x67, 0x54, 0x1a, 0xaf,
+	0x41, 0xdf, 0xd8, 0x1c, 0x5d, 0x15, 0x23, 0x17, 0xe3, 0x1e, 0xc0, 0x3a, 0x27, 0x5e, 0xc4, 0x79,
+	0x40, 0x07, 0x06, 0x59, 0x2e, 0x42, 0xae, 0x4d, 0x24, 0x63, 0xec, 0x5d, 0x28, 0x47, 0x62, 0x9a,
+	0xa7, 0x4a, 0x11, 0x0e, 0xb4, 0x94, 0xfe, 0xde, 0xfd, 0xd5, 0x82, 0xaa, 0x69, 0xda, 0x69, 0xe2,
+	0x9f, 0xc2, 0x6a, 0xd2, 0xf9, 0xe9, 0x94, 0xdf, 0xca, 0xe9, 0xfc, 0x69, 0xba, 0xd3, 0x04, 0x5c,
+	0x19, 0xa6, 0x4e, 0xb6, 0x0b, 0x95, 0x34, 0x17, 0xfd, 0x1f, 0xd6, 0x69, 0x34, 0xea, 0x13, 0xee,
+	0xb0, 0x63, 0xc7, 0x63, 0x9c, 0x08, 0x7d, 0xaf, 0x4b, 0x78, 0x35, 0x26, 0x77, 0x8e, 0x5b, 0x8a,
+	0x78, 0x9e, 0x4a, 0xfc, 0x6d, 0x41, 0x29, 0x56, 0xfe, 0x1e, 0x2c, 0x45, 0x34, 0x90, 0x66, 0x52,
+	0x6c, 0xcd, 0x40, 0x9a, 0xcf, 0x69, 0x20, 0xb1, 0x96, 0x41, 0xef, 0x03, 0x22, 0xd4, 0x77, 0xb8,
+	0x4b, 0x07, 0xc4, 0x09, 0xa8, 0xa3, 0x88, 0xa2, 0x71, 0x69, 0xc7, 0xba, 0xb9, 0x88, 0xd7, 0x09,
+	0xf5, 0xb1, 0x62, 0xb4, 0xa9, 0x42, 0x08, 0xf4, 0x10, 0x2a, 0x66, 0x30, 0x8e, 0x74, 0xd7, 0x6f,
+	0xe9, 0xfc, 0x66, 0x2e, 0x72, 0x2b, 0xe2, 0x9c, 0x50, 0x6f, 0xbc, 0xa7, 0x25, 0x70, 0x59, 0xcb,
+	0xc7, 0x87, 0xdd, 0xcf, 0x60, 0x49, 0xe9, 0x41, 0x2b, 0x50, 0x7a, 0xd2, 0x79, 0x8e, 0xbb, 0x55,
+	0x0b, 0x2d, 0xc3, 0xd2, 0xc1, 0xde, 0xab, 0x6e, 0x75, 0x41, 0x11, 0x8f, 0x3a, 0x4f, 0x7b, 0x4f,
+	0xaa, 0x8b, 0xea, 0xb3, 0xd7, 0xe9, 0xed, 0x1d, 0x56, 0x01, 0x55, 0xa1, 0x72, 0xd4, 0x3e, 0x3c,
+	0x6c, 0x77, 0x9e, 0x3a, 0xed, 0xce, 0xb3, 0x6e, 0xb5, 0x86, 0x2a, 0xb0, 0xfc, 0x78, 0xdf, 0x89,
+	0x45, 0xeb, 0xbb, 0x7f, 0x6e, 0x00, 0xe8, 0x98, 0x7a, 0x6e, 0x7f, 0x48, 0x50, 0x03, 0x2e, 0xbf,
+	0x21, 0x5c, 0xa8, 0x61, 0xa7, 0x82, 0x5f, 0xc1, 0xc9, 0x11, 0x05, 0x50, 0x57, 0x1e, 0x92, 0x91,
+	0x4b, 0x7d, 0x33, 0xdd, 0xa5, 0x82, 0x98, 0xb9, 0x7e, 0x6f, 0x26, 0x49, 0x5a, 0x61, 0xb3, 0x43,
+	0x0f, 0x34, 0x64, 0x4a, 0xda, 0x1f, 0x63, 0x32, 0x08, 0x18, 0x7d, 0x44, 0x25, 0x1f, 0x63, 0xc4,
+	0x66, 0x04, 0xd0, 0x4b, 0xa8, 0x8a, 0x90, 0xc9, 0x8c, 0x95, 0x25, 0x6d, 0xe5, 0x76, 0x81, 0x95,
+	0x6e, 0xc8, 0xe2, 0xe6, 0xcf, 0x2a, 0x5f, 0x13, 0x09, 0x3d, 0x56, 0xfc, 0xd6, 0x82, 0xab, 0xdc,
+	0xdc, 0x35, 0x27, 0x30, 0x97, 0x2d, 0x63, 0xa6, 0xa4, 0xcd, 0x7c, 0x52, 0x60, 0x26, 0xf7, 0x9e,
+	0xe6, 0x04, 0x65, 0xf3, 0x42, 0x41, 0xfb, 0xa7, 0x05, 0xd8, 0xca, 0x77, 0x17, 0x7d, 0x0c, 0x6b,
+	0x9c, 0x0c, 0x5d, 0x49, 0x7c, 0x87, 0x6b, 0xb2, 0x79, 0xa3, 0xeb, 0x69, 0x77, 0x1e, 0x51, 0x19,
+	0xc8, 0xf1, 0x41, 0xaf, 0x83, 0x57, 0x8d, 0x70, 0xac, 0x02, 0x7d, 0x08, 0x95, 0x04, 0xfd, 0x35,
+	0xa3, 0x44, 0x4f, 0xd4, 0x42, 0x6c, 0xd9, 0x88, 0xbe, 0x66, 0x94, 0xa0, 0xc7, 0x50, 0x4b, 0x90,
+	0x5e, 0xbc, 0xe5, 0x38, 0x32, 0x20, 0x5c, 0x3f, 0x56, 0x85, 0x1a, 0x90, 0x81, 0xa4, 0xf6, 0xa2,
+	0xd9, 0x65, 0x68, 0xe9, 0x6c, 0xcb, 0xd0, 0x0d, 0x28, 0xcd, 0x99, 0x70, 0x31, 0xdf, 0xfe, 0x67,
+	0x19, 0xae, 0xcd, 0xe9, 0xa8, 0x0b, 0x66, 0xf1, 0x1b, 0x0b, 0x36, 0x93, 0x24, 0xcc, 0x76, 0x79,
+	0xf7, 0xdd, 0xba, 0x3c, 0xd9, 0x3c, 0xd3, 0x6c, 0x95, 0xb0, 0xb8, 0x5b, 0x36, 0xbc, 0x93, 0x5c,
+	0xb5, 0xf9, 0xd6, 0x7c, 0xb3, 0x59, 0x64, 0xdc, 0x58, 0xd4, 0x6e, 0xf4, 0xde, 0xd1, 0x8d, 0x64,
+	0x59, 0xc9, 0xf7, 0x03, 0xf9, 0x33, 0x6c, 0x9d, 0x8e, 0xcc, 0xd3, 0x99, 0xb9, 0x8e, 0xef, 0x9a,
+	0x8e, 0xf4, 0xfb, 0x39, 0x9b, 0x0e, 0x71, 0x92, 0x8b, 0x3e, 0x80, 0x95, 0x64, 0x01, 0x11, 0x8d,
+	0x92, 0xae, 0xe6, 0x76, 0xc1, 0x06, 0x82, 0x97, 0xcd, 0xce, 0x21, 0xec, 0x5f, 0x2c, 0xf8, 0xcf,
+	0x69, 0x89, 0x2f, 0xec, 0x7b, 0xeb, 0xbc, 0x7d, 0xff, 0x12, 0xb6, 0xd3, 0x0a, 0x4c, 0xa6, 0x86,
+	0x81, 0x90, 0xe6, 0x16, 0xee, 0xcc, 0xfb, 0x37, 0xc1, 0x35, 0x2f, 0x87, 0x6a, 0xff, 0x66, 0xc1,
+	0xd5, 0x53, 0x8b, 0x86, 0xda, 0x50, 0x4f, 0x62, 0x98, 0x34, 0xcc, 0xfc, 0x20, 0x36, 0x0d, 0x26,
+	0xbd, 0x2f, 0xa3, 0xd7, 0xd0, 0xc8, 0xa8, 0x98, 0x0d, 0xe3, 0xfa, 0xdc, 0xe5, 0x1d, 0xd7, 0xfd,
+	0x3c, 0xb2, 0xae, 0xc5, 0x69, 0x55, 0x4f, 0xd7, 0x22, 0xe9, 0xb7, 0xb3, 0xd7, 0x22, 0xb5, 0x7f,
+	0xa9, 0x5a, 0xa4, 0x15, 0xcc, 0xa9, 0x45, 0xde, 0xd6, 0x87, 0x6b, 0x22, 0x87, 0x6a, 0xff, 0x65,
+	0xc1, 0x8d, 0x33, 0x3e, 0x00, 0x17, 0x9c, 0x41, 0x21, 0x5c, 0x29, 0x7a, 0xa5, 0x46, 0x6e, 0x68,
+	0x46, 0xd1, 0x9d, 0xf3, 0xbc, 0x51, 0xf1, 0xcd, 0x6a, 0xe4, 0x3e, 0x4b, 0x47, 0x6e, 0x68, 0xff,
+	0x61, 0x81, 0x5d, 0x0c, 0x44, 0x2f, 0x60, 0x6b, 0xd6, 0x21, 0x11, 0x12, 0xcf, 0x84, 0x95, 0x49,
+	0xe9, 0x49, 0x3d, 0xdd, 0x90, 0x78, 0xb8, 0xc6, 0x73, 0xa8, 0xe8, 0x15, 0x6c, 0x17, 0x04, 0x9a,
+	0xd7, 0x70, 0xb9, 0x0e, 0xe2, 0x7a, 0x6e, 0x50, 0xfb, 0xd7, 0xd5, 0x0f, 0xe9, 0xa8, 0xf9, 0x66,
+	0x24, 0x23, 0xde, 0x67, 0xcd, 0x70, 0xe8, 0xca, 0x63, 0xc6, 0x47, 0x4d, 0xe1, 0x7f, 0x65, 0x74,
+	0xfe, 0x1b, 0x00, 0x00, 0xff, 0xff, 0xf5, 0x53, 0x53, 0xea, 0x13, 0x11, 0x00, 0x00,
 }

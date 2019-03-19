@@ -3,33 +3,42 @@
 
 package proto
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
+
 // Enumerate non market entities
 type NonMarketEntityDTO_NonMarketEntityType int32
 
 const (
-	NonMarketEntityDTO_CLOUD_SERVICE NonMarketEntityDTO_NonMarketEntityType = 0
-	NonMarketEntityDTO_WORKFLOW      NonMarketEntityDTO_NonMarketEntityType = 1
-	NonMarketEntityDTO_ACCOUNT       NonMarketEntityDTO_NonMarketEntityType = 2
+	NonMarketEntityDTO_CLOUD_SERVICE   NonMarketEntityDTO_NonMarketEntityType = 0
+	NonMarketEntityDTO_ACCOUNT         NonMarketEntityDTO_NonMarketEntityType = 2
+	NonMarketEntityDTO_PLAN_REPOSITORY NonMarketEntityDTO_NonMarketEntityType = 3
 )
 
 var NonMarketEntityDTO_NonMarketEntityType_name = map[int32]string{
 	0: "CLOUD_SERVICE",
-	1: "WORKFLOW",
 	2: "ACCOUNT",
+	3: "PLAN_REPOSITORY",
 }
+
 var NonMarketEntityDTO_NonMarketEntityType_value = map[string]int32{
-	"CLOUD_SERVICE": 0,
-	"WORKFLOW":      1,
-	"ACCOUNT":       2,
+	"CLOUD_SERVICE":   0,
+	"ACCOUNT":         2,
+	"PLAN_REPOSITORY": 3,
 }
 
 func (x NonMarketEntityDTO_NonMarketEntityType) Enum() *NonMarketEntityDTO_NonMarketEntityType {
@@ -37,9 +46,11 @@ func (x NonMarketEntityDTO_NonMarketEntityType) Enum() *NonMarketEntityDTO_NonMa
 	*p = x
 	return p
 }
+
 func (x NonMarketEntityDTO_NonMarketEntityType) String() string {
 	return proto.EnumName(NonMarketEntityDTO_NonMarketEntityType_name, int32(x))
 }
+
 func (x *NonMarketEntityDTO_NonMarketEntityType) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(NonMarketEntityDTO_NonMarketEntityType_value, data, "NonMarketEntityDTO_NonMarketEntityType")
 	if err != nil {
@@ -48,8 +59,9 @@ func (x *NonMarketEntityDTO_NonMarketEntityType) UnmarshalJSON(data []byte) erro
 	*x = NonMarketEntityDTO_NonMarketEntityType(value)
 	return nil
 }
+
 func (NonMarketEntityDTO_NonMarketEntityType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor6, []int{0, 0}
+	return fileDescriptor_a7ef4e88daee47ae, []int{0, 0}
 }
 
 type NonMarketEntityDTO_CloudServiceData_PriceModel int32
@@ -72,6 +84,7 @@ var NonMarketEntityDTO_CloudServiceData_PriceModel_name = map[int32]string{
 	1: "RESERVED",
 	2: "SPOT",
 }
+
 var NonMarketEntityDTO_CloudServiceData_PriceModel_value = map[string]int32{
 	"ON_DEMAND": 0,
 	"RESERVED":  1,
@@ -83,9 +96,11 @@ func (x NonMarketEntityDTO_CloudServiceData_PriceModel) Enum() *NonMarketEntityD
 	*p = x
 	return p
 }
+
 func (x NonMarketEntityDTO_CloudServiceData_PriceModel) String() string {
 	return proto.EnumName(NonMarketEntityDTO_CloudServiceData_PriceModel_name, int32(x))
 }
+
 func (x *NonMarketEntityDTO_CloudServiceData_PriceModel) UnmarshalJSON(data []byte) error {
 	value, err := proto.UnmarshalJSONEnum(NonMarketEntityDTO_CloudServiceData_PriceModel_value, data, "NonMarketEntityDTO_CloudServiceData_PriceModel")
 	if err != nil {
@@ -94,8 +109,9 @@ func (x *NonMarketEntityDTO_CloudServiceData_PriceModel) UnmarshalJSON(data []by
 	*x = NonMarketEntityDTO_CloudServiceData_PriceModel(value)
 	return nil
 }
+
 func (NonMarketEntityDTO_CloudServiceData_PriceModel) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor6, []int{0, 0, 0}
+	return fileDescriptor_a7ef4e88daee47ae, []int{0, 0, 0}
 }
 
 // The NonMarketEntityDTO message represents an Entity discovered in the target that your probe is
@@ -119,36 +135,36 @@ type NonMarketEntityDTO struct {
 	//
 	// Types that are valid to be assigned to EntityData:
 	//	*NonMarketEntityDTO_CloudServiceData_
-	//	*NonMarketEntityDTO_WorkflowData_
-	EntityData       isNonMarketEntityDTO_EntityData `protobuf_oneof:"entity_data"`
-	XXX_unrecognized []byte                          `json:"-"`
+	EntityData           isNonMarketEntityDTO_EntityData `protobuf_oneof:"entity_data"`
+	XXX_NoUnkeyedLiteral struct{}                        `json:"-"`
+	XXX_unrecognized     []byte                          `json:"-"`
+	XXX_sizecache        int32                           `json:"-"`
 }
 
-func (m *NonMarketEntityDTO) Reset()                    { *m = NonMarketEntityDTO{} }
-func (m *NonMarketEntityDTO) String() string            { return proto.CompactTextString(m) }
-func (*NonMarketEntityDTO) ProtoMessage()               {}
-func (*NonMarketEntityDTO) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{0} }
-
-type isNonMarketEntityDTO_EntityData interface {
-	isNonMarketEntityDTO_EntityData()
+func (m *NonMarketEntityDTO) Reset()         { *m = NonMarketEntityDTO{} }
+func (m *NonMarketEntityDTO) String() string { return proto.CompactTextString(m) }
+func (*NonMarketEntityDTO) ProtoMessage()    {}
+func (*NonMarketEntityDTO) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a7ef4e88daee47ae, []int{0}
 }
 
-type NonMarketEntityDTO_CloudServiceData_ struct {
-	CloudServiceData *NonMarketEntityDTO_CloudServiceData `protobuf:"bytes,500,opt,name=cloud_service_data,json=cloudServiceData,oneof"`
+func (m *NonMarketEntityDTO) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NonMarketEntityDTO.Unmarshal(m, b)
 }
-type NonMarketEntityDTO_WorkflowData_ struct {
-	WorkflowData *NonMarketEntityDTO_WorkflowData `protobuf:"bytes,501,opt,name=workflow_data,json=workflowData,oneof"`
+func (m *NonMarketEntityDTO) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NonMarketEntityDTO.Marshal(b, m, deterministic)
+}
+func (m *NonMarketEntityDTO) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NonMarketEntityDTO.Merge(m, src)
+}
+func (m *NonMarketEntityDTO) XXX_Size() int {
+	return xxx_messageInfo_NonMarketEntityDTO.Size(m)
+}
+func (m *NonMarketEntityDTO) XXX_DiscardUnknown() {
+	xxx_messageInfo_NonMarketEntityDTO.DiscardUnknown(m)
 }
 
-func (*NonMarketEntityDTO_CloudServiceData_) isNonMarketEntityDTO_EntityData() {}
-func (*NonMarketEntityDTO_WorkflowData_) isNonMarketEntityDTO_EntityData()     {}
-
-func (m *NonMarketEntityDTO) GetEntityData() isNonMarketEntityDTO_EntityData {
-	if m != nil {
-		return m.EntityData
-	}
-	return nil
-}
+var xxx_messageInfo_NonMarketEntityDTO proto.InternalMessageInfo
 
 func (m *NonMarketEntityDTO) GetEntityType() NonMarketEntityDTO_NonMarketEntityType {
 	if m != nil && m.EntityType != nil {
@@ -178,6 +194,23 @@ func (m *NonMarketEntityDTO) GetDescription() string {
 	return ""
 }
 
+type isNonMarketEntityDTO_EntityData interface {
+	isNonMarketEntityDTO_EntityData()
+}
+
+type NonMarketEntityDTO_CloudServiceData_ struct {
+	CloudServiceData *NonMarketEntityDTO_CloudServiceData `protobuf:"bytes,500,opt,name=cloud_service_data,json=cloudServiceData,oneof"`
+}
+
+func (*NonMarketEntityDTO_CloudServiceData_) isNonMarketEntityDTO_EntityData() {}
+
+func (m *NonMarketEntityDTO) GetEntityData() isNonMarketEntityDTO_EntityData {
+	if m != nil {
+		return m.EntityData
+	}
+	return nil
+}
+
 func (m *NonMarketEntityDTO) GetCloudServiceData() *NonMarketEntityDTO_CloudServiceData {
 	if x, ok := m.GetEntityData().(*NonMarketEntityDTO_CloudServiceData_); ok {
 		return x.CloudServiceData
@@ -185,101 +218,47 @@ func (m *NonMarketEntityDTO) GetCloudServiceData() *NonMarketEntityDTO_CloudServ
 	return nil
 }
 
-func (m *NonMarketEntityDTO) GetWorkflowData() *NonMarketEntityDTO_WorkflowData {
-	if x, ok := m.GetEntityData().(*NonMarketEntityDTO_WorkflowData_); ok {
-		return x.WorkflowData
-	}
-	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*NonMarketEntityDTO) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _NonMarketEntityDTO_OneofMarshaler, _NonMarketEntityDTO_OneofUnmarshaler, _NonMarketEntityDTO_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*NonMarketEntityDTO) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*NonMarketEntityDTO_CloudServiceData_)(nil),
-		(*NonMarketEntityDTO_WorkflowData_)(nil),
 	}
-}
-
-func _NonMarketEntityDTO_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*NonMarketEntityDTO)
-	// entity_data
-	switch x := m.EntityData.(type) {
-	case *NonMarketEntityDTO_CloudServiceData_:
-		b.EncodeVarint(500<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.CloudServiceData); err != nil {
-			return err
-		}
-	case *NonMarketEntityDTO_WorkflowData_:
-		b.EncodeVarint(501<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.WorkflowData); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("NonMarketEntityDTO.EntityData has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _NonMarketEntityDTO_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*NonMarketEntityDTO)
-	switch tag {
-	case 500: // entity_data.cloud_service_data
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(NonMarketEntityDTO_CloudServiceData)
-		err := b.DecodeMessage(msg)
-		m.EntityData = &NonMarketEntityDTO_CloudServiceData_{msg}
-		return true, err
-	case 501: // entity_data.workflow_data
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(NonMarketEntityDTO_WorkflowData)
-		err := b.DecodeMessage(msg)
-		m.EntityData = &NonMarketEntityDTO_WorkflowData_{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _NonMarketEntityDTO_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*NonMarketEntityDTO)
-	// entity_data
-	switch x := m.EntityData.(type) {
-	case *NonMarketEntityDTO_CloudServiceData_:
-		s := proto.Size(x.CloudServiceData)
-		n += proto.SizeVarint(500<<3 | proto.WireBytes)
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *NonMarketEntityDTO_WorkflowData_:
-		s := proto.Size(x.WorkflowData)
-		n += proto.SizeVarint(501<<3 | proto.WireBytes)
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type NonMarketEntityDTO_CloudServiceData struct {
-	CloudProvider    *string                                          `protobuf:"bytes,1,req,name=cloud_provider,json=cloudProvider" json:"cloud_provider,omitempty"`
-	BillingData      *NonMarketEntityDTO_CloudServiceData_BillingData `protobuf:"bytes,3,opt,name=billing_data,json=billingData" json:"billing_data,omitempty"`
-	AccountId        *string                                          `protobuf:"bytes,4,opt,name=account_id,json=accountId" json:"account_id,omitempty"`
-	PriceModels      []NonMarketEntityDTO_CloudServiceData_PriceModel `protobuf:"varint,5,rep,name=price_models,json=priceModels,enum=common_dto.NonMarketEntityDTO_CloudServiceData_PriceModel" json:"price_models,omitempty"`
-	XXX_unrecognized []byte                                           `json:"-"`
+	CloudProvider        *string                                          `protobuf:"bytes,1,req,name=cloud_provider,json=cloudProvider" json:"cloud_provider,omitempty"`
+	BillingData          *NonMarketEntityDTO_CloudServiceData_BillingData `protobuf:"bytes,3,opt,name=billing_data,json=billingData" json:"billing_data,omitempty"`
+	AccountId            *string                                          `protobuf:"bytes,4,opt,name=account_id,json=accountId" json:"account_id,omitempty"`
+	PriceModels          []NonMarketEntityDTO_CloudServiceData_PriceModel `protobuf:"varint,5,rep,name=price_models,json=priceModels,enum=common_dto.NonMarketEntityDTO_CloudServiceData_PriceModel" json:"price_models,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                         `json:"-"`
+	XXX_unrecognized     []byte                                           `json:"-"`
+	XXX_sizecache        int32                                            `json:"-"`
 }
 
 func (m *NonMarketEntityDTO_CloudServiceData) Reset()         { *m = NonMarketEntityDTO_CloudServiceData{} }
 func (m *NonMarketEntityDTO_CloudServiceData) String() string { return proto.CompactTextString(m) }
 func (*NonMarketEntityDTO_CloudServiceData) ProtoMessage()    {}
 func (*NonMarketEntityDTO_CloudServiceData) Descriptor() ([]byte, []int) {
-	return fileDescriptor6, []int{0, 0}
+	return fileDescriptor_a7ef4e88daee47ae, []int{0, 0}
 }
+
+func (m *NonMarketEntityDTO_CloudServiceData) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NonMarketEntityDTO_CloudServiceData.Unmarshal(m, b)
+}
+func (m *NonMarketEntityDTO_CloudServiceData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NonMarketEntityDTO_CloudServiceData.Marshal(b, m, deterministic)
+}
+func (m *NonMarketEntityDTO_CloudServiceData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NonMarketEntityDTO_CloudServiceData.Merge(m, src)
+}
+func (m *NonMarketEntityDTO_CloudServiceData) XXX_Size() int {
+	return xxx_messageInfo_NonMarketEntityDTO_CloudServiceData.Size(m)
+}
+func (m *NonMarketEntityDTO_CloudServiceData) XXX_DiscardUnknown() {
+	xxx_messageInfo_NonMarketEntityDTO_CloudServiceData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NonMarketEntityDTO_CloudServiceData proto.InternalMessageInfo
 
 func (m *NonMarketEntityDTO_CloudServiceData) GetCloudProvider() string {
 	if m != nil && m.CloudProvider != nil {
@@ -310,10 +289,12 @@ func (m *NonMarketEntityDTO_CloudServiceData) GetPriceModels() []NonMarketEntity
 }
 
 type NonMarketEntityDTO_CloudServiceData_BillingData struct {
-	VirtualMachines   []*EntityDTO `protobuf:"bytes,1,rep,name=virtual_machines,json=virtualMachines" json:"virtual_machines,omitempty"`
-	ReservedInstances []*EntityDTO `protobuf:"bytes,2,rep,name=reserved_instances,json=reservedInstances" json:"reserved_instances,omitempty"`
-	BillingDataUuid   *string      `protobuf:"bytes,3,opt,name=billingDataUuid" json:"billingDataUuid,omitempty"`
-	XXX_unrecognized  []byte       `json:"-"`
+	VirtualMachines      []*EntityDTO `protobuf:"bytes,1,rep,name=virtual_machines,json=virtualMachines" json:"virtual_machines,omitempty"`
+	ReservedInstances    []*EntityDTO `protobuf:"bytes,2,rep,name=reserved_instances,json=reservedInstances" json:"reserved_instances,omitempty"`
+	BillingDataUuid      *string      `protobuf:"bytes,3,opt,name=billingDataUuid" json:"billingDataUuid,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
 func (m *NonMarketEntityDTO_CloudServiceData_BillingData) Reset() {
@@ -324,8 +305,26 @@ func (m *NonMarketEntityDTO_CloudServiceData_BillingData) String() string {
 }
 func (*NonMarketEntityDTO_CloudServiceData_BillingData) ProtoMessage() {}
 func (*NonMarketEntityDTO_CloudServiceData_BillingData) Descriptor() ([]byte, []int) {
-	return fileDescriptor6, []int{0, 0, 0}
+	return fileDescriptor_a7ef4e88daee47ae, []int{0, 0, 0}
 }
+
+func (m *NonMarketEntityDTO_CloudServiceData_BillingData) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_NonMarketEntityDTO_CloudServiceData_BillingData.Unmarshal(m, b)
+}
+func (m *NonMarketEntityDTO_CloudServiceData_BillingData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_NonMarketEntityDTO_CloudServiceData_BillingData.Marshal(b, m, deterministic)
+}
+func (m *NonMarketEntityDTO_CloudServiceData_BillingData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NonMarketEntityDTO_CloudServiceData_BillingData.Merge(m, src)
+}
+func (m *NonMarketEntityDTO_CloudServiceData_BillingData) XXX_Size() int {
+	return xxx_messageInfo_NonMarketEntityDTO_CloudServiceData_BillingData.Size(m)
+}
+func (m *NonMarketEntityDTO_CloudServiceData_BillingData) XXX_DiscardUnknown() {
+	xxx_messageInfo_NonMarketEntityDTO_CloudServiceData_BillingData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_NonMarketEntityDTO_CloudServiceData_BillingData proto.InternalMessageInfo
 
 func (m *NonMarketEntityDTO_CloudServiceData_BillingData) GetVirtualMachines() []*EntityDTO {
 	if m != nil {
@@ -348,110 +347,6 @@ func (m *NonMarketEntityDTO_CloudServiceData_BillingData) GetBillingDataUuid() s
 	return ""
 }
 
-type NonMarketEntityDTO_WorkflowData struct {
-	Param            []*NonMarketEntityDTO_Parameter `protobuf:"bytes,1,rep,name=param" json:"param,omitempty"`
-	Property         []*NonMarketEntityDTO_Property  `protobuf:"bytes,2,rep,name=property" json:"property,omitempty"`
-	EntityType       *EntityDTO_EntityType           `protobuf:"varint,3,opt,name=entityType,enum=common_dto.EntityDTO_EntityType" json:"entityType,omitempty"`
-	XXX_unrecognized []byte                          `json:"-"`
-}
-
-func (m *NonMarketEntityDTO_WorkflowData) Reset()         { *m = NonMarketEntityDTO_WorkflowData{} }
-func (m *NonMarketEntityDTO_WorkflowData) String() string { return proto.CompactTextString(m) }
-func (*NonMarketEntityDTO_WorkflowData) ProtoMessage()    {}
-func (*NonMarketEntityDTO_WorkflowData) Descriptor() ([]byte, []int) {
-	return fileDescriptor6, []int{0, 1}
-}
-
-func (m *NonMarketEntityDTO_WorkflowData) GetParam() []*NonMarketEntityDTO_Parameter {
-	if m != nil {
-		return m.Param
-	}
-	return nil
-}
-
-func (m *NonMarketEntityDTO_WorkflowData) GetProperty() []*NonMarketEntityDTO_Property {
-	if m != nil {
-		return m.Property
-	}
-	return nil
-}
-
-func (m *NonMarketEntityDTO_WorkflowData) GetEntityType() EntityDTO_EntityType {
-	if m != nil && m.EntityType != nil {
-		return *m.EntityType
-	}
-	return EntityDTO_SWITCH
-}
-
-type NonMarketEntityDTO_Parameter struct {
-	Name             *string `protobuf:"bytes,1,req,name=name" json:"name,omitempty"`
-	Description      *string `protobuf:"bytes,2,opt,name=description" json:"description,omitempty"`
-	Type             *string `protobuf:"bytes,3,req,name=type,def=String" json:"type,omitempty"`
-	Mandatory        *bool   `protobuf:"varint,4,opt,name=mandatory,def=1" json:"mandatory,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NonMarketEntityDTO_Parameter) Reset()                    { *m = NonMarketEntityDTO_Parameter{} }
-func (m *NonMarketEntityDTO_Parameter) String() string            { return proto.CompactTextString(m) }
-func (*NonMarketEntityDTO_Parameter) ProtoMessage()               {}
-func (*NonMarketEntityDTO_Parameter) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{0, 2} }
-
-const Default_NonMarketEntityDTO_Parameter_Type string = "String"
-const Default_NonMarketEntityDTO_Parameter_Mandatory bool = true
-
-func (m *NonMarketEntityDTO_Parameter) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *NonMarketEntityDTO_Parameter) GetDescription() string {
-	if m != nil && m.Description != nil {
-		return *m.Description
-	}
-	return ""
-}
-
-func (m *NonMarketEntityDTO_Parameter) GetType() string {
-	if m != nil && m.Type != nil {
-		return *m.Type
-	}
-	return Default_NonMarketEntityDTO_Parameter_Type
-}
-
-func (m *NonMarketEntityDTO_Parameter) GetMandatory() bool {
-	if m != nil && m.Mandatory != nil {
-		return *m.Mandatory
-	}
-	return Default_NonMarketEntityDTO_Parameter_Mandatory
-}
-
-type NonMarketEntityDTO_Property struct {
-	Name             *string `protobuf:"bytes,1,req,name=name" json:"name,omitempty"`
-	Value            *string `protobuf:"bytes,2,req,name=value" json:"value,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
-}
-
-func (m *NonMarketEntityDTO_Property) Reset()                    { *m = NonMarketEntityDTO_Property{} }
-func (m *NonMarketEntityDTO_Property) String() string            { return proto.CompactTextString(m) }
-func (*NonMarketEntityDTO_Property) ProtoMessage()               {}
-func (*NonMarketEntityDTO_Property) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{0, 3} }
-
-func (m *NonMarketEntityDTO_Property) GetName() string {
-	if m != nil && m.Name != nil {
-		return *m.Name
-	}
-	return ""
-}
-
-func (m *NonMarketEntityDTO_Property) GetValue() string {
-	if m != nil && m.Value != nil {
-		return *m.Value
-	}
-	return ""
-}
-
 // Generic cost data struct used for sending cost/spend from probe to the platform.
 type CostDataDTO struct {
 	// UUID of the entity (Account/CloudService) or profile (VMTemplate/DBTemplate)
@@ -465,14 +360,36 @@ type CostDataDTO struct {
 	// Cost of the associated entity (e.g template/VM etc.)
 	// If representing spend (top-down), then how much was spent for this account/service/template,
 	// parsed from the bill.
-	Cost             *float32 `protobuf:"fixed32,5,req,name=cost" json:"cost,omitempty"`
-	XXX_unrecognized []byte   `json:"-"`
+	Cost                 *float32 `protobuf:"fixed32,5,req,name=cost" json:"cost,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *CostDataDTO) Reset()                    { *m = CostDataDTO{} }
-func (m *CostDataDTO) String() string            { return proto.CompactTextString(m) }
-func (*CostDataDTO) ProtoMessage()               {}
-func (*CostDataDTO) Descriptor() ([]byte, []int) { return fileDescriptor6, []int{1} }
+func (m *CostDataDTO) Reset()         { *m = CostDataDTO{} }
+func (m *CostDataDTO) String() string { return proto.CompactTextString(m) }
+func (*CostDataDTO) ProtoMessage()    {}
+func (*CostDataDTO) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a7ef4e88daee47ae, []int{1}
+}
+
+func (m *CostDataDTO) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CostDataDTO.Unmarshal(m, b)
+}
+func (m *CostDataDTO) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CostDataDTO.Marshal(b, m, deterministic)
+}
+func (m *CostDataDTO) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CostDataDTO.Merge(m, src)
+}
+func (m *CostDataDTO) XXX_Size() int {
+	return xxx_messageInfo_CostDataDTO.Size(m)
+}
+func (m *CostDataDTO) XXX_DiscardUnknown() {
+	xxx_messageInfo_CostDataDTO.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CostDataDTO proto.InternalMessageInfo
 
 func (m *CostDataDTO) GetId() string {
 	if m != nil && m.Id != nil {
@@ -510,67 +427,56 @@ func (m *CostDataDTO) GetCost() float32 {
 }
 
 func init() {
+	proto.RegisterEnum("common_dto.NonMarketEntityDTO_NonMarketEntityType", NonMarketEntityDTO_NonMarketEntityType_name, NonMarketEntityDTO_NonMarketEntityType_value)
+	proto.RegisterEnum("common_dto.NonMarketEntityDTO_CloudServiceData_PriceModel", NonMarketEntityDTO_CloudServiceData_PriceModel_name, NonMarketEntityDTO_CloudServiceData_PriceModel_value)
 	proto.RegisterType((*NonMarketEntityDTO)(nil), "common_dto.NonMarketEntityDTO")
 	proto.RegisterType((*NonMarketEntityDTO_CloudServiceData)(nil), "common_dto.NonMarketEntityDTO.CloudServiceData")
 	proto.RegisterType((*NonMarketEntityDTO_CloudServiceData_BillingData)(nil), "common_dto.NonMarketEntityDTO.CloudServiceData.BillingData")
-	proto.RegisterType((*NonMarketEntityDTO_WorkflowData)(nil), "common_dto.NonMarketEntityDTO.WorkflowData")
-	proto.RegisterType((*NonMarketEntityDTO_Parameter)(nil), "common_dto.NonMarketEntityDTO.Parameter")
-	proto.RegisterType((*NonMarketEntityDTO_Property)(nil), "common_dto.NonMarketEntityDTO.Property")
 	proto.RegisterType((*CostDataDTO)(nil), "common_dto.CostDataDTO")
-	proto.RegisterEnum("common_dto.NonMarketEntityDTO_NonMarketEntityType", NonMarketEntityDTO_NonMarketEntityType_name, NonMarketEntityDTO_NonMarketEntityType_value)
-	proto.RegisterEnum("common_dto.NonMarketEntityDTO_CloudServiceData_PriceModel", NonMarketEntityDTO_CloudServiceData_PriceModel_name, NonMarketEntityDTO_CloudServiceData_PriceModel_value)
 }
 
-func init() { proto.RegisterFile("NonMarketEntityDTO.proto", fileDescriptor6) }
+func init() { proto.RegisterFile("NonMarketEntityDTO.proto", fileDescriptor_a7ef4e88daee47ae) }
 
-var fileDescriptor6 = []byte{
-	// 757 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0x51, 0x6f, 0xe3, 0x44,
-	0x10, 0x3e, 0xbb, 0x29, 0xc4, 0xe3, 0x24, 0xf5, 0x2d, 0x20, 0x59, 0x91, 0x10, 0x56, 0x24, 0x74,
-	0x96, 0x90, 0x7c, 0x52, 0xe0, 0xa9, 0x48, 0xe8, 0x5a, 0x3b, 0x88, 0x8a, 0x4b, 0x1c, 0x6d, 0x52,
-	0xfa, 0x04, 0x66, 0x6b, 0x6f, 0x8f, 0xd5, 0xd9, 0x5e, 0x6b, 0xbd, 0x49, 0x95, 0x47, 0xfe, 0x00,
-	0xbf, 0x08, 0x89, 0x5f, 0xc1, 0x9f, 0xe0, 0x19, 0xde, 0x91, 0xbd, 0xae, 0x93, 0xa6, 0xd1, 0x45,
-	0x7d, 0x1b, 0x7f, 0x9e, 0xf9, 0x66, 0xe6, 0xdb, 0x99, 0x01, 0x7b, 0xc6, 0xf3, 0x29, 0x11, 0xef,
-	0xa9, 0x9c, 0xe4, 0x92, 0xc9, 0x4d, 0xb0, 0x0c, 0xbd, 0x42, 0x70, 0xc9, 0x11, 0xc4, 0x3c, 0xcb,
-	0x78, 0x1e, 0x25, 0x92, 0x0f, 0xcf, 0xfc, 0xda, 0x6e, 0x7f, 0x8e, 0xfe, 0x01, 0x40, 0x4f, 0x23,
-	0x11, 0x06, 0xa0, 0xf5, 0xc7, 0x72, 0x53, 0x50, 0x5b, 0x73, 0x74, 0x77, 0x30, 0x1e, 0x7b, 0x5b,
-	0x22, 0xef, 0x40, 0xb6, 0x3d, 0xa8, 0x8a, 0xc4, 0x3b, 0x2c, 0x68, 0x00, 0x3a, 0x4b, 0x6c, 0xdd,
-	0xd1, 0x5d, 0x03, 0xeb, 0x2c, 0x41, 0x0e, 0x98, 0x09, 0x2b, 0x8b, 0x94, 0x6c, 0x66, 0x24, 0xa3,
-	0xf6, 0x89, 0xa3, 0xb9, 0x06, 0xde, 0x85, 0x6a, 0x0f, 0x5a, 0xc6, 0x82, 0x15, 0x92, 0xf1, 0xdc,
-	0xee, 0x34, 0x1e, 0x5b, 0x08, 0xfd, 0x0a, 0x28, 0x4e, 0xf9, 0x2a, 0x89, 0x4a, 0x2a, 0xd6, 0x2c,
-	0xa6, 0x51, 0x42, 0x24, 0xb1, 0xff, 0xad, 0xb8, 0xcc, 0xf1, 0xeb, 0x23, 0x05, 0xfb, 0x55, 0xe4,
-	0x42, 0x05, 0x06, 0x44, 0x92, 0x1f, 0x5e, 0x60, 0x2b, 0xde, 0xc3, 0xd0, 0x02, 0xfa, 0xf7, 0x5c,
-	0xbc, 0xbf, 0x4b, 0xf9, 0xbd, 0x22, 0xff, 0x4f, 0x91, 0x7f, 0x75, 0x84, 0xfc, 0xa6, 0x09, 0x6a,
-	0x88, 0x7b, 0xf7, 0x3b, 0xdf, 0xc3, 0x3f, 0x3a, 0x60, 0xed, 0x67, 0x47, 0x5f, 0xc2, 0x40, 0xf5,
-	0x52, 0x08, 0xbe, 0x66, 0x09, 0x15, 0xb5, 0xee, 0x06, 0xee, 0xd7, 0xe8, 0xbc, 0x01, 0xd1, 0x2f,
-	0xd0, 0xbb, 0x65, 0x69, 0xca, 0xf2, 0x77, 0xaa, 0x1e, 0x55, 0xce, 0xb7, 0xcf, 0xec, 0xd5, 0xbb,
-	0x54, 0x1c, 0x95, 0x8d, 0xcd, 0xdb, 0xed, 0x07, 0xfa, 0x1c, 0x80, 0xc4, 0x31, 0x5f, 0xe5, 0x32,
-	0x62, 0x49, 0xa3, 0xb9, 0xd1, 0x20, 0x57, 0x09, 0xfa, 0x19, 0x7a, 0x85, 0xa8, 0x94, 0xce, 0x78,
-	0x42, 0xd3, 0xd2, 0x3e, 0x75, 0x4e, 0xdc, 0xc1, 0xf8, 0xfc, 0xb9, 0xe9, 0xe7, 0x15, 0xc7, 0xb4,
-	0xa2, 0xc0, 0x66, 0xd1, 0xda, 0xe5, 0xf0, 0x2f, 0x0d, 0xcc, 0x9d, 0xd2, 0xd0, 0x1b, 0xb0, 0xd6,
-	0x4c, 0xc8, 0x15, 0x49, 0xa3, 0x8c, 0xc4, 0xbf, 0xb1, 0x9c, 0x96, 0xb6, 0xe6, 0x9c, 0xb8, 0xe6,
-	0xf8, 0xb3, 0xdd, 0x94, 0x6d, 0x26, 0x7c, 0xd6, 0xb8, 0x4f, 0x1b, 0x6f, 0x14, 0x00, 0x12, 0xb4,
-	0x1a, 0x0f, 0x9a, 0x44, 0x2c, 0x2f, 0x25, 0xc9, 0x63, 0x5a, 0xda, 0xfa, 0x87, 0x38, 0x5e, 0x3e,
-	0x04, 0x5c, 0x3d, 0xf8, 0x23, 0x17, 0xce, 0x76, 0x44, 0xba, 0x5e, 0xb1, 0xa4, 0x19, 0xd8, 0x7d,
-	0x78, 0xf4, 0x35, 0xc0, 0xb6, 0x39, 0xd4, 0x07, 0x23, 0x9c, 0x45, 0xc1, 0x64, 0x7a, 0x31, 0x0b,
-	0xac, 0x17, 0xa8, 0x07, 0x5d, 0x3c, 0x59, 0x4c, 0xf0, 0x4f, 0x93, 0xc0, 0xd2, 0x50, 0x17, 0x3a,
-	0x8b, 0x79, 0xb8, 0xb4, 0xf4, 0xe1, 0xdf, 0x1a, 0xf4, 0x76, 0x27, 0x06, 0x7d, 0x07, 0xa7, 0x05,
-	0x11, 0x24, 0x6b, 0x9a, 0x75, 0x8f, 0xe8, 0x3b, 0xaf, 0x7c, 0xa9, 0xa4, 0x02, 0xab, 0x30, 0xe4,
-	0x43, 0xb7, 0x10, 0xbc, 0xa0, 0x42, 0x6e, 0x9a, 0x5e, 0x5f, 0x1d, 0xa3, 0x68, 0xdc, 0x71, 0x1b,
-	0x88, 0xde, 0x3c, 0xba, 0x02, 0x55, 0xbf, 0x83, 0xb1, 0x73, 0x50, 0x32, 0xef, 0xf0, 0xce, 0x0f,
-	0x7f, 0xd7, 0xc0, 0x68, 0x6b, 0x43, 0x08, 0x3a, 0x79, 0xb5, 0xea, 0x6a, 0xae, 0x6b, 0x7b, 0x7f,
-	0xc7, 0xf5, 0xa7, 0x3b, 0x3e, 0x84, 0x8e, 0x54, 0xf9, 0x75, 0xd7, 0x38, 0xff, 0x68, 0x21, 0x05,
-	0xcb, 0xdf, 0xe1, 0x1a, 0x43, 0x23, 0x30, 0x32, 0x92, 0x27, 0x44, 0x72, 0xb1, 0xa9, 0x67, 0xb5,
-	0x7b, 0xde, 0x91, 0x62, 0x45, 0xf1, 0x16, 0x1e, 0x7e, 0x03, 0xdd, 0x87, 0xde, 0x0e, 0x56, 0xf0,
-	0x29, 0x9c, 0xae, 0x49, 0xba, 0xa2, 0xcd, 0x69, 0x52, 0x1f, 0x23, 0x1f, 0x3e, 0x39, 0x70, 0xd0,
-	0xd0, 0x4b, 0xe8, 0xfb, 0x6f, 0xc3, 0xeb, 0x20, 0xaa, 0x1e, 0xf1, 0xca, 0x9f, 0xa8, 0x37, 0xbd,
-	0x09, 0xf1, 0x8f, 0xdf, 0xbf, 0x0d, 0x6f, 0x2c, 0x0d, 0x99, 0xf0, 0xf1, 0x85, 0xef, 0x87, 0xd7,
-	0xb3, 0xa5, 0xa5, 0x5f, 0xf6, 0xc1, 0x54, 0x62, 0xd4, 0xab, 0x3a, 0xfa, 0x53, 0x03, 0xd3, 0xe7,
-	0xa5, 0xac, 0x5e, 0xb8, 0xba, 0xb2, 0xea, 0x22, 0x6a, 0xed, 0x45, 0x7c, 0x05, 0x67, 0xa4, 0x28,
-	0x52, 0x46, 0xcb, 0xea, 0x06, 0xdc, 0xb1, 0x54, 0xd5, 0xd4, 0xc5, 0x83, 0x06, 0x9e, 0x2b, 0x14,
-	0x5d, 0xb4, 0xbc, 0xad, 0x32, 0xcf, 0x7c, 0x99, 0x27, 0x6b, 0xae, 0x3f, 0x5e, 0x73, 0x04, 0x9d,
-	0x98, 0x97, 0xd2, 0x3e, 0x75, 0x74, 0x57, 0xc7, 0xb5, 0x7d, 0xf9, 0x1a, 0xbe, 0x88, 0x79, 0xe6,
-	0xad, 0x33, 0xb9, 0x12, 0xb7, 0xdc, 0x2b, 0x52, 0x22, 0xef, 0xb8, 0xc8, 0x9a, 0xb4, 0x5e, 0x22,
-	0xf9, 0x65, 0xaf, 0xd5, 0x2c, 0x58, 0x86, 0xff, 0x07, 0x00, 0x00, 0xff, 0xff, 0x9a, 0xfe, 0xe3,
-	0x46, 0x94, 0x06, 0x00, 0x00,
+var fileDescriptor_a7ef4e88daee47ae = []byte{
+	// 637 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x53, 0x4d, 0x6f, 0xd3, 0x40,
+	0x10, 0xad, 0x9d, 0x94, 0x26, 0xe3, 0x7c, 0xb8, 0x5b, 0x21, 0x59, 0x95, 0x10, 0x56, 0x24, 0x84,
+	0xc5, 0xc1, 0x95, 0xc2, 0x0d, 0x2e, 0x24, 0xb6, 0x11, 0x81, 0x26, 0x8e, 0x36, 0x29, 0x15, 0x48,
+	0x60, 0x5c, 0x7b, 0x0b, 0xab, 0xda, 0x5e, 0xcb, 0xde, 0xa4, 0xea, 0x9f, 0xe0, 0xbf, 0x70, 0x47,
+	0xe2, 0x4f, 0x01, 0x67, 0xb4, 0xb6, 0x9b, 0x84, 0x50, 0x40, 0xbd, 0x8d, 0x5f, 0x66, 0xde, 0x9b,
+	0x9d, 0xbc, 0x07, 0xda, 0x84, 0x25, 0x63, 0x3f, 0xbb, 0x20, 0xdc, 0x49, 0x38, 0xe5, 0x57, 0xf6,
+	0xdc, 0x35, 0xd3, 0x8c, 0x71, 0x86, 0x20, 0x60, 0x71, 0xcc, 0x12, 0x2f, 0xe4, 0xec, 0xb0, 0x6b,
+	0x15, 0xf5, 0xea, 0xc7, 0xde, 0x97, 0x3d, 0x40, 0x7f, 0x4e, 0x22, 0x0c, 0x40, 0x8a, 0x8f, 0xf9,
+	0x55, 0x4a, 0x34, 0x49, 0x97, 0x8d, 0x4e, 0xbf, 0x6f, 0xae, 0x89, 0xcc, 0x1b, 0xd4, 0xb6, 0x20,
+	0x31, 0x89, 0x37, 0x58, 0x50, 0x07, 0x64, 0x1a, 0x6a, 0xb2, 0x2e, 0x1b, 0x4d, 0x2c, 0xd3, 0x10,
+	0xe9, 0xa0, 0x84, 0x34, 0x4f, 0x23, 0xff, 0x6a, 0xe2, 0xc7, 0x44, 0xab, 0xe9, 0x92, 0xd1, 0xc4,
+	0x9b, 0x50, 0xd1, 0x41, 0xf2, 0x20, 0xa3, 0x29, 0xa7, 0x2c, 0xd1, 0xea, 0x55, 0xc7, 0x1a, 0x42,
+	0x1f, 0x00, 0x05, 0x11, 0x5b, 0x84, 0x5e, 0x4e, 0xb2, 0x25, 0x0d, 0x88, 0x17, 0xfa, 0xdc, 0xd7,
+	0xbe, 0x0b, 0x2e, 0xa5, 0x7f, 0xf4, 0x9f, 0x85, 0x2d, 0x31, 0x39, 0x2b, 0x07, 0x6d, 0x9f, 0xfb,
+	0x2f, 0x76, 0xb0, 0x1a, 0x6c, 0x61, 0x87, 0x9f, 0xeb, 0xa0, 0x6e, 0x37, 0xa2, 0x07, 0xd0, 0x29,
+	0x65, 0xd3, 0x8c, 0x2d, 0x69, 0x48, 0xb2, 0xe2, 0x44, 0x4d, 0xdc, 0x2e, 0xd0, 0x69, 0x05, 0xa2,
+	0xf7, 0xd0, 0x3a, 0xa3, 0x51, 0x44, 0x93, 0x8f, 0xe5, 0x5e, 0xe5, 0x5a, 0x4f, 0x6f, 0xb9, 0x96,
+	0x39, 0x2c, 0x39, 0x44, 0x8d, 0x95, 0xb3, 0xf5, 0x07, 0xba, 0x07, 0xe0, 0x07, 0x01, 0x5b, 0x24,
+	0xdc, 0xa3, 0x61, 0x75, 0x9e, 0x66, 0x85, 0x8c, 0x42, 0xf4, 0x0e, 0x5a, 0x69, 0x26, 0x8e, 0x12,
+	0xb3, 0x90, 0x44, 0xb9, 0xb6, 0xab, 0xd7, 0x8c, 0x4e, 0xff, 0xc9, 0x6d, 0xe5, 0xa7, 0x82, 0x63,
+	0x2c, 0x28, 0xb0, 0x92, 0xae, 0xea, 0xfc, 0xf0, 0x9b, 0x04, 0xca, 0xc6, 0x6a, 0xe8, 0x19, 0xa8,
+	0x4b, 0x9a, 0xf1, 0x85, 0x1f, 0x79, 0xb1, 0x1f, 0x7c, 0xa2, 0x09, 0xc9, 0x35, 0x49, 0xaf, 0x19,
+	0x4a, 0xff, 0xee, 0xa6, 0xe4, 0x4a, 0x09, 0x77, 0xab, 0xf6, 0x71, 0xd5, 0x8d, 0x6c, 0x40, 0x19,
+	0x11, 0xff, 0x24, 0x09, 0x3d, 0x9a, 0xe4, 0xdc, 0x4f, 0x02, 0x92, 0x6b, 0xf2, 0xbf, 0x38, 0xf6,
+	0xaf, 0x07, 0x46, 0xd7, 0xfd, 0xc8, 0x80, 0xee, 0xc6, 0x91, 0x4e, 0x16, 0x34, 0xac, 0xbc, 0xb5,
+	0x0d, 0xf7, 0x1e, 0x03, 0xac, 0x1f, 0x87, 0xda, 0xd0, 0x74, 0x27, 0x9e, 0xed, 0x8c, 0x07, 0x13,
+	0x5b, 0xdd, 0x41, 0x2d, 0x68, 0x60, 0x67, 0xe6, 0xe0, 0xd7, 0x8e, 0xad, 0x4a, 0xa8, 0x01, 0xf5,
+	0xd9, 0xd4, 0x9d, 0xab, 0x72, 0xef, 0x2d, 0x1c, 0xdc, 0xe0, 0x74, 0xb4, 0x0f, 0x6d, 0xeb, 0xd8,
+	0x3d, 0xb1, 0x3d, 0x31, 0x32, 0xb2, 0x1c, 0x75, 0x07, 0x29, 0xb0, 0x37, 0xb0, 0x2c, 0xf7, 0x64,
+	0x32, 0x57, 0x65, 0x74, 0x00, 0xdd, 0xe9, 0xf1, 0x60, 0xe2, 0x61, 0x67, 0xea, 0xce, 0x46, 0x73,
+	0x17, 0xbf, 0x51, 0x6b, 0xbd, 0x7a, 0x43, 0x52, 0xa5, 0x47, 0x8d, 0x53, 0x17, 0xbf, 0x7a, 0x7e,
+	0xec, 0x9e, 0x0e, 0xdb, 0xa0, 0x94, 0x81, 0x29, 0xfc, 0xf2, 0xf2, 0x4e, 0xe3, 0x47, 0x4d, 0xfd,
+	0x59, 0xc3, 0xed, 0x4b, 0x96, 0x5d, 0x9c, 0x47, 0xec, 0xb2, 0x80, 0x7b, 0x5f, 0x25, 0x50, 0x2c,
+	0x96, 0x73, 0xf1, 0x0e, 0x11, 0xd6, 0x32, 0x58, 0xd2, 0x2a, 0x58, 0x0f, 0xa1, 0xeb, 0xa7, 0x69,
+	0x44, 0x49, 0x2e, 0xfc, 0x79, 0x4e, 0x23, 0x52, 0xa4, 0xae, 0x81, 0x3b, 0x15, 0x3c, 0x2d, 0x51,
+	0x34, 0x58, 0xc9, 0x71, 0x11, 0xf3, 0x5a, 0x11, 0x73, 0xfd, 0xc6, 0x43, 0x9b, 0x7f, 0x09, 0xf5,
+	0xb6, 0x05, 0xe5, 0xdf, 0x2d, 0x88, 0xa0, 0x1e, 0xb0, 0x9c, 0x6b, 0xbb, 0xba, 0x6c, 0xc8, 0xb8,
+	0xa8, 0x87, 0x47, 0x70, 0x3f, 0x60, 0xb1, 0xb9, 0x8c, 0xf9, 0x22, 0x3b, 0x63, 0x66, 0x1a, 0xf9,
+	0xfc, 0x9c, 0x65, 0x71, 0x25, 0x6b, 0x86, 0x9c, 0x0d, 0x5b, 0xab, 0x0b, 0xdb, 0x73, 0xf7, 0x57,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0x7f, 0xdd, 0x12, 0xc1, 0xdb, 0x04, 0x00, 0x00,
 }
