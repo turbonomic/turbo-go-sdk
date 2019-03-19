@@ -45,10 +45,6 @@
   branch = "master"
   name = "github.com/turbonomic/turbo-api"
 
-[[constraint]]
-  branch = "master"
-  name = "golang.org/x/net"
-
 [prune]
   go-tests = true
   unused-packages = true

@@ -60,14 +60,6 @@
   pruneopts = "UT"
   revision = "ed948ba97e7008d35683d082f8c69e3d38d146d0"
 
-[[projects]]
-  branch = "master"
-  digest = "1:7427036b6d926b3d1fa0773771820735b35554a98296f1074df440ee30a97296"
-  name = "golang.org/x/net"
-  packages = ["websocket"]
-  pruneopts = "UT"
-  revision = "aaf60122140d3fcf75376d319f0554393160eb50"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -78,7 +70,6 @@
     "github.com/stretchr/testify/assert",
     "github.com/turbonomic/turbo-api/pkg/api",
     "github.com/turbonomic/turbo-api/pkg/client",
-    "golang.org/x/net/websocket",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
