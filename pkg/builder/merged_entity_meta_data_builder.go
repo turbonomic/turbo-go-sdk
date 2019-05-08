@@ -56,6 +56,8 @@ func (builder *matchingMetadataBuilder) build() (*proto.MergedEntityMetadata_Mat
 		rtype, exists := returnTypeMapping[builder.externalReturnType]
 		if exists {
 			matchingMetadata.ExternalEntityReturnType = &rtype
+		} else {
+			return nil, fmt.Errorf("Unknown external entity metadata return type")
 		}
 	} else {
 		return nil, fmt.Errorf("External entity metadata return type not set")
@@ -66,6 +68,8 @@ func (builder *matchingMetadataBuilder) build() (*proto.MergedEntityMetadata_Mat
 		rtype, exists := returnTypeMapping[builder.internalReturnType]
 		if exists {
 			matchingMetadata.ReturnType = &rtype
+		} else {
+			return nil, fmt.Errorf("Unknown internal entity metadata return type")
 		}
 	} else {
 		return nil, fmt.Errorf("Internal entity metadata return type not set")
@@ -126,11 +130,6 @@ func newMatchingData(matchingData *matchingData) *proto.MergedEntityMetadata_Mat
 		matchingDataField.MatchingField = entityFieldBuilder
 
 		matchingDataBuilder.MatchingData = matchingDataField
-	}
-
-	entityOid := matchingData.entityOid
-	if entityOid != "" {
-		//TODO: need to update proto files
 	}
 
 	return matchingDataBuilder
@@ -219,7 +218,6 @@ func (builder *MergedEntityMetadataBuilder) build() (*proto.MergedEntityMetadata
 
 	// Add the internal and external property matching metadata
 	matchingMetadata, err := builder.matchingMetadataBuilder.build()
-	fmt.Printf("******** %v\n", matchingMetadata)
 	if err != nil {
 		return nil, err
 	}
@@ -242,9 +240,8 @@ func (builder *MergedEntityMetadataBuilder) build() (*proto.MergedEntityMetadata
 	return metadata, nil
 }
 
-func (builder *MergedEntityMetadataBuilder) keepInTopology() *MergedEntityMetadataBuilder {
-	true_value := true
-	builder.metadata.KeepStandalone = &true_value
+func (builder *MergedEntityMetadataBuilder) keepStandAlone(bool_val bool) *MergedEntityMetadataBuilder {
+	builder.metadata.KeepStandalone = &bool_val
 	return builder
 }
 
