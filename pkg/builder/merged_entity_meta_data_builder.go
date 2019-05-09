@@ -239,18 +239,19 @@ func (builder *MergedEntityMetadataBuilder) Build() (*proto.MergedEntityMetadata
 		metadata.CommoditiesSold = append(metadata.CommoditiesSold, builder.commoditiesSold...)
 	}
 
-	//if len(builder.commBoughtMetadataList) > 0 {
-	//	for _, commBoughtMetadata := range builder.commBoughtMetadataList {
-	//		commBought := &proto.MergedEntityMetadata_CommodityBoughtMetadata {
-	//			CommodityMetadata: commBoughtMetadata.commBoughtList,
-	//			ProviderType:      &commBoughtMetadata.providerType,
-	//		}
-	//		if commBoughtMetadata.replaceProvider {
-	//			commBought.ReplacesProvider = &commBoughtMetadata.providerToReplace
-	//		}
-	//		metadata.CommoditiesBought = append(metadata.CommoditiesBought, commBought)
-	//	}
-	//}
+	if len(builder.commBoughtMetadataList) > 0 {
+		for _, commBoughtMetadata := range builder.commBoughtMetadataList {
+			commBought := &proto.MergedEntityMetadata_CommodityBoughtMetadata{
+				CommodityMetadata: commBoughtMetadata.commBoughtList,
+				ProviderType:      &commBoughtMetadata.providerType,
+			}
+			if commBoughtMetadata.replaceProvider {
+				commBought.ReplacesProvider = &commBoughtMetadata.providerToReplace
+			}
+			metadata.CommoditiesBought = append(metadata.CommoditiesBought, commBought)
+		}
+	}
+
 	return metadata, nil
 }
 
