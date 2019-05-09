@@ -26,7 +26,7 @@ type matchingMetadataBuilder struct {
 	internalMatchingData []*matchingData
 	externalMatchingData []*matchingData
 	commoditiesSold      []proto.CommodityDTO_CommodityType
-	commoditiesBought    []*commodityBoughtMetadata
+	commoditiesBought    []*perProviderCommodityBoughtMetadata
 }
 
 type matchingData struct {
@@ -179,16 +179,28 @@ func (builder *fieldBuilder) build() *proto.MergedEntityMetadata_EntityField {
 }
 
 // ============================== MergedEntityMetadata_CommodityBoughtMetadata =====================
-type commodityBoughtMetadata struct {
-	providerType     *proto.EntityDTO_EntityType
-	replacesProvider *proto.EntityDTO_EntityType
-	commBought       []proto.CommodityDTO_CommodityType
+type perProviderCommodityBoughtMetadata struct {
+	providerType      proto.EntityDTO_EntityType
+	providerToReplace proto.EntityDTO_EntityType
+	commBoughtList    []proto.CommodityDTO_CommodityType
+	replaceProvider   bool
 }
 
-func newCommodityBoughtMetada(commBought []proto.CommodityDTO_CommodityType) *commodityBoughtMetadata {
-	return &commodityBoughtMetadata{
-		commBought: commBought,
+func newPerProviderCommodityBoughtMetadata(providerType proto.EntityDTO_EntityType) *perProviderCommodityBoughtMetadata {
+	return &perProviderCommodityBoughtMetadata{
+		providerType:    providerType,
+		replaceProvider: false,
 	}
+}
+
+func (builder *perProviderCommodityBoughtMetadata) addBought(commType proto.CommodityDTO_CommodityType) *perProviderCommodityBoughtMetadata {
+	builder.commBoughtList = append(builder.commBoughtList, commType)
+	return builder
+}
+
+func (builder *perProviderCommodityBoughtMetadata) addBoughtList(commType []proto.CommodityDTO_CommodityType) *perProviderCommodityBoughtMetadata {
+	builder.commBoughtList = append(builder.commBoughtList, commType...)
+	return builder
 }
 
 // ============================== MergedEntityMetadataBuilder ======================================
@@ -199,9 +211,9 @@ type MergedEntityMetadataBuilder struct {
 
 	// MergedEntityMetadata consists of  MatchingMetadata for proxy and external entity
 	*matchingMetadataBuilder
-	propertyBuilders   []*propertyBuilder
-	fieldBuilders      []*fieldBuilder
-	commBoughtMetadata []*commodityBoughtMetadata
+	propertyBuilders       []*propertyBuilder
+	fieldBuilders          []*fieldBuilder
+	commBoughtMetadataList []*perProviderCommodityBoughtMetadata // for different providers
 }
 
 func NewMergedEntityMetadataBuilder() *MergedEntityMetadataBuilder {
@@ -213,7 +225,7 @@ func NewMergedEntityMetadataBuilder() *MergedEntityMetadataBuilder {
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) build() (*proto.MergedEntityMetadata, error) {
+func (builder *MergedEntityMetadataBuilder) Build() (*proto.MergedEntityMetadata, error) {
 	metadata := &proto.MergedEntityMetadata{}
 
 	// Add the internal and external property matching metadata
@@ -227,31 +239,33 @@ func (builder *MergedEntityMetadataBuilder) build() (*proto.MergedEntityMetadata
 		metadata.CommoditiesSold = append(metadata.CommoditiesSold, builder.commoditiesSold...)
 	}
 
-	if len(builder.commBoughtMetadata) > 0 {
-		for _, commBought := range builder.commBoughtMetadata {
-			commMetadata := &proto.MergedEntityMetadata_CommodityBoughtMetadata{
-				CommodityMetadata: commBought.commBought,
-				ProviderType:      commBought.providerType,
-				ReplacesProvider:  commBought.replacesProvider,
-			}
-			metadata.CommoditiesBought = append(metadata.CommoditiesBought, commMetadata)
-		}
-	}
+	//if len(builder.commBoughtMetadataList) > 0 {
+	//	for _, commBoughtMetadata := range builder.commBoughtMetadataList {
+	//		commBought := &proto.MergedEntityMetadata_CommodityBoughtMetadata {
+	//			CommodityMetadata: commBoughtMetadata.commBoughtList,
+	//			ProviderType:      &commBoughtMetadata.providerType,
+	//		}
+	//		if commBoughtMetadata.replaceProvider {
+	//			commBought.ReplacesProvider = &commBoughtMetadata.providerToReplace
+	//		}
+	//		metadata.CommoditiesBought = append(metadata.CommoditiesBought, commBought)
+	//	}
+	//}
 	return metadata, nil
 }
 
-func (builder *MergedEntityMetadataBuilder) keepStandAlone(bool_val bool) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) KeepStandAlone(bool_val bool) *MergedEntityMetadataBuilder {
 	builder.metadata.KeepStandalone = &bool_val
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) internalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) InternalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
 
 	builder.matchingMetadataBuilder.internalReturnType = returnType
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) internalMatchingProperty(propertyName string) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) InternalMatchingProperty(propertyName string) *MergedEntityMetadataBuilder {
 	internal := &matchingData{
 		propertyName: propertyName,
 	}
@@ -260,7 +274,7 @@ func (builder *MergedEntityMetadataBuilder) internalMatchingProperty(propertyNam
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) internalMatchingField(fieldName string, fieldPaths []string) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) InternalMatchingField(fieldName string, fieldPaths []string) *MergedEntityMetadataBuilder {
 	internal := &matchingData{
 		fieldName:  fieldName,
 		fieldPaths: fieldPaths,
@@ -270,13 +284,13 @@ func (builder *MergedEntityMetadataBuilder) internalMatchingField(fieldName stri
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) externalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) ExternalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
 
 	builder.matchingMetadataBuilder.externalReturnType = returnType
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) externalMatchingProperty(propertyName string) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) ExternalMatchingProperty(propertyName string) *MergedEntityMetadataBuilder {
 	external := &matchingData{
 		propertyName: propertyName,
 	}
@@ -285,7 +299,7 @@ func (builder *MergedEntityMetadataBuilder) externalMatchingProperty(propertyNam
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) externalMatchingField(fieldName string, fieldPaths []string) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) ExternalMatchingField(fieldName string, fieldPaths []string) *MergedEntityMetadataBuilder {
 	external := &matchingData{
 		fieldName:  fieldName,
 		fieldPaths: fieldPaths,
@@ -295,47 +309,46 @@ func (builder *MergedEntityMetadataBuilder) externalMatchingField(fieldName stri
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) patchProperty(propertyName string) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) PatchProperty(propertyName string) *MergedEntityMetadataBuilder {
 	builder.propertyBuilders = append(builder.propertyBuilders,
 		newPropertyBuilder(propertyName))
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) patchFields(fieldName string) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) PatchFields(fieldName string) *MergedEntityMetadataBuilder {
 	builder.fieldBuilders = append(builder.fieldBuilders,
 		newFieldBuilder(fieldName))
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) patchSold(commType proto.CommodityDTO_CommodityType) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) PatchSold(commType proto.CommodityDTO_CommodityType) *MergedEntityMetadataBuilder {
 	builder.commoditiesSold = append(builder.commoditiesSold, commType)
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) patchSoldList(commType []proto.CommodityDTO_CommodityType) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) PatchSoldList(commType []proto.CommodityDTO_CommodityType) *MergedEntityMetadataBuilder {
 	builder.commoditiesSold = append(builder.commoditiesSold, commType...)
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) patchBought(commType []proto.CommodityDTO_CommodityType,
-	providerType *proto.EntityDTO_EntityType) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) PatchBoughtList(providerType proto.EntityDTO_EntityType, commType []proto.CommodityDTO_CommodityType) *MergedEntityMetadataBuilder {
+	commBoughtMetadata := newPerProviderCommodityBoughtMetadata(providerType)
+	commBoughtMetadata.addBoughtList(commType)
+	builder.commBoughtMetadataList = append(builder.commBoughtMetadataList, commBoughtMetadata)
 
-	commBoughtMetadata := newCommodityBoughtMetada(commType)
-	commBoughtMetadata.providerType = providerType
-
-	builder.commBoughtMetadata = append(builder.commBoughtMetadata, commBoughtMetadata)
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) patchBoughtAndReplaceProvider(
+func (builder *MergedEntityMetadataBuilder) PatchBoughtAndReplaceProvider(providerType proto.EntityDTO_EntityType,
 	commType []proto.CommodityDTO_CommodityType,
-	providerType *proto.EntityDTO_EntityType,
-	replacesProvider *proto.EntityDTO_EntityType) *MergedEntityMetadataBuilder {
+	replacesProvider proto.EntityDTO_EntityType) *MergedEntityMetadataBuilder {
 
-	commBoughtMetadata := newCommodityBoughtMetada(commType)
-	commBoughtMetadata.providerType = providerType
-	commBoughtMetadata.replacesProvider = replacesProvider
+	commBoughtMetadata := newPerProviderCommodityBoughtMetadata(providerType)
+	commBoughtMetadata.addBoughtList(commType)
 
-	builder.commBoughtMetadata = append(builder.commBoughtMetadata, commBoughtMetadata)
+	commBoughtMetadata.providerToReplace = replacesProvider
+
+	builder.commBoughtMetadataList = append(builder.commBoughtMetadataList, commBoughtMetadata)
+
 	return builder
 }
