@@ -10,6 +10,7 @@ type ReturnType string
 const (
 	MergedEntityMetadata_STRING      ReturnType = "String"
 	MergedEntityMetadata_LIST_STRING ReturnType = "List"
+	DEFAULT_DELIMITER                string     = ","
 )
 
 var (
@@ -20,6 +21,74 @@ var (
 )
 
 // ============================ MergedEntityMetadata_MatchingMetadata ==============================
+// matchingData is structure to hold all the fields of the MatchingData proto message.
+// Either a property of an entity or a field or entity OID will be used in the MatchingData message
+type matchingData struct {
+	propertyName string
+	delimiter    string
+	fieldName    string
+	fieldPaths   []string
+	useEntityOid bool
+}
+
+// MatchingData field represents the kind of data we will extract for matching the entities.
+// It can be a property which is extracted from the entity property map,
+// or it can be a field which is named within the entityDTO itself,
+// or the entity OID in XL repository.
+// In some cases, we encode a List of Strings as a single string.
+// In that case, one can specify a delimiter that separates different strings in the value.
+// For example, we have a PM_UUID_LIST property where we have a comma separated list of UUIDs in a single string.
+//	message MatchingData {
+//		oneof matching_data {
+//			EntityPropertyName matching_property = 100;
+//			EntityField matching_field = 101;
+//			EntityOid matching_entity_oid = 102;
+//		}
+//		optional string delimiter = 200;
+//	}
+func newMatchingData(matchingData *matchingData) *proto.MergedEntityMetadata_MatchingData {
+	// Create MergedEntityMetadata/MatchingMetadata/MatchingData for the internal property
+	matchingDataBuilder := &proto.MergedEntityMetadata_MatchingData{}
+
+	propertyName := matchingData.propertyName
+	if propertyName != "" {
+		entityPropertyNameBuilder := &proto.MergedEntityMetadata_EntityPropertyName{}
+		entityPropertyNameBuilder.PropertyName = &propertyName
+
+		matchingDataProperty := &proto.MergedEntityMetadata_MatchingData_MatchingProperty{}
+		matchingDataProperty.MatchingProperty = entityPropertyNameBuilder
+
+		matchingDataBuilder.MatchingData = matchingDataProperty
+	}
+
+	fieldName := matchingData.fieldName
+	if fieldName != "" {
+		entityFieldBuilder := &proto.MergedEntityMetadata_EntityField{}
+		entityFieldBuilder.FieldName = &fieldName
+		entityFieldBuilder.MessagePath = matchingData.fieldPaths
+
+		matchingDataField := &proto.MergedEntityMetadata_MatchingData_MatchingField{}
+		matchingDataField.MatchingField = entityFieldBuilder
+
+		matchingDataBuilder.MatchingData = matchingDataField
+	}
+
+	if matchingData.useEntityOid {
+		oidBuilder := &proto.MergedEntityMetadata_EntityOid{}
+
+		matchingDataOid := &proto.MergedEntityMetadata_MatchingData_MatchingEntityOid{}
+		matchingDataOid.MatchingEntityOid = oidBuilder
+
+		matchingDataBuilder.MatchingData = matchingDataOid
+	}
+
+	if matchingData.delimiter != "" {
+		matchingDataBuilder.Delimiter = &matchingData.delimiter
+	}
+
+	return matchingDataBuilder
+}
+
 type matchingMetadataBuilder struct {
 	internalReturnType   ReturnType
 	externalReturnType   ReturnType
@@ -27,14 +96,6 @@ type matchingMetadataBuilder struct {
 	externalMatchingData []*matchingData
 	commoditiesSold      []proto.CommodityDTO_CommodityType
 	commoditiesBought    []*perProviderCommodityBoughtMetadata
-}
-
-type matchingData struct {
-	propertyName string
-	delimiter    string
-	fieldName    string
-	fieldPaths   []string
-	entityOid    string
 }
 
 func newMatchingMetadataBuilder() *matchingMetadataBuilder {
@@ -103,36 +164,6 @@ func (builder *matchingMetadataBuilder) addExternalMatchingData(external *matchi
 
 	builder.externalMatchingData = append(builder.externalMatchingData, external)
 	return builder
-}
-
-func newMatchingData(matchingData *matchingData) *proto.MergedEntityMetadata_MatchingData {
-	// Create MergedEntityMetadata/MatchingMetadata/MatchingData for the internal property
-	matchingDataBuilder := &proto.MergedEntityMetadata_MatchingData{}
-
-	propertyName := matchingData.propertyName
-	if propertyName != "" {
-		entityPropertyNameBuilder := &proto.MergedEntityMetadata_EntityPropertyName{}
-		entityPropertyNameBuilder.PropertyName = &propertyName
-
-		matchingDataProperty := &proto.MergedEntityMetadata_MatchingData_MatchingProperty{}
-		matchingDataProperty.MatchingProperty = entityPropertyNameBuilder
-
-		matchingDataBuilder.MatchingData = matchingDataProperty
-	}
-
-	fieldName := matchingData.fieldName
-	if fieldName != "" {
-		entityFieldBuilder := &proto.MergedEntityMetadata_EntityField{}
-		entityFieldBuilder.FieldName = &fieldName
-		entityFieldBuilder.MessagePath = matchingData.fieldPaths
-
-		matchingDataField := &proto.MergedEntityMetadata_MatchingData_MatchingField{}
-		matchingDataField.MatchingField = entityFieldBuilder
-
-		matchingDataBuilder.MatchingData = matchingDataField
-	}
-
-	return matchingDataBuilder
 }
 
 // ============================= MergedEntityMetadata_EntityPropertyName ===========================
@@ -267,22 +298,58 @@ func (builder *MergedEntityMetadataBuilder) InternalMatchingType(returnType Retu
 }
 
 func (builder *MergedEntityMetadataBuilder) InternalMatchingProperty(propertyName string) *MergedEntityMetadataBuilder {
-	internal := &matchingData{
-		propertyName: propertyName,
-	}
+	internal := createMatchingData(propertyName, "", []string{}, "")
 	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
 
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) InternalMatchingField(fieldName string, fieldPaths []string) *MergedEntityMetadataBuilder {
-	internal := &matchingData{
-		fieldName:  fieldName,
-		fieldPaths: fieldPaths,
-	}
+func (builder *MergedEntityMetadataBuilder) InternalMatchingPropertyWithDelimiter(propertyName string,
+	delimiter string) *MergedEntityMetadataBuilder {
+	internal := createMatchingData(propertyName, "", []string{}, delimiter)
 	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
 
 	return builder
+}
+
+func (builder *MergedEntityMetadataBuilder) InternalMatchingField(fieldName string,
+	fieldPaths []string) *MergedEntityMetadataBuilder {
+	internal := createMatchingData("", fieldName, fieldPaths, "")
+	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
+
+	return builder
+}
+
+func (builder *MergedEntityMetadataBuilder) InternalMatchingFieldWitDelimiter(fieldName string, fieldPaths []string,
+	delimiter string) *MergedEntityMetadataBuilder {
+	internal := createMatchingData("", fieldName, fieldPaths, delimiter)
+	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
+
+	return builder
+}
+
+func (builder *MergedEntityMetadataBuilder) InternalMatchingOid() *MergedEntityMetadataBuilder {
+	internal := &matchingData{useEntityOid: true}
+	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
+	return builder
+}
+
+func createMatchingData(propertyName string, fieldName string, fieldPaths []string, delimiter string) *matchingData {
+	matchingData := &matchingData{}
+
+	if propertyName != "" {
+		matchingData.propertyName = propertyName
+		if delimiter != "" {
+			matchingData.delimiter = delimiter
+		}
+	} else if fieldName != "" {
+		matchingData.fieldName = fieldName
+		matchingData.fieldPaths = fieldPaths
+		if delimiter != "" {
+			matchingData.delimiter = delimiter
+		}
+	}
+	return matchingData
 }
 
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
@@ -292,20 +359,39 @@ func (builder *MergedEntityMetadataBuilder) ExternalMatchingType(returnType Retu
 }
 
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingProperty(propertyName string) *MergedEntityMetadataBuilder {
-	external := &matchingData{
-		propertyName: propertyName,
-	}
+	external := createMatchingData(propertyName, "", []string{}, "")
 	builder.matchingMetadataBuilder.addExternalMatchingData(external)
 
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) ExternalMatchingField(fieldName string, fieldPaths []string) *MergedEntityMetadataBuilder {
-	external := &matchingData{
-		fieldName:  fieldName,
-		fieldPaths: fieldPaths,
-	}
-	builder.matchingMetadataBuilder.addInternalMatchingData(external)
+func (builder *MergedEntityMetadataBuilder) ExternalMatchingPropertyWithDelimiter(propertyName string,
+	delimiter string) *MergedEntityMetadataBuilder {
+	external := createMatchingData(propertyName, "", []string{}, delimiter)
+	builder.matchingMetadataBuilder.addExternalMatchingData(external)
+
+	return builder
+}
+
+func (builder *MergedEntityMetadataBuilder) ExternalMatchingField(fieldName string,
+	fieldPaths []string) *MergedEntityMetadataBuilder {
+	external := createMatchingData("", fieldName, fieldPaths, "")
+	builder.matchingMetadataBuilder.addExternalMatchingData(external)
+
+	return builder
+}
+
+func (builder *MergedEntityMetadataBuilder) ExternalMatchingFieldWithDelimiter(fieldName string,
+	fieldPaths []string, delimiter string) *MergedEntityMetadataBuilder {
+	external := createMatchingData("", fieldName, fieldPaths, delimiter)
+	builder.matchingMetadataBuilder.addExternalMatchingData(external)
+
+	return builder
+}
+
+func (builder *MergedEntityMetadataBuilder) ExternalMatchingOid() *MergedEntityMetadataBuilder {
+	external := &matchingData{useEntityOid: true}
+	builder.matchingMetadataBuilder.addExternalMatchingData(external)
 
 	return builder
 }
@@ -332,7 +418,8 @@ func (builder *MergedEntityMetadataBuilder) PatchSoldList(commType []proto.Commo
 	return builder
 }
 
-func (builder *MergedEntityMetadataBuilder) PatchBoughtList(providerType proto.EntityDTO_EntityType, commType []proto.CommodityDTO_CommodityType) *MergedEntityMetadataBuilder {
+func (builder *MergedEntityMetadataBuilder) PatchBoughtList(providerType proto.EntityDTO_EntityType,
+	commType []proto.CommodityDTO_CommodityType) *MergedEntityMetadataBuilder {
 	commBoughtMetadata := newPerProviderCommodityBoughtMetadata(providerType)
 	commBoughtMetadata.addBoughtList(commType)
 	builder.commBoughtMetadataList = append(builder.commBoughtMetadataList, commBoughtMetadata)
