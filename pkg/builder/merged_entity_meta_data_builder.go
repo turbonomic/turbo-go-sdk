@@ -292,13 +292,14 @@ func (builder *MergedEntityMetadataBuilder) KeepStandAlone(bool_val bool) *Merge
 }
 
 func (builder *MergedEntityMetadataBuilder) InternalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
-
 	builder.matchingMetadataBuilder.internalReturnType = returnType
 	return builder
 }
 
 func (builder *MergedEntityMetadataBuilder) InternalMatchingProperty(propertyName string) *MergedEntityMetadataBuilder {
-	internal := createMatchingData(propertyName, "", []string{}, "")
+	internal := &matchingData{
+		propertyName: propertyName,
+	}
 	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
 
 	return builder
@@ -306,7 +307,10 @@ func (builder *MergedEntityMetadataBuilder) InternalMatchingProperty(propertyNam
 
 func (builder *MergedEntityMetadataBuilder) InternalMatchingPropertyWithDelimiter(propertyName string,
 	delimiter string) *MergedEntityMetadataBuilder {
-	internal := createMatchingData(propertyName, "", []string{}, delimiter)
+	internal := &matchingData{
+		propertyName: propertyName,
+		delimiter:    delimiter,
+	}
 	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
 
 	return builder
@@ -314,7 +318,10 @@ func (builder *MergedEntityMetadataBuilder) InternalMatchingPropertyWithDelimite
 
 func (builder *MergedEntityMetadataBuilder) InternalMatchingField(fieldName string,
 	fieldPaths []string) *MergedEntityMetadataBuilder {
-	internal := createMatchingData("", fieldName, fieldPaths, "")
+	internal := &matchingData{
+		fieldName:  fieldName,
+		fieldPaths: fieldPaths,
+	}
 	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
 
 	return builder
@@ -322,34 +329,23 @@ func (builder *MergedEntityMetadataBuilder) InternalMatchingField(fieldName stri
 
 func (builder *MergedEntityMetadataBuilder) InternalMatchingFieldWitDelimiter(fieldName string, fieldPaths []string,
 	delimiter string) *MergedEntityMetadataBuilder {
-	internal := createMatchingData("", fieldName, fieldPaths, delimiter)
+	internal := &matchingData{
+		fieldName:  fieldName,
+		fieldPaths: fieldPaths,
+		delimiter:  delimiter,
+	}
 	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
 
 	return builder
 }
 
 func (builder *MergedEntityMetadataBuilder) InternalMatchingOid() *MergedEntityMetadataBuilder {
-	internal := &matchingData{useEntityOid: true}
-	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
-	return builder
-}
-
-func createMatchingData(propertyName string, fieldName string, fieldPaths []string, delimiter string) *matchingData {
-	matchingData := &matchingData{}
-
-	if propertyName != "" {
-		matchingData.propertyName = propertyName
-		if delimiter != "" {
-			matchingData.delimiter = delimiter
-		}
-	} else if fieldName != "" {
-		matchingData.fieldName = fieldName
-		matchingData.fieldPaths = fieldPaths
-		if delimiter != "" {
-			matchingData.delimiter = delimiter
-		}
+	internal := &matchingData{
+		useEntityOid: true,
 	}
-	return matchingData
+	builder.matchingMetadataBuilder.addInternalMatchingData(internal)
+
+	return builder
 }
 
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
@@ -359,7 +355,10 @@ func (builder *MergedEntityMetadataBuilder) ExternalMatchingType(returnType Retu
 }
 
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingProperty(propertyName string) *MergedEntityMetadataBuilder {
-	external := createMatchingData(propertyName, "", []string{}, "")
+	external := &matchingData{
+		propertyName: propertyName,
+	}
+
 	builder.matchingMetadataBuilder.addExternalMatchingData(external)
 
 	return builder
@@ -367,7 +366,10 @@ func (builder *MergedEntityMetadataBuilder) ExternalMatchingProperty(propertyNam
 
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingPropertyWithDelimiter(propertyName string,
 	delimiter string) *MergedEntityMetadataBuilder {
-	external := createMatchingData(propertyName, "", []string{}, delimiter)
+	external := &matchingData{
+		propertyName: propertyName,
+		delimiter:    delimiter,
+	}
 	builder.matchingMetadataBuilder.addExternalMatchingData(external)
 
 	return builder
@@ -375,7 +377,10 @@ func (builder *MergedEntityMetadataBuilder) ExternalMatchingPropertyWithDelimite
 
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingField(fieldName string,
 	fieldPaths []string) *MergedEntityMetadataBuilder {
-	external := createMatchingData("", fieldName, fieldPaths, "")
+	external := &matchingData{
+		fieldName:  fieldName,
+		fieldPaths: fieldPaths,
+	}
 	builder.matchingMetadataBuilder.addExternalMatchingData(external)
 
 	return builder
@@ -383,14 +388,20 @@ func (builder *MergedEntityMetadataBuilder) ExternalMatchingField(fieldName stri
 
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingFieldWithDelimiter(fieldName string,
 	fieldPaths []string, delimiter string) *MergedEntityMetadataBuilder {
-	external := createMatchingData("", fieldName, fieldPaths, delimiter)
+	external := &matchingData{
+		fieldName:  fieldName,
+		fieldPaths: fieldPaths,
+		delimiter:  delimiter,
+	}
 	builder.matchingMetadataBuilder.addExternalMatchingData(external)
 
 	return builder
 }
 
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingOid() *MergedEntityMetadataBuilder {
-	external := &matchingData{useEntityOid: true}
+	external := &matchingData{
+		useEntityOid: true,
+	}
 	builder.matchingMetadataBuilder.addExternalMatchingData(external)
 
 	return builder

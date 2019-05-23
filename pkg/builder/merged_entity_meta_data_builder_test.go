@@ -6,26 +6,6 @@ import (
 	"testing"
 )
 
-func TestCreateMatchingData(t *testing.T) {
-	empty := ""
-	propertyName := "prop1"
-	fieldName := "field1"
-	fieldPaths := []string{}
-	delimiter := ","
-
-	matching := createMatchingData(propertyName, empty, fieldPaths, delimiter)
-	assert.Equal(t, matching.delimiter, delimiter)
-	assert.Equal(t, matching.propertyName, propertyName)
-
-	matching = createMatchingData(propertyName, empty, fieldPaths, empty)
-	assert.Equal(t, matching.delimiter, empty)
-	assert.Equal(t, matching.propertyName, propertyName)
-
-	matching2 := createMatchingData(empty, fieldName, fieldPaths, delimiter)
-	assert.Equal(t, matching2.delimiter, delimiter)
-	assert.Equal(t, matching2.propertyName, "")
-}
-
 // matchingData tests
 func TestNewMatchingData(t *testing.T) {
 	emptyStr := ""
