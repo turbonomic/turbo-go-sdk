@@ -278,6 +278,7 @@ func NewMergedEntityMetadataBuilder() *MergedEntityMetadataBuilder {
 	builder := &MergedEntityMetadataBuilder{
 		metadata:                &proto.MergedEntityMetadata{},
 		matchingMetadataBuilder: newMatchingMetadataBuilder(),
+		keepStandAlone:          true,
 	}
 
 	return builder
@@ -326,9 +327,9 @@ func (builder *MergedEntityMetadataBuilder) Build() (*proto.MergedEntityMetadata
 
 // KeepInTopology indicates whether the entity reported by the probe should be kept in the topology or not if no
 // stitching match is found.
-// By default (if this function is not called) an entity is not kept in the topology if no stitching match is found.
-func (builder *MergedEntityMetadataBuilder) KeepInTopology() *MergedEntityMetadataBuilder {
-	builder.keepStandAlone = true
+// By default (if this function is not called) an entity is kept in the topology if no stitching match is found.
+func (builder *MergedEntityMetadataBuilder) KeepInTopology(keepInTopology bool) *MergedEntityMetadataBuilder {
+	builder.keepStandAlone = keepInTopology
 	return builder
 }
 
