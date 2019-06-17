@@ -10,7 +10,6 @@ type ReturnType string
 const (
 	MergedEntityMetadata_STRING      ReturnType = "String"
 	MergedEntityMetadata_LIST_STRING ReturnType = "List"
-	DEFAULT_DELIMITER                string     = ","
 )
 
 var (
@@ -335,6 +334,9 @@ func (builder *MergedEntityMetadataBuilder) KeepInTopology(keepInTopology bool) 
 
 // InternalMatchingType specifies the type of the matching metadata to look for in the internal entity.
 // Currently only MergedEntityMetadata_STRING and MergedEntityMetadata_LIST_STRING are supported.
+// If MergedEntityMetadata_LIST_STRING is specified, InternalMatchingPropertyWithDelimiter() or
+// InternalMatchingFieldWitDelimiter() must be called to explicitly set the delimiter that separates
+// the list of strings
 func (builder *MergedEntityMetadataBuilder) InternalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
 	builder.matchingMetadataBuilder.internalReturnType = returnType
 	return builder
@@ -401,6 +403,9 @@ func (builder *MergedEntityMetadataBuilder) InternalMatchingOid() *MergedEntityM
 
 // ExternalMatchingType specifies the type of the matching metadata to look for in the external entity.
 // Currently only MergedEntityMetadata_STRING and MergedEntityMetadata_LIST_STRING are supported.
+// If MergedEntityMetadata_LIST_STRING is specified, ExternalMatchingPropertyWithDelimiter() or
+// ExternalMatchingFieldWithDelimiter() must be called to explicitly set the delimiter that separates
+// the list of strings
 func (builder *MergedEntityMetadataBuilder) ExternalMatchingType(returnType ReturnType) *MergedEntityMetadataBuilder {
 
 	builder.matchingMetadataBuilder.externalReturnType = returnType
