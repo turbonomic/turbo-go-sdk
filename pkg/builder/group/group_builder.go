@@ -91,7 +91,7 @@ func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
 	groupDTO.IsConsistentResizing = &groupBuilder.consistentResize
 
 	if groupBuilder.ec.Count() > 0 {
-		glog.Errorf("GroupBuilder Error %s : %s\n", groupBuilder.groupId, groupBuilder.ec.Error())
+		glog.Errorf("%s : %s", groupBuilder.groupId, groupBuilder.ec.Error())
 		return nil, fmt.Errorf("%s: %s", groupBuilder.groupId, groupBuilder.ec.Error())
 	}
 
@@ -114,7 +114,7 @@ func (groupBuilder *AbstractBuilder) OfType(eType proto.EntityDTO_EntityType) *A
 
 	// Check entity type
 	if groupBuilder.entityTypePtr != nil && *groupBuilder.entityTypePtr != eType {
-		groupBuilder.ec.Collect(fmt.Errorf("Cannot add members, input EntityType - %s is not consistent with existing EntityType %s ",
+		groupBuilder.ec.Collect(fmt.Errorf("cannot add members, input entityType %v is not consistent with existing entityType %v",
 			eType, *groupBuilder.entityTypePtr))
 		return groupBuilder
 	}
@@ -127,14 +127,14 @@ func (groupBuilder *AbstractBuilder) OfType(eType proto.EntityDTO_EntityType) *A
 
 func (groupBuilder *AbstractBuilder) setupEntityType(groupDTO *proto.GroupDTO) error {
 	if groupBuilder.entityTypePtr == nil {
-		return fmt.Errorf("Entity type is not set")
+		return fmt.Errorf("entity type is not set")
 	}
 	// Validate entity type
 	entityType := *groupBuilder.entityTypePtr
 	_, valid := proto.EntityDTO_EntityType_name[int32(entityType)]
 
 	if !valid {
-		return fmt.Errorf("Invalid entity type %v\n", entityType)
+		return fmt.Errorf("invalid entity type %v", entityType)
 	}
 
 	// Setup entity type
@@ -147,7 +147,7 @@ func (groupBuilder *AbstractBuilder) WithEntities(entities []string) *AbstractBu
 
 	// Assert that the group is a static group
 	if groupBuilder.groupType != STATIC_GROUP {
-		groupBuilder.ec.Collect(fmt.Errorf("Cannot set member uuid list for dynamic group"))
+		groupBuilder.ec.Collect(fmt.Errorf("cannot set member uuid list for dynamic group"))
 		return groupBuilder
 	}
 	groupBuilder.memberList = entities
@@ -158,7 +158,7 @@ func (groupBuilder *AbstractBuilder) WithEntities(entities []string) *AbstractBu
 func (groupBuilder *AbstractBuilder) setUpStaticMembers(groupDTO *proto.GroupDTO) error {
 
 	if len(groupBuilder.memberList) == 0 {
-		return fmt.Errorf("Empty member list")
+		return fmt.Errorf("empty member list")
 	}
 
 	// Set the Group DTO member field
@@ -176,7 +176,7 @@ func (groupBuilder *AbstractBuilder) MatchingEntities(matching *Matching) *Abstr
 
 	// Assert that the group is a dynamci group
 	if groupBuilder.groupType != DYNAMIC_GROUP {
-		groupBuilder.ec.Collect(fmt.Errorf("Cannot set matching criteria for static group"))
+		groupBuilder.ec.Collect(fmt.Errorf("cannot set matching criteria for static group"))
 		return groupBuilder
 	}
 	groupBuilder.matching = matching
@@ -187,7 +187,7 @@ func (groupBuilder *AbstractBuilder) MatchingEntities(matching *Matching) *Abstr
 func (groupBuilder *AbstractBuilder) setUpDynamicGroup(groupDTO *proto.GroupDTO) error {
 
 	if groupBuilder.matching == nil {
-		return fmt.Errorf("Null matching criteria for member selection")
+		return fmt.Errorf("null matching criteria for member selection")
 	}
 
 	var selectionSpecList []*proto.GroupDTO_SelectionSpec

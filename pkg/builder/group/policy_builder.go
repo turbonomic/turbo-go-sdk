@@ -5,49 +5,6 @@ import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
-// -------------------------------------------------------------------------------------------------
-// Builder for the constraint info data in a Group DTO
-type ConstraintInfoBuilder struct {
-	constraintType        proto.GroupDTO_ConstraintType
-	constraintId          string
-	constraintName        string
-	constraintDisplayName string
-	providerTypePtr       *proto.EntityDTO_EntityType
-	isBuyer               bool
-
-	maxBuyers int32
-}
-
-func newConstraintBuilder(constraintType proto.GroupDTO_ConstraintType, constraintId string) *ConstraintInfoBuilder {
-
-	return &ConstraintInfoBuilder{
-		constraintName: constraintId,
-		constraintType: constraintType,
-	}
-}
-
-func (constraintInfoBuilder *ConstraintInfoBuilder) WithName(constraintName string) *ConstraintInfoBuilder {
-	constraintInfoBuilder.constraintName = constraintName
-	return constraintInfoBuilder
-}
-
-func (constraintInfoBuilder *ConstraintInfoBuilder) WithDisplayName(constraintDisplayName string) *ConstraintInfoBuilder {
-	constraintInfoBuilder.constraintDisplayName = constraintDisplayName
-	return constraintInfoBuilder
-}
-
-// Set the entity type of the seller group for the buyer entities
-func (constraintInfoBuilder *ConstraintInfoBuilder) WithSellerType(providerType proto.EntityDTO_EntityType) *ConstraintInfoBuilder {
-	constraintInfoBuilder.providerTypePtr = &providerType
-	return constraintInfoBuilder
-}
-
-// Set the maximum number of buyer entities allowed in the policy
-func (constraintInfoBuilder *ConstraintInfoBuilder) AtMostBuyers(maxBuyers int32) *ConstraintInfoBuilder {
-	constraintInfoBuilder.maxBuyers = maxBuyers
-	return constraintInfoBuilder
-}
-
 // Build the constraint for the buyer group of the policy
 func buyerGroupConstraint(constraintType proto.GroupDTO_ConstraintType, constraintId string) *ConstraintInfoBuilder {
 	constraintInfoBuilder := newConstraintBuilder(constraintType, constraintId) //.BuyerGroup()
@@ -63,73 +20,6 @@ func sellerGroupConstraint(constraintType proto.GroupDTO_ConstraintType, constra
 
 	return constraintInfoBuilder
 }
-
-// Build the ConstraintInfo DTO
-func (constraintInfoBuilder *ConstraintInfoBuilder) Build() (*proto.GroupDTO_ConstraintInfo, error) {
-	constraintInfo := &proto.GroupDTO_ConstraintInfo{
-		ConstraintId:   &constraintInfoBuilder.constraintId,
-		ConstraintType: &constraintInfoBuilder.constraintType,
-	}
-	constraintInfo.ConstraintName = &constraintInfoBuilder.constraintName
-	constraintInfo.ConstraintDisplayName = &constraintInfoBuilder.constraintDisplayName
-
-	if constraintInfoBuilder.isBuyer {
-		// buyer group specific metadata
-		constraintInfo.BuyerMetaData = &proto.GroupDTO_BuyerMetaData{}
-		bool := true
-		constraintInfo.IsBuyer = &bool
-		// seller entity type should be provided for buyer seller policies
-		setProvider := (constraintInfoBuilder.constraintType == proto.GroupDTO_BUYER_SELLER_AFFINITY) ||
-			(constraintInfoBuilder.constraintType == proto.GroupDTO_BUYER_SELLER_ANTI_AFFINITY)
-		if setProvider && constraintInfoBuilder.providerTypePtr == nil {
-			return nil, fmt.Errorf("Seller type required")
-		}
-		constraintInfo.BuyerMetaData.SellerType = constraintInfoBuilder.providerTypePtr
-		// max buyers allowed
-		if constraintInfoBuilder.maxBuyers > 0 {
-			constraintInfo.BuyerMetaData.AtMost = &constraintInfoBuilder.maxBuyers
-		}
-	} else {
-		// seller group specific metadata
-		needsComplementary := constraintInfoBuilder.constraintType == proto.GroupDTO_BUYER_SELLER_ANTI_AFFINITY
-		constraintInfo.NeedComplementary = &needsComplementary
-	}
-
-	return constraintInfo, nil
-}
-
-// -------------------------------------------------------------------------------------------------
-// Group belonging to a Policy
-type AbstractConstraintGroupBuilder struct {
-	*AbstractBuilder
-	*ConstraintInfoBuilder
-}
-
-// Build policy group with Constraint Info
-func (groupBuilder *AbstractConstraintGroupBuilder) Build() (*proto.GroupDTO, error) {
-
-	groupDTO, err := groupBuilder.AbstractBuilder.Build()
-	if err != nil {
-		return nil, fmt.Errorf("[AbstractConstraintGroupBuilder] Error building group")
-	}
-
-	var constraintInfo *proto.GroupDTO_ConstraintInfo
-	constraintInfo, err = groupBuilder.ConstraintInfoBuilder.Build()
-	if err != nil {
-		return nil, fmt.Errorf("[AbstractConstraintGroupBuilder] Error building constraint")
-	}
-
-	// set constraint info in the group DTO
-	info := &proto.GroupDTO_ConstraintInfo_{
-		ConstraintInfo: constraintInfo,
-	}
-
-	groupDTO.Info = info
-
-	return groupDTO, nil
-}
-
-// -------------------------------------------------------------------------------------------------
 
 type buyerSellerPolicyData struct {
 	policyId       string
