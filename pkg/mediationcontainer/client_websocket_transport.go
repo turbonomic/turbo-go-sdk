@@ -47,6 +47,9 @@ func CreateWebSocketConnectionConfig(connConfig *MediationContainerConfig) (*Web
 	}
 	wsConfig := WebSocketConnectionConfig(*connConfig)
 	wsConfig.TurboServer = serverURL.String()
+	if serverURL.Path != "" && serverURL.Path != "/" {
+		wsConfig.LocalAddress = serverURL.Path
+	}
 	return &wsConfig, nil
 }
 
