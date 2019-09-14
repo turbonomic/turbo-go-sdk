@@ -47,8 +47,9 @@ func CreateWebSocketConnectionConfig(connConfig *MediationContainerConfig) (*Web
 	}
 	wsConfig := WebSocketConnectionConfig(*connConfig)
 	wsConfig.TurboServer = serverURL.String()
+	// If the path specified for the platform use it instead of assuming the default /vmturbo/remoteMediation
 	if serverURL.Path != "" && serverURL.Path != "/" {
-		wsConfig.LocalAddress = serverURL.Path
+		wsConfig.WebSocketPath = ""
 	}
 	return &wsConfig, nil
 }
