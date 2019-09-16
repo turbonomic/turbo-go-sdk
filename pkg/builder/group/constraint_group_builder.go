@@ -20,7 +20,7 @@ type ConstraintInfoBuilder struct {
 func newConstraintBuilder(constraintType proto.GroupDTO_ConstraintType, constraintId string) *ConstraintInfoBuilder {
 
 	return &ConstraintInfoBuilder{
-		constraintName: constraintId,
+		constraintId: constraintId,
 		constraintType: constraintType,
 	}
 }
