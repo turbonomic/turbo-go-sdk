@@ -7,8 +7,7 @@ import (
 
 // Build the constraint for the buyer group of the policy
 func buyerGroupConstraint(constraintType proto.GroupDTO_ConstraintType, constraintId string) *ConstraintInfoBuilder {
-	constraintInfoBuilder := newConstraintBuilder(constraintType, constraintId).
-		WithName(constraintId).WithDisplayName(constraintId) //.BuyerGroup()
+	constraintInfoBuilder := newConstraintBuilder(constraintType, constraintId) //.BuyerGroup()
 	constraintInfoBuilder.isBuyer = true
 
 	return constraintInfoBuilder
@@ -120,7 +119,7 @@ func (placeTogether *PlaceTogetherPolicyBuilder) WithBuyers(buyers *BuyerPolicyD
 }
 
 func (placeTogether *PlaceTogetherPolicyBuilder) Build() ([]*proto.GroupDTO, error) {
-	return buildBuyerBuyerPolicyGroup(placeTogether.buyerBuyerPolicyData, placeTogether.sellerType)
+	return buildBuyerBuyerPolicyGroup(placeTogether.buyerBuyerPolicyData)
 }
 
 func DoNotPlaceTogether(policyId string) *DoNotPlaceTogetherPolicyBuilder {
@@ -138,13 +137,13 @@ func (doNoPlace *DoNotPlaceTogetherPolicyBuilder) WithBuyers(buyers *BuyerPolicy
 	return doNoPlace
 }
 
-func (doNoPlace *DoNotPlaceTogetherPolicyBuilder) WithSellerType(sellerType proto.EntityDTO_EntityType) *DoNotPlaceTogetherPolicyBuilder {
+func (doNoPlace *DoNotPlaceTogetherPolicyBuilder) OnSellerType(sellerType proto.EntityDTO_EntityType) *DoNotPlaceTogetherPolicyBuilder {
 	doNoPlace.sellerType = sellerType
 	return doNoPlace
 }
 
 func (doNoPlace *DoNotPlaceTogetherPolicyBuilder) Build() ([]*proto.GroupDTO, error) {
-	return buildBuyerBuyerPolicyGroup(doNoPlace.buyerBuyerPolicyData, doNoPlace.sellerType)
+	return buildBuyerBuyerPolicyGroup(doNoPlace.buyerBuyerPolicyData)
 }
 
 ////========================================================================
@@ -160,7 +159,7 @@ func buildBuyerSellerPolicyGroup(policyData *buyerSellerPolicyData) ([]*proto.Gr
 	var groupDTOs []*proto.GroupDTO
 
 	// Buyer group and constraints
-	buyerGroup, err := createPolicyBuyerGroup(policyData.policyId, policyData.constraintType, policyData.buyerData, *policyData.sellerData.entityTypePtr)
+	buyerGroup, err := createPolicyBuyerGroup(policyData.policyId, policyData.constraintType, policyData.buyerData, policyData.sellerData)
 	if err != nil {
 		return []*proto.GroupDTO{}, err
 	} else {
@@ -190,7 +189,7 @@ func buildBuyerSellerPolicyGroup(policyData *buyerSellerPolicyData) ([]*proto.Gr
 
 // Set up buyer group for a policy
 func createPolicyBuyerGroup(policyId string, constraintType proto.GroupDTO_ConstraintType,
-	buyerData *BuyerPolicyData, sellerType proto.EntityDTO_EntityType) (*AbstractConstraintGroupBuilder, error) {
+	buyerData *BuyerPolicyData, sellerData *SellerPolicyData) (*AbstractConstraintGroupBuilder, error) {
 
 	var buyerGroup *AbstractBuilder
 	if buyerData.entityTypePtr == nil {
@@ -199,7 +198,6 @@ func createPolicyBuyerGroup(policyId string, constraintType proto.GroupDTO_Const
 	entityType := *buyerData.entityTypePtr
 	if buyerData.entities != nil {
 		buyerGroup = StaticGroup(policyId).
-			WithDisplayName(policyId).
 			OfType(entityType).
 			WithEntities(buyerData.entities)
 	} else if buyerData.matchingBuyers != nil {
@@ -213,10 +211,12 @@ func createPolicyBuyerGroup(policyId string, constraintType proto.GroupDTO_Const
 	// constraint info
 	var constraintInfoBuilder *ConstraintInfoBuilder
 	constraintInfoBuilder = buyerGroupConstraint(constraintType, policyId)
-	if buyerData.atMost != 0 {
+	if buyerData.atMost > 0 {
 		constraintInfoBuilder.AtMostBuyers(buyerData.atMost)
 	}
-	constraintInfoBuilder.WithSellerType(sellerType)
+	if sellerData != nil && sellerData.entityTypePtr != nil {
+		constraintInfoBuilder.WithSellerType(*sellerData.entityTypePtr)
+	}
 
 	buyerConstraintGroup := &AbstractConstraintGroupBuilder{
 		AbstractBuilder:       buyerGroup,
@@ -259,7 +259,7 @@ func createPolicySellerGroup(policyId string, constraintType proto.GroupDTO_Cons
 	return sellerConstraintGroup, nil
 }
 
-func buildBuyerBuyerPolicyGroup(policyData *buyerBuyerPolicyData, sellerType proto.EntityDTO_EntityType) ([]*proto.GroupDTO, error) {
+func buildBuyerBuyerPolicyGroup(policyData *buyerBuyerPolicyData) ([]*proto.GroupDTO, error) {
 
 	if policyData.buyerData == nil {
 		return nil, fmt.Errorf("[buildBuyerBuyerPolicyGroup] Buyer group data not set")
@@ -268,7 +268,12 @@ func buildBuyerBuyerPolicyGroup(policyData *buyerBuyerPolicyData, sellerType pro
 	var groupDTOs []*proto.GroupDTO
 
 	// Buyer group and constraints
-	buyerGroup, err := createPolicyBuyerGroup(policyData.policyId, policyData.constraintType, policyData.buyerData, sellerType)
+	sellerData := &SellerPolicyData{
+		groupData: &groupData{
+			entityTypePtr: &policyData.sellerType,
+		},
+	}
+	buyerGroup, err := createPolicyBuyerGroup(policyData.policyId, policyData.constraintType, policyData.buyerData, sellerData)
 	if err != nil {
 		return []*proto.GroupDTO{}, err
 	} else {

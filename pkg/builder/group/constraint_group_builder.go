@@ -21,6 +21,8 @@ func newConstraintBuilder(constraintType proto.GroupDTO_ConstraintType, constrai
 
 	return &ConstraintInfoBuilder{
 		constraintId: constraintId,
+		constraintName: constraintId,           // default name as the id
+		constraintDisplayName: constraintId,    // default display name as the id
 		constraintType: constraintType,
 	}
 }
