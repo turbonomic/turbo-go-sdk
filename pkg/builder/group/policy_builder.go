@@ -132,18 +132,18 @@ func DoNotPlaceTogether(policyId string) *DoNotPlaceTogetherPolicyBuilder {
 	return doNotPlaceTogether
 }
 
-func (doNoPlace *DoNotPlaceTogetherPolicyBuilder) WithBuyers(buyers *BuyerPolicyData) *DoNotPlaceTogetherPolicyBuilder {
-	doNoPlace.buyerData = buyers
-	return doNoPlace
+func (doNotPlace *DoNotPlaceTogetherPolicyBuilder) WithBuyers(buyers *BuyerPolicyData) *DoNotPlaceTogetherPolicyBuilder {
+	doNotPlace.buyerData = buyers
+	return doNotPlace
 }
 
-func (doNoPlace *DoNotPlaceTogetherPolicyBuilder) OnSellerType(sellerType proto.EntityDTO_EntityType) *DoNotPlaceTogetherPolicyBuilder {
-	doNoPlace.sellerType = sellerType
-	return doNoPlace
+func (doNotPlace *DoNotPlaceTogetherPolicyBuilder) OnSellerType(sellerType proto.EntityDTO_EntityType) *DoNotPlaceTogetherPolicyBuilder {
+	doNotPlace.sellerType = sellerType
+	return doNotPlace
 }
 
-func (doNoPlace *DoNotPlaceTogetherPolicyBuilder) Build() ([]*proto.GroupDTO, error) {
-	return buildBuyerBuyerPolicyGroup(doNoPlace.buyerBuyerPolicyData)
+func (doNotPlace *DoNotPlaceTogetherPolicyBuilder) Build() ([]*proto.GroupDTO, error) {
+	return buildBuyerBuyerPolicyGroup(doNotPlace.buyerBuyerPolicyData)
 }
 
 ////========================================================================
