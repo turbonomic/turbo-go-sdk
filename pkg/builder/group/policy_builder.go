@@ -232,10 +232,10 @@ func buildBuyerSellerPolicyGroup(policyData *buyerSellerPolicyData) ([]*proto.Gr
 func createPolicyBuyerGroup(policyId string, displayName string, constraintType proto.GroupDTO_ConstraintType,
 	buyerData *BuyerPolicyData, sellerData *SellerPolicyData) (*AbstractConstraintGroupBuilder, error) {
 	if buyerData.entityTypePtr == nil {
-		return nil, fmt.Errorf("buyer entity type is not set")
+		return nil, fmt.Errorf("buyer entity type is not set for policy %s", policyId)
 	}
 	if sellerData.entityTypePtr == nil {
-		return nil, fmt.Errorf("seller entity type is not set")
+		return nil, fmt.Errorf("seller entity type is not set for policy %s", policyId)
 	}
 	var buyerGroup *AbstractBuilder
 	entityType := *buyerData.entityTypePtr
@@ -248,7 +248,7 @@ func createPolicyBuyerGroup(policyId string, displayName string, constraintType 
 			OfType(entityType).
 			MatchingEntities(buyerData.matchingBuyers)
 	} else {
-		return nil, fmt.Errorf("buyer group member data is missing")
+		return nil, fmt.Errorf("buyer group member data is missing for policy %s", policyId)
 	}
 
 	// constraint info
@@ -276,7 +276,7 @@ func createPolicySellerGroup(policyId string, displayName string, constraintType
 
 	var sellerGroup *AbstractBuilder
 	if sellerData.entityTypePtr == nil {
-		return nil, fmt.Errorf("seller entity type is not set")
+		return nil, fmt.Errorf("seller entity type is not set for policy %s", policyId)
 	}
 	entityType := *sellerData.entityTypePtr
 	if sellerData.entities != nil {
@@ -288,7 +288,7 @@ func createPolicySellerGroup(policyId string, displayName string, constraintType
 			OfType(entityType).
 			MatchingEntities(sellerData.matchingBuyers)
 	} else {
-		return nil, fmt.Errorf("seller group member data is missing")
+		return nil, fmt.Errorf("seller group member data is missing for policy %s", policyId)
 	}
 
 	// constraint info
