@@ -294,7 +294,8 @@ func TestPlaceTogetherPolicy(t *testing.T) {
 		SetProperty("3333-")
 
 	placeTogetherPolicyBuilder := PlaceTogether(id).
-		WithBuyers(DynamicBuyers(SelectedBy(selectionSpec1).and(selectionSpec2)).OfType(eType))
+		WithBuyers(DynamicBuyers(SelectedBy(selectionSpec1).and(selectionSpec2)).OfType(eType)).
+		OnSellerType(proto.EntityDTO_CONTAINER_POD)
 
 	groupDTOList, _ := assertPlaceTogetherPolicyConditions(t, placeTogetherPolicyBuilder)
 	for _, groupDTO := range groupDTOList {
@@ -318,7 +319,8 @@ func TestDoNotPlaceTogetherPolicy(t *testing.T) {
 	fmt.Printf("%++v\n", buyerData)
 
 	doNotPlaceTogetherPolicyBuilder := DoNotPlaceTogether(id).
-		WithBuyers(StaticBuyers([]string{"container1", "container2"}).OfType(eType))
+		WithBuyers(StaticBuyers([]string{"container1", "container2"}).OfType(eType)).
+		OnSellerType(proto.EntityDTO_CONTAINER_POD)
 
 	groupDTOList, _ := assertDoNotPlaceTogetherPolicyConditions(t, doNotPlaceTogetherPolicyBuilder)
 	for _, groupDTO := range groupDTOList {
