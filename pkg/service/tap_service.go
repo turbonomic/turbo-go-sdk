@@ -53,6 +53,14 @@ func (tapService *TAPService) addTarget(isRegistered chan bool) {
 
 	//2. register the targets
 	glog.V(2).Infof("Probe %v is registered. Begin to add targets.", pinfo)
+
+	// Login to obtain the session cookie
+	if _, err := tapService.Client.Login(); err != nil {
+		glog.Errorf("Cannot login to the Turbo API Client: %v", err)
+		return
+	}
+	glog.V(2).Infof("Successfully logged in to Turbo server.")
+
 	targetInfos := tapService.GetProbeTargets()
 	for _, targetInfo := range targetInfos {
 		target := targetInfo.GetTargetInstance()
@@ -150,13 +158,7 @@ func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommuni
 		builder.err = fmt.Errorf("Error during create Turbo API client: %s\n", err)
 		return builder
 	}
-	glog.V(4).Infof("The Turbo API client is create successfully: %v", apiClient)
-
-	// Login to obtain the session cookie
-	_, err = apiClient.Login()
-	if err != nil {
-		glog.Errorf("Cannot login to the Turbo API Client: %v", err)
-	}
+	glog.V(4).Infof("The Turbo API client is created successfully: %v", apiClient)
 
 	builder.tapService.Client = apiClient
 
