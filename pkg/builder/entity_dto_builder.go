@@ -44,6 +44,9 @@ type EntityDTOBuilder struct {
 	notification                 []*proto.NotificationDTO
 	keepStandalone               *bool
 	profileID                    *string
+	isProvisionable				 *bool
+	isSuspendable			     *bool
+	moveableMap					 map[*proto.EntityDTO_EntityType]bool
 
 	storageData            *proto.EntityDTO_StorageData
 	diskArrayData          *proto.EntityDTO_DiskArrayData
@@ -71,6 +74,7 @@ func NewEntityDTOBuilder(eType proto.EntityDTO_EntityType, id string) *EntityDTO
 	return &EntityDTOBuilder{
 		entityType: &eType,
 		id:         &id,
+		moveableMap: make(map[*proto.EntityDTO_EntityType]bool),
 	}
 }
 
@@ -128,6 +132,18 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		entityDTO.RelatedEntityData = &proto.EntityDTO_StorageControllerRelatedData_{eb.storageControllerRelatedData}
 	}
 
+	actionEligibility := &proto.EntityDTO_ActionEligibility{}
+	actionEligibility.Cloneable = eb.isProvisionable
+	actionEligibility.Suspendable = eb.isSuspendable
+	entityDTO.ActionEligibility = actionEligibility
+
+	commBoughtList := entityDTO.CommoditiesBought
+	for _, commBought := range commBoughtList {
+		moveable, exists := eb.moveableMap[commBought.ProviderType]
+		if exists {
+			commBought.MoveEligible = &moveable
+		}
+	}
 	return entityDTO, nil
 }
 
@@ -256,6 +272,21 @@ func (eb *EntityDTOBuilder) WithPowerState(state proto.EntityDTO_PowerState) *En
 		return eb
 	}
 	eb.powerState = &state
+	return eb
+}
+
+func (eb *EntityDTOBuilder) IsProvisionable(provisionable bool) *EntityDTOBuilder {
+	eb.isProvisionable = &provisionable
+	return eb
+}
+
+func (eb *EntityDTOBuilder) IsSuspendable(suspendable bool) *EntityDTOBuilder {
+	eb.isSuspendable = &suspendable
+	return eb
+}
+
+func (eb *EntityDTOBuilder) IsMoveable(entityType *proto.EntityDTO_EntityType, moveable bool) *EntityDTOBuilder {
+	eb.moveableMap[entityType] = moveable
 	return eb
 }
 
