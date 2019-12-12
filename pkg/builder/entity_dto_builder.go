@@ -2,7 +2,6 @@ package builder
 
 import (
 	"fmt"
-
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
@@ -27,26 +26,35 @@ func (pDto *ProviderDTO) GetId() string {
 }
 
 type EntityDTOBuilder struct {
-	entityType                   *proto.EntityDTO_EntityType
-	id                           *string
-	displayName                  *string
-	commoditiesSold              []*proto.CommodityDTO
+	entityType      *proto.EntityDTO_EntityType
+	id              *string
+	displayName     *string
+	commoditiesSold []*proto.CommodityDTO
+
+	underlying            []string
+	entityProperties      []*proto.EntityDTO_EntityProperty
+	origin                *proto.EntityDTO_EntityOrigin
+	replacementEntityData *proto.EntityDTO_ReplacementEntityMetaData
+	monitored             *bool
+	powerState            *proto.EntityDTO_PowerState
+	consumerPolicy        *proto.EntityDTO_ConsumerPolicy
+	providerPolicy        *proto.EntityDTO_ProviderPolicy
+	ownedBy               *string
+	notification          []*proto.NotificationDTO
+	keepStandalone        *bool
+	profileID             *string
+
+	// Action Eligibility related
+	isProvisionable *bool
+	isSuspendable   *bool
+
+	// Bought Commodity related
+	// map of provider id and its entity type
+	providerMap map[string]proto.EntityDTO_EntityType
+	// map of provider and the list of commodities bought from it
 	commoditiesBoughtProviderMap map[string][]*proto.CommodityDTO
-	underlying                   []string
-	entityProperties             []*proto.EntityDTO_EntityProperty
-	origin                       *proto.EntityDTO_EntityOrigin
-	replacementEntityData        *proto.EntityDTO_ReplacementEntityMetaData
-	monitored                    *bool
-	powerState                   *proto.EntityDTO_PowerState
-	consumerPolicy               *proto.EntityDTO_ConsumerPolicy
-	providerPolicy               *proto.EntityDTO_ProviderPolicy
-	ownedBy                      *string
-	notification                 []*proto.NotificationDTO
-	keepStandalone               *bool
-	profileID                    *string
-	isProvisionable				 *bool
-	isSuspendable			     *bool
-	moveableMap					 map[*proto.EntityDTO_EntityType]bool
+	// map for the move eligibility of the entity across the different provider types
+	movableMap map[proto.EntityDTO_EntityType]bool
 
 	storageData            *proto.EntityDTO_StorageData
 	diskArrayData          *proto.EntityDTO_DiskArrayData
@@ -72,9 +80,10 @@ type EntityDTOBuilder struct {
 
 func NewEntityDTOBuilder(eType proto.EntityDTO_EntityType, id string) *EntityDTOBuilder {
 	return &EntityDTOBuilder{
-		entityType: &eType,
-		id:         &id,
-		moveableMap: make(map[*proto.EntityDTO_EntityType]bool),
+		entityType:  &eType,
+		id:          &id,
+		movableMap:  make(map[proto.EntityDTO_EntityType]bool),
+		providerMap: make(map[string]proto.EntityDTO_EntityType),
 	}
 }
 
@@ -84,11 +93,11 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 	}
 
 	entityDTO := &proto.EntityDTO{
-		EntityType:            eb.entityType,
-		Id:                    eb.id,
-		DisplayName:           eb.displayName,
-		CommoditiesSold:       eb.commoditiesSold,
-		CommoditiesBought:     buildCommodityBoughtFromMap(eb.commoditiesBoughtProviderMap),
+		EntityType:      eb.entityType,
+		Id:              eb.id,
+		DisplayName:     eb.displayName,
+		CommoditiesSold: eb.commoditiesSold,
+		//CommoditiesBought:     buildCommodityBoughtFromMap(eb.commoditiesBoughtProviderMap),
 		Underlying:            eb.underlying,
 		EntityProperties:      eb.entityProperties,
 		Origin:                eb.origin,
@@ -132,18 +141,19 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		entityDTO.RelatedEntityData = &proto.EntityDTO_StorageControllerRelatedData_{eb.storageControllerRelatedData}
 	}
 
+	// Create the action eligibility spec for the entity
 	actionEligibility := &proto.EntityDTO_ActionEligibility{}
-	actionEligibility.Cloneable = eb.isProvisionable
-	actionEligibility.Suspendable = eb.isSuspendable
+	if eb.isProvisionable != nil {
+		actionEligibility.Cloneable = eb.isProvisionable
+	}
+	if eb.isSuspendable != nil {
+		actionEligibility.Suspendable = eb.isSuspendable
+	}
 	entityDTO.ActionEligibility = actionEligibility
 
-	commBoughtList := entityDTO.CommoditiesBought
-	for _, commBought := range commBoughtList {
-		moveable, exists := eb.moveableMap[commBought.ProviderType]
-		if exists {
-			commBought.MoveEligible = &moveable
-		}
-	}
+	// Create the bought commodities
+	entityDTO.CommoditiesBought = eb.buildCommodityBoughtFromMap()
+
 	return entityDTO, nil
 }
 
@@ -182,6 +192,8 @@ func (eb *EntityDTOBuilder) Provider(provider *ProviderDTO) *EntityDTOBuilder {
 		return eb
 	}
 	eb.currentProvider = provider
+	// Save the current provider type
+	eb.providerMap[provider.id] = provider.providerType
 	return eb
 }
 
@@ -191,7 +203,7 @@ func (eb *EntityDTOBuilder) BuysCommodities(commDTOs []*proto.CommodityDTO) *Ent
 		return eb
 	}
 	if eb.currentProvider == nil {
-		eb.err = fmt.Errorf("Porvider has not been set for current list of commodities: %++v", commDTOs)
+		eb.err = fmt.Errorf("Provider has not been set for current list of commodities: %++v", commDTOs)
 		return eb
 	}
 	for _, commDTO := range commDTOs {
@@ -272,21 +284,6 @@ func (eb *EntityDTOBuilder) WithPowerState(state proto.EntityDTO_PowerState) *En
 		return eb
 	}
 	eb.powerState = &state
-	return eb
-}
-
-func (eb *EntityDTOBuilder) IsProvisionable(provisionable bool) *EntityDTOBuilder {
-	eb.isProvisionable = &provisionable
-	return eb
-}
-
-func (eb *EntityDTOBuilder) IsSuspendable(suspendable bool) *EntityDTOBuilder {
-	eb.isSuspendable = &suspendable
-	return eb
-}
-
-func (eb *EntityDTOBuilder) IsMoveable(entityType *proto.EntityDTO_EntityType, moveable bool) *EntityDTOBuilder {
-	eb.moveableMap[entityType] = moveable
 	return eb
 }
 
@@ -376,17 +373,53 @@ func (eb *EntityDTOBuilder) VirtualApplicationData(vAppData *proto.EntityDTO_Vir
 	return eb
 }
 
-func buildCommodityBoughtFromMap(providerCommoditiesMap map[string][]*proto.CommodityDTO) []*proto.EntityDTO_CommodityBought {
+// Build the commodity DTOs for the commodity bpught from different providers
+func (eb *EntityDTOBuilder) buildCommodityBoughtFromMap() []*proto.EntityDTO_CommodityBought {
 	var commoditiesBought []*proto.EntityDTO_CommodityBought
-	if len(providerCommoditiesMap) == 0 {
+
+	if len(eb.commoditiesBoughtProviderMap) == 0 {
 		return commoditiesBought
 	}
-	for providerId, commodities := range providerCommoditiesMap {
+	for providerId, commodities := range eb.commoditiesBoughtProviderMap {
 		p := providerId
-		commoditiesBought = append(commoditiesBought, &proto.EntityDTO_CommodityBought{
+
+		commodityBought := &proto.EntityDTO_CommodityBought{
 			ProviderId: &p,
 			Bought:     commodities,
-		})
+		}
+
+		// update provider type and the move eligibility of the entity across that provider type
+		providerType, providerTypeExists := eb.providerMap[p]
+		if providerTypeExists {
+
+			commodityBought.ProviderType = &providerType
+			movable, movableExists := eb.movableMap[providerType]
+
+			if movableExists {
+				commodityBought.MoveEligible = &movable
+			}
+		}
+
+		commoditiesBought = append(commoditiesBought, commodityBought)
 	}
+
 	return commoditiesBought
+}
+
+// Specifies if the entity is eligible to be cloned by Turbonomic analysis
+func (eb *EntityDTOBuilder) IsProvisionable(provisionable bool) *EntityDTOBuilder {
+	eb.isProvisionable = &provisionable
+	return eb
+}
+
+// Specifies if the entity is eligible to be suspended by Turbonomic analysis
+func (eb *EntityDTOBuilder) IsSuspendable(suspendable bool) *EntityDTOBuilder {
+	eb.isSuspendable = &suspendable
+	return eb
+}
+
+// Specifies if the entity is eligible to move across the given provider
+func (eb *EntityDTOBuilder) IsMovable(entityType proto.EntityDTO_EntityType, moveable bool) *EntityDTOBuilder {
+	eb.movableMap[entityType] = moveable
+	return eb
 }
