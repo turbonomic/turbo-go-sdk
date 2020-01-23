@@ -25,6 +25,30 @@ func (pDto *ProviderDTO) GetId() string {
 	return pDto.id
 }
 
+type ActionEligibilityField string
+
+const (
+	SUSPEND   ActionEligibilityField = "suspend"
+	PROVISION ActionEligibilityField = "provision"
+	MOVE      ActionEligibilityField = "move"
+	SCALE     ActionEligibilityField = "scale"
+	START     ActionEligibilityField = "start"
+)
+
+type ActionEligibility struct {
+	isProvisionable *bool
+	isSuspendable   *bool
+
+	actionEligibilityByProviderMap map[proto.EntityDTO_EntityType]*ActionEligibilityByProvider
+}
+
+type ActionEligibilityByProvider struct {
+	pType       proto.EntityDTO_EntityType
+	isMovable   *bool
+	isScalable  *bool
+	isStartable *bool
+}
+
 type EntityDTOBuilder struct {
 	entityType      *proto.EntityDTO_EntityType
 	id              *string
@@ -45,16 +69,13 @@ type EntityDTOBuilder struct {
 	profileID             *string
 
 	// Action Eligibility related
-	isProvisionable *bool
-	isSuspendable   *bool
+	actionEligibility *ActionEligibility
 
 	// Bought Commodity related
 	// map of provider id and its entity type
 	providerMap map[string]proto.EntityDTO_EntityType
 	// map of provider and the list of commodities bought from it
 	commoditiesBoughtProviderMap map[string][]*proto.CommodityDTO
-	// map for the move eligibility of the entity across the different provider types
-	movableMap map[proto.EntityDTO_EntityType]bool
 
 	storageData            *proto.EntityDTO_StorageData
 	diskArrayData          *proto.EntityDTO_DiskArrayData
@@ -80,9 +101,11 @@ type EntityDTOBuilder struct {
 
 func NewEntityDTOBuilder(eType proto.EntityDTO_EntityType, id string) *EntityDTOBuilder {
 	return &EntityDTOBuilder{
-		entityType:  &eType,
-		id:          &id,
-		movableMap:  make(map[proto.EntityDTO_EntityType]bool),
+		entityType: &eType,
+		id:         &id,
+		actionEligibility: &ActionEligibility{
+			actionEligibilityByProviderMap: make(map[proto.EntityDTO_EntityType]*ActionEligibilityByProvider),
+		},
 		providerMap: make(map[string]proto.EntityDTO_EntityType),
 	}
 }
@@ -93,11 +116,10 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 	}
 
 	entityDTO := &proto.EntityDTO{
-		EntityType:      eb.entityType,
-		Id:              eb.id,
-		DisplayName:     eb.displayName,
-		CommoditiesSold: eb.commoditiesSold,
-		//CommoditiesBought:     buildCommodityBoughtFromMap(eb.commoditiesBoughtProviderMap),
+		EntityType:            eb.entityType,
+		Id:                    eb.id,
+		DisplayName:           eb.displayName,
+		CommoditiesSold:       eb.commoditiesSold,
 		Underlying:            eb.underlying,
 		EntityProperties:      eb.entityProperties,
 		Origin:                eb.origin,
@@ -142,14 +164,20 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 	}
 
 	// Create the action eligibility spec for the entity
-	actionEligibility := &proto.EntityDTO_ActionEligibility{}
-	if eb.isProvisionable != nil {
-		actionEligibility.Cloneable = eb.isProvisionable
+	if eb.actionEligibility != nil {
+		ae := eb.actionEligibility
+		entityActionEligibility := &proto.EntityDTO_ActionEligibility{}
+		// Is the provisionable setting available
+		if ae.isProvisionable != nil {
+			entityActionEligibility.Cloneable = ae.isProvisionable
+		}
+		// Is the suspendable setting available
+		if ae.isSuspendable != nil {
+			entityActionEligibility.Suspendable = ae.isSuspendable
+		}
+
+		entityDTO.ActionEligibility = entityActionEligibility
 	}
-	if eb.isSuspendable != nil {
-		actionEligibility.Suspendable = eb.isSuspendable
-	}
-	entityDTO.ActionEligibility = actionEligibility
 
 	// Create the bought commodities
 	entityDTO.CommoditiesBought = eb.buildCommodityBoughtFromMap()
@@ -373,14 +401,21 @@ func (eb *EntityDTOBuilder) VirtualApplicationData(vAppData *proto.EntityDTO_Vir
 	return eb
 }
 
-// Build the commodity DTOs for the commodity bpught from different providers
+// Build the commodity DTOs for the commodity bought from different providers
 func (eb *EntityDTOBuilder) buildCommodityBoughtFromMap() []*proto.EntityDTO_CommodityBought {
 	var commoditiesBought []*proto.EntityDTO_CommodityBought
 
 	if len(eb.commoditiesBoughtProviderMap) == 0 {
 		return commoditiesBought
 	}
+
+	var actionEligibilityMap map[proto.EntityDTO_EntityType]*ActionEligibilityByProvider
+	if eb.actionEligibility != nil {
+		actionEligibilityMap = eb.actionEligibility.actionEligibilityByProviderMap
+	}
+
 	for providerId, commodities := range eb.commoditiesBoughtProviderMap {
+		// Commodity bought per provider
 		p := providerId
 
 		commodityBought := &proto.EntityDTO_CommodityBought{
@@ -388,15 +423,23 @@ func (eb *EntityDTOBuilder) buildCommodityBoughtFromMap() []*proto.EntityDTO_Com
 			Bought:     commodities,
 		}
 
-		// update provider type and the move eligibility of the entity across that provider type
+		// update provider type and the action eligibility of the entity across that provider type
 		providerType, providerTypeExists := eb.providerMap[p]
 		if providerTypeExists {
 
 			commodityBought.ProviderType = &providerType
-			movable, movableExists := eb.movableMap[providerType]
-
-			if movableExists {
-				commodityBought.MoveEligible = &movable
+			aeMap, exists := actionEligibilityMap[providerType]
+			if exists {
+				commodityBought.ActionEligibility = &proto.EntityDTO_ActionOnProviderEligibility{}
+				if aeMap.isMovable != nil {
+					commodityBought.ActionEligibility.Movable = aeMap.isMovable
+				}
+				if aeMap.isStartable != nil {
+					commodityBought.ActionEligibility.Startable = aeMap.isStartable
+				}
+				if aeMap.isScalable != nil {
+					commodityBought.ActionEligibility.Scalable = aeMap.isScalable
+				}
 			}
 		}
 
@@ -408,18 +451,77 @@ func (eb *EntityDTOBuilder) buildCommodityBoughtFromMap() []*proto.EntityDTO_Com
 
 // Specifies if the entity is eligible to be cloned by Turbonomic analysis
 func (eb *EntityDTOBuilder) IsProvisionable(provisionable bool) *EntityDTOBuilder {
-	eb.isProvisionable = &provisionable
+	eb.actionEligibility.isProvisionable = &provisionable
 	return eb
 }
 
 // Specifies if the entity is eligible to be suspended by Turbonomic analysis
 func (eb *EntityDTOBuilder) IsSuspendable(suspendable bool) *EntityDTOBuilder {
-	eb.isSuspendable = &suspendable
+	eb.actionEligibility.isSuspendable = &suspendable
 	return eb
 }
 
 // Specifies if the entity is eligible to move across the given provider
-func (eb *EntityDTOBuilder) IsMovable(entityType proto.EntityDTO_EntityType, moveable bool) *EntityDTOBuilder {
-	eb.movableMap[entityType] = moveable
+func (eb *EntityDTOBuilder) IsMovable(providerType proto.EntityDTO_EntityType, movable bool) *EntityDTOBuilder {
+	eb.setActionEligibilityByProviderField(providerType, "move", movable)
 	return eb
+}
+
+// Specifies if the entity is eligible to scale on the given provider
+func (eb *EntityDTOBuilder) IsScalable(providerType proto.EntityDTO_EntityType, scalable bool) *EntityDTOBuilder {
+	eb.setActionEligibilityByProviderField(providerType, "scale", scalable)
+	return eb
+}
+
+// Specifies if the entity is eligible to scale on the given provider
+func (eb *EntityDTOBuilder) IsStartable(providerType proto.EntityDTO_EntityType, startable bool) *EntityDTOBuilder {
+	eb.setActionEligibilityByProviderField(providerType, "start", startable)
+	return eb
+}
+
+func (eb *EntityDTOBuilder) setActionEligibilityFlag(flagName ActionEligibilityField, flagVal bool) {
+	// Create action eligibility if null
+	ae := eb.actionEligibility
+	if ae == nil {
+		ae = &ActionEligibility{
+			actionEligibilityByProviderMap: make(map[proto.EntityDTO_EntityType]*ActionEligibilityByProvider),
+		}
+		eb.actionEligibility = ae
+	}
+
+	switch flagName {
+	case SUSPEND:
+		ae.isSuspendable = &flagVal
+	case PROVISION:
+		ae.isProvisionable = &flagVal
+	default:
+	}
+}
+
+func (eb *EntityDTOBuilder) setActionEligibilityByProviderField(providerType proto.EntityDTO_EntityType,
+	flagName ActionEligibilityField, flagVal bool) {
+	// Create action eligibility if null
+	ae := eb.actionEligibility
+	if ae == nil {
+		ae = &ActionEligibility{
+			actionEligibilityByProviderMap: make(map[proto.EntityDTO_EntityType]*ActionEligibilityByProvider),
+		}
+		eb.actionEligibility = ae
+	}
+
+	actionEligibilityByProvider, exists := ae.actionEligibilityByProviderMap[providerType]
+	if !exists {
+		ae.actionEligibilityByProviderMap[providerType] = &ActionEligibilityByProvider{}
+		actionEligibilityByProvider = ae.actionEligibilityByProviderMap[providerType]
+	}
+
+	switch flagName {
+	case MOVE:
+		actionEligibilityByProvider.isMovable = &flagVal
+	case SCALE:
+		actionEligibilityByProvider.isScalable = &flagVal
+	case START:
+		actionEligibilityByProvider.isStartable = &flagVal
+	default:
+	}
 }
