@@ -55,24 +55,26 @@ func (tapService *TAPService) addTarget(isRegistered chan bool) {
 	glog.V(2).Infof("Probe %v is registered. Begin to add targets.", pinfo)
 
 	// Login to obtain the session cookie
-	if _, err := tapService.Client.Login(); err != nil {
-		glog.Errorf("Cannot login to the Turbo API Client: %v", err)
-		return
-	}
-	glog.V(2).Infof("Successfully logged in to Turbo server.")
-
 	targetInfos := tapService.GetProbeTargets()
-	for _, targetInfo := range targetInfos {
-		target := targetInfo.GetTargetInstance()
-		glog.V(4).Infof("Now adding target %v", target)
-		resp, err := tapService.AddTarget(target)
-		if err != nil {
-			glog.Errorf("Error while adding %s %s target: %s", targetInfo.TargetCategory(),
-				targetInfo.TargetType(), err)
-			// TODO, do we want to return an error?
-			continue
+	if len(targetInfos) > 0 {
+		if _, err := tapService.Client.Login(); err != nil {
+			glog.Errorf("Cannot login to the Turbo API Client: %v", err)
+			return
 		}
-		glog.V(3).Infof("Successfully add target: %v", resp)
+		glog.V(2).Infof("Successfully logged in to Turbo server.")
+
+		for _, targetInfo := range targetInfos {
+			target := targetInfo.GetTargetInstance()
+			glog.V(2).Infof("Now adding target %++v", target)
+			resp, err := tapService.AddTarget(target)
+			if err != nil {
+				glog.Errorf("Error while adding %s %s [%s] target: %s", targetInfo.TargetCategory(),
+					targetInfo.TargetType(), targetInfo.TargetIdentifierField(), err)
+				// TODO, do we want to return an error?
+				continue
+			}
+			glog.V(3).Infof("Successfully add target: %v", resp)
+		}
 	}
 }
 
