@@ -135,10 +135,10 @@ var OSType_name = map[int32]string{
 	26: "WINDOWS_SERVER_BURST",
 }
 var OSType_value = map[string]int32{
-	"UNKNOWN_OS": 0,
-	"LINUX":      2,
-	"SUSE":       3,
-	"RHEL":       4,
+	"UNKNOWN_OS":                  0,
+	"LINUX":                       2,
+	"SUSE":                        3,
+	"RHEL":                        4,
 	"LINUX_WITH_SQL_ENTERPRISE":   5,
 	"LINUX_WITH_SQL_STANDARD":     6,
 	"LINUX_WITH_SQL_WEB":          7,
