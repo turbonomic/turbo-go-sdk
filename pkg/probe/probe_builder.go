@@ -107,9 +107,7 @@ func (pb *ProbeBuilder) Create() (*TurboProbe, error) {
 	}
 
 	turboProbe.ActionClient = pb.actionClient
-	DiscoveryAgent := NewDiscoveryAgent()
-	DiscoveryAgent.TurboDiscoveryClient = pb.discoveryClient
-	turboProbe.DiscoveryClient = DiscoveryAgent
+	turboProbe.DiscoveryClient.TurboDiscoveryClient = pb.discoveryClient
 	turboProbe.TargetsToAdd = pb.targetsToAdd
 
 	return turboProbe, nil
@@ -197,17 +195,6 @@ func (pb *ProbeBuilder) DiscoversTarget(targetId string, discoveryClient TurboDi
 	}
 	pb.discoveryClient = discoveryClient
 
-	return pb
-}
-
-// Set a target for the probe
-func (pb *ProbeBuilder) DiscoversTargetId(targetId string) *ProbeBuilder {
-	if targetId == "" {
-		pb.builderError = ErrorInvalidTargetIdentifier()
-		return pb
-	}
-
-	pb.targetsToAdd[targetId] = true
 	return pb
 }
 

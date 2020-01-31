@@ -73,7 +73,7 @@ func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 
 	myProbe := &TurboProbe{
 		ProbeConfiguration: probeConf,
-		DiscoveryClient:    nil, // DiscoveryClient is originally empty. Should be initialized later.
+		DiscoveryClient:    NewDiscoveryAgent(), // Populate fields later.
 		RegistrationClient: NewProbeRegistrator(),
 		TargetsToAdd:       map[string]bool{},
 	}
@@ -82,22 +82,8 @@ func newTurboProbe(probeConf *ProbeConfig) (*TurboProbe, error) {
 	return myProbe, nil
 }
 
-func (theProbe *TurboProbe) getDiscoveryClient() TurboDiscoveryClient {
-	if theProbe.DiscoveryClient == nil {
-		glog.Errorf("[GetTurboDiscoveryClient] No DiscoveryAgent configured.")
-		return nil
-	}
-
-	return theProbe.DiscoveryClient.TurboDiscoveryClient
-}
-
 // TODO: this method should be synchronized
 func (theProbe *TurboProbe) GetTurboDiscoveryClient() TurboDiscoveryClient {
-	if theProbe.DiscoveryClient == nil {
-		glog.Errorf("[GetTurboDiscoveryClient] No DiscoveryAgent configured.")
-		return nil
-	}
-
 	return theProbe.DiscoveryClient.TurboDiscoveryClient
 }
 
@@ -116,10 +102,6 @@ func findTargetId(accountValues []*proto.AccountValue, identifyingField string) 
 func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
 	glog.V(2).Infof("Discover Target: %s", accountValues)
 	targetId := findTargetId(accountValues, theProbe.RegistrationClient.GetIdentifyingFields())
-	if theProbe.DiscoveryClient == nil {
-		return theProbe.createMisconfiguredProbeErrorDTO("Full", targetId)
-	}
-
 	handler := theProbe.DiscoveryClient.TurboDiscoveryClient
 	if handler == nil {
 		glog.Errorf("Failed to discover target (id=%v): cannot find discovery handler.", targetId)
@@ -141,10 +123,6 @@ func (theProbe *TurboProbe) DiscoverTarget(accountValues []*proto.AccountValue) 
 func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) *proto.ValidationResponse {
 	glog.V(2).Infof("Validate Target: %++v", accountValues)
 	var targetId = findTargetId(accountValues, theProbe.RegistrationClient.GetIdentifyingFields())
-	if theProbe.DiscoveryClient == nil {
-		return theProbe.createMisconfiguredValidationErrorDTO(targetId)
-	}
-
 	handler := theProbe.DiscoveryClient.TurboDiscoveryClient
 	if handler == nil {
 		glog.Errorf("Failed to validate target (id=%v): cannot find discovery handler.", targetId)
@@ -172,10 +150,6 @@ func (theProbe *TurboProbe) ValidateTarget(accountValues []*proto.AccountValue) 
 func (theProbe *TurboProbe) DiscoverTargetIncremental(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
 	glog.V(2).Infof("Incremental discovery for Target: %s", accountValues)
 	targetId := findTargetId(accountValues, theProbe.RegistrationClient.GetIdentifyingFields())
-	if theProbe.DiscoveryClient == nil {
-		return theProbe.createMisconfiguredProbeErrorDTO("Incremental", targetId)
-	}
-
 	handler := theProbe.DiscoveryClient.IIncrementalDiscovery
 	if handler == nil {
 		glog.Errorf("Failed to incrementally discover target (id=%v): cannot find discovery handler.", targetId)
@@ -195,10 +169,6 @@ func (theProbe *TurboProbe) DiscoverTargetIncremental(accountValues []*proto.Acc
 func (theProbe *TurboProbe) DiscoverTargetPerformance(accountValues []*proto.AccountValue) *proto.DiscoveryResponse {
 	glog.V(2).Infof("Performance discovery for Target: %s", accountValues)
 	targetId := findTargetId(accountValues, theProbe.RegistrationClient.GetIdentifyingFields())
-	if theProbe.DiscoveryClient == nil {
-		return theProbe.createMisconfiguredProbeErrorDTO("Incremental", targetId)
-	}
-
 	handler := theProbe.DiscoveryClient.IPerformanceDiscovery
 	if handler == nil {
 		glog.Errorf("Failed to performance discover target (id=%v): cannot find discovery handler.", targetId)
@@ -235,7 +205,7 @@ func (theProbe *TurboProbe) ExecuteAction(actionExecutionDTO *proto.ActionExecut
 // ==============================================================================================================
 // The Targets associated with this probe type
 func (theProbe *TurboProbe) GetProbeTargets() []*TurboTargetInfo {
-	if theProbe.DiscoveryClient == nil {
+	if theProbe.DiscoveryClient.TurboDiscoveryClient == nil {
 		return []*TurboTargetInfo{}
 	}
 
