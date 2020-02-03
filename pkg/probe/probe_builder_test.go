@@ -1,10 +1,11 @@
 package probe
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/turbonomic/turbo-go-sdk/pkg"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/turbonomic/turbo-go-sdk/pkg"
 )
 
 func TestNewProbeBuilder(t *testing.T) {
@@ -63,8 +64,9 @@ func TestNewProbeBuilderWithoutRegistrationClient(t *testing.T) {
 
 	probe, err := createProbe(probeType, probeCat, nil, "", nil)
 
-	if reflect.DeepEqual(nil, err) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", ErrorInvalidRegistrationClient(), err)
+	expectedErr := ErrorInvalidRegistrationClient()
+	if !reflect.DeepEqual(expectedErr, err) {
+		t.Errorf("\nExpected %+v, \ngot      %+v", expectedErr, err)
 	}
 	var expected *TurboProbe
 	if !reflect.DeepEqual(expected, probe) {
@@ -81,8 +83,9 @@ func TestNewProbeBuilderWithoutDiscoveryClient(t *testing.T) {
 
 	probe, err := createProbe(probeType, probeCat, registrationClient, targetID, nil)
 
+	expectedErr := ErrorUndefinedDiscoveryClient()
 	if reflect.DeepEqual(nil, err) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", ErrorUndefinedDiscoveryClient(), err)
+		t.Errorf("\nExpected %+v, \ngot      %+v", expectedErr, err)
 	}
 	var expected *TurboProbe
 	if !reflect.DeepEqual(expected, probe) {
@@ -117,7 +120,7 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 			registrationClient, probe.RegistrationClient)
 	}
 
-	dc := probe.getDiscoveryClient(targetId)
+	dc := probe.GetTurboDiscoveryClient()
 	if !reflect.DeepEqual(discoveryClient, dc) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", discoveryClient, dc)
 	}
