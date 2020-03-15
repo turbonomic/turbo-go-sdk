@@ -9,9 +9,9 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
-	"strings"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"
@@ -344,11 +344,11 @@ func openWebSocketConn(connConfig *WebSocketConnectionConfig, vmtServerUrl strin
 		//Non-Aunthenticated proxy format: http://ip:port
 		if strings.Index(proxy, "@") != -1 {
 			//Extract the username password portion, with @
-			username_password := proxy[strings.Index(proxy,"//") + 2:strings.Index(proxy,"@") + 1]
-			username := username_password[:strings.Index(username_password,":")]
-			password := username_password[strings.Index(username_password,":") + 1:strings.Index(username_password,"@")]
+			username_password := proxy[strings.Index(proxy, "//")+2 : strings.Index(proxy, "@")+1]
+			username := username_password[:strings.Index(username_password, ":")]
+			password := username_password[strings.Index(username_password, ":")+1 : strings.Index(username_password, "@")]
 			//Extract Proxy address by remove the username_password
-			proxy_addr := strings.ReplaceAll(proxy, username_password , "")
+			proxy_addr := strings.ReplaceAll(proxy, username_password, "")
 			proxyURL, _ := url.Parse(proxy_addr)
 			proxyURL.User = url.UserPassword(username, password)
 			d.Proxy = http.ProxyURL(proxyURL)
