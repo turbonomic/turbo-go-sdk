@@ -10,5 +10,5 @@ require (
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.3.0
-	github.com/turbonomic/turbo-api v0.0.0-20180816193551-ed948ba97e70
+	github.com/turbonomic/turbo-api v0.0.0-20200316022338-fbd613adc0eb
 )

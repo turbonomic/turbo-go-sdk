@@ -19,6 +19,7 @@ const (
 type ServerMeta struct {
 	TurboServer string `json:"turboServer,omitempty"`
 	Version     string `json:"version,omitempty"`
+	Proxy       string `json:"proxy,omitempty"`
 }
 
 func (meta *ServerMeta) ValidateServerMeta() error {
