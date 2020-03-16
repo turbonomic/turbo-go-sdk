@@ -344,16 +344,22 @@ func openWebSocketConn(connConfig *WebSocketConnectionConfig, vmtServerUrl strin
 		//Non-Aunthenticated proxy format: http://ip:port
 		if strings.Index(proxy, "@") != -1 {
 			//Extract the username password portion, with @
-			username_password := proxy[strings.Index(proxy, "//")+2 : strings.Index(proxy, "@")+1]
+			username_password := proxy[strings.Index(proxy, "//")+2 : strings.LastIndex(proxy, "@")+1]
 			username := username_password[:strings.Index(username_password, ":")]
-			password := username_password[strings.Index(username_password, ":")+1 : strings.Index(username_password, "@")]
+			password := username_password[strings.Index(username_password, ":")+1 : strings.LastIndex(username_password, "@")]
 			//Extract Proxy address by remove the username_password
-			proxy_addr := strings.ReplaceAll(proxy, username_password, "")
-			proxyURL, _ := url.Parse(proxy_addr)
+			proxyAddr := strings.ReplaceAll(proxy, username_password, "")
+			proxyURL, err := url.Parse(proxyAddr)
+			if err != nil {
+				return nil, fmt.Errorf("Failed to parse proxy\n")
+			}
 			proxyURL.User = url.UserPassword(username, password)
 			d.Proxy = http.ProxyURL(proxyURL)
 		} else {
-			proxyURL, _ := url.Parse(proxy)
+			proxyURL, err := url.Parse(proxy)
+			if err != nil {
+				return nil, fmt.Errorf("Failed to parse proxy\n")
+			}
 			d.Proxy = http.ProxyURL(proxyURL)
 		}
 	}
