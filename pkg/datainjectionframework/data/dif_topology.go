@@ -15,7 +15,7 @@ func NewTopology() *Topology {
 		Version:    "v1",
 		Updatetime: 0,
 		Entities:   []*DIFEntity{},
-		Scope: "",
+		Scope:      "",
 	}
 }
 

@@ -4,7 +4,6 @@ type CDPMetric struct {
 	MetricMap map[string]*CDPMetricVal
 }
 
-
 type CDPMetricVal struct {
 	Average     float64       `json:"average"`
 	Min         float64       `json:"min"`
