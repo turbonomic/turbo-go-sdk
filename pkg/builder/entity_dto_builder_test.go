@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"errors"
+	"github.com/stretchr/testify/assert"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
 )
@@ -24,11 +25,13 @@ func TestEntityDTOBuilder_NewEntityDTOBuilder(t *testing.T) {
 	for _, item := range table {
 		builder := NewEntityDTOBuilder(item.eType, item.id)
 		expectedBuilder := &EntityDTOBuilder{
-			entityType: &item.eType,
-			id:         &item.id,
+			entityType:        &item.eType,
+			id:                &item.id,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if !reflect.DeepEqual(expectedBuilder, builder) {
-			t.Errorf("Expect builder %++v, got %++v", expectedBuilder, builder)
+			t.Errorf("Expect builder %++v,\n got %++v\n", expectedBuilder, builder)
 		}
 	}
 }
@@ -83,13 +86,15 @@ func TestCreate(t *testing.T) {
 			t.Errorf("Expect error? %t, but got hasError? %t", item.expectsError, gotError)
 		}
 		if !item.expectsError {
+			eb := randomBaseEntityDTOBuilder()
+			eb.commoditiesBoughtProviderMap = item.commoditiesBoughtProviderMap
 			expectedEntityDTO := &proto.EntityDTO{
 				EntityType:        &item.eType,
 				Id:                &item.id,
 				PowerState:        &item.powerState,
 				Origin:            &item.origin,
 				CommoditiesSold:   item.commoditiesSold,
-				CommoditiesBought: buildCommodityBoughtFromMap(item.commoditiesBoughtProviderMap),
+				CommoditiesBought: eb.buildCommodityBoughtFromMap(),
 			}
 			if !reflect.DeepEqual(expectedEntityDTO, entityDTO) {
 				t.Errorf("\nExpect\t %++v, \ngot\t %++v", expectedEntityDTO, entityDTO)
@@ -125,10 +130,12 @@ func TestDisplayName(t *testing.T) {
 			displayName = &item.displayName
 		}
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:  base.entityType,
-			id:          base.id,
-			displayName: displayName,
-			err:         item.err,
+			entityType:        base.entityType,
+			id:                base.id,
+			displayName:       displayName,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
+			err:               item.err,
 		}
 		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected: %++v, \ngot %++v", expectedBuilder, builder)
@@ -159,10 +166,12 @@ func TestEntityDTOBuilder_SellsCommodities(t *testing.T) {
 		}
 		builder := base.SellsCommodities(item.commDTOs)
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:      base.entityType,
-			id:              base.id,
-			commoditiesSold: item.commDTOs,
-			err:             item.err,
+			entityType:        base.entityType,
+			id:                base.id,
+			commoditiesSold:   item.commDTOs,
+			err:               item.err,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected: %++v, \ngot %++v", expectedBuilder, builder)
@@ -194,10 +203,12 @@ func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 			comms = append(comms, item.commDTO)
 		}
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:      base.entityType,
-			id:              base.id,
-			commoditiesSold: comms,
-			err:             item.err,
+			entityType:        base.entityType,
+			id:                base.id,
+			commoditiesSold:   comms,
+			err:               item.err,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected:\n %++v, \ngot\n %++v", expectedBuilder, builder)
@@ -221,8 +232,10 @@ func TestEntityDTOBuilder_WithPowerState(t *testing.T) {
 	for _, item := range table {
 		base := randomBaseEntityDTOBuilder()
 		expectedBuilder := &EntityDTOBuilder{
-			entityType: base.entityType,
-			id:         base.id,
+			entityType:        base.entityType,
+			id:                base.id,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if item.existingErr != nil {
 			base.err = item.existingErr
@@ -253,8 +266,10 @@ func TestEntityDTOBuilder_Monitored(t *testing.T) {
 	for _, item := range table {
 		base := randomBaseEntityDTOBuilder()
 		expectedBuilder := &EntityDTOBuilder{
-			entityType: base.entityType,
-			id:         base.id,
+			entityType:        base.entityType,
+			id:                base.id,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if item.existingErr != nil {
 			base.err = item.existingErr
@@ -293,9 +308,11 @@ func TestEntityDTOBuilder_ApplicationData(t *testing.T) {
 		base := randomBaseEntityDTOBuilder()
 		base.entityDataHasSet = item.entityDataHasSetFlag
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:       base.entityType,
-			id:               base.id,
-			entityDataHasSet: base.entityDataHasSet,
+			entityType:        base.entityType,
+			id:                base.id,
+			entityDataHasSet:  base.entityDataHasSet,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if item.existingErr != nil {
 			base.err = item.existingErr
@@ -340,9 +357,11 @@ func TestEntityDTOBuilder_VirtualMachineData(t *testing.T) {
 		base := randomBaseEntityDTOBuilder()
 		base.entityDataHasSet = item.entityDataHasSetFlag
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:       base.entityType,
-			id:               base.id,
-			entityDataHasSet: base.entityDataHasSet,
+			entityType:        base.entityType,
+			id:                base.id,
+			entityDataHasSet:  base.entityDataHasSet,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if item.existingErr != nil {
 			base.err = item.existingErr
@@ -387,9 +406,11 @@ func TestEntityDTOBuilder_VirtualApplicationData(t *testing.T) {
 		base := randomBaseEntityDTOBuilder()
 		base.entityDataHasSet = item.entityDataHasSetFlag
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:       base.entityType,
-			id:               base.id,
-			entityDataHasSet: base.entityDataHasSet,
+			entityType:        base.entityType,
+			id:                base.id,
+			entityDataHasSet:  base.entityDataHasSet,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if item.existingErr != nil {
 			base.err = item.existingErr
@@ -509,9 +530,11 @@ func TestEntityDTOBuilder_ContainerPodData(t *testing.T) {
 		base := randomBaseEntityDTOBuilder()
 		base.entityDataHasSet = item.entityDataHasSetFlag
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:       base.entityType,
-			id:               base.id,
-			entityDataHasSet: base.entityDataHasSet,
+			entityType:        base.entityType,
+			id:                base.id,
+			entityDataHasSet:  base.entityDataHasSet,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if item.existingErr != nil {
 			base.err = item.existingErr
@@ -556,9 +579,11 @@ func TestEntityDTOBuilder_ContainerData(t *testing.T) {
 		base := randomBaseEntityDTOBuilder()
 		base.entityDataHasSet = item.entityDataHasSetFlag
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:       base.entityType,
-			id:               base.id,
-			entityDataHasSet: base.entityDataHasSet,
+			entityType:        base.entityType,
+			id:                base.id,
+			entityDataHasSet:  base.entityDataHasSet,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
 		if item.existingErr != nil {
 			base.err = item.existingErr
@@ -644,7 +669,9 @@ func TestBuildCommodityBoughtFromMap(t *testing.T) {
 			}
 		}
 
-		gotCommoditiesBought := buildCommodityBoughtFromMap(inputMap)
+		eb := NewEntityDTOBuilder(proto.EntityDTO_VIRTUAL_MACHINE, "id1")
+		eb.commoditiesBoughtProviderMap = inputMap
+		gotCommoditiesBought := eb.buildCommodityBoughtFromMap()
 		for _, commBought := range gotCommoditiesBought {
 			found := false
 			if expectedComm, exists := expectedCommoditiesBought[commBought.GetProviderId()]; exists {
@@ -664,6 +691,165 @@ func TestBuildCommodityBoughtFromMap(t *testing.T) {
 			t.Errorf("Test case %d failed. Expected commodities bought %++v NOT found.", i,
 				expectedCommoditiesBought)
 		}
+	}
+}
+
+func TestEntityActionEligibilityFlags(t *testing.T) {
+	trueFlag := true
+	falseFlag := false
+	table := []struct {
+		entityType proto.EntityDTO_EntityType
+		entityId   string
+		suspend    *bool
+		provision  *bool
+	}{
+		// Pods with suspend and provision flags
+		{
+			entityType: proto.EntityDTO_CONTAINER_POD,
+			entityId:   "pod1",
+			suspend:    &trueFlag,
+			provision:  &trueFlag,
+		},
+		{
+			entityType: proto.EntityDTO_CONTAINER_POD,
+			entityId:   "pod2",
+			suspend:    &falseFlag,
+			provision:  &falseFlag,
+		},
+		{
+			entityType: proto.EntityDTO_CONTAINER_POD,
+			entityId:   "pod3",
+			suspend:    &trueFlag,
+			provision:  &falseFlag,
+		},
+		{
+			entityType: proto.EntityDTO_CONTAINER_POD,
+			entityId:   "pod4",
+			suspend:    &falseFlag,
+			provision:  &trueFlag,
+		},
+		// Pods without both or one of the suspend and provision flags
+		{
+			entityType: proto.EntityDTO_CONTAINER_POD,
+			entityId:   "pod5",
+		},
+		{
+			entityType: proto.EntityDTO_CONTAINER_POD,
+			entityId:   "pod6",
+			suspend:    &falseFlag,
+		},
+		{
+			entityType: proto.EntityDTO_CONTAINER_POD,
+			entityId:   "pod7",
+			provision:  &falseFlag,
+		},
+	}
+
+	entityMap := map[string]*proto.EntityDTO{}
+	for _, item := range table {
+		eb := NewEntityDTOBuilder(proto.EntityDTO_VIRTUAL_MACHINE, "id1")
+		ae := eb.actionEligibility
+		assert.NotNil(t, ae)
+
+		if item.suspend != nil {
+			eb.IsSuspendable(*item.suspend)
+		}
+		if item.provision != nil {
+			eb.IsProvisionable(*item.provision)
+		}
+
+		entity, err := eb.Create()
+		assert.Nil(t, err)
+		entityMap[item.entityId] = entity
+	}
+
+	for _, item := range table {
+		entity := entityMap[item.entityId]
+
+		ae := entity.GetActionEligibility()
+		assert.NotNil(t, ae)
+
+		if item.suspend != nil {
+			assert.EqualValues(t, *item.suspend, ae.GetSuspendable())
+		}
+		if item.provision != nil {
+			assert.EqualValues(t, *item.provision, ae.GetCloneable())
+		}
+	}
+}
+
+func TestCommodityBoughtActionEligibilityFlags(t *testing.T) {
+	trueFlag := true
+	falseFlag := false
+	table := map[proto.EntityDTO_EntityType]struct {
+		providerType  proto.EntityDTO_EntityType
+		providerId    string
+		commodityList []*proto.CommodityDTO
+		movable       *bool
+		startable     *bool
+	}{
+		proto.EntityDTO_PHYSICAL_MACHINE: {
+			providerType:  proto.EntityDTO_PHYSICAL_MACHINE,
+			providerId:    "pm1",
+			commodityList: []*proto.CommodityDTO{},
+			movable:       &trueFlag,
+			startable:     &trueFlag,
+		},
+		proto.EntityDTO_STORAGE: {
+			providerType:  proto.EntityDTO_STORAGE,
+			providerId:    "st1",
+			commodityList: []*proto.CommodityDTO{},
+			movable:       &falseFlag,
+			startable:     &trueFlag,
+		},
+		proto.EntityDTO_VIRTUAL_DATACENTER: {
+			providerType:  proto.EntityDTO_VIRTUAL_DATACENTER,
+			providerId:    "vdc1",
+			commodityList: []*proto.CommodityDTO{},
+		},
+	}
+	commoditiesBoughtProviderMap := make(map[string][]*proto.CommodityDTO)
+	eb := NewEntityDTOBuilder(proto.EntityDTO_VIRTUAL_MACHINE, "id1")
+	ae := eb.actionEligibility
+	assert.NotNil(t, ae)
+
+	eb.commoditiesBoughtProviderMap = commoditiesBoughtProviderMap
+	for _, item := range table {
+		commoditiesBoughtProviderMap[item.providerId] = item.commodityList
+		provider := CreateProvider(item.providerType, item.providerId)
+		eb.Provider(provider)
+		eb.BuysCommodities(item.commodityList)
+		if item.movable != nil {
+			eb.IsMovable(item.providerType, *item.movable)
+		}
+		if item.startable != nil {
+			eb.IsStartable(item.providerType, *item.startable)
+		}
+	}
+	vmEntity, err := eb.Create()
+	assert.Nil(t, err)
+
+	for _, bought := range vmEntity.GetCommoditiesBought() {
+		commItem := table[*bought.ProviderType]
+
+		ae := bought.GetActionEligibility()
+		if commItem.movable != nil {
+			assert.EqualValues(t, *commItem.movable, *ae.Movable)
+		} else {
+
+			assert.Nil(t, ae)
+		}
+		if commItem.startable != nil {
+			assert.EqualValues(t, *commItem.startable, *ae.Startable)
+		} else {
+			assert.Nil(t, ae)
+		}
+	}
+}
+
+func testNewActionEligibility() *ActionEligibility {
+	return &ActionEligibility{
+		actionEligibilityByProviderMap: make(map[proto.EntityDTO_EntityType]*ActionEligibilityByProvider),
 	}
 }
 

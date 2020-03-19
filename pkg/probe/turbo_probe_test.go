@@ -1,9 +1,10 @@
 package probe
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/turbonomic/turbo-go-sdk/pkg"
-	"testing"
 )
 
 func TestGetProbeInfoWithDefaultDiscoveryIntervals(t *testing.T) {
@@ -52,7 +53,7 @@ func TestNewProbe(t *testing.T) {
 		if pc.Validate() == nil {
 			assert.Nil(t, err)
 			assert.NotNil(t, theProbe)
-			assert.NotNil(t, theProbe.DiscoveryClientMap)
+			assert.NotNil(t, theProbe.TargetsToAdd)
 			assert.NotNil(t, theProbe.ProbeConfiguration)
 			assert.NotNil(t, theProbe.RegistrationClient)
 			discoveryMetadata := theProbe.ProbeConfiguration.discoveryMetadata

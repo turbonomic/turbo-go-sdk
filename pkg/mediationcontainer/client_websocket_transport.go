@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -334,6 +335,33 @@ func openWebSocketConn(connConfig *WebSocketConnectionConfig, vmtServerUrl strin
 	d := &websocket.Dialer{
 		HandshakeTimeout: handshakeTimeout,
 		TLSClientConfig:  &tls.Config{InsecureSkipVerify: true},
+	}
+
+	proxy := connConfig.Proxy
+	if proxy != "" {
+		//Check if the proxy server requires authentication or not
+		//Authenticated proxy format: http://username:password@ip:port
+		//Non-Aunthenticated proxy format: http://ip:port
+		if strings.Index(proxy, "@") != -1 {
+			//Extract the username password portion, with @
+			username_password := proxy[strings.Index(proxy, "//")+2 : strings.LastIndex(proxy, "@")+1]
+			username := username_password[:strings.Index(username_password, ":")]
+			password := username_password[strings.Index(username_password, ":")+1 : strings.LastIndex(username_password, "@")]
+			//Extract Proxy address by remove the username_password
+			proxyAddr := strings.ReplaceAll(proxy, username_password, "")
+			proxyURL, err := url.Parse(proxyAddr)
+			if err != nil {
+				return nil, fmt.Errorf("Failed to parse proxy\n")
+			}
+			proxyURL.User = url.UserPassword(username, password)
+			d.Proxy = http.ProxyURL(proxyURL)
+		} else {
+			proxyURL, err := url.Parse(proxy)
+			if err != nil {
+				return nil, fmt.Errorf("Failed to parse proxy\n")
+			}
+			d.Proxy = http.ProxyURL(proxyURL)
+		}
 	}
 
 	//2. auth header

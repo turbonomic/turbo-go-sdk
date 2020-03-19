@@ -3,6 +3,7 @@
 
 example_probe
 .idea/
+.vscode/
 turbo-go-sdk.iml
 
 pkg/mediationcontainer/mediation_container_test.go
