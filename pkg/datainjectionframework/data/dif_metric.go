@@ -1,42 +1,42 @@
 package data
 
-type CDPMetric struct {
-	MetricMap map[string]*CDPMetricVal
+type DIFMetric struct {
+	MetricMap map[string]*DIFMetricVal
 }
 
-type CDPMetricVal struct {
+type DIFMetricVal struct {
 	Average     float64       `json:"average"`
 	Min         float64       `json:"min"`
 	Max         float64       `json:"min"`
 	Capacity    float64       `json:"min"`
-	Unit        CDPMetricUnit `json:"unit"`
+	Unit        DIFMetricUnit `json:"unit"`
 	Key         string        `json:"key"`
 	Description string        `json:"description"`
 	RawMetrics  interface{}   `json:"rawData"`
 }
 
-type CDPMetricUnit string
+type DIFMetricUnit string
 
 const (
-	COUNT CDPMetricUnit = "count"
-	TPS   CDPMetricUnit = "tps"
-	MS    CDPMetricUnit = "ms"
-	MB    CDPMetricUnit = "mb"
-	MHZ   CDPMetricUnit = "mhz"
-	PCT   CDPMetricUnit = "pct"
+	COUNT DIFMetricUnit = "count"
+	TPS   DIFMetricUnit = "tps"
+	MS    DIFMetricUnit = "ms"
+	MB    DIFMetricUnit = "mb"
+	MHZ   DIFMetricUnit = "mhz"
+	PCT   DIFMetricUnit = "pct"
 )
 
-type CDPMetricValKey string
+type DIFMetricValKey string
 
 const (
-	KEY         CDPMetricValKey = "key"
-	DESCRIPTION CDPMetricValKey = "description"
-	RAWDATA     CDPMetricValKey = "rawData"
-	AVERAGE     CDPMetricValKey = "average"
-	MAX         CDPMetricValKey = "max"
-	MIN         CDPMetricValKey = "min"
-	CAPACITY    CDPMetricValKey = "capacity"
-	UNIT        CDPMetricValKey = "unit"
+	KEY         DIFMetricValKey = "key"
+	DESCRIPTION DIFMetricValKey = "description"
+	RAWDATA     DIFMetricValKey = "rawData"
+	AVERAGE     DIFMetricValKey = "average"
+	MAX         DIFMetricValKey = "max"
+	MIN         DIFMetricValKey = "min"
+	CAPACITY    DIFMetricValKey = "capacity"
+	UNIT        DIFMetricValKey = "unit"
 )
 
 const (

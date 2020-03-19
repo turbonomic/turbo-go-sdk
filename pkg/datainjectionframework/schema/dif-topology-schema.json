@@ -35,7 +35,7 @@
       "properties": {
         "type": {
           "description": "Entity type of the entity",
-          "$ref" : "file:///Users/pallavinayak/go/src/github.com/turbonomic/cdpturbo/pkg/config/dif-entity-schema.json#/definitions/entityType"
+          "$ref" : "dif-entity-schema.json#/definitions/entityType"
         },
         "uniqueId": {
           "description": "Unique identifier for the entity, within the scope of the target",
@@ -62,7 +62,7 @@
             "hostType" : {
               "description": "List of entity types of the possible underlying host entity. The order in which the entity types is specified is used to find the host entity.",
               "type": "array",
-              "items": {"$ref" : "file:///Users/pallavinayak/go/src/github.com/turbonomic/cdpturbo/pkg/config/dif-entity-schema.json#/definitions/hostEntityType"}
+              "items": {"$ref" : "dif-entity-schema.json#/definitions/hostEntityType"}
             },
             "hostUuid": {
               "description": "Unique identifier for the host entity",
@@ -85,7 +85,7 @@
             "properties": {
               "entity": {
                 "description": "Entity type of the parent entity ",
-                "$ref": "file:///Users/pallavinayak/go/src/github.com/turbonomic/cdpturbo/pkg/config/dif-entity-schema.json#/definitions/entityType"
+                "$ref": "dif-entity-schema.json#/definitions/entityType"
               },
               "uniqueId": {
                 "description": "Unique identifier for the parent entity within the scope of this target",
@@ -98,7 +98,7 @@
           "description": "List of metrics and values for the entity",
           "type" : "array",
           "items": {
-            "$ref": "file:///Users/pallavinayak/go/src/github.com/turbonomic/cdpturbo/pkg/config/dif-entity-schema.json#/definitions/metricsEntry"
+            "$ref": "dif-entity-schema.json#/definitions/metricsEntry"
           },
           "minItems" : 1
         }
