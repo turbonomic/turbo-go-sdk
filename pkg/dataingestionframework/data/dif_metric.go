@@ -40,6 +40,6 @@ const (
 )
 
 const (
-	UNSET_FLOAT  = -100.0
+	UNSET_FLOAT  = 0.0
 	UNSET_STRING = ""
 )

@@ -7,6 +7,7 @@ type Topology struct {
 	Version    string       `json:"version"`
 	Updatetime int64        `json:"updateTime"`
 	Scope      string       `json:"scope"`
+	Source     string       `json:"source"`
 	Entities   []*DIFEntity `json:"topology"`
 }
 
