@@ -621,16 +621,16 @@ func TestEntityDTOBuilder_WorkloadControllerData(t *testing.T) {
 		},
 		{
 			workloadControllerData: rand.RandomWorkloadControllerData(),
-			entityDataHasSetFlag:    true,
+			entityDataHasSetFlag:   true,
 		},
 	}
 	for i, item := range table {
 		base := randomBaseEntityDTOBuilder()
 		base.entityDataHasSet = item.entityDataHasSetFlag
 		expectedBuilder := &EntityDTOBuilder{
-			entityType:       base.entityType,
-			id:               base.id,
-			entityDataHasSet: base.entityDataHasSet,
+			entityType:        base.entityType,
+			id:                base.id,
+			entityDataHasSet:  base.entityDataHasSet,
 			actionEligibility: testNewActionEligibility(),
 			providerMap:       make(map[string]proto.EntityDTO_EntityType),
 		}
