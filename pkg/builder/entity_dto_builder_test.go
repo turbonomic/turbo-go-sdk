@@ -604,6 +604,54 @@ func TestEntityDTOBuilder_ContainerData(t *testing.T) {
 	}
 }
 
+func TestEntityDTOBuilder_WorkloadControllerData(t *testing.T) {
+	table := []struct {
+		workloadControllerData *proto.EntityDTO_WorkloadControllerData
+
+		entityDataHasSetFlag bool
+		existingErr          error
+	}{
+		{
+			workloadControllerData: rand.RandomWorkloadControllerData(),
+			existingErr:            errors.New("Error"),
+		},
+		{
+			workloadControllerData: rand.RandomWorkloadControllerData(),
+			entityDataHasSetFlag:   false,
+		},
+		{
+			workloadControllerData: rand.RandomWorkloadControllerData(),
+			entityDataHasSetFlag:   true,
+		},
+	}
+	for i, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		base.entityDataHasSet = item.entityDataHasSetFlag
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:        base.entityType,
+			id:                base.id,
+			entityDataHasSet:  base.entityDataHasSet,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			if item.entityDataHasSetFlag {
+				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.workloadControllerData)
+			} else {
+				expectedBuilder.workloadControllerData = item.workloadControllerData
+				expectedBuilder.entityDataHasSet = true
+			}
+		}
+		builder := base.WorkloadControllerData(item.workloadControllerData)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Test case %d failed. Expected %+v, \ngot      %+v", i, expectedBuilder, builder)
+		}
+	}
+}
+
 func TestBuildCommodityBoughtFromMap(t *testing.T) {
 	table := []struct {
 		providerCount int
