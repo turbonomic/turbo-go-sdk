@@ -1451,7 +1451,9 @@ func init() {
 	proto.RegisterType((*MergedEntityMetadata_CommoditySoldMetadata)(nil), "common_dto.MergedEntityMetadata.CommoditySoldMetadata")
 }
 
-func init() { proto.RegisterFile("SupplyChain.proto", fileDescriptor_433ea2f7708f0dad) }
+func init() {
+	proto.RegisterFile("SupplyChain.proto", fileDescriptor_433ea2f7708f0dad)
+}
 
 var fileDescriptor_433ea2f7708f0dad = []byte{
 	// 1393 bytes of a gzipped FileDescriptorProto

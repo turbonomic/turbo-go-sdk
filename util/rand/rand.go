@@ -194,6 +194,17 @@ func RandomContainerData() *proto.EntityDTO_ContainerData {
 	}
 }
 
+func RandomWorkloadControllerData() *proto.EntityDTO_WorkloadControllerData {
+	customControllerType := String(5)
+	return &proto.EntityDTO_WorkloadControllerData{
+		ControllerType: &proto.EntityDTO_WorkloadControllerData_CustomControllerData{
+			CustomControllerData: &proto.EntityDTO_CustomControllerData{
+				CustomControllerType: &customControllerType,
+			},
+		},
+	}
+}
+
 func RandomVMState() *proto.EntityDTO_VMState {
 	connected := rand.Int31n(2) == 1
 	return &proto.EntityDTO_VMState{
