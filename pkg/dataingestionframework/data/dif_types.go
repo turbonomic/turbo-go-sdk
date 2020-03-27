@@ -11,8 +11,9 @@ type DIFEntity struct {
 	HostedOn            *DIFHostedOn             `json:"hostedOn"`
 	MatchingIdentifiers *DIFMatchingIdentifiers  `json:"matchIdentifiers"`
 	PartOf              []*DIFPartOf             `json:"partOf"`
-	Metrics             []map[string]interface{} `json:"metrics,omitempty"`
+	Metrics             []map[string][]*DIFMetricVal`json:"metrics"`
 }
+
 
 type DIFMatchingIdentifiers struct {
 	IPAddress string `json:"ipAddress"`
