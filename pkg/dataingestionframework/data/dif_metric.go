@@ -5,13 +5,13 @@ type DIFMetric struct {
 }
 
 type DIFMetricVal struct {
-	Average     float64       `json:"average"`
-	Min         float64       `json:"min"`
-	Max         float64       `json:"min"`
-	Capacity    float64       `json:"min"`
-	Unit        DIFMetricUnit `json:"unit"`
-	Key         string        `json:"key"`
-	Description string        `json:"description"`
+	Average     *float64       `json:"average"`
+	Min         *float64       `json:"min"`
+	Max         *float64       `json:"min"`
+	Capacity    *float64       `json:"min"`
+	Unit        *DIFMetricUnit `json:"unit"`
+	Key         *string        `json:"key"`
+	Description *string        `json:"description"`
 	RawMetrics  interface{}   `json:"rawData"`
 }
 
