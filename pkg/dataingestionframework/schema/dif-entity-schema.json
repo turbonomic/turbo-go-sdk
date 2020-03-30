@@ -129,7 +129,7 @@
 				{ "$ref": "#/definitions/_connections"},
 				{ "$ref": "#/definitions/_heap"},
 				{ "$ref": "#/definitions/_collectionTime"},
-				{ "$ref": "#/definitions/_sla"},
+				{ "$ref": "#/definitions/_custom"},
 				{ "$ref": "#/definitions/_cpu"},
 				{ "$ref": "#/definitions/_memory"},
 				{ "$ref": "#/definitions/_threads"},
@@ -269,11 +269,11 @@
 			},
 			"required": ["memory"]
 		},
-		"_sla" : {
-			"description": "Specification for the custom SLA metrics",
+		"_custom" : {
+			"description": "Specification for the custom metrics",
 			"type": "object",
 			"properties": {
-				"sla": {
+				"custom": {
 					"type": "array",
 					"items": {
 						"$ref": "#/definitions/metricValueWithKey"
@@ -282,7 +282,7 @@
 					"minItems": 1
 				}
 			},
-			"required": ["sla"]
+			"required": ["custom"]
 		},
 
 		"metricValueWithKey": {
