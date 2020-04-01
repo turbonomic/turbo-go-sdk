@@ -88,17 +88,17 @@ type EntityDTOBuilder struct {
 	// map of provider and the list of commodities bought from it
 	commoditiesBoughtProviderMap map[string][]*proto.CommodityDTO
 
-	storageData            *proto.EntityDTO_StorageData
-	diskArrayData          *proto.EntityDTO_DiskArrayData
-	applicationData        *proto.EntityDTO_ApplicationData
-	virtualMachineData     *proto.EntityDTO_VirtualMachineData
-	physicalMachineData    *proto.EntityDTO_PhysicalMachineData
-	virtualDataCenterData  *proto.EntityDTO_VirtualDatacenterData
-	storageControllerData  *proto.EntityDTO_StorageControllerData
-	logicalPoolData        *proto.EntityDTO_LogicalPoolData
-	virtualApplicationData *proto.EntityDTO_VirtualApplicationData
-	containerPodData       *proto.EntityDTO_ContainerPodData
-	containerData          *proto.EntityDTO_ContainerData
+	storageData           *proto.EntityDTO_StorageData
+	diskArrayData         *proto.EntityDTO_DiskArrayData
+	applicationData       *proto.EntityDTO_ApplicationData
+	virtualMachineData    *proto.EntityDTO_VirtualMachineData
+	physicalMachineData   *proto.EntityDTO_PhysicalMachineData
+	virtualDataCenterData *proto.EntityDTO_VirtualDatacenterData
+	storageControllerData *proto.EntityDTO_StorageControllerData
+	logicalPoolData       *proto.EntityDTO_LogicalPoolData
+	serviceData           *proto.EntityDTO_ServiceData
+	containerPodData      *proto.EntityDTO_ContainerPodData
+	containerData         *proto.EntityDTO_ContainerData
 
 	virtualMachineRelatedData    *proto.EntityDTO_VirtualMachineRelatedData
 	physicalMachineRelatedData   *proto.EntityDTO_PhysicalMachineRelatedData
@@ -158,8 +158,8 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		entityDTO.EntityData = &proto.EntityDTO_StorageControllerData_{eb.storageControllerData}
 	} else if eb.logicalPoolData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_LogicalPoolData_{eb.logicalPoolData}
-	} else if eb.virtualApplicationData != nil {
-		entityDTO.EntityData = &proto.EntityDTO_VirtualApplicationData_{eb.virtualApplicationData}
+	} else if eb.serviceData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_ServiceData_{eb.serviceData}
 	} else if eb.containerPodData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_ContainerPodData_{eb.containerPodData}
 	} else if eb.containerData != nil {
@@ -398,16 +398,16 @@ func (eb *EntityDTOBuilder) ContainerData(containerData *proto.EntityDTO_Contain
 	return eb
 }
 
-func (eb *EntityDTOBuilder) VirtualApplicationData(vAppData *proto.EntityDTO_VirtualApplicationData) *EntityDTOBuilder {
+func (eb *EntityDTOBuilder) ServiceData(serviceData *proto.EntityDTO_ServiceData) *EntityDTOBuilder {
 	if eb.err != nil {
 		return eb
 	}
 	if eb.entityDataHasSet {
-		eb.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", vAppData)
+		eb.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", serviceData)
 
 		return eb
 	}
-	eb.virtualApplicationData = vAppData
+	eb.serviceData = serviceData
 	eb.entityDataHasSet = true
 	return eb
 }
