@@ -86,14 +86,10 @@ func TestValidateWebSocketConfig(t *testing.T) {
 		wsUsername      string
 		wsPassword      string
 		connectionRetry int16
-		wsPath          string
-
-		expectedConfig *WebSocketConfig
-
-		expectErr bool
+		expectedConfig  *WebSocketConfig
+		expectErr       bool
 	}{
 		{
-
 			expectErr: false,
 		},
 		{
@@ -105,9 +101,7 @@ func TestValidateWebSocketConfig(t *testing.T) {
 			wsUsername:      rand.String(5),
 			wsPassword:      rand.String(5),
 			connectionRetry: 5,
-			wsPath:          rand.String(5),
-
-			expectErr: false,
+			expectErr:       false,
 		},
 	}
 	for _, item := range table {
@@ -115,7 +109,6 @@ func TestValidateWebSocketConfig(t *testing.T) {
 			LocalAddress:      item.localAddress,
 			WebSocketUsername: item.wsUsername,
 			WebSocketPassword: item.wsPassword,
-			WebSocketPaths:    item.wsPath,
 			ConnectionRetry:   item.connectionRetry,
 		}
 		err := config.ValidateWebSocketConfig()
@@ -131,15 +124,12 @@ func TestValidateWebSocketConfig(t *testing.T) {
 				LocalAddress:      item.localAddress,
 				WebSocketUsername: item.wsUsername,
 				WebSocketPassword: item.wsPassword,
-				WebSocketPaths:    item.wsPath,
 				ConnectionRetry:   item.connectionRetry,
 			}
 			if expectedConfig.LocalAddress == "" {
 				expectedConfig.LocalAddress = defaultRemoteMediationLocalAddress
 			}
-			if expectedConfig.WebSocketPaths == "" {
-				expectedConfig.WebSocketPaths = defaultRemoteMediationServerEndpoints
-			}
+			expectedConfig.WebSocketEndpoints = defaultRemoteMediationServerEndpoints
 			if expectedConfig.WebSocketUsername == "" {
 				expectedConfig.WebSocketUsername = defaultRemoteMediationServerUser
 			}
@@ -168,7 +158,6 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 					LocalAddress:      "http://127.0.0.1",
 					WebSocketUsername: rand.String(10),
 					WebSocketPassword: rand.String(10),
-					WebSocketPaths:    rand.String(10),
 					ConnectionRetry:   10,
 				},
 			},

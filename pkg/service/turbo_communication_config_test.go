@@ -15,6 +15,11 @@ func TestValidateRestAPIConfig(t *testing.T) {
 	}{
 		{
 			user:      "",
+			password:  "",
+			expectErr: false,
+		},
+		{
+			user:      "",
 			password:  rand.String(5),
 			expectErr: true,
 		},
@@ -61,7 +66,6 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					LocalAddress:      "http://127.0.0.1",
 					WebSocketUsername: rand.String(10),
 					WebSocketPassword: rand.String(10),
-					WebSocketPaths:    rand.String(10),
 					ConnectionRetry:   10,
 				},
 				RestAPIConfig{
@@ -119,7 +123,7 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 		err := item.config.ValidateTurboCommunicationConfig()
 		if item.expectErr {
 			if err == nil {
-				t.Errorf("Expects error, but go no error: %v", item.config)
+				t.Errorf("Expects error, but go no error: %+v", item.config)
 			}
 		} else {
 			if err != nil {
