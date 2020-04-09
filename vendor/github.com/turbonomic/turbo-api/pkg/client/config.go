@@ -4,24 +4,19 @@ import (
 	"net/url"
 )
 
-const (
-	defaultAPIPath = "vmturbo/rest/"
-)
-
 type Config struct {
 	// ServerAddress is A URL, including <Scheme>://<IP>:<Port>.
 	serverAddress *url.URL
-	// APIPath is a sub-path that points to an API root.
-	apiPath string
-
 	// For Basic authentication.
 	basicAuth *BasicAuthentication
+	// For proxy
+	proxy string
 }
 
 type ConfigBuilder struct {
 	serverAddress *url.URL
-	apiPath       string
 	basicAuth     *BasicAuthentication
+	proxy         string
 }
 
 func NewConfigBuilder(serverAddress *url.URL) *ConfigBuilder {
@@ -30,8 +25,8 @@ func NewConfigBuilder(serverAddress *url.URL) *ConfigBuilder {
 	}
 }
 
-func (cb *ConfigBuilder) APIPath(apiPath string) *ConfigBuilder {
-	cb.apiPath = apiPath
+func (cb *ConfigBuilder) SetProxy(proxy string) *ConfigBuilder {
+	cb.proxy = proxy
 	return cb
 }
 
@@ -46,13 +41,7 @@ func (cb *ConfigBuilder) BasicAuthentication(usrn, passd string) *ConfigBuilder 
 func (cb *ConfigBuilder) Create() *Config {
 	return &Config{
 		serverAddress: cb.serverAddress,
-		// If API path not specified, use the default API path.
-		apiPath: func() string {
-			if cb.apiPath == "" {
-				return defaultAPIPath
-			}
-			return cb.apiPath
-		}(),
-		basicAuth: cb.basicAuth,
+		basicAuth:     cb.basicAuth,
+		proxy:         cb.proxy,
 	}
 }

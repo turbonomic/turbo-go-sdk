@@ -18,8 +18,11 @@ type RestAPIConfig struct {
 }
 
 func (rc *RestAPIConfig) ValidRestAPIConfig() error {
-	if rc.OpsManagerUsername == "" || rc.OpsManagerPassword == "" {
-		return errors.New("Either username or password for API is not provided.")
+	// User should either specify neither username nor password, or
+	// specify both username and password
+	if (rc.OpsManagerUsername == "" && rc.OpsManagerPassword != "") ||
+		(rc.OpsManagerUsername != "" && rc.OpsManagerPassword == "") {
+		return errors.New("both username and password must be provided")
 	}
 	return nil
 }

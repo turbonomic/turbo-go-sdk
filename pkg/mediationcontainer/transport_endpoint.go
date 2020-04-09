@@ -5,6 +5,7 @@ type ITransport interface {
 	// Open
 	Connect() error
 	GetConnectionId() string
+	GetService() string
 	// Send
 	Send(messageToSend *TransportMessage) error
 	// Receive

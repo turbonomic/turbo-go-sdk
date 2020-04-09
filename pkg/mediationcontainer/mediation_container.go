@@ -77,6 +77,11 @@ func InitMediationContainer(probeRegisteredMsg chan bool) {
 	remoteMediationClient.Init(probeRegisteredMsg)
 }
 
+func GetMediationService() string {
+	theContainer := singletonMediationContainer()
+	return theContainer.theRemoteMediationClient.Transport.GetService()
+}
+
 func CloseMediationContainer() {
 	glog.Infof("[CloseMediationContainer] Closing mediation container .....")
 	theContainer := singletonMediationContainer()

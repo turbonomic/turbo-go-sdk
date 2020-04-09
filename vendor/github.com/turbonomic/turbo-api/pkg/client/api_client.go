@@ -1,17 +1,15 @@
 package client
 
 import (
-	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
-
 	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-api/pkg/api"
+	"net/http"
 )
 
-type Client struct {
+// APIClient connects to api service through ingress
+type APIClient struct {
 	*RESTClient
 	SessionCookie *http.Cookie
 }
@@ -20,25 +18,75 @@ const (
 	SessionCookie string = "JSESSIONID"
 )
 
-// Create a Turbo API Client based on basic authentication.
-func NewAPIClientWithBA(c *Config) (*Client, error) {
-	if c.basicAuth == nil {
-		return nil, errors.New("Basic authentication is not set")
+// Discover a target using API
+// This function is called by turboctl which is not being maintained
+func (c *APIClient) DiscoverTarget(uuid string) (*Result, error) {
+	response, err := c.Post().Resource(api.Resource_Type_Targets).Name(uuid).Do()
+	if err != nil {
+		return nil, fmt.Errorf("failed to discover target %s: %s", uuid, err)
 	}
-	client := http.DefaultClient
-	// If use https, disable the security check.
-	if c.serverAddress.Scheme == "https" {
-		tr := &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		client = &http.Client{Transport: tr}
+	if response.statusCode != 200 {
+		return nil, buildResponseError("target discovery", response.status, response.body)
 	}
-	restClient := NewRESTClient(client, c.serverAddress, c.apiPath).BasicAuthentication(c.basicAuth)
-	return &Client{restClient, nil}, nil
+	return &response, nil
+}
+
+// AddTarget adds a target via api service
+func (c *APIClient) AddTarget(target *api.Target) error {
+	// Login first
+	if _, err := c.login(); err != nil {
+		return fmt.Errorf("failed to login: %v", err)
+	}
+
+	// Find if the target exists
+	targetExists, _ := c.findTarget(target)
+	if targetExists {
+		glog.V(2).Infof("Target %v already exists.", getTargetId(target))
+		return nil
+	}
+
+	// Construct the Target required by the rest api
+	targetData, err := json.Marshal(target)
+	if err != nil {
+		return fmt.Errorf("failed to marshall target instance: %v", err)
+	}
+
+	// Create the rest api request
+	request := c.Post().Resource(api.Resource_Type_Targets).
+		Header("Content-Type", "application/json").
+		Header("Accept", "application/json").
+		Header("Cookie", fmt.Sprintf("%s=%s", c.SessionCookie.Name, c.SessionCookie.Value)).
+		Data(targetData)
+
+	glog.V(4).Infof("[AddTarget] %v.", request)
+	glog.V(4).Infof("[AddTarget] Data: %s.", targetData)
+
+	// Execute the request
+	response, err := request.Do()
+	if err != nil {
+		return fmt.Errorf("request %v failed: %s", request, err)
+	}
+	glog.V(4).Infof("Response %+v.", response)
+
+	if response.statusCode != 200 {
+		return buildResponseError("target addition", response.status, response.body)
+	}
+
+	glog.V(2).Infof("Successfully added target via API service: %v.", response)
+	return nil
 }
 
 // Login to the Turbo API server
-func (c *Client) Login() (*Result, error) {
+func (c *APIClient) login() (*Result, error) {
+	if c.SessionCookie != nil {
+		// Already logged in
+		return nil, nil
+	}
+	if c.basicAuth == nil ||
+		c.basicAuth.username == "" ||
+		c.basicAuth.password == "" {
+		return nil, fmt.Errorf("missing username and password")
+	}
 	var data []byte
 	data = []byte(fmt.Sprintf("username=%s&password=%s", c.basicAuth.username, c.basicAuth.password))
 	request := c.Post().Resource("login").
@@ -57,81 +105,30 @@ func (c *Client) Login() (*Result, error) {
 	sessionCookie, ok := response.cookies[SessionCookie]
 	if ok {
 		c.SessionCookie = sessionCookie
-		glog.V(4).Infof("Session Cookie = %s:%s\n", c.SessionCookie.Name, c.SessionCookie.Value)
+		glog.V(2).Infof("Successfully logged in to Turbonomic server.")
+		glog.V(4).Infof("Session Cookie = %s:%s.", c.SessionCookie.Name, c.SessionCookie.Value)
 	} else {
-		return nil, buildResponseError("Invalid session cookie", response.status, fmt.Sprintf("%s", response.cookies))
+		return nil, buildResponseError("Invalid session cookie", response.status,
+			fmt.Sprintf("%s", response.cookies))
 	}
 	return &response, nil
 }
 
-// Discover a target using API
-func (c *Client) DiscoverTarget(uuid string) (*Result, error) {
-	response, err := c.Post().Resource(api.Resource_Type_Target).Name(uuid).Do()
-	if err != nil {
-		return nil, fmt.Errorf("Failed to discover target %s: %s", uuid, err)
-	}
-	if response.statusCode != 200 {
-		return nil, buildResponseError("target discovery", response.status, response.body)
-	}
-	return &response, nil
-}
-
-//Add a target using API
-func (c *Client) AddTarget(target *api.Target) (*Result, error) {
-	if c.SessionCookie == nil {
-		return nil, fmt.Errorf("Null login session cookie\n")
-	}
-
-	// Find if the target exists - this is a workaround since in current XL server,
-	// duplicate targets can be added
-	targetExists, _ := c.FindTarget(target)
-	if targetExists {
-		return nil, fmt.Errorf("Target %v exists", target)
-	}
-
-	glog.V(2).Infof("***************** [AddTarget] %++v\n", target)
-
-	// Create the rest api request
-	targetData, err := json.Marshal(target)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to marshall target instance: %s", err)
-	}
-
-	request := c.Post().Resource(api.Resource_Type_Target).
-		Header("Content-Type", "application/json").
-		Header("Accept", "application/json").
-		Header("Cookie", fmt.Sprintf("%s=%s", c.SessionCookie.Name, c.SessionCookie.Value)).
-		Data(targetData)
-
-	glog.V(4).Infof("[AddTarget] Request %++v\n", request)
-
-	response, err := request.Do()
-	if err != nil {
-		return nil, fmt.Errorf("Failed to add target: %s", err)
-	}
-	if response.statusCode != 200 {
-		return nil, buildResponseError("target addition", response.status, response.body)
-	}
-
-	return &response, nil
-}
-
-//Find if the given target exists within the Turbo server
-func (c *Client) FindTarget(target *api.Target) (bool, error) {
+func (c *APIClient) findTarget(target *api.Target) (bool, error) {
 	// Get a list of targets from the Turbo server
-	request := c.Get().Resource(api.Resource_Type_Target).
+	request := c.Get().Resource(api.Resource_Type_Targets).
 		Header("Content-Type", "application/json").
 		Header("Accept", "application/json").
 		Header("Cookie", fmt.Sprintf("%s=%s", c.SessionCookie.Name, c.SessionCookie.Value))
 
-	glog.V(4).Infof("[FindTarget] Request %++v\n", request)
-
 	response, err := request.Do()
-
 	if err != nil {
-		fmt.Printf("Failed to execute find target request: %s", err)
-		return false, fmt.Errorf("Failed to execute find target request: %s", err)
+		glog.Errorf("Failed to execute find target request: %s.", err)
+		return false, fmt.Errorf("failed to execute find target request: %v", err)
 	}
+
+	glog.V(4).Infof("Received response from find target request %v: %+v.",
+		request, response)
 
 	if response.statusCode != 200 {
 		return false, buildResponseError("find target", response.status, response.body)
@@ -142,7 +139,9 @@ func (c *Client) FindTarget(target *api.Target) (bool, error) {
 
 	// Parse the response - list of targets
 	var targetList []interface{}
-	json.Unmarshal([]byte(response.body), &targetList)
+	if err := json.Unmarshal([]byte(response.body), &targetList); err != nil {
+		return false, fmt.Errorf("failed to unmarshall find target response: %v", err)
+	}
 
 	// Iterate over the list of targets to look for the given target
 	// by comparing the category, target type and identifier fields
@@ -171,32 +170,10 @@ func (c *Client) FindTarget(target *api.Target) (bool, error) {
 				}
 			}
 		}
-		glog.V(4).Infof("%s::%s::%s\n", category, targetType, tgtId)
+		glog.V(4).Infof("%s::%s::%s", category, targetType, tgtId)
 		if target.Category == category && target.Type == targetType && tgtId == targetId {
 			return true, nil
 		}
 	}
 	return false, nil
-}
-
-// Get the target identifier for the given target
-func getTargetId(target *api.Target) string {
-	for _, inputField := range target.InputFields {
-		field := inputField.Name
-		if field == "targetIdentifier" {
-			tgtId := inputField.Value
-			return tgtId
-		}
-	}
-	return ""
-}
-
-func buildResponseError(requestDesc string, status string, content string) error {
-	errorMsg := fmt.Sprintf("unsuccessful %s response: %s.", requestDesc, status)
-	errorDTO, err := parseAPIErrorDTO(content)
-	if err == nil && errorDTO.Message != "" {
-		// Add error message only if we can parse result content to errorDTO.
-		errorMsg = errorMsg + fmt.Sprintf(" %s.", errorDTO.Message)
-	}
-	return fmt.Errorf("%s", errorMsg)
 }

@@ -30,9 +30,14 @@ func (targetInfo *TurboTargetInfo) TargetIdentifierField() string {
 	return targetInfo.targetIdentifierField
 }
 
+func (targetInfo *TurboTargetInfo) String() string {
+	return targetInfo.targetCategory + " " + targetInfo.targetType +
+		" [" + targetInfo.targetIdentifierField + "]"
+}
+
 // Build an API target instance based on information from TurboTargetInfo.
 func (targetInfo *TurboTargetInfo) GetTargetInstance() *api.Target {
-	inputFields := []*api.InputField{}
+	var inputFields []*api.InputField
 	for _, acctValue := range targetInfo.accountValues {
 		inputFields = append(inputFields,
 			&api.InputField{
