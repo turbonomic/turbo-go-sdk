@@ -199,6 +199,10 @@ func (r *Request) request(fn func(*http.Response)) error {
 	return nil
 }
 
+func (r *Request) String() string {
+	return fmt.Sprintf("Request: %s %v Headers: %v", r.verb, r.URL(), r.headers)
+}
+
 func parseHTTPResponse(resp *http.Response) Result {
 	if resp == nil {
 		return Result{
@@ -217,7 +221,7 @@ func parseHTTPResponse(resp *http.Response) Result {
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return Result{
-			err: fmt.Errorf("Error reading response body: %++v", err),
+			err: fmt.Errorf("error reading response body: %v", err),
 		}
 	}
 

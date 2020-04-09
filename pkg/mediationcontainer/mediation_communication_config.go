@@ -6,14 +6,18 @@ import (
 	"net/url"
 
 	"github.com/golang/glog"
+	"github.com/turbonomic/turbo-api/pkg/client"
 	"github.com/turbonomic/turbo-go-sdk/pkg/version"
 )
 
-const (
-	defaultRemoteMediationServer       string = "/vmturbo/remoteMediation"
-	defaultRemoteMediationServerUser   string = "vmtRemoteMediation"
-	defaultRemoteMediationServerPwd    string = "vmtRemoteMediation"
-	defaultRemoteMediationLocalAddress string = "http://127.0.0.1"
+var (
+	defaultRemoteMediationServerEndpoints = map[string]string{
+		client.API:               "/vmturbo/remoteMediation",
+		client.TopologyProcessor: "/remoteMediation",
+	}
+	defaultRemoteMediationServerUser   = "vmtRemoteMediation"
+	defaultRemoteMediationServerPwd    = "vmtRemoteMediation"
+	defaultRemoteMediationLocalAddress = "http://127.0.0.1"
 )
 
 type ServerMeta struct {
@@ -36,11 +40,11 @@ func (meta *ServerMeta) ValidateServerMeta() error {
 }
 
 type WebSocketConfig struct {
-	LocalAddress      string `json:"localAddress,omitempty"`
-	WebSocketUsername string `json:"websocketUsername,omitempty"`
-	WebSocketPassword string `json:"websocketPassword,omitempty"`
-	ConnectionRetry   int16  `json:"connectionRetry,omitempty"`
-	WebSocketPath     string `json:"websocketPath,omitempty"`
+	LocalAddress       string `json:"localAddress,omitempty"`
+	WebSocketUsername  string `json:"websocketUsername,omitempty"`
+	WebSocketPassword  string `json:"websocketPassword,omitempty"`
+	ConnectionRetry    int16  `json:"connectionRetry,omitempty"`
+	WebSocketEndpoints map[string]string
 }
 
 func (wsc *WebSocketConfig) ValidateWebSocketConfig() error {
@@ -49,12 +53,11 @@ func (wsc *WebSocketConfig) ValidateWebSocketConfig() error {
 	}
 	// Make sure the local address string provided is a valid URL
 	if _, err := url.ParseRequestURI(wsc.LocalAddress); err != nil {
-		return fmt.Errorf("Invalid local address url found in WebSocket config: %v", wsc)
+		return fmt.Errorf("invalid local address url found in WebSocket config: %v", wsc)
 	}
 
-	if wsc.WebSocketPath == "" {
-		wsc.WebSocketPath = defaultRemoteMediationServer
-	}
+	wsc.WebSocketEndpoints = defaultRemoteMediationServerEndpoints
+
 	if wsc.WebSocketUsername == "" {
 		wsc.WebSocketUsername = defaultRemoteMediationServerUser
 	}

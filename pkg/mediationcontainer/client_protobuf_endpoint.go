@@ -157,7 +157,7 @@ func (endpoint *ClientProtobufEndpoint) waitForSingleServerMessage() {
 			parsedMsg = &ParsedMessage{} //create empty message
 		}
 
-		glog.V(4).Infof("["+endpoint.Name+"][waitForSingleServerMessage] : Received: %s\n", parsedMsg)
+		glog.V(4).Infof("["+endpoint.Name+"][waitForSingleServerMessage] : Received: %+v", parsedMsg)
 
 		// - this will block till the upper layer receives this message
 		msgChannel := endpoint.MessageReceiver()

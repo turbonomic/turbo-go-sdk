@@ -4,16 +4,10 @@ import (
 	"fmt"
 	"net/url"
 
-	restclient "github.com/turbonomic/turbo-api/pkg/client"
-
+	"github.com/golang/glog"
+	"github.com/turbonomic/turbo-api/pkg/client"
 	"github.com/turbonomic/turbo-go-sdk/pkg/mediationcontainer"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
-
-	"github.com/golang/glog"
-)
-
-const (
-	defaultTurboAPIPath = "/vmturbo/rest"
 )
 
 // Turbonomic Automation Service that will discover the environment for the Turbo server
@@ -22,7 +16,7 @@ type TAPService struct {
 	// TurboProbe provides the communication interface between the Turbo server
 	// and the infrastructure environment
 	*probe.TurboProbe
-	*restclient.Client
+	turboClient         *client.TurboClient
 	disconnectFromTurbo chan struct{}
 }
 
@@ -51,29 +45,16 @@ func (tapService *TAPService) addTarget(isRegistered chan bool) {
 		return
 	}
 
-	//2. register the targets
-	glog.V(2).Infof("Probe %v is registered. Begin to add targets.", pinfo)
-
-	// Login to obtain the session cookie
 	targetInfos := tapService.GetProbeTargets()
 	if len(targetInfos) > 0 {
-		if _, err := tapService.Client.Login(); err != nil {
-			glog.Errorf("Cannot login to the Turbo API Client: %v", err)
-			return
-		}
-		glog.V(2).Infof("Successfully logged in to Turbo server.")
-
+		//2. register the targets
 		for _, targetInfo := range targetInfos {
 			target := targetInfo.GetTargetInstance()
-			glog.V(2).Infof("Now adding target %++v", target)
-			resp, err := tapService.AddTarget(target)
-			if err != nil {
-				glog.Errorf("Error while adding %s %s [%s] target: %s", targetInfo.TargetCategory(),
-					targetInfo.TargetType(), targetInfo.TargetIdentifierField(), err)
-				// TODO, do we want to return an error?
-				continue
+			service := mediationcontainer.GetMediationService()
+			if err := tapService.turboClient.AddTarget(target, service); err != nil {
+				glog.Errorf("Failed to add target %v: %v",
+					targetInfo, err)
 			}
-			glog.V(3).Infof("Successfully add target: %v", resp)
 		}
 	}
 }
@@ -81,7 +62,7 @@ func (tapService *TAPService) addTarget(isRegistered chan bool) {
 func (tapService *TAPService) ConnectToTurbo() {
 	glog.V(4).Infof("[ConnectToTurbo] Enter ******* ")
 
-	if tapService.RESTClient == nil {
+	if tapService.turboClient == nil {
 		glog.V(1).Infof("TAP service cannot be started - cannot create target")
 		return
 	}
@@ -149,22 +130,19 @@ func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommuni
 		builder.err = fmt.Errorf("Error during create Turbo API client config: Incorrect URL: %s\n", err)
 		return builder
 	}
-	config := restclient.NewConfigBuilder(serverAddress).
-		APIPath(defaultTurboAPIPath).
+	config := client.NewConfigBuilder(serverAddress).
 		BasicAuthentication(commConfig.OpsManagerUsername, commConfig.OpsManagerPassword).
 		SetProxy(commConfig.ServerMeta.Proxy).
 		Create()
 	glog.V(4).Infof("The Turbo API client config authentication is: %s, %s", commConfig.OpsManagerUsername, commConfig.OpsManagerPassword)
 	glog.V(4).Infof("The Turbo API client config is create successfully: %v", config)
-	apiClient, err := restclient.NewAPIClientWithBA(config)
+	builder.tapService.turboClient, err = client.NewTurboClient(config)
 	if err != nil {
-		builder.err = fmt.Errorf("Error during create Turbo API client: %s\n", err)
+		builder.err = fmt.Errorf("failed to create Turbo API client: %v", err)
 		return builder
 	}
-	glog.V(4).Infof("The Turbo API client is created successfully: %v", apiClient)
-
-	builder.tapService.Client = apiClient
-
+	glog.V(4).Infof("The Turbo API client is created successfully: %v",
+		builder.tapService.turboClient)
 	return builder
 }
 

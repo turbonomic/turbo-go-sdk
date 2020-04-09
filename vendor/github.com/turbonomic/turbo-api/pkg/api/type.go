@@ -24,6 +24,34 @@ type Target struct {
 	UUID string `json:"uuid,omitempty"`
 }
 
+// TargetInfo defines the protocols of the GET /target topology processor service
+type TargetInfo struct {
+	TargetID    int64       `json:"targetId,string"`
+	DisplayName string      `json:"displayName"`
+	TargetSpec  *TargetSpec `json:"spec"`
+}
+
+// TargetSpec defines the protocols of the POST /target topology processor service
+type TargetSpec struct {
+	// Probe to which the target belongs
+	ProbeID int64 `json:"probeId,string"`
+	// Is the target hidden from users
+	IsHidden bool `json:"isHidden"`
+	// Whether the target can be changed through APIs
+	ReadOnly bool `json:"readOnly"`
+	// The derived target ID associated with this target
+	DerivedTargetIDs []string `json:"derivedTargetIds"`
+	// Account values to use to add the target
+	InputFields []*InputField `json:"inputFields,omitempty"`
+}
+
+// ProbeDescription defines the protocols of the GET /probe topology-processor service
+type ProbeDescription struct {
+	ID       int64  `json:"id,string"`
+	Category string `json:"category"`
+	Type     string `json:"type"`
+}
+
 type InputField struct {
 	ClassName string `json:"className,omitempty"`
 
@@ -35,7 +63,7 @@ type InputField struct {
 	DisplayName string `json:"displayName,omitempty"`
 
 	// Group scope structure, filled if this field represents group scope value
-	GroupProperties []*List `json:"groupProperties,omitempty"`
+	GroupProperties []*List `json:"groupProperties"`
 
 	// Whether the field is mandatory. Valid targets must have all the mandatory fields set.
 	IsMandatory bool `json:"isMandatory,omitempty"`
@@ -52,7 +80,7 @@ type InputField struct {
 	Value string `json:"value,omitempty"`
 
 	// Type of the value this field holds = ['STRING', 'BOOLEAN', 'NUMERIC', 'GROUP_SCOPE']
-	ValueType string `json:"valueType:omitempty"`
+	ValueType string `json:"valueType,omitempty"`
 
 	// The regex pattern that needs to be satisfied for the input field text
 	VerificationRegex string `json:"verificationRegex,omitempty"`

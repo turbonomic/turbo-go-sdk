@@ -115,7 +115,7 @@ func TestValidateWebSocketConfig(t *testing.T) {
 			LocalAddress:      item.localAddress,
 			WebSocketUsername: item.wsUsername,
 			WebSocketPassword: item.wsPassword,
-			WebSocketPath:     item.wsPath,
+			WebSocketPaths:    item.wsPath,
 			ConnectionRetry:   item.connectionRetry,
 		}
 		err := config.ValidateWebSocketConfig()
@@ -131,14 +131,14 @@ func TestValidateWebSocketConfig(t *testing.T) {
 				LocalAddress:      item.localAddress,
 				WebSocketUsername: item.wsUsername,
 				WebSocketPassword: item.wsPassword,
-				WebSocketPath:     item.wsPath,
+				WebSocketPaths:    item.wsPath,
 				ConnectionRetry:   item.connectionRetry,
 			}
 			if expectedConfig.LocalAddress == "" {
 				expectedConfig.LocalAddress = defaultRemoteMediationLocalAddress
 			}
-			if expectedConfig.WebSocketPath == "" {
-				expectedConfig.WebSocketPath = defaultRemoteMediationServer
+			if expectedConfig.WebSocketPaths == "" {
+				expectedConfig.WebSocketPaths = defaultRemoteMediationServerEndpoints
 			}
 			if expectedConfig.WebSocketUsername == "" {
 				expectedConfig.WebSocketUsername = defaultRemoteMediationServerUser
@@ -168,7 +168,7 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 					LocalAddress:      "http://127.0.0.1",
 					WebSocketUsername: rand.String(10),
 					WebSocketPassword: rand.String(10),
-					WebSocketPath:     rand.String(10),
+					WebSocketPaths:    rand.String(10),
 					ConnectionRetry:   10,
 				},
 			},

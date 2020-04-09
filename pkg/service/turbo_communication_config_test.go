@@ -61,7 +61,7 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					LocalAddress:      "http://127.0.0.1",
 					WebSocketUsername: rand.String(10),
 					WebSocketPassword: rand.String(10),
-					WebSocketPath:     rand.String(10),
+					WebSocketPaths:    rand.String(10),
 					ConnectionRetry:   10,
 				},
 				RestAPIConfig{
