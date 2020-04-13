@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://turbonomic.com/dif-topology.json",
+  "title": "DIF Topology File",
+  "description": "Format for a DIF topology",
+  "type": "object",
+  "properties": {
+    "version": {
+      "description": "",
+      "type": "string"
+    },
+    "updateTime": {
+      "description": "Epoch timestamp for when files are generated",
+      "type": "integer"
+    },
+    "topology": {
+      "description": "List of topology entities",
+      "type" : "array",
+      "items": {
+        "$ref": "#/definitions/entity"
+      },
+      "minItems" : 1
+    }
+  },
+  "required": [
+    "version",
+    "updateTime",
+    "topology"
+  ],
+
+  "definitions": {
+    "entity" : {
+      "description": "Format for a DIF topology entity and metrics",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "Entity type of the entity",
+          "$ref" : "dif-entity-schema.json#/definitions/entityType"
+        },
+        "uniqueId": {
+          "description": "Unique identifier for the entity, within the scope of the target",
+          "type": "string"
+        },
+        "name": {
+          "description": "Entity name",
+          "type": "string"
+        },
+        "matchIdentifiers": {
+          "description": "Attributes used to find the entity that matches this entity",
+          "type": "object",
+          "properties": {
+            "ipAddress": {
+              "description": "IP Address of the entity used to find the matching entity",
+              "type": "string"
+            }
+          }
+        },
+        "hostedOn": {
+          "description": "Attributes used to find the entity that hosts this entity",
+          "type": "object",
+          "properties": {
+            "hostType" : {
+              "description": "List of entity types of the possible underlying host entity. The order in which the entity types is specified is used to find the host entity.",
+              "type": "array",
+              "items": {"$ref" : "dif-entity-schema.json#/definitions/hostEntityType"}
+            },
+            "hostUuid": {
+              "description": "Unique identifier for the host entity",
+              "type": "string"
+            },
+            "ipAddress": {
+              "description": "IP Address of the host entity",
+              "type": "string"
+            }
+          },
+          "required": [
+            "hostType"
+          ]
+        },
+        "partOf": {
+          "description": "Attributes used to find all the entities that this entity is part of",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "entity": {
+                "description": "Entity type of the parent entity ",
+                "$ref": "dif-entity-schema.json#/definitions/entityType"
+              },
+              "uniqueId": {
+                "description": "Unique identifier for the parent entity within the scope of this target",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "metrics": {
+          "description": "List of metrics and values for the entity",
+          "type" : "array",
+          "items": {
+            "$ref": "dif-entity-schema.json#/definitions/metricsEntry"
+          },
+          "minItems" : 1
+        }
+      },
+
+      "required": [
+        "type",
+        "uniqueId",
+        "name"
+      ]
+    }
+  }
+}
