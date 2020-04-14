@@ -78,6 +78,8 @@ type EntityDTOBuilder struct {
 	notification          []*proto.NotificationDTO
 	keepStandalone        *bool
 	profileID             *string
+	layeredOver           []string
+	consistsOf            []string
 
 	// Action Eligibility related
 	actionEligibility *ActionEligibility
@@ -142,6 +144,8 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		ProviderPolicy:        eb.providerPolicy,
 		OwnedBy:               eb.ownedBy,
 		Notification:          eb.notification,
+		LayeredOver:           eb.layeredOver,
+		ConsistsOf:            eb.consistsOf,
 	}
 	if eb.storageData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_StorageData_{eb.storageData}
@@ -342,6 +346,22 @@ func (eb *EntityDTOBuilder) ConsumerPolicy(cp *proto.EntityDTO_ConsumerPolicy) *
 		return eb
 	}
 	eb.consumerPolicy = cp
+	return eb
+}
+
+func (eb *EntityDTOBuilder) LayeredOver(layeredOver []string) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	eb.layeredOver = layeredOver
+	return eb
+}
+
+func (eb *EntityDTOBuilder) ConsistsOf(consistsOf []string) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	eb.consistsOf = consistsOf
 	return eb
 }
 
