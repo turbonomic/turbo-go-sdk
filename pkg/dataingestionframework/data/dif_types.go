@@ -105,7 +105,6 @@ func (e *DIFEntity) Matching(id string) *DIFEntity {
 }
 
 func (e *DIFEntity) AddMetric(metricType string, key DIFMetricValKey, value float64) {
-	var meList []*DIFMetricVal
 	meList, found := e.Metrics[metricType]
 	if !found {
 		meList = append(meList, &DIFMetricVal{})
@@ -119,6 +118,10 @@ func (e *DIFEntity) AddMetric(metricType string, key DIFMetricValKey, value floa
 	} else if key == CAPACITY {
 		meList[0].Capacity = &value
 	}
+}
+
+func (e *DIFEntity) AddMetrics(metricType string, metricVals []*DIFMetricVal) {
+	e.Metrics[metricType] = append(e.Metrics[metricType], metricVals...)
 }
 
 func (e *DIFEntity) String() string {
