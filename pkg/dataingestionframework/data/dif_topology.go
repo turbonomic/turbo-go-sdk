@@ -20,9 +20,10 @@ func NewTopology() *Topology {
 	}
 }
 
-func (r *Topology) SetUpdateTime() {
+func (r *Topology) SetUpdateTime() *Topology {
 	t := time.Now()
 	r.Updatetime = t.Unix()
+	return r
 }
 
 func (r *Topology) AddEntity(entity *DIFEntity) {
