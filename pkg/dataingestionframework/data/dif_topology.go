@@ -24,3 +24,11 @@ func (r *Topology) SetUpdateTime() {
 	t := time.Now()
 	r.Updatetime = t.Unix()
 }
+
+func (r *Topology) AddEntity(entity *DIFEntity) {
+	r.Entities = append(r.Entities, entity)
+}
+
+func (r *Topology) AddEntities(entities []*DIFEntity) {
+	r.Entities = append(r.Entities, entities...)
+}
