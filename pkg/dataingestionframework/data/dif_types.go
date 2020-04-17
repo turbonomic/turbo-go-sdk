@@ -31,6 +31,7 @@ type DIFHostedOn struct {
 type DIFPartOf struct {
 	ParentEntity string `json:"entity"`
 	UniqueId     string `json:"uniqueId"`
+	Label        string `json:"label,omitempty"`
 }
 
 func NewDIFEntity(uid, eType string) *DIFEntity {
@@ -49,12 +50,12 @@ func (e *DIFEntity) WithName(name string) *DIFEntity {
 	return e
 }
 
-func (e *DIFEntity) PartOfEntity(entity, id string) *DIFEntity {
+func (e *DIFEntity) PartOfEntity(entity, id, label string) *DIFEntity {
 	if e.partOfSet.Contains(id) {
 		return e
 	}
 	e.partOfSet.Add(id)
-	e.PartOf = append(e.PartOf, &DIFPartOf{entity, id})
+	e.PartOf = append(e.PartOf, &DIFPartOf{entity, id, label})
 	return e
 }
 
