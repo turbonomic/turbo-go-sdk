@@ -284,6 +284,74 @@ func TestEntityDTOBuilder_Monitored(t *testing.T) {
 	}
 }
 
+func TestEntityDTOBuilder_LayeredOver(t *testing.T) {
+	table := []struct {
+		layeredOver []string
+		existingErr error
+	}{
+		{
+			layeredOver: []string{rand.String(5)},
+			existingErr: fmt.Errorf("Error"),
+		},
+		{
+			layeredOver: []string{rand.String(5)},
+		},
+	}
+	for _, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:        base.entityType,
+			id:                base.id,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			expectedBuilder.layeredOver = item.layeredOver
+		}
+		builder := base.LayeredOver(item.layeredOver)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+		}
+	}
+}
+
+func TestEntityDTOBuilder_ConsistsOf(t *testing.T) {
+	table := []struct {
+		consistsOf  []string
+		existingErr error
+	}{
+		{
+			consistsOf:  []string{rand.String(5)},
+			existingErr: fmt.Errorf("Error"),
+		},
+		{
+			consistsOf: []string{rand.String(5)},
+		},
+	}
+	for _, item := range table {
+		base := randomBaseEntityDTOBuilder()
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:        base.entityType,
+			id:                base.id,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			expectedBuilder.consistsOf = item.consistsOf
+		}
+		builder := base.ConsistsOf(item.consistsOf)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+		}
+	}
+}
+
 func TestEntityDTOBuilder_ApplicationData(t *testing.T) {
 	table := []struct {
 		appData *proto.EntityDTO_ApplicationData

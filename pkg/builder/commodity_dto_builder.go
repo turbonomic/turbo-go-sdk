@@ -115,6 +115,14 @@ func (cb *CommodityDTOBuilder) Reservation(reservation float64) *CommodityDTOBui
 	return cb
 }
 
+func (cb *CommodityDTOBuilder) Active(active bool) *CommodityDTOBuilder {
+	if cb.err != nil {
+		return cb
+	}
+	cb.active = &active
+	return cb
+}
+
 func (cb *CommodityDTOBuilder) Resizable(resizable bool) *CommodityDTOBuilder {
 	if cb.err != nil {
 		return cb
