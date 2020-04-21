@@ -193,6 +193,42 @@ func TestCommodityDTOBuilder_Capacity(t *testing.T) {
 	}
 }
 
+func TestCommodityDTOBuilder_Active(t *testing.T) {
+	table := []struct {
+		active      bool
+		existingErr error
+	}{
+		{
+			existingErr: fmt.Errorf("Fake"),
+			active:      mathrand.Int31n(2) == 1,
+		},
+		{
+			active: true,
+		},
+		{
+			active: false,
+		},
+	}
+	for _, item := range table {
+		base := randomBaseCommodityDTOBuilder()
+		var active *bool
+		if item.existingErr != nil {
+			base.err = item.existingErr
+		} else {
+			active = &item.active
+		}
+		expectedBuilder := &CommodityDTOBuilder{
+			commodityType: base.commodityType,
+			active:        active,
+			err:           item.existingErr,
+		}
+		builder := base.Active(item.active)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+		}
+	}
+}
+
 func TestCommodityDTOBuilder_Resizable(t *testing.T) {
 	table := []struct {
 		resizable   bool
