@@ -200,7 +200,7 @@ func TestCommodityDTOBuilder_Active(t *testing.T) {
 	}{
 		{
 			existingErr: fmt.Errorf("Fake"),
-			active:      mathrand.Int31n(2) == 1,
+			active:      true,
 		},
 		{
 			active: true,
@@ -209,8 +209,11 @@ func TestCommodityDTOBuilder_Active(t *testing.T) {
 			active: false,
 		},
 	}
+	cType := proto.CommodityDTO_CommodityType(106)
 	for _, item := range table {
-		base := randomBaseCommodityDTOBuilder()
+		base := &CommodityDTOBuilder{
+			commodityType: &cType,
+		}
 		var active *bool
 		if item.existingErr != nil {
 			base.err = item.existingErr
@@ -261,6 +264,50 @@ func TestCommodityDTOBuilder_Resizable(t *testing.T) {
 		}
 		builder := base.Resizable(item.resizable)
 		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+		}
+	}
+}
+
+func TestCommodityDTOBuilder_UtilizationData(t *testing.T) {
+	testPoints := []float64{10.0, 11.0}
+	testLastPointTimestampMs := int64(1585853340000)
+	testIntervalMs := int32(0)
+	testUtilizationData := &proto.CommodityDTO_UtilizationData{
+		Point:                testPoints,
+		LastPointTimestampMs: &testLastPointTimestampMs,
+		IntervalMs:           &testIntervalMs,
+	}
+	table := []struct {
+		utilizationData *proto.CommodityDTO_UtilizationData
+		existingErr     error
+	}{
+		{
+			existingErr:     fmt.Errorf("Fake"),
+			utilizationData: testUtilizationData,
+		},
+		{
+			utilizationData: testUtilizationData,
+		},
+	}
+	cType := proto.CommodityDTO_CommodityType(106)
+	for _, item := range table {
+		base := &CommodityDTOBuilder{
+			commodityType: &cType,
+		}
+		var utilizationData *proto.CommodityDTO_UtilizationData
+		if item.existingErr != nil {
+			base.err = item.existingErr
+		} else {
+			utilizationData = testUtilizationData
+		}
+		expectedBuilder := &CommodityDTOBuilder{
+			commodityType:   &cType,
+			utilizationData: utilizationData,
+			err:             item.existingErr,
+		}
+		builder := base.UtilizationData(testPoints, testLastPointTimestampMs, testIntervalMs)
+		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
 		}
 	}
