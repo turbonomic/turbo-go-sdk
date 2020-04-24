@@ -285,20 +285,21 @@ func TestEntityDTOBuilder_Monitored(t *testing.T) {
 }
 
 func TestEntityDTOBuilder_LayeredOver(t *testing.T) {
+	containerSpecID := "containerSpecID"
 	table := []struct {
 		layeredOver []string
 		existingErr error
 	}{
 		{
-			layeredOver: []string{rand.String(5)},
+			layeredOver: []string{containerSpecID},
 			existingErr: fmt.Errorf("Error"),
 		},
 		{
-			layeredOver: []string{rand.String(5)},
+			layeredOver: []string{containerSpecID},
 		},
 	}
 	for _, item := range table {
-		base := randomBaseEntityDTOBuilder()
+		base := NewEntityDTOBuilder(proto.EntityDTO_CONTAINER, "containerID")
 		expectedBuilder := &EntityDTOBuilder{
 			entityType:        base.entityType,
 			id:                base.id,
@@ -319,20 +320,21 @@ func TestEntityDTOBuilder_LayeredOver(t *testing.T) {
 }
 
 func TestEntityDTOBuilder_ConsistsOf(t *testing.T) {
+	containerSpecID := "containerSpecID"
 	table := []struct {
 		consistsOf  []string
 		existingErr error
 	}{
 		{
-			consistsOf:  []string{rand.String(5)},
+			consistsOf:  []string{containerSpecID},
 			existingErr: fmt.Errorf("Error"),
 		},
 		{
-			consistsOf: []string{rand.String(5)},
+			consistsOf: []string{containerSpecID},
 		},
 	}
 	for _, item := range table {
-		base := randomBaseEntityDTOBuilder()
+		base := NewEntityDTOBuilder(proto.EntityDTO_WORKLOAD_CONTROLLER, "controllerID")
 		expectedBuilder := &EntityDTOBuilder{
 			entityType:        base.entityType,
 			id:                base.id,
@@ -673,6 +675,15 @@ func TestEntityDTOBuilder_ContainerData(t *testing.T) {
 }
 
 func TestEntityDTOBuilder_WorkloadControllerData(t *testing.T) {
+	customControllerType := "customController"
+	workloadControllerData := &proto.EntityDTO_WorkloadControllerData{
+		ControllerType: &proto.EntityDTO_WorkloadControllerData_CustomControllerData{
+			CustomControllerData: &proto.EntityDTO_CustomControllerData{
+				CustomControllerType: &customControllerType,
+			},
+		},
+	}
+
 	table := []struct {
 		workloadControllerData *proto.EntityDTO_WorkloadControllerData
 
@@ -680,20 +691,20 @@ func TestEntityDTOBuilder_WorkloadControllerData(t *testing.T) {
 		existingErr          error
 	}{
 		{
-			workloadControllerData: rand.RandomWorkloadControllerData(),
+			workloadControllerData: workloadControllerData,
 			existingErr:            errors.New("Error"),
 		},
 		{
-			workloadControllerData: rand.RandomWorkloadControllerData(),
+			workloadControllerData: workloadControllerData,
 			entityDataHasSetFlag:   false,
 		},
 		{
-			workloadControllerData: rand.RandomWorkloadControllerData(),
+			workloadControllerData: workloadControllerData,
 			entityDataHasSetFlag:   true,
 		},
 	}
 	for i, item := range table {
-		base := randomBaseEntityDTOBuilder()
+		base := NewEntityDTOBuilder(proto.EntityDTO_WORKLOAD_CONTROLLER, "controllerID")
 		base.entityDataHasSet = item.entityDataHasSetFlag
 		expectedBuilder := &EntityDTOBuilder{
 			entityType:        base.entityType,
