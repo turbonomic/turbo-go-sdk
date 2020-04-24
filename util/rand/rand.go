@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
-	"math"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
@@ -105,30 +104,6 @@ func RandomExternalEntityLink_ServerEntityPropDef() *proto.ServerEntityPropDef {
 	}
 }
 
-func RandomTemplateCommodity() *proto.TemplateCommodity {
-	// a random commodity type.
-	cType := RandomCommodityType()
-	// a random key
-	key := String(5)
-	return &proto.TemplateCommodity{
-		CommodityType: &cType,
-		Key:           &key,
-	}
-}
-
-func RandomProvider() *proto.Provider {
-	providerEntityType := RandomEntityType()
-	relationShip := RandomProviderConsumerRelationship()
-	maxCardinality := int32(math.MaxInt32)
-	minCardinality := int32(0)
-	return &proto.Provider{
-		TemplateClass:  &providerEntityType,
-		ProviderType:   &relationShip,
-		CardinalityMax: &maxCardinality,
-		CardinalityMin: &minCardinality,
-	}
-}
-
 func RandomProviderConsumerRelationship() proto.Provider_ProviderType {
 	return proto.Provider_ProviderType(rand.Int31n(2))
 }
@@ -191,17 +166,6 @@ func RandomContainerData() *proto.EntityDTO_ContainerData {
 		IpAddress:   &ipAddress,
 		Namespace: &namespace,
 		PodName: &podName,
-	}
-}
-
-func RandomWorkloadControllerData() *proto.EntityDTO_WorkloadControllerData {
-	customControllerType := String(5)
-	return &proto.EntityDTO_WorkloadControllerData{
-		ControllerType: &proto.EntityDTO_WorkloadControllerData_CustomControllerData{
-			CustomControllerData: &proto.EntityDTO_CustomControllerData{
-				CustomControllerType: &customControllerType,
-			},
-		},
 	}
 }
 
