@@ -4,9 +4,9 @@
 package proto
 
 import (
-	"fmt"
-	"github.com/golang/protobuf/proto"
-	"math"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -428,8 +428,7 @@ func (*MediationServerMessage_InterruptOperation) isMediationServerMessage_Media
 
 func (*MediationServerMessage_Properties) isMediationServerMessage_MediationServerMessage() {}
 
-func (*MediationServerMessage_TargetUpdateRequest) isMediationServerMessage_MediationServerMessage() {
-}
+func (*MediationServerMessage_TargetUpdateRequest) isMediationServerMessage_MediationServerMessage() {}
 
 func (*MediationServerMessage_ActionApproval) isMediationServerMessage_MediationServerMessage() {}
 
