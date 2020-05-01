@@ -382,23 +382,23 @@ func TestEntityDTOBuilder_VirtualMachineData(t *testing.T) {
 	}
 }
 
-func TestEntityDTOBuilder_ServiceData(t *testing.T) {
+func TestEntityDTOBuilder_VirtualApplicationData(t *testing.T) {
 	table := []struct {
-		serviceData *proto.EntityDTO_ServiceData
+		vAppData *proto.EntityDTO_VirtualApplicationData
 
 		entityDataHasSetFlag bool
 		existingErr          error
 	}{
 		{
-			serviceData: rand.RandomServiceData(),
-			existingErr: errors.New("error"),
+			vAppData:    rand.RandomVirtualApplicationData(),
+			existingErr: errors.New("Error"),
 		},
 		{
-			serviceData:          rand.RandomServiceData(),
+			vAppData:             rand.RandomVirtualApplicationData(),
 			entityDataHasSetFlag: false,
 		},
 		{
-			serviceData:          rand.RandomServiceData(),
+			vAppData:             rand.RandomVirtualApplicationData(),
 			entityDataHasSetFlag: true,
 		},
 	}
@@ -417,14 +417,14 @@ func TestEntityDTOBuilder_ServiceData(t *testing.T) {
 			expectedBuilder.err = item.existingErr
 		} else {
 			if item.entityDataHasSetFlag {
-				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.serviceData)
+				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.vAppData)
 
 			} else {
-				expectedBuilder.serviceData = item.serviceData
+				expectedBuilder.virtualApplicationData = item.vAppData
 				expectedBuilder.entityDataHasSet = true
 			}
 		}
-		builder := base.ServiceData(item.serviceData)
+		builder := base.VirtualApplicationData(item.vAppData)
 		if !reflect.DeepEqual(builder, expectedBuilder) {
 			t.Errorf("Test case %d failed. Expected %+v, \ngot      %+v", i, expectedBuilder, builder)
 		}

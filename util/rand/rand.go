@@ -153,12 +153,12 @@ func RandomVirtualMachineData() *proto.EntityDTO_VirtualMachineData {
 	}
 }
 
-func RandomServiceData() *proto.EntityDTO_ServiceData {
+func RandomVirtualApplicationData() *proto.EntityDTO_VirtualApplicationData {
 	ipAddress := String(14)
 	serviceType := String(5)
 	t := String(5)
 	port := rand.Int31n(9999)
-	return &proto.EntityDTO_ServiceData{
+	return &proto.EntityDTO_VirtualApplicationData{
 		Type:        &t,
 		Port:        &port,
 		IpAddress:   &ipAddress,
