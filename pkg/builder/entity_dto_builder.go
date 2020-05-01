@@ -78,6 +78,8 @@ type EntityDTOBuilder struct {
 	notification          []*proto.NotificationDTO
 	keepStandalone        *bool
 	profileID             *string
+	layeredOver           []string
+	consistsOf            []string
 
 	// Action Eligibility related
 	actionEligibility *ActionEligibility
@@ -99,6 +101,7 @@ type EntityDTOBuilder struct {
 	virtualApplicationData *proto.EntityDTO_VirtualApplicationData
 	containerPodData       *proto.EntityDTO_ContainerPodData
 	containerData          *proto.EntityDTO_ContainerData
+	workloadControllerData *proto.EntityDTO_WorkloadControllerData
 
 	virtualMachineRelatedData    *proto.EntityDTO_VirtualMachineRelatedData
 	physicalMachineRelatedData   *proto.EntityDTO_PhysicalMachineRelatedData
@@ -141,6 +144,8 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		ProviderPolicy:        eb.providerPolicy,
 		OwnedBy:               eb.ownedBy,
 		Notification:          eb.notification,
+		LayeredOver:           eb.layeredOver,
+		ConsistsOf:            eb.consistsOf,
 	}
 	if eb.storageData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_StorageData_{eb.storageData}
@@ -164,6 +169,8 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		entityDTO.EntityData = &proto.EntityDTO_ContainerPodData_{eb.containerPodData}
 	} else if eb.containerData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_ContainerData_{eb.containerData}
+	} else if eb.workloadControllerData != nil {
+		entityDTO.EntityData = &proto.EntityDTO_WorkloadControllerData_{eb.workloadControllerData}
 	}
 
 	if eb.virtualMachineRelatedData != nil {
@@ -342,6 +349,22 @@ func (eb *EntityDTOBuilder) ConsumerPolicy(cp *proto.EntityDTO_ConsumerPolicy) *
 	return eb
 }
 
+func (eb *EntityDTOBuilder) LayeredOver(layeredOver []string) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	eb.layeredOver = layeredOver
+	return eb
+}
+
+func (eb *EntityDTOBuilder) ConsistsOf(consistsOf []string) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	eb.consistsOf = consistsOf
+	return eb
+}
+
 func (eb *EntityDTOBuilder) ApplicationData(appData *proto.EntityDTO_ApplicationData) *EntityDTOBuilder {
 	if eb.err != nil {
 		return eb
@@ -408,6 +431,19 @@ func (eb *EntityDTOBuilder) VirtualApplicationData(vAppData *proto.EntityDTO_Vir
 		return eb
 	}
 	eb.virtualApplicationData = vAppData
+	eb.entityDataHasSet = true
+	return eb
+}
+
+func (eb *EntityDTOBuilder) WorkloadControllerData(workloadControllerData *proto.EntityDTO_WorkloadControllerData) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	if eb.entityDataHasSet {
+		eb.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", workloadControllerData)
+		return eb
+	}
+	eb.workloadControllerData = workloadControllerData
 	eb.entityDataHasSet = true
 	return eb
 }

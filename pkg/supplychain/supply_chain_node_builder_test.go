@@ -2,11 +2,53 @@ package supplychain
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"testing"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
+)
+
+var (
+	testEntityType       = proto.EntityDTO_WORKLOAD_CONTROLLER
+	testProviderType     = proto.Provider_HOSTING
+	maxCardinalityMaxInt = int32(math.MaxInt32)
+	maxCardinalityOne    = int32(1)
+	minCardinalityOne    = int32(1)
+	minCardinalityZero   = int32(0)
+	isProviderOptional   = true
+
+	testProvider1 = &provider{
+		provider: &proto.Provider{
+			TemplateClass:  &testEntityType,
+			ProviderType:   &testProviderType,
+			CardinalityMax: &maxCardinalityOne,
+			CardinalityMin: &minCardinalityOne,
+		},
+	}
+	testProvider2 = &provider{
+		provider: &proto.Provider{
+			TemplateClass:  &testEntityType,
+			ProviderType:   &testProviderType,
+			CardinalityMax: &maxCardinalityOne,
+			CardinalityMin: &minCardinalityZero,
+		},
+		optional: &isProviderOptional,
+	}
+
+	cType1  = proto.CommodityDTO_VCPU
+	cType2  = proto.CommodityDTO_VMEM
+	fakeKey = "fakeKey"
+
+	testTemplateCommodity1 = &proto.TemplateCommodity{
+		CommodityType: &cType1,
+		Key:           &fakeKey,
+	}
+	testTemplateCommodity2 = &proto.TemplateCommodity{
+		CommodityType: &cType2,
+		Key:           &fakeKey,
+	}
 )
 
 func TestNewSupplyChainNodeBuilder(t *testing.T) {
@@ -79,21 +121,21 @@ func TestSupplyChainNodeBuilder_Sells(t *testing.T) {
 	}{
 		{
 			templateCommoditiesSold: []*proto.TemplateCommodity{
-				rand.RandomTemplateCommodity(),
-				rand.RandomTemplateCommodity(),
+				testTemplateCommodity1,
+				testTemplateCommodity2,
 			},
 			err: nil,
 		},
 		{
 			templateCommoditiesSold: []*proto.TemplateCommodity{
-				rand.RandomTemplateCommodity(),
-				rand.RandomTemplateCommodity(),
+				testTemplateCommodity1,
+				testTemplateCommodity2,
 			},
 			err: fmt.Errorf("Fake"),
 		},
 	}
 	for _, item := range table {
-		base := randomBaseSupplyChainNodeBuilder()
+		base := testBaseSupplyChainNodeBuilder()
 		expectedBuilder := &SupplyChainNodeBuilder{
 			templateClass: base.templateClass,
 			templateType:  base.templateType,
@@ -119,35 +161,35 @@ func TestSupplyChainNodeBuilder_Sells(t *testing.T) {
 func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 	table := []struct {
 		templateCommoditiesBought []*proto.TemplateCommodity
-		provider                  *proto.Provider
+		provider                  *provider
 		existingErr               error
 		newErr                    error
 	}{
 		{
 			templateCommoditiesBought: []*proto.TemplateCommodity{
-				rand.RandomTemplateCommodity(),
-				rand.RandomTemplateCommodity(),
+				testTemplateCommodity1,
+				testTemplateCommodity2,
 			},
-			provider:    rand.RandomProvider(),
+			provider:    testProvider1,
 			existingErr: fmt.Errorf("Fake"),
 		},
 		{
 			templateCommoditiesBought: []*proto.TemplateCommodity{
-				rand.RandomTemplateCommodity(),
-				rand.RandomTemplateCommodity(),
+				testTemplateCommodity1,
+				testTemplateCommodity2,
 			},
-			provider: rand.RandomProvider(),
+			provider: testProvider1,
 		},
 		{
 			templateCommoditiesBought: []*proto.TemplateCommodity{
-				rand.RandomTemplateCommodity(),
-				rand.RandomTemplateCommodity(),
+				testTemplateCommodity1,
+				testTemplateCommodity2,
 			},
 			newErr: fmt.Errorf("Provider must be set before calling Buys()."),
 		},
 	}
 	for _, item := range table {
-		base := randomBaseSupplyChainNodeBuilder()
+		base := testBaseSupplyChainNodeBuilder()
 		expectedBuilder := &SupplyChainNodeBuilder{
 			templateClass: base.templateClass,
 			templateType:  base.templateType,
@@ -158,10 +200,10 @@ func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 			expectedBuilder.err = item.existingErr
 		} else {
 
-			var expectedMap map[*proto.Provider][]*proto.TemplateCommodity
+			var expectedMap map[*provider][]*proto.TemplateCommodity
 			if item.provider != nil {
 				base.currentProvider = item.provider
-				expectedMap = make(map[*proto.Provider][]*proto.TemplateCommodity)
+				expectedMap = make(map[*provider][]*proto.TemplateCommodity)
 				expectedMap[item.provider] = item.templateCommoditiesBought
 			}
 			expectedErr := item.existingErr
@@ -186,41 +228,41 @@ func TestSupplyChainNodeBuilder_Buys(t *testing.T) {
 
 func TestBuildCommodityBought(t *testing.T) {
 	table := []struct {
-		providerList             []*proto.Provider
+		providerList             []*provider
 		allCommoditiesBoughtList [][]*proto.TemplateCommodity
 	}{
 		{
-			providerList:             []*proto.Provider{},
+			providerList:             []*provider{},
 			allCommoditiesBoughtList: [][]*proto.TemplateCommodity{},
 		},
 		{
-			providerList: []*proto.Provider{
-				rand.RandomProvider(),
-				rand.RandomProvider(),
+			providerList: []*provider{
+				testProvider1,
+				testProvider2,
 			},
 			allCommoditiesBoughtList: [][]*proto.TemplateCommodity{
 				{
-					rand.RandomTemplateCommodity(),
+					testTemplateCommodity1,
 				},
 				{
-					rand.RandomTemplateCommodity(),
-					rand.RandomTemplateCommodity(),
+					testTemplateCommodity1,
+					testTemplateCommodity2,
 				},
 			},
 		},
 	}
 	for _, item := range table {
-		curMap := make(map[*proto.Provider][]*proto.TemplateCommodity)
+		curMap := make(map[*provider][]*proto.TemplateCommodity)
 		expectedPropsSet := make(map[*proto.Provider]map[*proto.TemplateCommodity]struct{})
 		for _, provider := range item.providerList {
 			for _, commList := range item.allCommoditiesBoughtList {
 				curMap[provider] = commList
 
-				if _, exist := expectedPropsSet[provider]; !exist {
-					expectedPropsSet[provider] = make(map[*proto.TemplateCommodity]struct{})
+				if _, exist := expectedPropsSet[provider.provider]; !exist {
+					expectedPropsSet[provider.provider] = make(map[*proto.TemplateCommodity]struct{})
 				}
 				for _, comm := range commList {
-					expectedPropsSet[provider][comm] = struct{}{}
+					expectedPropsSet[provider.provider][comm] = struct{}{}
 				}
 			}
 		}
@@ -241,6 +283,46 @@ func TestBuildCommodityBought(t *testing.T) {
 			}
 		}
 
+	}
+}
+
+func TestProviderOptOptionalHost(t *testing.T) {
+	builder := NewSupplyChainNodeBuilder(proto.EntityDTO_CONTAINER_POD)
+	isProviderOptional := true
+	entityType := proto.EntityDTO_WORKLOAD_CONTROLLER
+	providerType := proto.Provider_HOSTING
+	builder.ProviderOpt(entityType, providerType, &isProviderOptional)
+	expectedCurrentProvider := &provider{
+		provider: &proto.Provider{
+			TemplateClass:  &entityType,
+			ProviderType:   &providerType,
+			CardinalityMax: &maxCardinalityOne,
+			CardinalityMin: &minCardinalityZero,
+		},
+		optional: &isProviderOptional,
+	}
+	if !reflect.DeepEqual(expectedCurrentProvider, builder.currentProvider) {
+		t.Errorf("\nExpected %++v, \ngot      %++v", expectedCurrentProvider, builder.currentProvider)
+	}
+}
+
+func TestProviderOptNonOptionalLayeredOver(t *testing.T) {
+	builder := NewSupplyChainNodeBuilder(proto.EntityDTO_VIRTUAL_MACHINE)
+	isProviderOptional := false
+	entityType := proto.EntityDTO_STORAGE
+	providerType := proto.Provider_LAYERED_OVER
+	builder.ProviderOpt(entityType, providerType, &isProviderOptional)
+	expectedCurrentProvider := &provider{
+		provider: &proto.Provider{
+			TemplateClass:  &entityType,
+			ProviderType:   &providerType,
+			CardinalityMax: &maxCardinalityMaxInt,
+			CardinalityMin: &minCardinalityOne,
+		},
+		optional: &isProviderOptional,
+	}
+	if !reflect.DeepEqual(expectedCurrentProvider, builder.currentProvider) {
+		t.Errorf("\nExpected %++v, \ngot      %++v", expectedCurrentProvider, builder.currentProvider)
 	}
 }
 
@@ -304,9 +386,9 @@ func TestBuildExternalEntityLinkProperty(t *testing.T) {
 	}
 }
 
-// Create a random EntityDTOBuilder.
-func randomBaseSupplyChainNodeBuilder() *SupplyChainNodeBuilder {
-	return NewSupplyChainNodeBuilder(rand.RandomEntityType())
+// Create a test EntityDTOBuilder.
+func testBaseSupplyChainNodeBuilder() *SupplyChainNodeBuilder {
+	return NewSupplyChainNodeBuilder(proto.EntityDTO_CONTAINER_POD)
 }
 
 func doTestPriority(t proto.EntityDTO_EntityType, p int32) error {

@@ -166,6 +166,6 @@ func baseSupplyChainBuilder() *SupplyChainBuilder {
 }
 
 func randomSupplyChainNode() *proto.TemplateDTO {
-	node, _ := randomBaseSupplyChainNodeBuilder().Create()
+	node, _ := testBaseSupplyChainNodeBuilder().Create()
 	return node
 }

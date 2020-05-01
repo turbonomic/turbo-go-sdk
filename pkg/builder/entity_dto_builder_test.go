@@ -284,6 +284,76 @@ func TestEntityDTOBuilder_Monitored(t *testing.T) {
 	}
 }
 
+func TestEntityDTOBuilder_LayeredOver(t *testing.T) {
+	containerSpecID := "containerSpecID"
+	table := []struct {
+		layeredOver []string
+		existingErr error
+	}{
+		{
+			layeredOver: []string{containerSpecID},
+			existingErr: fmt.Errorf("Error"),
+		},
+		{
+			layeredOver: []string{containerSpecID},
+		},
+	}
+	for _, item := range table {
+		base := NewEntityDTOBuilder(proto.EntityDTO_CONTAINER, "containerID")
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:        base.entityType,
+			id:                base.id,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			expectedBuilder.layeredOver = item.layeredOver
+		}
+		builder := base.LayeredOver(item.layeredOver)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+		}
+	}
+}
+
+func TestEntityDTOBuilder_ConsistsOf(t *testing.T) {
+	containerSpecID := "containerSpecID"
+	table := []struct {
+		consistsOf  []string
+		existingErr error
+	}{
+		{
+			consistsOf:  []string{containerSpecID},
+			existingErr: fmt.Errorf("Error"),
+		},
+		{
+			consistsOf: []string{containerSpecID},
+		},
+	}
+	for _, item := range table {
+		base := NewEntityDTOBuilder(proto.EntityDTO_WORKLOAD_CONTROLLER, "controllerID")
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:        base.entityType,
+			id:                base.id,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			expectedBuilder.consistsOf = item.consistsOf
+		}
+		builder := base.ConsistsOf(item.consistsOf)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Expected %+v, got %+v", expectedBuilder, builder)
+		}
+	}
+}
+
 func TestEntityDTOBuilder_ApplicationData(t *testing.T) {
 	table := []struct {
 		appData *proto.EntityDTO_ApplicationData
@@ -598,6 +668,63 @@ func TestEntityDTOBuilder_ContainerData(t *testing.T) {
 			}
 		}
 		builder := base.ContainerData(item.containerData)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("Test case %d failed. Expected %+v, \ngot      %+v", i, expectedBuilder, builder)
+		}
+	}
+}
+
+func TestEntityDTOBuilder_WorkloadControllerData(t *testing.T) {
+	customControllerType := "customController"
+	workloadControllerData := &proto.EntityDTO_WorkloadControllerData{
+		ControllerType: &proto.EntityDTO_WorkloadControllerData_CustomControllerData{
+			CustomControllerData: &proto.EntityDTO_CustomControllerData{
+				CustomControllerType: &customControllerType,
+			},
+		},
+	}
+
+	table := []struct {
+		workloadControllerData *proto.EntityDTO_WorkloadControllerData
+
+		entityDataHasSetFlag bool
+		existingErr          error
+	}{
+		{
+			workloadControllerData: workloadControllerData,
+			existingErr:            errors.New("Error"),
+		},
+		{
+			workloadControllerData: workloadControllerData,
+			entityDataHasSetFlag:   false,
+		},
+		{
+			workloadControllerData: workloadControllerData,
+			entityDataHasSetFlag:   true,
+		},
+	}
+	for i, item := range table {
+		base := NewEntityDTOBuilder(proto.EntityDTO_WORKLOAD_CONTROLLER, "controllerID")
+		base.entityDataHasSet = item.entityDataHasSetFlag
+		expectedBuilder := &EntityDTOBuilder{
+			entityType:        base.entityType,
+			id:                base.id,
+			entityDataHasSet:  base.entityDataHasSet,
+			actionEligibility: testNewActionEligibility(),
+			providerMap:       make(map[string]proto.EntityDTO_EntityType),
+		}
+		if item.existingErr != nil {
+			base.err = item.existingErr
+			expectedBuilder.err = item.existingErr
+		} else {
+			if item.entityDataHasSetFlag {
+				expectedBuilder.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", item.workloadControllerData)
+			} else {
+				expectedBuilder.workloadControllerData = item.workloadControllerData
+				expectedBuilder.entityDataHasSet = true
+			}
+		}
+		builder := base.WorkloadControllerData(item.workloadControllerData)
 		if !reflect.DeepEqual(builder, expectedBuilder) {
 			t.Errorf("Test case %d failed. Expected %+v, \ngot      %+v", i, expectedBuilder, builder)
 		}

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
-	"math"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyz0123456789")
@@ -102,30 +101,6 @@ func RandomExternalEntityLink_ServerEntityPropDef() *proto.ServerEntityPropDef {
 	return &proto.ServerEntityPropDef{
 		Entity:    &entity,
 		Attribute: &attribute,
-	}
-}
-
-func RandomTemplateCommodity() *proto.TemplateCommodity {
-	// a random commodity type.
-	cType := RandomCommodityType()
-	// a random key
-	key := String(5)
-	return &proto.TemplateCommodity{
-		CommodityType: &cType,
-		Key:           &key,
-	}
-}
-
-func RandomProvider() *proto.Provider {
-	providerEntityType := RandomEntityType()
-	relationShip := RandomProviderConsumerRelationship()
-	maxCardinality := int32(math.MaxInt32)
-	minCardinality := int32(0)
-	return &proto.Provider{
-		TemplateClass:  &providerEntityType,
-		ProviderType:   &relationShip,
-		CardinalityMax: &maxCardinality,
-		CardinalityMin: &minCardinality,
 	}
 }
 

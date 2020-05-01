@@ -193,6 +193,45 @@ func TestCommodityDTOBuilder_Capacity(t *testing.T) {
 	}
 }
 
+func TestCommodityDTOBuilder_Active(t *testing.T) {
+	table := []struct {
+		active      bool
+		existingErr error
+	}{
+		{
+			existingErr: fmt.Errorf("Fake"),
+			active:      true,
+		},
+		{
+			active: true,
+		},
+		{
+			active: false,
+		},
+	}
+	cType := proto.CommodityDTO_CommodityType(106)
+	for _, item := range table {
+		base := &CommodityDTOBuilder{
+			commodityType: &cType,
+		}
+		var active *bool
+		if item.existingErr != nil {
+			base.err = item.existingErr
+		} else {
+			active = &item.active
+		}
+		expectedBuilder := &CommodityDTOBuilder{
+			commodityType: base.commodityType,
+			active:        active,
+			err:           item.existingErr,
+		}
+		builder := base.Active(item.active)
+		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+		}
+	}
+}
+
 func TestCommodityDTOBuilder_Resizable(t *testing.T) {
 	table := []struct {
 		resizable   bool
@@ -225,6 +264,50 @@ func TestCommodityDTOBuilder_Resizable(t *testing.T) {
 		}
 		builder := base.Resizable(item.resizable)
 		if !reflect.DeepEqual(builder, expectedBuilder) {
+			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+		}
+	}
+}
+
+func TestCommodityDTOBuilder_UtilizationData(t *testing.T) {
+	testPoints := []float64{10.0, 11.0}
+	testLastPointTimestampMs := int64(1585853340000)
+	testIntervalMs := int32(0)
+	testUtilizationData := &proto.CommodityDTO_UtilizationData{
+		Point:                testPoints,
+		LastPointTimestampMs: &testLastPointTimestampMs,
+		IntervalMs:           &testIntervalMs,
+	}
+	table := []struct {
+		utilizationData *proto.CommodityDTO_UtilizationData
+		existingErr     error
+	}{
+		{
+			existingErr:     fmt.Errorf("Fake"),
+			utilizationData: testUtilizationData,
+		},
+		{
+			utilizationData: testUtilizationData,
+		},
+	}
+	cType := proto.CommodityDTO_CommodityType(106)
+	for _, item := range table {
+		base := &CommodityDTOBuilder{
+			commodityType: &cType,
+		}
+		var utilizationData *proto.CommodityDTO_UtilizationData
+		if item.existingErr != nil {
+			base.err = item.existingErr
+		} else {
+			utilizationData = testUtilizationData
+		}
+		expectedBuilder := &CommodityDTOBuilder{
+			commodityType:   &cType,
+			utilizationData: utilizationData,
+			err:             item.existingErr,
+		}
+		builder := base.UtilizationData(testPoints, testLastPointTimestampMs, testIntervalMs)
+		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
 		}
 	}
