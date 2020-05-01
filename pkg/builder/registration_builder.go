@@ -103,14 +103,13 @@ type ProbeInfoBuilder struct {
 }
 
 // NewProbeInfoBuilder builds the ProbeInfo DTO for the given probe
-func NewProbeInfoBuilder(probeType, probeCat, probeUICat string,
+func NewProbeInfoBuilder(probeType, probeCat string,
 	supplyChainSet []*proto.TemplateDTO,
 	acctDef []*proto.AccountDefEntry) *ProbeInfoBuilder {
 	// New ProbeInfo protobuf with this input
 	probeInfo := &proto.ProbeInfo{
 		ProbeType:                &probeType,
 		ProbeCategory:            &probeCat,
-		UiProbeCategory:          &probeUICat,
 		SupplyChainDefinitionSet: supplyChainSet,
 		AccountDefinition:        acctDef,
 	}
@@ -120,12 +119,11 @@ func NewProbeInfoBuilder(probeType, probeCat, probeUICat string,
 }
 
 // NewBasicProbeInfoBuilder builds the ProbeInfo DTO for the given probe
-func NewBasicProbeInfoBuilder(probeType, probeCat, probeUICat string) *ProbeInfoBuilder {
+func NewBasicProbeInfoBuilder(probeType, probeCat string) *ProbeInfoBuilder {
 
 	probeInfo := &proto.ProbeInfo{
-		ProbeType:       &probeType,
-		ProbeCategory:   &probeCat,
-		UiProbeCategory: &probeUICat,
+		ProbeType:     &probeType,
+		ProbeCategory: &probeCat,
 	}
 	return &ProbeInfoBuilder{
 		probeInfo: probeInfo,

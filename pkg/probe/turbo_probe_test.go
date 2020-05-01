@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetProbeInfoWithDefaultDiscoveryIntervals(t *testing.T) {
-	pc, _ := NewProbeConfig("Type1", "Category1", "UICategory1")
+	pc, _ := NewProbeConfig("Type1", "Category1")
 	theProbe, _ := newTurboProbe(pc)
 
 	probeInfo, _ := theProbe.GetProbeInfo()
@@ -22,7 +22,7 @@ func TestGetProbeInfoWithIllegalDiscoveryIntervals(t *testing.T) {
 	discoveryMetadata.SetFullRediscoveryIntervalSeconds(10)
 	discoveryMetadata.SetIncrementalRediscoveryIntervalSeconds(300)
 	discoveryMetadata.SetPerformanceRediscoveryIntervalSeconds(-1)
-	pc, _ := NewProbeConfig("Type1", "Category1", "UICategory1")
+	pc, _ := NewProbeConfig("Type1", "Category1")
 	pc.SetDiscoveryMetadata(discoveryMetadata)
 	theProbe, _ := newTurboProbe(pc)
 

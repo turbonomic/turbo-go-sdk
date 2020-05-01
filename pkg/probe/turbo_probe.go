@@ -228,9 +228,8 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	probeConf := theProbe.ProbeConfiguration
 	probeCat := probeConf.ProbeCategory
 	probeType := probeConf.ProbeType
-	probeUICat := probeConf.ProbeUICategory
 
-	probeInfoBuilder := builder.NewBasicProbeInfoBuilder(probeType, probeCat, probeUICat)
+	probeInfoBuilder := builder.NewBasicProbeInfoBuilder(probeType, probeCat)
 
 	// 2. discovery intervals metadata
 	probeInfoBuilder.WithFullDiscoveryInterval(probeConf.discoveryMetadata.GetFullRediscoveryIntervalSeconds())

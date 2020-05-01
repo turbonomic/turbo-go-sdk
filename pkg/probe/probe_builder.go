@@ -31,10 +31,6 @@ func ErrorInvalidProbeCategory() error {
 	return errors.New("Null Probe category")
 }
 
-func ErrorInvalidProbeUICategory() error {
-	return errors.New("Null Probe UI category")
-}
-
 func ErrorInvalidRegistrationClient() error {
 	return errors.New("Null registration client")
 }
@@ -56,11 +52,11 @@ func ErrorCreatingProbe(probeType string, probeCategory string) error {
 }
 
 // Get an instance of ProbeBuilder
-func NewProbeBuilder(probeType, probeCategory, probeUICategory string) *ProbeBuilder {
+func NewProbeBuilder(probeType string, probeCategory string) *ProbeBuilder {
 	probeBuilder := &ProbeBuilder{}
 
 	// Validate probe type and category
-	probeConf, err := NewProbeConfig(probeType, probeCategory, probeUICategory)
+	probeConf, err := NewProbeConfig(probeType, probeCategory)
 	if err != nil {
 		glog.Errorf("Encountered error constructing NewProbeBuilder: %v", err)
 		probeBuilder.builderError = err

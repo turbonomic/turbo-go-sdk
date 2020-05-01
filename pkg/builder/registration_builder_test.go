@@ -54,10 +54,9 @@ func TestNewProbeInfoBuilder(t *testing.T) {
 	assert := assert.New(t)
 	probeType := "ProbeType1"    //rand.String(6)
 	probeCat := "ProbeCategory1" //rand.String(7)
-	probeUICat := "ProbeUICategory1"
 	var supplyCS []*proto.TemplateDTO
 	var acctDef []*proto.AccountDefEntry
-	probeInfoBldr := NewProbeInfoBuilder(probeType, probeCat, probeUICat, supplyCS, acctDef)
+	probeInfoBldr := NewProbeInfoBuilder(probeType, probeCat, supplyCS, acctDef)
 	assert.Equal(probeType, *probeInfoBldr.probeInfo.ProbeType)
 }
 
@@ -77,21 +76,20 @@ func TestProbeInfo_Create(t *testing.T) {
 func TestProbeInfoBuilder(t *testing.T) {
 
 	table := []struct {
-		probeType       string
-		probeCategory   string
-		probeUICategory string
-		full            int32
-		incremental     int32
-		performance     int32
+		probeType     string
+		probeCategory string
+		full          int32
+		incremental   int32
+		performance   int32
 	}{
-		{"Type1", "Category1", "UICategory1", 200, 10, 10},
-		{"Type2", "Category2", "UICategory2", 200, 10, 10},
-		{"Type3", "Category3", "UICategory3", -1, -1, -1},
-		{probeType: "Type4", probeCategory: "Category4", probeUICategory: "UICategory4"},
+		{"Type1", "Category1", 200, 10, 10},
+		{"Type2", "Category2", 200, 10, 10},
+		{"Type3", "Category3", -1, -1, -1},
+		{probeType: "Type4", probeCategory: "Category4"},
 	}
 
 	for _, item := range table {
-		builder := NewBasicProbeInfoBuilder(item.probeType, item.probeCategory, item.probeUICategory)
+		builder := NewBasicProbeInfoBuilder(item.probeType, item.probeCategory)
 		builder.WithFullDiscoveryInterval(item.full)
 		builder.WithIncrementalDiscoveryInterval(item.incremental)
 		builder.WithPerformanceDiscoveryInterval(item.performance)
