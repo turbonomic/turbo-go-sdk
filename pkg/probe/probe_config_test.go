@@ -7,25 +7,21 @@ import (
 )
 
 func TestInvalidProbeConf(t *testing.T) {
-	pc, err := NewProbeConfig("", "", "")
+	pc, err := NewProbeConfig("", "")
 	assert.NotNil(t, err)
 	assert.Nil(t, pc)
 
-	pc, err = NewProbeConfig("Type1", "", "")
+	pc, err = NewProbeConfig("Type1", "")
 	assert.NotNil(t, err)
 	assert.Nil(t, pc)
 
-	pc, err = NewProbeConfig("", "Category1", "")
-	assert.NotNil(t, err)
-	assert.Nil(t, pc)
-
-	pc, err = NewProbeConfig("Type1", "Category1", "")
+	pc, err = NewProbeConfig("", "Category1")
 	assert.NotNil(t, err)
 	assert.Nil(t, pc)
 }
 
 func TestProbeConf(t *testing.T) {
-	pc, err := NewProbeConfig("Type1", "Category1", "UICategory1")
+	pc, err := NewProbeConfig("Type1", "Category1")
 	assert.Nil(t, err)
 	assert.NotNil(t, pc)
 	assert.EqualValues(t, "Type1", pc.ProbeType)
@@ -54,20 +50,18 @@ func TestValidateProbeConfInvalid(t *testing.T) {
 
 func TestValidateProbeConf(t *testing.T) {
 	pc := &ProbeConfig{
-		ProbeCategory:   "Category1",
-		ProbeType:       "Type1",
-		ProbeUICategory: "UICategory1",
+		ProbeCategory: "Category1",
+		ProbeType:     "Type1",
 	}
 	err := pc.Validate()
 	assert.Nil(t, err)
 	assert.EqualValues(t, "Type1", pc.ProbeType)
 	assert.EqualValues(t, "Category1", pc.ProbeCategory)
-	assert.EqualValues(t, "UICategory1", pc.ProbeUICategory)
 	assert.NotNil(t, pc.discoveryMetadata)
 }
 
 func TestSetDiscoveryMetadata(t *testing.T) {
-	pc, _ := NewProbeConfig("Type1", "Category1", "UICategory1")
+	pc, _ := NewProbeConfig("Type1", "Category1")
 	assert.NotNil(t, pc.discoveryMetadata)
 
 	dm := pc.discoveryMetadata

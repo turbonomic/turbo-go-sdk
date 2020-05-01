@@ -13,7 +13,6 @@ import (
 type ProbeConfig struct {
 	ProbeType         string
 	ProbeCategory     string
-	ProbeUICategory   string
 	discoveryMetadata *DiscoveryMetadata
 }
 
@@ -21,7 +20,7 @@ type ProbeConfig struct {
 // Sets default discovery intervals for the full, incremental and performance discoveries.
 // Returns error if the probe type and category fields cannot be validated.
 //
-func NewProbeConfig(probeType, probeCategory, probeUICategory string) (*ProbeConfig, error) {
+func NewProbeConfig(probeType string, probeCategory string) (*ProbeConfig, error) {
 	if probeType == "" {
 		return nil, ErrorInvalidProbeType()
 	}
@@ -30,14 +29,9 @@ func NewProbeConfig(probeType, probeCategory, probeUICategory string) (*ProbeCon
 		return nil, ErrorInvalidProbeCategory()
 	}
 
-	if probeUICategory == "" {
-		return nil, ErrorInvalidProbeUICategory()
-	}
-
 	probeConf := &ProbeConfig{
 		ProbeCategory:     probeCategory,
 		ProbeType:         probeType,
-		ProbeUICategory:   probeUICategory,
 		discoveryMetadata: NewDiscoveryMetadata(),
 	}
 
@@ -54,10 +48,6 @@ func (probeConfig *ProbeConfig) Validate() error {
 
 	if probeConfig.ProbeCategory == "" {
 		return ErrorInvalidProbeCategory()
-	}
-
-	if probeConfig.ProbeUICategory == "" {
-		return ErrorInvalidProbeUICategory()
 	}
 
 	if probeConfig.discoveryMetadata == nil {

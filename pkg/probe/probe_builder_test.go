@@ -11,9 +11,8 @@ import (
 func TestNewProbeBuilder(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 
-	builder := NewProbeBuilder(probeType, probeCat, probeUICat)
+	builder := NewProbeBuilder(probeType, probeCat)
 
 	_, _ = builder.Create()
 
@@ -28,7 +27,6 @@ func TestNewProbeBuilder(t *testing.T) {
 func TestNewProbeBuilderWithDiscoveryMetadata(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 
 	table := []struct {
 		full        int32
@@ -46,7 +44,7 @@ func TestNewProbeBuilderWithDiscoveryMetadata(t *testing.T) {
 		{incremental: 60, performance: 60},
 	}
 	for _, item := range table {
-		builder := NewProbeBuilder(probeType, probeCat, probeUICat)
+		builder := NewProbeBuilder(probeType, probeCat)
 		builder.WithDiscoveryOptions(IncrementalRediscoveryIntervalSecondsOption(item.incremental),
 			FullRediscoveryIntervalSecondsOption(item.full),
 			PerformanceRediscoveryIntervalSecondsOption(item.performance))
@@ -63,9 +61,8 @@ func TestNewProbeBuilderWithDiscoveryMetadata(t *testing.T) {
 func TestNewProbeBuilderWithoutRegistrationClient(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 
-	probe, err := createProbe(probeType, probeCat, probeUICat, nil, "", nil)
+	probe, err := createProbe(probeType, probeCat, nil, "", nil)
 
 	expectedErr := ErrorInvalidRegistrationClient()
 	if !reflect.DeepEqual(expectedErr, err) {
@@ -80,12 +77,11 @@ func TestNewProbeBuilderWithoutRegistrationClient(t *testing.T) {
 func TestNewProbeBuilderWithoutDiscoveryClient(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 	targetID := "T1"
 
 	registrationClient := &TestProbeRegistrationClient{}
 
-	probe, err := createProbe(probeType, probeCat, probeUICat, registrationClient, targetID, nil)
+	probe, err := createProbe(probeType, probeCat, registrationClient, targetID, nil)
 
 	expectedErr := ErrorUndefinedDiscoveryClient()
 	if reflect.DeepEqual(nil, err) {
@@ -100,12 +96,11 @@ func TestNewProbeBuilderWithoutDiscoveryClient(t *testing.T) {
 func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 	targetId := "T1"
 
 	registrationClient := &TestProbeRegistrationClient{}
 	discoveryClient := &TestProbeDiscoveryClient{}
-	builder := NewProbeBuilder(probeType, probeCat, probeUICat)
+	builder := NewProbeBuilder(probeType, probeCat)
 	builder.RegisteredBy(registrationClient)
 	builder.DiscoversTarget(targetId, discoveryClient)
 	probe, err := builder.Create()
@@ -134,12 +129,11 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 func TestNewProbeBuilderWithActionClient(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 	targetId := "T1"
 	registrationClient := &TestProbeRegistrationClient{}
 	discoveryClient := &TestProbeDiscoveryClient{}
 	actionClient := &TestProbeActionClient{}
-	builder := NewProbeBuilder(probeType, probeCat, probeUICat)
+	builder := NewProbeBuilder(probeType, probeCat)
 
 	if registrationClient != nil {
 		builder.RegisteredBy(registrationClient)
@@ -162,12 +156,11 @@ func TestNewProbeBuilderWithActionClient(t *testing.T) {
 func TestNewProbeBuilderWithInvalidActionClient(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 	targetId := "T1"
 	registrationClient := &TestProbeRegistrationClient{}
 	discoveryClient := &TestProbeDiscoveryClient{}
 	var actionClient TurboActionExecutorClient //:= &TestProbeActionClient{}
-	builder := NewProbeBuilder(probeType, probeCat, probeUICat)
+	builder := NewProbeBuilder(probeType, probeCat)
 
 	if registrationClient != nil {
 		builder.RegisteredBy(registrationClient)
@@ -191,11 +184,10 @@ func TestNewProbeBuilderWithInvalidActionClient(t *testing.T) {
 func TestNewProbeBuilderInvalidTargetId(t *testing.T) {
 	probeType := "Type1"
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 
 	registrationClient := &TestProbeRegistrationClient{}
 	discoveryClient := &TestProbeDiscoveryClient{}
-	probe, err := createProbe(probeType, probeCat, probeUICat, registrationClient, "", discoveryClient)
+	probe, err := createProbe(probeType, probeCat, registrationClient, "", discoveryClient)
 	if reflect.DeepEqual(nil, err) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", ErrorInvalidTargetIdentifier(), err)
 	}
@@ -209,9 +201,8 @@ func TestNewProbeBuilderInvalidTargetId(t *testing.T) {
 func TestNewProbeBuilderInvalidProbeType(t *testing.T) {
 	probeType := ""
 	probeCat := "Cloud"
-	probeUICat := "Cloud"
 
-	probe, err := createProbe(probeType, probeCat, probeUICat, nil, "", nil)
+	probe, err := createProbe(probeType, probeCat, nil, "", nil)
 
 	if reflect.DeepEqual(nil, err) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", ErrorInvalidProbeType(), err)
@@ -223,9 +214,8 @@ func TestNewProbeBuilderInvalidProbeType(t *testing.T) {
 
 	probeType = "Type1"
 	probeCat = ""
-	probeUICat = "Cloud"
 
-	probe, err = createProbe(probeType, probeCat, probeUICat, nil, "", nil)
+	probe, err = createProbe(probeType, probeCat, nil, "", nil)
 
 	if reflect.DeepEqual(nil, err) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", ErrorInvalidProbeCategory(), err)
@@ -234,27 +224,13 @@ func TestNewProbeBuilderInvalidProbeType(t *testing.T) {
 	if !reflect.DeepEqual(expected2, probe) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", nil, probe)
 	}
-
-	probeType = "Type1"
-	probeCat = "Cloud"
-	probeUICat = ""
-
-	probe, err = createProbe(probeType, probeCat, probeUICat, nil, "", nil)
-
-	if !reflect.DeepEqual(ErrorInvalidProbeUICategory(), err) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", ErrorInvalidProbeUICategory(), err)
-	}
-	var expected3 *TurboProbe
-	if !reflect.DeepEqual(expected3, probe) {
-		t.Errorf("\nExpected %+v, \ngot      %+v", nil, probe)
-	}
 }
 
-func createProbe(probeType, probeCat, probeUICat string,
+func createProbe(probeType, probeCat string,
 	registrationClient TurboRegistrationClient,
 	targetId string, discoveryClient TurboDiscoveryClient) (*TurboProbe, error) {
 
-	builder := NewProbeBuilder(probeType, probeCat, probeUICat)
+	builder := NewProbeBuilder(probeType, probeCat)
 
 	if registrationClient != nil {
 		builder.RegisteredBy(registrationClient)
