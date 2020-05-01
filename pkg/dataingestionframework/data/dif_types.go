@@ -31,7 +31,6 @@ type DIFHostedOn struct {
 type DIFPartOf struct {
 	ParentEntity string `json:"entity"`
 	UniqueId     string `json:"uniqueId"`
-	Label        string `json:"label,omitempty"`
 }
 
 func NewDIFEntity(uid, eType string) *DIFEntity {
@@ -50,12 +49,12 @@ func (e *DIFEntity) WithName(name string) *DIFEntity {
 	return e
 }
 
-func (e *DIFEntity) PartOfEntity(entity, id, label string) *DIFEntity {
+func (e *DIFEntity) PartOfEntity(entity, id string) *DIFEntity {
 	if e.partOfSet.Contains(id) {
 		return e
 	}
 	e.partOfSet.Add(id)
-	e.PartOf = append(e.PartOf, &DIFPartOf{entity, id, label})
+	e.PartOf = append(e.PartOf, &DIFPartOf{entity, id})
 	return e
 }
 
@@ -106,6 +105,7 @@ func (e *DIFEntity) Matching(id string) *DIFEntity {
 }
 
 func (e *DIFEntity) AddMetric(metricType string, key DIFMetricValKey, value float64) {
+	var meList []*DIFMetricVal
 	meList, found := e.Metrics[metricType]
 	if !found {
 		meList = append(meList, &DIFMetricVal{})
@@ -119,10 +119,6 @@ func (e *DIFEntity) AddMetric(metricType string, key DIFMetricValKey, value floa
 	} else if key == CAPACITY {
 		meList[0].Capacity = &value
 	}
-}
-
-func (e *DIFEntity) AddMetrics(metricType string, metricVals []*DIFMetricVal) {
-	e.Metrics[metricType] = append(e.Metrics[metricType], metricVals...)
 }
 
 func (e *DIFEntity) String() string {
@@ -140,11 +136,6 @@ func (e *DIFEntity) String() string {
 		s += fmt.Sprintf(" HostedOn")
 		s += fmt.Sprintf("[%s:%s]",
 			e.HostedOn.HostUuid, e.HostedOn.IPAddress)
-	}
-	for metricName, metricList := range e.Metrics {
-		for _, metric := range metricList {
-			s += fmt.Sprintf(" Metric %s:[%v]", metricName, metric)
-		}
 	}
 	return s
 }
