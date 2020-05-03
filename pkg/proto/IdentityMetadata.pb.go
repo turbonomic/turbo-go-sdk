@@ -5,8 +5,9 @@ package proto
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
+
+	proto "github.com/golang/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -170,9 +171,7 @@ func init() {
 	proto.RegisterType((*EntityIdentityMetadata_PropertyMetadata)(nil), "common_dto.EntityIdentityMetadata.PropertyMetadata")
 }
 
-func init() {
-	proto.RegisterFile("IdentityMetadata.proto", fileDescriptor_06b25cebe55f715e)
-}
+func init() { proto.RegisterFile("IdentityMetadata.proto", fileDescriptor_06b25cebe55f715e) }
 
 var fileDescriptor_06b25cebe55f715e = []byte{
 	// 284 bytes of a gzipped FileDescriptorProto

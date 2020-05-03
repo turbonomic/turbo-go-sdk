@@ -5,8 +5,9 @@ package proto
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
+
+	proto "github.com/golang/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -731,9 +732,7 @@ func init() {
 	proto.RegisterType((*ReservedInstanceSpec)(nil), "common_dto.ReservedInstanceSpec")
 }
 
-func init() {
-	proto.RegisterFile("CloudCostDTO.proto", fileDescriptor_6e61221a66d0df59)
-}
+func init() { proto.RegisterFile("CloudCostDTO.proto", fileDescriptor_6e61221a66d0df59) }
 
 var fileDescriptor_6e61221a66d0df59 = []byte{
 	// 915 bytes of a gzipped FileDescriptorProto
