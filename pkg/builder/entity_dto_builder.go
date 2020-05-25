@@ -365,7 +365,6 @@ func (eb *EntityDTOBuilder) ConsistsOf(consistsOf []string) *EntityDTOBuilder {
 	return eb
 }
 
-
 func (eb *EntityDTOBuilder) ControlledBy(controllerId string) *EntityDTOBuilder {
 	if eb.err != nil {
 		return eb
@@ -375,8 +374,8 @@ func (eb *EntityDTOBuilder) ControlledBy(controllerId string) *EntityDTOBuilder 
 	}
 	controllerType := proto.ConnectedEntity_CONTROLLED_BY_CONNECTION
 	eb.connectedEntities = append(eb.connectedEntities, &proto.ConnectedEntity{
-		ConnectedEntityId:    &controllerId,
-		ConnectionType:       &controllerType,
+		ConnectedEntityId: &controllerId,
+		ConnectionType:    &controllerType,
 	})
 	return eb
 }
@@ -390,8 +389,8 @@ func (eb *EntityDTOBuilder) Owns(ownedEntityId string) *EntityDTOBuilder {
 	}
 	controllerType := proto.ConnectedEntity_OWNS_CONNECTION
 	eb.connectedEntities = append(eb.connectedEntities, &proto.ConnectedEntity{
-		ConnectedEntityId:    &ownedEntityId,
-		ConnectionType:       &controllerType,
+		ConnectedEntityId: &ownedEntityId,
+		ConnectionType:    &controllerType,
 	})
 	return eb
 }
@@ -405,8 +404,8 @@ func (eb *EntityDTOBuilder) AggregatedBy(aggregatorId string) *EntityDTOBuilder 
 	}
 	controllerType := proto.ConnectedEntity_AGGREGATED_BY_CONNECTION
 	eb.connectedEntities = append(eb.connectedEntities, &proto.ConnectedEntity{
-		ConnectedEntityId:    &aggregatorId,
-		ConnectionType:       &controllerType,
+		ConnectedEntityId: &aggregatorId,
+		ConnectionType:    &controllerType,
 	})
 	return eb
 }
