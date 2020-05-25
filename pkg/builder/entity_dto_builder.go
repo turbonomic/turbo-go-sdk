@@ -146,6 +146,7 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		Notification:          eb.notification,
 		LayeredOver:           eb.layeredOver,
 		ConsistsOf:            eb.consistsOf,
+		ConnectedEntities:     eb.connectedEntities,
 	}
 	if eb.storageData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_StorageData_{eb.storageData}
