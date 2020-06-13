@@ -366,6 +366,21 @@ func (eb *EntityDTOBuilder) ConsistsOf(consistsOf []string) *EntityDTOBuilder {
 	return eb
 }
 
+func (eb *EntityDTOBuilder) ConnectedTo(connectedEntityId string) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	if eb.connectedEntities == nil {
+		eb.connectedEntities = []*proto.ConnectedEntity{}
+	}
+	controllerType := proto.ConnectedEntity_NORMAL_CONNECTION
+	eb.connectedEntities = append(eb.connectedEntities, &proto.ConnectedEntity{
+		ConnectedEntityId: &connectedEntityId,
+		ConnectionType:    &controllerType,
+	})
+	return eb
+}
+
 func (eb *EntityDTOBuilder) ControlledBy(controllerId string) *EntityDTOBuilder {
 	if eb.err != nil {
 		return eb
