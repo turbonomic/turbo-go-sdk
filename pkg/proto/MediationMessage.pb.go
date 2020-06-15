@@ -428,8 +428,7 @@ func (*MediationServerMessage_InterruptOperation) isMediationServerMessage_Media
 
 func (*MediationServerMessage_Properties) isMediationServerMessage_MediationServerMessage() {}
 
-func (*MediationServerMessage_TargetUpdateRequest) isMediationServerMessage_MediationServerMessage() {
-}
+func (*MediationServerMessage_TargetUpdateRequest) isMediationServerMessage_MediationServerMessage() {}
 
 func (*MediationServerMessage_ActionApproval) isMediationServerMessage_MediationServerMessage() {}
 
