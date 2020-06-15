@@ -2,6 +2,7 @@ package supplychain
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 
@@ -65,7 +66,7 @@ func TestSupplyChainBuilder_Top(t *testing.T) {
 			topNode: randomSupplyChainNode(),
 		},
 		{
-			newError: fmt.Errorf("topNode cannot be nil."),
+			newError: fmt.Errorf("top node cannot be nil"),
 		},
 	}
 
@@ -106,12 +107,12 @@ func TestSupplyChainBuilder_Entity(t *testing.T) {
 		},
 		{
 			newNodes: []*proto.TemplateDTO{randomSupplyChainNode()},
-			newErr:   fmt.Errorf("Must set top supply chain node first."),
+			newErr:   fmt.Errorf("must set top supply chain node first"),
 		},
 		{
 			newNodes:                 []*proto.TemplateDTO{randomSupplyChainNode()},
 			existingSupplyChainNodes: []*proto.TemplateDTO{},
-			newErr:                   fmt.Errorf("Must set top supply chain node first."),
+			newErr:                   fmt.Errorf("must set top supply chain node first"),
 		},
 		{
 			newNodes: []*proto.TemplateDTO{
@@ -161,11 +162,61 @@ func TestSupplyChainBuilder_Entity(t *testing.T) {
 	}
 }
 
+func TestSupplyChainBuilder_ValidateChargedBySold(t *testing.T) {
+	builder := &SupplyChainBuilder{
+		supplyChainNodes: []*proto.TemplateDTO{
+			randomSupplyChainNodeWithChargedBySold(),
+		},
+	}
+	supplyChainNodes, err := builder.Create()
+	errMsg := "commodity HEAP of entity template APPLICATION_COMPONENT is charged by commodity " +
+		"REMAINING_GC_CAPACITY which is not declared to be sold by the entity"
+	assert.Nil(t, supplyChainNodes)
+	assert.EqualError(t, err, errMsg)
+}
+
+func TestSupplyChainBuilder_ValidateChargedBy(t *testing.T) {
+	builder := &SupplyChainBuilder{
+		supplyChainNodes: []*proto.TemplateDTO{
+			randomSupplyChainNodeWithChargedBy(),
+			randomSupplyChainNode(),
+		},
+	}
+	supplyChainNodes, err := builder.Create()
+	assert.NotNil(t, supplyChainNodes)
+	assert.NoError(t, err)
+}
+
 func baseSupplyChainBuilder() *SupplyChainBuilder {
 	return &SupplyChainBuilder{}
 }
 
 func randomSupplyChainNode() *proto.TemplateDTO {
 	node, _ := testBaseSupplyChainNodeBuilder().Create()
+	return node
+}
+
+func randomSupplyChainNodeWithChargedBySold() *proto.TemplateDTO {
+	heap := proto.CommodityDTO_HEAP
+	collection := proto.CommodityDTO_REMAINING_GC_CAPACITY
+	node, _ := NewSupplyChainNodeBuilder(proto.EntityDTO_APPLICATION_COMPONENT).
+		Sells(&proto.TemplateCommodity{
+			CommodityType: &heap,
+			ChargedBySold: []proto.CommodityDTO_CommodityType{collection},
+		}).Create()
+	return node
+}
+
+func randomSupplyChainNodeWithChargedBy() *proto.TemplateDTO {
+	threads := proto.CommodityDTO_THREADS
+	vcpu := proto.CommodityDTO_VCPU
+	builder := NewSupplyChainNodeBuilder(proto.EntityDTO_APPLICATION_COMPONENT).
+		Sells(&proto.TemplateCommodity{
+			CommodityType: &threads,
+			ChargedBy:     []proto.CommodityDTO_CommodityType{vcpu},
+		}).
+		Provider(proto.EntityDTO_CONTAINER, proto.Provider_HOSTING).
+		Buys(&proto.TemplateCommodity{CommodityType: &vcpu})
+	node, _ := builder.Create()
 	return node
 }
