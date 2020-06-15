@@ -4921,7 +4921,8 @@ type EntityDTO_StorageControllerData_IopsComputeData struct {
 
 func (*EntityDTO_StorageControllerData_IopsCapacity) isEntityDTO_StorageControllerData_IopsData() {}
 
-func (*EntityDTO_StorageControllerData_IopsComputeData) isEntityDTO_StorageControllerData_IopsData() {}
+func (*EntityDTO_StorageControllerData_IopsComputeData) isEntityDTO_StorageControllerData_IopsData() {
+}
 
 func (m *EntityDTO_StorageControllerData) GetIopsData() isEntityDTO_StorageControllerData_IopsData {
 	if m != nil {
@@ -5175,7 +5176,8 @@ func (*EntityDTO_WorkloadControllerData_DaemonSetData) isEntityDTO_WorkloadContr
 func (*EntityDTO_WorkloadControllerData_DeploymentData) isEntityDTO_WorkloadControllerData_ControllerType() {
 }
 
-func (*EntityDTO_WorkloadControllerData_JobData) isEntityDTO_WorkloadControllerData_ControllerType() {}
+func (*EntityDTO_WorkloadControllerData_JobData) isEntityDTO_WorkloadControllerData_ControllerType() {
+}
 
 func (*EntityDTO_WorkloadControllerData_ReplicaSetData) isEntityDTO_WorkloadControllerData_ControllerType() {
 }
@@ -9012,8 +9014,10 @@ type GroupDTO_SelectionSpec_PropertyDoubleList struct {
 func (m *GroupDTO_SelectionSpec_PropertyDoubleList) Reset() {
 	*m = GroupDTO_SelectionSpec_PropertyDoubleList{}
 }
-func (m *GroupDTO_SelectionSpec_PropertyDoubleList) String() string { return proto.CompactTextString(m) }
-func (*GroupDTO_SelectionSpec_PropertyDoubleList) ProtoMessage()    {}
+func (m *GroupDTO_SelectionSpec_PropertyDoubleList) String() string {
+	return proto.CompactTextString(m)
+}
+func (*GroupDTO_SelectionSpec_PropertyDoubleList) ProtoMessage() {}
 func (*GroupDTO_SelectionSpec_PropertyDoubleList) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2233245ab49fede8, []int{5, 7, 1}
 }
