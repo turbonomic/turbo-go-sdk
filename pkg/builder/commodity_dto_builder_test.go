@@ -2,6 +2,7 @@ package builder
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	mathrand "math/rand"
 	"reflect"
 	"testing"
@@ -311,6 +312,29 @@ func TestCommodityDTOBuilder_UtilizationData(t *testing.T) {
 			t.Errorf("\nExpected %+v, \ngot      %+v", expectedBuilder, builder)
 		}
 	}
+}
+
+func TestCommodityDTOBuilder_RemainingGCCapacity(t *testing.T) {
+	builder := NewCommodityDTOBuilder(proto.CommodityDTO_REMAINING_GC_CAPACITY).Used(10)
+	commodity, err := builder.Create()
+	assert.NoError(t, err)
+	assert.NotNil(t, commodity)
+	assert.Equal(t, commodity.GetCapacity(), 100.0)
+	assert.Equal(t, commodity.GetUsed(), 90.0)
+}
+
+func TestCommodityDTOBuilder_NoCapacity(t *testing.T) {
+	builder := NewCommodityDTOBuilder(proto.CommodityDTO_CONNECTION).Used(10)
+	commodity, err := builder.Create()
+	assert.Nil(t, commodity)
+	assert.EqualError(t, err, "commodity CONNECTION has nil capacity")
+}
+
+func TestCommodityDTOBuilder_NegativeUsed(t *testing.T) {
+	builder := randomBaseCommodityDTOBuilder().Used(-1).Capacity(200)
+	commodity, err := builder.Create()
+	assert.Nil(t, commodity)
+	assert.EqualError(t, err, fmt.Errorf("commodity %v has negative used value", builder.commodityType).Error())
 }
 
 func randomBaseCommodityDTOBuilder() *CommodityDTOBuilder {
