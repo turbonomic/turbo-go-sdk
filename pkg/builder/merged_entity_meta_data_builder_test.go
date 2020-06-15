@@ -2,7 +2,6 @@ package builder
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"testing"
 )
 
@@ -94,8 +93,6 @@ func TestMergedEntityMetadataBuilderInternalMatching(t *testing.T) {
 	props = append(props, prop1)
 	props = append(props, prop2)
 
-	builder.InternalMatchingType(MergedEntityMetadata_STRING)
-	builder.ExternalMatchingType(MergedEntityMetadata_STRING)
 	builder.InternalMatchingProperty(prop2)
 	builder.InternalMatchingProperty(prop1)
 
@@ -103,7 +100,6 @@ func TestMergedEntityMetadataBuilderInternalMatching(t *testing.T) {
 
 	assert.Nil(t, err)
 
-	assert.Equal(t, proto.MergedEntityMetadata_STRING, md.GetMatchingMetadata().GetReturnType())
 	assert.Equal(t, 2, len(md.GetMatchingMetadata().GetMatchingData()))
 	assert.NotNil(t, md.GetMatchingMetadata().GetMatchingData())
 
@@ -122,15 +118,12 @@ func TestMergedEntityMetadataBuilderExternalMatching(t *testing.T) {
 
 	prop1 := "IP"
 
-	builder.InternalMatchingType(MergedEntityMetadata_STRING)
-	builder.ExternalMatchingType(MergedEntityMetadata_STRING)
 	builder.ExternalMatchingPropertyWithDelimiter(prop1, ",")
 
 	md, err := builder.Build()
 
 	assert.Nil(t, err)
 
-	assert.Equal(t, proto.MergedEntityMetadata_STRING, md.GetMatchingMetadata().GetExternalEntityReturnType())
 	assert.Equal(t, 1, len(md.GetMatchingMetadata().GetExternalEntityMatchingProperty()))
 	assert.NotNil(t, md.GetMatchingMetadata().GetExternalEntityMatchingProperty())
 
