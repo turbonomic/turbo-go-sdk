@@ -48,7 +48,7 @@ func (cb *CommodityDTOBuilder) Create() (*proto.CommodityDTO, error) {
 	if cb.err != nil {
 		return nil, cb.err
 	}
-	if err := cb.validate(); err != nil {
+	if err := cb.validateAndConvert(); err != nil {
 		return nil, err
 	}
 	commodityDTO := &proto.CommodityDTO{
@@ -154,7 +154,8 @@ func (cb *CommodityDTOBuilder) UtilizationData(points []float64, lastPointTimest
 	return cb
 }
 
-func (cb *CommodityDTOBuilder) validate() error {
+func (cb *CommodityDTOBuilder) validateAndConvert() error {
+	// Access commodities could have nil used value.
 	if cb.used != nil && *cb.used < 0 {
 		return fmt.Errorf("commodity %v has negative used value", cb.commodityType)
 	}
