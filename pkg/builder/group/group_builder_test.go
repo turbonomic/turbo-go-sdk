@@ -59,7 +59,7 @@ func TestGroupBuilderEntityType(t *testing.T) {
 	assert.EqualValues(t, eType, groupDTO.GetEntityType())
 
 	// unknown entity type
-	var fakeType proto.EntityDTO_EntityType = 70
+	var fakeType proto.EntityDTO_EntityType = 200
 	groupBuilder = StaticGroup(id).OfType(fakeType).WithEntities([]string{"abc", "xyz"})
 
 	groupDTO, err = groupBuilder.Build()
