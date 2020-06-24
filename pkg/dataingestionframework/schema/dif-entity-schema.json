@@ -114,6 +114,8 @@
         "min": { "type": "number" },
         "max": { "type": "number" },
         "capacity": { "type": "number" },
+        "key": { "type": "string" },
+        "resizable": { "type": "boolean" },
         "unit": { "$ref": "#/definitions/metricUnit" }
       },
       "required": [
