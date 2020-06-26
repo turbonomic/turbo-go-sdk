@@ -127,7 +127,6 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 		return false
 	}
 
-	glog.V(4).Infof("Send registration message: %+v", containerInfo)
 	glog.V(2).Infof("containerInfo: %s", protobuf.MarshalTextString(containerInfo))
 
 	// Create Protobuf Endpoint to send and handle registration messages
