@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"fmt"
 	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
@@ -42,6 +43,52 @@ func NewAccountDefEntryBuilder(name, displayName, description, verificationRegex
 func (builder *AccountDefEntryBuilder) Create() *proto.AccountDefEntry {
 	return builder.accountDefEntry
 }
+
+// Action Merge Policy Metadata
+type ActionMergePolicyBuilder struct {
+	ActionMergePolicyMap map[proto.EntityDTO_EntityType]map[proto.ActionItemDTO_ActionType]*proto.ActionMergePolicyDTO
+}
+
+func NewActionMergePolicyBuilder() *ActionMergePolicyBuilder {
+	return &ActionMergePolicyBuilder{
+		ActionMergePolicyMap: make(map[proto.EntityDTO_EntityType]map[proto.ActionItemDTO_ActionType]*proto.ActionMergePolicyDTO),
+	}
+}
+
+func (builder *ActionMergePolicyBuilder) ForResizeAction(entityType proto.EntityDTO_EntityType,
+	resizeMergePolicy *ResizeMergePolicyBuilder) *ActionMergePolicyBuilder {
+	glog.Infof("### Adding resize action")
+	_, exists := builder.ActionMergePolicyMap[entityType]
+	if !exists {
+		builder.ActionMergePolicyMap[entityType] =
+			make(map[proto.ActionItemDTO_ActionType]*proto.ActionMergePolicyDTO)
+	}
+	entityPolicies, _ := builder.ActionMergePolicyMap[entityType]
+
+	resizePolicy, err := resizeMergePolicy.Build();
+	if err != nil {
+		glog.Infof("*******resizePolicy : %++v\n", err)
+		fmt.Errorf("%v", err)
+	}
+	glog.Infof("*******resizePolicy : %++v\n", resizePolicy)
+	entityPolicies[proto.ActionItemDTO_RESIZE] = resizePolicy
+
+	return builder
+}
+
+
+func (builder *ActionMergePolicyBuilder) Create() []*proto.ActionMergePolicyDTO {
+	var policies []*proto.ActionMergePolicyDTO
+
+	for _, entityPolicies := range builder.ActionMergePolicyMap {
+		for _, val := range entityPolicies {
+			policies = append(policies, val)
+		}
+	}
+
+	return policies
+}
+
 
 // Action Policy Metadata
 type ActionPolicyBuilder struct {
@@ -201,6 +248,13 @@ func (builder *ProbeInfoBuilder) WithActionPolicySet(actionPolicySet []*proto.Ac
 func (builder *ProbeInfoBuilder) WithEntityMetadata(entityMetadataSet []*proto.EntityIdentityMetadata,
 ) *ProbeInfoBuilder {
 	builder.probeInfo.EntityMetadata = entityMetadataSet
+	return builder
+}
+
+func (builder *ProbeInfoBuilder) WithActionMergePolicySet(actionMergePolicySet []*proto.ActionMergePolicyDTO,
+) *ProbeInfoBuilder {
+	glog.Infof("Adding action merge policy to probeInfoBuilder...")
+	builder.probeInfo.ActionMergePolicy = actionMergePolicySet
 	return builder
 }
 
