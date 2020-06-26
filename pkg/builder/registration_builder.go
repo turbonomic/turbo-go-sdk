@@ -57,7 +57,6 @@ func NewActionMergePolicyBuilder() *ActionMergePolicyBuilder {
 
 func (builder *ActionMergePolicyBuilder) ForResizeAction(entityType proto.EntityDTO_EntityType,
 	resizeMergePolicy *ResizeMergePolicyBuilder) *ActionMergePolicyBuilder {
-	glog.Infof("### Adding resize action")
 	_, exists := builder.ActionMergePolicyMap[entityType]
 	if !exists {
 		builder.ActionMergePolicyMap[entityType] =
@@ -67,10 +66,8 @@ func (builder *ActionMergePolicyBuilder) ForResizeAction(entityType proto.Entity
 
 	resizePolicy, err := resizeMergePolicy.Build()
 	if err != nil {
-		glog.Infof("*******resizePolicy : %++v\n", err)
 		fmt.Errorf("%v", err)
 	}
-	glog.Infof("*******resizePolicy : %++v\n", resizePolicy)
 	entityPolicies[proto.ActionItemDTO_RESIZE] = resizePolicy
 
 	return builder
@@ -251,7 +248,6 @@ func (builder *ProbeInfoBuilder) WithEntityMetadata(entityMetadataSet []*proto.E
 
 func (builder *ProbeInfoBuilder) WithActionMergePolicySet(actionMergePolicySet []*proto.ActionMergePolicyDTO,
 ) *ProbeInfoBuilder {
-	glog.Infof("Adding action merge policy to probeInfoBuilder...")
 	builder.probeInfo.ActionMergePolicy = actionMergePolicySet
 	return builder
 }

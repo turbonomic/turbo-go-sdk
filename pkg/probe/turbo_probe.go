@@ -271,8 +271,7 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 
 	probeInfo := probeInfoBuilder.Create()
 
-	glog.V(3).Infof("ProbeInfo %+v", probeInfo)
-	glog.V(2).Infof("%s", protobuf.MarshalTextString(probeInfo))
+	glog.V(3).Infof("%s", protobuf.MarshalTextString(probeInfo))
 
 	return probeInfo, nil
 }
