@@ -3,9 +3,9 @@ package probe
 import (
 	"fmt"
 
+	protobuf "github.com/golang/protobuf/proto"
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
-	protobuf "github.com/golang/protobuf/proto"
 
 	"github.com/golang/glog"
 )
