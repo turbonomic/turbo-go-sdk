@@ -2,21 +2,19 @@ package builder
 
 import (
 	"fmt"
+	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
 // Create action execution target when it is directly connected to the entity.
 type ActionAggregationTargetBuilder struct {
-	entityType        proto.EntityDTO_EntityType
 	relatedEntityType proto.EntityDTO_EntityType
 	relatedBy         proto.ConnectedEntity_ConnectionType
 }
 
-func NewActionAggregationTargetBuilder(entityType proto.EntityDTO_EntityType,
-	relatedEntityType proto.EntityDTO_EntityType,
+func NewActionAggregationTargetBuilder(relatedEntityType proto.EntityDTO_EntityType,
 	relatedBy proto.ConnectedEntity_ConnectionType) *ActionAggregationTargetBuilder {
 	return &ActionAggregationTargetBuilder{
-		entityType:        entityType,
 		relatedEntityType: relatedEntityType,
 		relatedBy:         relatedBy,
 	}
@@ -24,7 +22,6 @@ func NewActionAggregationTargetBuilder(entityType proto.EntityDTO_EntityType,
 
 func (builder *ActionAggregationTargetBuilder) Create() *proto.ActionMergeTargetData {
 	target := &proto.ActionMergeTargetData{
-		//EntityType: &builder.entityType,
 		RelatedTo: &builder.relatedEntityType,
 		RelatedBy: &proto.ActionMergeTargetData_EntityRelationship{
 			EntityRelationship: &proto.ActionMergeTargetData_EntityRelationship_ConnectionType{
@@ -57,8 +54,11 @@ func (builder *ActionDeDuplicateAndAggregationTargetBuilder) AggregatedBy(
 	return builder
 }
 func (builder *ActionDeDuplicateAndAggregationTargetBuilder) Create() *proto.ChainedActionMergeTargetData {
-
 	chainedMergeTarget := &proto.ChainedActionMergeTargetData{}
+	if builder.deDuplicationTarget == nil || builder.aggregationTarget == nil {
+		return chainedMergeTarget
+	}
+
 	true_flag := true
 	deDuplicationTargetLink := &proto.ChainedActionMergeTargetData_TargetDataLink{
 		MergeTarget: builder.deDuplicationTarget.Create(),
@@ -172,7 +172,10 @@ func (rb *ResizeMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error)
 
 	for _, targetData := range rb.chainedAggregationTargets {
 		chainedTarget := targetData.Create()
-		fmt.Printf("chainedTarget: %++v\n", chainedTarget)
+		if len(chainedTarget.TargetLinks) == 0 {
+			glog.Errorf("Invalid chained merge target")
+			continue
+		}
 		executionTarget := &proto.ActionMergeExecutionTarget{
 			ExecutionTarget: &proto.ActionMergeExecutionTarget_ChainedMergeTarget{
 				ChainedMergeTarget: chainedTarget,
