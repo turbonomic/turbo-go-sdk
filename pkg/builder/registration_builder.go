@@ -65,7 +65,7 @@ func (builder *ActionMergePolicyBuilder) ForResizeAction(entityType proto.Entity
 	}
 	entityPolicies, _ := builder.ActionMergePolicyMap[entityType]
 
-	resizePolicy, err := resizeMergePolicy.Build();
+	resizePolicy, err := resizeMergePolicy.Build()
 	if err != nil {
 		glog.Infof("*******resizePolicy : %++v\n", err)
 		fmt.Errorf("%v", err)
@@ -75,7 +75,6 @@ func (builder *ActionMergePolicyBuilder) ForResizeAction(entityType proto.Entity
 
 	return builder
 }
-
 
 func (builder *ActionMergePolicyBuilder) Create() []*proto.ActionMergePolicyDTO {
 	var policies []*proto.ActionMergePolicyDTO
@@ -88,7 +87,6 @@ func (builder *ActionMergePolicyBuilder) Create() []*proto.ActionMergePolicyDTO 
 
 	return policies
 }
-
 
 // Action Policy Metadata
 type ActionPolicyBuilder struct {

@@ -5,11 +5,11 @@ import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
+// Create action execution target when it is directly connected to the entity.
 type ActionAggregationTargetBuilder struct {
 	entityType        proto.EntityDTO_EntityType
 	relatedEntityType proto.EntityDTO_EntityType
 	relatedBy         proto.ConnectedEntity_ConnectionType
-	//mergeType proto.ActionMergeTargetData_MergeType
 }
 
 func NewActionAggregationTargetBuilder(entityType proto.EntityDTO_EntityType,
@@ -19,24 +19,23 @@ func NewActionAggregationTargetBuilder(entityType proto.EntityDTO_EntityType,
 		entityType:        entityType,
 		relatedEntityType: relatedEntityType,
 		relatedBy:         relatedBy,
-		//mergeType: proto.ActionMergeTargetData_PASS_THROUGH,
 	}
 }
 
 func (builder *ActionAggregationTargetBuilder) Create() *proto.ActionMergeTargetData {
 	target := &proto.ActionMergeTargetData{
 		//EntityType: &builder.entityType,
-		RelatedTo:  &builder.relatedEntityType,
+		RelatedTo: &builder.relatedEntityType,
 		RelatedBy: &proto.ActionMergeTargetData_EntityRelationship{
 			EntityRelationship: &proto.ActionMergeTargetData_EntityRelationship_ConnectionType{
 				ConnectionType: builder.relatedBy,
 			},
 		},
-		//MergeType: &builder.mergeType,
 	}
 	return target
 }
 
+// Create action execution target when the execution target entity is connected via a deduplication entity.
 type ActionDeDuplicateAndAggregationTargetBuilder struct {
 	deDuplicationTarget *ActionAggregationTargetBuilder
 	aggregationTarget   *ActionAggregationTargetBuilder
@@ -48,14 +47,12 @@ func NewActionDeDuplicateAndAggregationTargetBuilder() *ActionDeDuplicateAndAggr
 
 func (builder *ActionDeDuplicateAndAggregationTargetBuilder) DeDuplicatedBy(
 	deDuplicationTarget *ActionAggregationTargetBuilder) *ActionDeDuplicateAndAggregationTargetBuilder {
-	//deDuplicationTarget.mergeType = proto.ActionMergeTargetData_DE_DUPLICATE
 	builder.deDuplicationTarget = deDuplicationTarget
 	return builder
 }
 
 func (builder *ActionDeDuplicateAndAggregationTargetBuilder) AggregatedBy(
 	aggregationTarget *ActionAggregationTargetBuilder) *ActionDeDuplicateAndAggregationTargetBuilder {
-	//aggregationTarget.mergeType = proto.ActionMergeTargetData_AGGREGATE
 	builder.aggregationTarget = aggregationTarget
 	return builder
 }
@@ -64,21 +61,22 @@ func (builder *ActionDeDuplicateAndAggregationTargetBuilder) Create() *proto.Cha
 	chainedMergeTarget := &proto.ChainedActionMergeTargetData{}
 	true_flag := true
 	deDuplicationTargetLink := &proto.ChainedActionMergeTargetData_TargetDataLink{
-		MergeTarget:    builder.deDuplicationTarget.Create(),
-		DeDuplicate:    &true_flag,
+		MergeTarget: builder.deDuplicationTarget.Create(),
+		DeDuplicate: &true_flag,
 	}
 	chainedMergeTarget.TargetLinks = append(chainedMergeTarget.TargetLinks, deDuplicationTargetLink)
 
 	false_flag := false
 	aggregationTargetLink := &proto.ChainedActionMergeTargetData_TargetDataLink{
-		MergeTarget:    builder.aggregationTarget.Create(),
-		DeDuplicate:    &false_flag,
+		MergeTarget: builder.aggregationTarget.Create(),
+		DeDuplicate: &false_flag,
 	}
 	chainedMergeTarget.TargetLinks = append(chainedMergeTarget.TargetLinks, aggregationTargetLink)
 
 	return chainedMergeTarget
 }
 
+// Resize Merge Policy DTO builder
 type ResizeMergePolicyBuilder struct {
 	entityType                *proto.EntityDTO_EntityType
 	aggregationTargets        []*ActionAggregationTargetBuilder
@@ -92,9 +90,7 @@ type CommodityMergeData struct {
 }
 
 func NewResizeMergeSpecBuilder() *ResizeMergePolicyBuilder {
-	return &ResizeMergePolicyBuilder{
-		//entityType: &entityType,
-	}
+	return &ResizeMergePolicyBuilder{}
 }
 
 func (rb *ResizeMergePolicyBuilder) ForEntityType(entityType proto.EntityDTO_EntityType) *ResizeMergePolicyBuilder {
@@ -130,6 +126,7 @@ func (rb *ResizeMergePolicyBuilder) ForCommodityAndAttribute(commType proto.Comm
 	return rb
 }
 
+// Create the ActionMergePolicyDTO for merging resize actions.
 func (rb *ResizeMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error) {
 	if rb.entityType == nil {
 		return nil, fmt.Errorf("Entity type required for action merge policy")
