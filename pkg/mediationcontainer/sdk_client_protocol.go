@@ -3,6 +3,7 @@ package mediationcontainer
 import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/pkg/version"
+	protobuf "github.com/golang/protobuf/proto"
 
 	"fmt"
 	"time"
@@ -127,6 +128,7 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 	}
 
 	glog.V(4).Infof("Send registration message: %+v", containerInfo)
+	glog.V(2).Infof("containerInfo: %s", protobuf.MarshalTextString(containerInfo))
 
 	// Create Protobuf Endpoint to send and handle registration messages
 	protoMsg := &RegistrationResponse{}

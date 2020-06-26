@@ -5,6 +5,7 @@ import (
 
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	protobuf "github.com/golang/protobuf/proto"
 
 	"github.com/golang/glog"
 )
@@ -29,6 +30,7 @@ type ProbeRegistrationAgent struct {
 	IAccountDefinitionProvider
 	IActionPolicyProvider
 	IEntityMetadataProvider
+	IActionMergePolicyProvider
 }
 
 type TurboRegistrationClient interface {
@@ -262,8 +264,15 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 		probeInfoBuilder.WithEntityMetadata(registrationClient.GetEntityMetadata())
 	}
 
+	// 8. action merge policy metadata
+	if registrationClient.IActionMergePolicyProvider != nil {
+		probeInfoBuilder.WithActionMergePolicySet(registrationClient.GetActionMergePolicy())
+	}
+
 	probeInfo := probeInfoBuilder.Create()
+
 	glog.V(3).Infof("ProbeInfo %+v", probeInfo)
+	glog.V(2).Infof("%s", protobuf.MarshalTextString(probeInfo))
 
 	return probeInfo, nil
 }
