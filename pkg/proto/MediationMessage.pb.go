@@ -571,17 +571,18 @@ type MediationServerMessage_PlanExportRequest struct {
 	PlanExportRequest *PlanExportRequest `protobuf:"bytes,12,opt,name=planExportRequest,oneof"`
 }
 
-func (*MediationServerMessage_ValidationRequest) isMediationServerMessage_MediationServerMessage()   {}
-func (*MediationServerMessage_DiscoveryRequest) isMediationServerMessage_MediationServerMessage()    {}
-func (*MediationServerMessage_ActionRequest) isMediationServerMessage_MediationServerMessage()       {}
-func (*MediationServerMessage_InterruptOperation) isMediationServerMessage_MediationServerMessage()  {}
-func (*MediationServerMessage_Properties) isMediationServerMessage_MediationServerMessage()          {}
-func (*MediationServerMessage_TargetUpdateRequest) isMediationServerMessage_MediationServerMessage() {}
-func (*MediationServerMessage_ActionApproval) isMediationServerMessage_MediationServerMessage()      {}
-func (*MediationServerMessage_ActionUpdateState) isMediationServerMessage_MediationServerMessage()   {}
-func (*MediationServerMessage_GetActionState) isMediationServerMessage_MediationServerMessage()      {}
-func (*MediationServerMessage_ActionAudit) isMediationServerMessage_MediationServerMessage()         {}
-func (*MediationServerMessage_PlanExportRequest) isMediationServerMessage_MediationServerMessage()   {}
+func (*MediationServerMessage_ValidationRequest) isMediationServerMessage_MediationServerMessage()  {}
+func (*MediationServerMessage_DiscoveryRequest) isMediationServerMessage_MediationServerMessage()   {}
+func (*MediationServerMessage_ActionRequest) isMediationServerMessage_MediationServerMessage()      {}
+func (*MediationServerMessage_InterruptOperation) isMediationServerMessage_MediationServerMessage() {}
+func (*MediationServerMessage_Properties) isMediationServerMessage_MediationServerMessage()         {}
+func (*MediationServerMessage_TargetUpdateRequest) isMediationServerMessage_MediationServerMessage() {
+}
+func (*MediationServerMessage_ActionApproval) isMediationServerMessage_MediationServerMessage()    {}
+func (*MediationServerMessage_ActionUpdateState) isMediationServerMessage_MediationServerMessage() {}
+func (*MediationServerMessage_GetActionState) isMediationServerMessage_MediationServerMessage()    {}
+func (*MediationServerMessage_ActionAudit) isMediationServerMessage_MediationServerMessage()       {}
+func (*MediationServerMessage_PlanExportRequest) isMediationServerMessage_MediationServerMessage() {}
 
 func (m *MediationServerMessage) GetMediationServerMessage() isMediationServerMessage_MediationServerMessage {
 	if m != nil {

@@ -4452,10 +4452,12 @@ type EntityDTO_VirtualVolumeData struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *EntityDTO_VirtualVolumeData) Reset()                    { *m = EntityDTO_VirtualVolumeData{} }
-func (m *EntityDTO_VirtualVolumeData) String() string            { return proto.CompactTextString(m) }
-func (*EntityDTO_VirtualVolumeData) ProtoMessage()               {}
-func (*EntityDTO_VirtualVolumeData) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0, 15} }
+func (m *EntityDTO_VirtualVolumeData) Reset()         { *m = EntityDTO_VirtualVolumeData{} }
+func (m *EntityDTO_VirtualVolumeData) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_VirtualVolumeData) ProtoMessage()    {}
+func (*EntityDTO_VirtualVolumeData) Descriptor() ([]byte, []int) {
+	return fileDescriptor2, []int{0, 15}
+}
 
 func (m *EntityDTO_VirtualVolumeData) GetStorageAccessCapacity() float32 {
 	if m != nil && m.StorageAccessCapacity != nil {
@@ -4952,8 +4954,9 @@ type EntityDTO_StorageControllerData_IopsComputeData struct {
 	IopsComputeData *EntityDTO_ComputeIopsData `protobuf:"bytes,2,opt,name=iopsComputeData,oneof"`
 }
 
-func (*EntityDTO_StorageControllerData_IopsCapacity) isEntityDTO_StorageControllerData_IopsData()    {}
-func (*EntityDTO_StorageControllerData_IopsComputeData) isEntityDTO_StorageControllerData_IopsData() {}
+func (*EntityDTO_StorageControllerData_IopsCapacity) isEntityDTO_StorageControllerData_IopsData() {}
+func (*EntityDTO_StorageControllerData_IopsComputeData) isEntityDTO_StorageControllerData_IopsData() {
+}
 
 func (m *EntityDTO_StorageControllerData) GetIopsData() isEntityDTO_StorageControllerData_IopsData {
 	if m != nil {
@@ -5193,7 +5196,8 @@ func (*EntityDTO_WorkloadControllerData_DaemonSetData) isEntityDTO_WorkloadContr
 }
 func (*EntityDTO_WorkloadControllerData_DeploymentData) isEntityDTO_WorkloadControllerData_ControllerType() {
 }
-func (*EntityDTO_WorkloadControllerData_JobData) isEntityDTO_WorkloadControllerData_ControllerType() {}
+func (*EntityDTO_WorkloadControllerData_JobData) isEntityDTO_WorkloadControllerData_ControllerType() {
+}
 func (*EntityDTO_WorkloadControllerData_ReplicaSetData) isEntityDTO_WorkloadControllerData_ControllerType() {
 }
 func (*EntityDTO_WorkloadControllerData_ReplicationControllerData) isEntityDTO_WorkloadControllerData_ControllerType() {
@@ -6457,10 +6461,12 @@ type EntityDTO_ProcessorPoolData struct {
 	XXX_unrecognized        []byte   `json:"-"`
 }
 
-func (m *EntityDTO_ProcessorPoolData) Reset()                    { *m = EntityDTO_ProcessorPoolData{} }
-func (m *EntityDTO_ProcessorPoolData) String() string            { return proto.CompactTextString(m) }
-func (*EntityDTO_ProcessorPoolData) ProtoMessage()               {}
-func (*EntityDTO_ProcessorPoolData) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0, 54} }
+func (m *EntityDTO_ProcessorPoolData) Reset()         { *m = EntityDTO_ProcessorPoolData{} }
+func (m *EntityDTO_ProcessorPoolData) String() string { return proto.CompactTextString(m) }
+func (*EntityDTO_ProcessorPoolData) ProtoMessage()    {}
+func (*EntityDTO_ProcessorPoolData) Descriptor() ([]byte, []int) {
+	return fileDescriptor2, []int{0, 54}
+}
 
 func (m *EntityDTO_ProcessorPoolData) GetMaximumProcessingUnits() float32 {
 	if m != nil && m.MaximumProcessingUnits != nil {
@@ -7505,10 +7511,12 @@ type CommodityDTO_RangeDependency struct {
 	XXX_unrecognized []byte                     `json:"-"`
 }
 
-func (m *CommodityDTO_RangeDependency) Reset()                    { *m = CommodityDTO_RangeDependency{} }
-func (m *CommodityDTO_RangeDependency) String() string            { return proto.CompactTextString(m) }
-func (*CommodityDTO_RangeDependency) ProtoMessage()               {}
-func (*CommodityDTO_RangeDependency) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3, 0} }
+func (m *CommodityDTO_RangeDependency) Reset()         { *m = CommodityDTO_RangeDependency{} }
+func (m *CommodityDTO_RangeDependency) String() string { return proto.CompactTextString(m) }
+func (*CommodityDTO_RangeDependency) ProtoMessage()    {}
+func (*CommodityDTO_RangeDependency) Descriptor() ([]byte, []int) {
+	return fileDescriptor2, []int{3, 0}
+}
 
 func (m *CommodityDTO_RangeDependency) GetBaseCommodity() CommodityDTO_CommodityType {
 	if m != nil && m.BaseCommodity != nil {
@@ -7558,10 +7566,12 @@ type CommodityDTO_RatioDependency struct {
 	XXX_unrecognized []byte `json:"-"`
 }
 
-func (m *CommodityDTO_RatioDependency) Reset()                    { *m = CommodityDTO_RatioDependency{} }
-func (m *CommodityDTO_RatioDependency) String() string            { return proto.CompactTextString(m) }
-func (*CommodityDTO_RatioDependency) ProtoMessage()               {}
-func (*CommodityDTO_RatioDependency) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3, 2} }
+func (m *CommodityDTO_RatioDependency) Reset()         { *m = CommodityDTO_RatioDependency{} }
+func (m *CommodityDTO_RatioDependency) String() string { return proto.CompactTextString(m) }
+func (*CommodityDTO_RatioDependency) ProtoMessage()    {}
+func (*CommodityDTO_RatioDependency) Descriptor() ([]byte, []int) {
+	return fileDescriptor2, []int{3, 2}
+}
 
 func (m *CommodityDTO_RatioDependency) GetBaseCommodity() CommodityDTO_CommodityType {
 	if m != nil && m.BaseCommodity != nil {
@@ -7764,10 +7774,12 @@ type CommodityDTO_PricingMetadata struct {
 	XXX_unrecognized        []byte                           `json:"-"`
 }
 
-func (m *CommodityDTO_PricingMetadata) Reset()                    { *m = CommodityDTO_PricingMetadata{} }
-func (m *CommodityDTO_PricingMetadata) String() string            { return proto.CompactTextString(m) }
-func (*CommodityDTO_PricingMetadata) ProtoMessage()               {}
-func (*CommodityDTO_PricingMetadata) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3, 9} }
+func (m *CommodityDTO_PricingMetadata) Reset()         { *m = CommodityDTO_PricingMetadata{} }
+func (m *CommodityDTO_PricingMetadata) String() string { return proto.CompactTextString(m) }
+func (*CommodityDTO_PricingMetadata) ProtoMessage()    {}
+func (*CommodityDTO_PricingMetadata) Descriptor() ([]byte, []int) {
+	return fileDescriptor2, []int{3, 9}
+}
 
 func (m *CommodityDTO_PricingMetadata) GetPricingHandlerNamespace() CustomTypeDef_MetadataNamespace {
 	if m != nil && m.PricingHandlerNamespace != nil {
@@ -8591,8 +8603,10 @@ type GroupDTO_SelectionSpec_PropertyStringList struct {
 func (m *GroupDTO_SelectionSpec_PropertyStringList) Reset() {
 	*m = GroupDTO_SelectionSpec_PropertyStringList{}
 }
-func (m *GroupDTO_SelectionSpec_PropertyStringList) String() string { return proto.CompactTextString(m) }
-func (*GroupDTO_SelectionSpec_PropertyStringList) ProtoMessage()    {}
+func (m *GroupDTO_SelectionSpec_PropertyStringList) String() string {
+	return proto.CompactTextString(m)
+}
+func (*GroupDTO_SelectionSpec_PropertyStringList) ProtoMessage() {}
 func (*GroupDTO_SelectionSpec_PropertyStringList) Descriptor() ([]byte, []int) {
 	return fileDescriptor2, []int{5, 7, 0}
 }
@@ -8613,8 +8627,10 @@ type GroupDTO_SelectionSpec_PropertyDoubleList struct {
 func (m *GroupDTO_SelectionSpec_PropertyDoubleList) Reset() {
 	*m = GroupDTO_SelectionSpec_PropertyDoubleList{}
 }
-func (m *GroupDTO_SelectionSpec_PropertyDoubleList) String() string { return proto.CompactTextString(m) }
-func (*GroupDTO_SelectionSpec_PropertyDoubleList) ProtoMessage()    {}
+func (m *GroupDTO_SelectionSpec_PropertyDoubleList) String() string {
+	return proto.CompactTextString(m)
+}
+func (*GroupDTO_SelectionSpec_PropertyDoubleList) ProtoMessage() {}
 func (*GroupDTO_SelectionSpec_PropertyDoubleList) Descriptor() ([]byte, []int) {
 	return fileDescriptor2, []int{5, 7, 1}
 }

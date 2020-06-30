@@ -312,7 +312,9 @@ func (x *ActionItemDTO_ActionType) UnmarshalJSON(data []byte) error {
 	*x = ActionItemDTO_ActionType(value)
 	return nil
 }
-func (ActionItemDTO_ActionType) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{10, 0} }
+func (ActionItemDTO_ActionType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor0, []int{10, 0}
+}
 
 type ActionItemDTO_CommodityAttribute int32
 
@@ -723,8 +725,9 @@ type ActionMergeExecutionTarget_ChainedMergeTarget struct {
 	ChainedMergeTarget *ChainedActionMergeTargetData `protobuf:"bytes,3,opt,name=chainedMergeTarget,oneof"`
 }
 
-func (*ActionMergeExecutionTarget_MergeTarget) isActionMergeExecutionTarget_ExecutionTarget()        {}
-func (*ActionMergeExecutionTarget_ChainedMergeTarget) isActionMergeExecutionTarget_ExecutionTarget() {}
+func (*ActionMergeExecutionTarget_MergeTarget) isActionMergeExecutionTarget_ExecutionTarget() {}
+func (*ActionMergeExecutionTarget_ChainedMergeTarget) isActionMergeExecutionTarget_ExecutionTarget() {
+}
 
 func (m *ActionMergeExecutionTarget) GetExecutionTarget() isActionMergeExecutionTarget_ExecutionTarget {
 	if m != nil {

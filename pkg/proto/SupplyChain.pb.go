@@ -45,7 +45,9 @@ func (x *TemplateDTO_TemplateType) UnmarshalJSON(data []byte) error {
 	*x = TemplateDTO_TemplateType(value)
 	return nil
 }
-func (TemplateDTO_TemplateType) EnumDescriptor() ([]byte, []int) { return fileDescriptor10, []int{0, 0} }
+func (TemplateDTO_TemplateType) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor10, []int{0, 0}
+}
 
 type Provider_ProviderType int32
 
