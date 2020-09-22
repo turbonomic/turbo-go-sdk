@@ -116,21 +116,40 @@ func (e *DIFEntity) Matching(id string) *DIFEntity {
 }
 
 func (e *DIFEntity) AddMetric(metricType string, kind DIFMetricValKind, value float64, key string) {
+	var metricVal *DIFMetricVal
+	var metricKey *string
+	// Only set non-empty key
+	if key != "" {
+		metricKey = &key
+	}
 	meList, found := e.Metrics[metricType]
 	if !found {
-		meList = append(meList, &DIFMetricVal{})
-		e.Metrics[metricType] = meList
-	}
-	if len(meList) < 1 {
-		return
+		// This is a new metric type
+		metricVal = &DIFMetricVal{Key: metricKey}
+		e.Metrics[metricType] = append(e.Metrics[metricType], metricVal)
+	} else if metricKey != nil {
+		// We have seen this type, check if we have a metric with the same non-empty key
+		for _, me := range meList {
+			if me.Key != nil && *me.Key == *metricKey {
+				metricVal = me
+				break
+			}
+		}
+		if metricVal == nil {
+			// This is a metric of the same type but a new key
+			metricVal = &DIFMetricVal{Key: metricKey}
+			e.Metrics[metricType] = append(e.Metrics[metricType], metricVal)
+		}
+	} else {
+		if len(meList) < 1 {
+			return
+		}
+		metricVal = meList[0]
 	}
 	if kind == AVERAGE {
-		meList[0].Average = &value
+		metricVal.Average = &value
 	} else if kind == CAPACITY {
-		meList[0].Capacity = &value
-	}
-	if key != "" {
-		meList[0].Key = &key
+		metricVal.Capacity = &value
 	}
 }
 
