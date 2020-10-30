@@ -973,7 +973,8 @@ type ActionMergeExecutionTarget_ChainedMergeTarget struct {
 
 func (*ActionMergeExecutionTarget_MergeTarget) isActionMergeExecutionTarget_ExecutionTarget() {}
 
-func (*ActionMergeExecutionTarget_ChainedMergeTarget) isActionMergeExecutionTarget_ExecutionTarget() {}
+func (*ActionMergeExecutionTarget_ChainedMergeTarget) isActionMergeExecutionTarget_ExecutionTarget() {
+}
 
 func (m *ActionMergeExecutionTarget) GetExecutionTarget() isActionMergeExecutionTarget_ExecutionTarget {
 	if m != nil {
