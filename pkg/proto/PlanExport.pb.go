@@ -18,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Indicates the current export status of an export operation.
 type PlanExportResponse_PlanExportResponseState int32
@@ -200,7 +200,9 @@ func init() {
 	proto.RegisterType((*PlanExportResponse)(nil), "common_dto.PlanExportResponse")
 }
 
-func init() { proto.RegisterFile("PlanExport.proto", fileDescriptor_b584bfb073803d20) }
+func init() {
+	proto.RegisterFile("PlanExport.proto", fileDescriptor_b584bfb073803d20)
+}
 
 var fileDescriptor_b584bfb073803d20 = []byte{
 	// 359 bytes of a gzipped FileDescriptorProto

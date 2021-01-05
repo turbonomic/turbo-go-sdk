@@ -18,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // EntityIdentityMetadata supplies meta information describing the properties used to
 // identify an entity of a specific entity type.
@@ -170,7 +170,9 @@ func init() {
 	proto.RegisterType((*EntityIdentityMetadata_PropertyMetadata)(nil), "common_dto.EntityIdentityMetadata.PropertyMetadata")
 }
 
-func init() { proto.RegisterFile("IdentityMetadata.proto", fileDescriptor_06b25cebe55f715e) }
+func init() {
+	proto.RegisterFile("IdentityMetadata.proto", fileDescriptor_06b25cebe55f715e)
+}
 
 var fileDescriptor_06b25cebe55f715e = []byte{
 	// 316 bytes of a gzipped FileDescriptorProto

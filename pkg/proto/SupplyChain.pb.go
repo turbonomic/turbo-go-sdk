@@ -18,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type TemplateDTO_TemplateType int32
 
@@ -1246,97 +1246,13 @@ func (m *MergedEntityMetadata_MatchingData) GetDelimiter() string {
 	return ""
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*MergedEntityMetadata_MatchingData) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _MergedEntityMetadata_MatchingData_OneofMarshaler, _MergedEntityMetadata_MatchingData_OneofUnmarshaler, _MergedEntityMetadata_MatchingData_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*MergedEntityMetadata_MatchingData) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*MergedEntityMetadata_MatchingData_MatchingProperty)(nil),
 		(*MergedEntityMetadata_MatchingData_MatchingField)(nil),
 		(*MergedEntityMetadata_MatchingData_MatchingEntityOid)(nil),
 	}
-}
-
-func _MergedEntityMetadata_MatchingData_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*MergedEntityMetadata_MatchingData)
-	// matching_data
-	switch x := m.MatchingData.(type) {
-	case *MergedEntityMetadata_MatchingData_MatchingProperty:
-		b.EncodeVarint(100<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.MatchingProperty); err != nil {
-			return err
-		}
-	case *MergedEntityMetadata_MatchingData_MatchingField:
-		b.EncodeVarint(101<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.MatchingField); err != nil {
-			return err
-		}
-	case *MergedEntityMetadata_MatchingData_MatchingEntityOid:
-		b.EncodeVarint(102<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.MatchingEntityOid); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("MergedEntityMetadata_MatchingData.MatchingData has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _MergedEntityMetadata_MatchingData_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*MergedEntityMetadata_MatchingData)
-	switch tag {
-	case 100: // matching_data.matching_property
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(MergedEntityMetadata_EntityPropertyName)
-		err := b.DecodeMessage(msg)
-		m.MatchingData = &MergedEntityMetadata_MatchingData_MatchingProperty{msg}
-		return true, err
-	case 101: // matching_data.matching_field
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(MergedEntityMetadata_EntityField)
-		err := b.DecodeMessage(msg)
-		m.MatchingData = &MergedEntityMetadata_MatchingData_MatchingField{msg}
-		return true, err
-	case 102: // matching_data.matching_entity_oid
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(MergedEntityMetadata_EntityOid)
-		err := b.DecodeMessage(msg)
-		m.MatchingData = &MergedEntityMetadata_MatchingData_MatchingEntityOid{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _MergedEntityMetadata_MatchingData_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*MergedEntityMetadata_MatchingData)
-	// matching_data
-	switch x := m.MatchingData.(type) {
-	case *MergedEntityMetadata_MatchingData_MatchingProperty:
-		s := proto.Size(x.MatchingProperty)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *MergedEntityMetadata_MatchingData_MatchingField:
-		s := proto.Size(x.MatchingField)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *MergedEntityMetadata_MatchingData_MatchingEntityOid:
-		s := proto.Size(x.MatchingEntityOid)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 // The name of a property to extract from the entity property map.
@@ -1674,7 +1590,9 @@ func init() {
 	proto.RegisterType((*MergedEntityMetadata_StitchingScope)(nil), "common_dto.MergedEntityMetadata.StitchingScope")
 }
 
-func init() { proto.RegisterFile("SupplyChain.proto", fileDescriptor_433ea2f7708f0dad) }
+func init() {
+	proto.RegisterFile("SupplyChain.proto", fileDescriptor_433ea2f7708f0dad)
+}
 
 var fileDescriptor_433ea2f7708f0dad = []byte{
 	// 1535 bytes of a gzipped FileDescriptorProto
