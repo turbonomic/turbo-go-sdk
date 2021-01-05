@@ -18,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Enumerate non market entities
 type NonMarketEntityDTO_NonMarketEntityType int32
@@ -311,78 +311,12 @@ func (m *NonMarketEntityDTO) GetPlanDestinationData() *NonMarketEntityDTO_PlanDe
 	return nil
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*NonMarketEntityDTO) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _NonMarketEntityDTO_OneofMarshaler, _NonMarketEntityDTO_OneofUnmarshaler, _NonMarketEntityDTO_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*NonMarketEntityDTO) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*NonMarketEntityDTO_CloudServiceData_)(nil),
 		(*NonMarketEntityDTO_PlanDestinationData_)(nil),
 	}
-}
-
-func _NonMarketEntityDTO_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*NonMarketEntityDTO)
-	// entity_data
-	switch x := m.EntityData.(type) {
-	case *NonMarketEntityDTO_CloudServiceData_:
-		b.EncodeVarint(500<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.CloudServiceData); err != nil {
-			return err
-		}
-	case *NonMarketEntityDTO_PlanDestinationData_:
-		b.EncodeVarint(502<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.PlanDestinationData); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("NonMarketEntityDTO.EntityData has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _NonMarketEntityDTO_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*NonMarketEntityDTO)
-	switch tag {
-	case 500: // entity_data.cloud_service_data
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(NonMarketEntityDTO_CloudServiceData)
-		err := b.DecodeMessage(msg)
-		m.EntityData = &NonMarketEntityDTO_CloudServiceData_{msg}
-		return true, err
-	case 502: // entity_data.plan_destination_data
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(NonMarketEntityDTO_PlanDestinationData)
-		err := b.DecodeMessage(msg)
-		m.EntityData = &NonMarketEntityDTO_PlanDestinationData_{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _NonMarketEntityDTO_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*NonMarketEntityDTO)
-	// entity_data
-	switch x := m.EntityData.(type) {
-	case *NonMarketEntityDTO_CloudServiceData_:
-		s := proto.Size(x.CloudServiceData)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *NonMarketEntityDTO_PlanDestinationData_:
-		s := proto.Size(x.PlanDestinationData)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type NonMarketEntityDTO_CloudServiceData struct {
@@ -687,7 +621,9 @@ func init() {
 	proto.RegisterType((*CostDataDTO)(nil), "common_dto.CostDataDTO")
 }
 
-func init() { proto.RegisterFile("NonMarketEntityDTO.proto", fileDescriptor_a7ef4e88daee47ae) }
+func init() {
+	proto.RegisterFile("NonMarketEntityDTO.proto", fileDescriptor_a7ef4e88daee47ae)
+}
 
 var fileDescriptor_a7ef4e88daee47ae = []byte{
 	// 924 bytes of a gzipped FileDescriptorProto

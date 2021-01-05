@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"errors"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/util/rand"
@@ -728,6 +729,33 @@ func TestEntityDTOBuilder_WorkloadControllerData(t *testing.T) {
 		if !reflect.DeepEqual(builder, expectedBuilder) {
 			t.Errorf("Test case %d failed. Expected %+v, \ngot      %+v", i, expectedBuilder, builder)
 		}
+	}
+}
+
+func TestEntityDTOBuilder_NamespaceData(t *testing.T) {
+	nodeFreq := 1234.0
+	namespaceData := &proto.EntityDTO_NamespaceData{
+		AverageNodeCpuFrequency: &nodeFreq,
+	}
+
+	base := NewEntityDTOBuilder(proto.EntityDTO_NAMESPACE, "foo")
+	base.entityDataHasSet = false
+	expectedBuilder := &EntityDTOBuilder{
+		entityType:        base.entityType,
+		id:                base.id,
+		entityDataHasSet:  true,
+		namespaceData:     namespaceData,
+		actionEligibility: testNewActionEligibility(),
+		providerMap:       make(map[string]proto.EntityDTO_EntityType),
+	}
+	builder := base.NamespaceData(namespaceData)
+	if !reflect.DeepEqual(builder, expectedBuilder) {
+		t.Errorf("Test case failed. Expected %+v, \ngot      %+v", expectedBuilder, builder)
+	}
+
+	base.NamespaceData(namespaceData)
+	if builder.err == nil {
+		t.Errorf("Test case failed. Expected error but no error was present.")
 	}
 }
 

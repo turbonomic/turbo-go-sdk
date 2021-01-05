@@ -18,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type EntityProfileDTO_VMProfileDTO_VMTier int32
 
@@ -302,97 +302,13 @@ func (m *EntityProfileDTO) GetUpdateType() UpdateType {
 	return Default_EntityProfileDTO_UpdateType
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*EntityProfileDTO) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _EntityProfileDTO_OneofMarshaler, _EntityProfileDTO_OneofUnmarshaler, _EntityProfileDTO_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*EntityProfileDTO) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*EntityProfileDTO_VmProfileDTO)(nil),
 		(*EntityProfileDTO_PmProfileDTO)(nil),
 		(*EntityProfileDTO_DbProfileDTO)(nil),
 	}
-}
-
-func _EntityProfileDTO_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*EntityProfileDTO)
-	// EntityTypeSpecificData
-	switch x := m.EntityTypeSpecificData.(type) {
-	case *EntityProfileDTO_VmProfileDTO:
-		b.EncodeVarint(8<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.VmProfileDTO); err != nil {
-			return err
-		}
-	case *EntityProfileDTO_PmProfileDTO:
-		b.EncodeVarint(9<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.PmProfileDTO); err != nil {
-			return err
-		}
-	case *EntityProfileDTO_DbProfileDTO:
-		b.EncodeVarint(13<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.DbProfileDTO); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("EntityProfileDTO.EntityTypeSpecificData has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _EntityProfileDTO_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*EntityProfileDTO)
-	switch tag {
-	case 8: // EntityTypeSpecificData.vmProfileDTO
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(EntityProfileDTO_VMProfileDTO)
-		err := b.DecodeMessage(msg)
-		m.EntityTypeSpecificData = &EntityProfileDTO_VmProfileDTO{msg}
-		return true, err
-	case 9: // EntityTypeSpecificData.pmProfileDTO
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(EntityProfileDTO_PMProfileDTO)
-		err := b.DecodeMessage(msg)
-		m.EntityTypeSpecificData = &EntityProfileDTO_PmProfileDTO{msg}
-		return true, err
-	case 13: // EntityTypeSpecificData.dbProfileDTO
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(EntityProfileDTO_DBProfileDTO)
-		err := b.DecodeMessage(msg)
-		m.EntityTypeSpecificData = &EntityProfileDTO_DbProfileDTO{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _EntityProfileDTO_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*EntityProfileDTO)
-	// EntityTypeSpecificData
-	switch x := m.EntityTypeSpecificData.(type) {
-	case *EntityProfileDTO_VmProfileDTO:
-		s := proto.Size(x.VmProfileDTO)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *EntityProfileDTO_PmProfileDTO:
-		s := proto.Size(x.PmProfileDTO)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *EntityProfileDTO_DbProfileDTO:
-		s := proto.Size(x.DbProfileDTO)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 // define a multimap between region name and available license name in each region.
@@ -992,7 +908,9 @@ func init() {
 	proto.RegisterType((*DeploymentProfileDTO)(nil), "common_dto.DeploymentProfileDTO")
 }
 
-func init() { proto.RegisterFile("ProfileDTO.proto", fileDescriptor_9c3ac0a62ca7565a) }
+func init() {
+	proto.RegisterFile("ProfileDTO.proto", fileDescriptor_9c3ac0a62ca7565a)
+}
 
 var fileDescriptor_9c3ac0a62ca7565a = []byte{
 	// 1231 bytes of a gzipped FileDescriptorProto

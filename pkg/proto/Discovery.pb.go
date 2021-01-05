@@ -18,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // The types of discovery supported by SDK framework. FULL discovery is supported by default.
 type DiscoveryType int32
@@ -568,92 +568,13 @@ func (m *CustomAccountDefEntry) GetIsMultiline() bool {
 	return Default_CustomAccountDefEntry_IsMultiline
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*CustomAccountDefEntry) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _CustomAccountDefEntry_OneofMarshaler, _CustomAccountDefEntry_OneofUnmarshaler, _CustomAccountDefEntry_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*CustomAccountDefEntry) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*CustomAccountDefEntry_PrimitiveValue_)(nil),
 		(*CustomAccountDefEntry_GroupScope)(nil),
 		(*CustomAccountDefEntry_EntityScope)(nil),
 	}
-}
-
-func _CustomAccountDefEntry_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*CustomAccountDefEntry)
-	// fieldType
-	switch x := m.FieldType.(type) {
-	case *CustomAccountDefEntry_PrimitiveValue_:
-		b.EncodeVarint(6<<3 | proto.WireVarint)
-		b.EncodeVarint(uint64(x.PrimitiveValue))
-	case *CustomAccountDefEntry_GroupScope:
-		b.EncodeVarint(7<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.GroupScope); err != nil {
-			return err
-		}
-	case *CustomAccountDefEntry_EntityScope:
-		b.EncodeVarint(8<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.EntityScope); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("CustomAccountDefEntry.FieldType has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _CustomAccountDefEntry_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*CustomAccountDefEntry)
-	switch tag {
-	case 6: // fieldType.primitive_value
-		if wire != proto.WireVarint {
-			return true, proto.ErrInternalBadWireType
-		}
-		x, err := b.DecodeVarint()
-		m.FieldType = &CustomAccountDefEntry_PrimitiveValue_{CustomAccountDefEntry_PrimitiveValue(x)}
-		return true, err
-	case 7: // fieldType.group_scope
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(CustomAccountDefEntry_GroupScopePropertySet)
-		err := b.DecodeMessage(msg)
-		m.FieldType = &CustomAccountDefEntry_GroupScope{msg}
-		return true, err
-	case 8: // fieldType.entity_scope
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(CustomAccountDefEntry_GroupScopePropertySet)
-		err := b.DecodeMessage(msg)
-		m.FieldType = &CustomAccountDefEntry_EntityScope{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _CustomAccountDefEntry_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*CustomAccountDefEntry)
-	// fieldType
-	switch x := m.FieldType.(type) {
-	case *CustomAccountDefEntry_PrimitiveValue_:
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(x.PrimitiveValue))
-	case *CustomAccountDefEntry_GroupScope:
-		s := proto.Size(x.GroupScope)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *CustomAccountDefEntry_EntityScope:
-		s := proto.Size(x.EntityScope)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 // Entity type with a set of properties for group scope account definition
@@ -908,74 +829,12 @@ func (m *AccountDefEntry) GetDependencyValue() string {
 	return ""
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*AccountDefEntry) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _AccountDefEntry_OneofMarshaler, _AccountDefEntry_OneofUnmarshaler, _AccountDefEntry_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*AccountDefEntry) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*AccountDefEntry_PredefinedDefinition)(nil),
 		(*AccountDefEntry_CustomDefinition)(nil),
 	}
-}
-
-func _AccountDefEntry_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*AccountDefEntry)
-	// definition
-	switch x := m.Definition.(type) {
-	case *AccountDefEntry_PredefinedDefinition:
-		b.EncodeVarint(2<<3 | proto.WireBytes)
-		b.EncodeStringBytes(x.PredefinedDefinition)
-	case *AccountDefEntry_CustomDefinition:
-		b.EncodeVarint(3<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.CustomDefinition); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("AccountDefEntry.Definition has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _AccountDefEntry_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*AccountDefEntry)
-	switch tag {
-	case 2: // definition.predefined_definition
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		x, err := b.DecodeStringBytes()
-		m.Definition = &AccountDefEntry_PredefinedDefinition{x}
-		return true, err
-	case 3: // definition.custom_definition
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(CustomAccountDefEntry)
-		err := b.DecodeMessage(msg)
-		m.Definition = &AccountDefEntry_CustomDefinition{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _AccountDefEntry_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*AccountDefEntry)
-	// definition
-	switch x := m.Definition.(type) {
-	case *AccountDefEntry_PredefinedDefinition:
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(len(x.PredefinedDefinition)))
-		n += len(x.PredefinedDefinition)
-	case *AccountDefEntry_CustomDefinition:
-		s := proto.Size(x.CustomDefinition)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 // Error DTO. Represent some errors, occurred during operations inside the Mediation Container.
@@ -1454,7 +1313,9 @@ func init() {
 	proto.RegisterType((*NoChange)(nil), "common_dto.NoChange")
 }
 
-func init() { proto.RegisterFile("Discovery.proto", fileDescriptor_e3fe94e0f094b633) }
+func init() {
+	proto.RegisterFile("Discovery.proto", fileDescriptor_e3fe94e0f094b633)
+}
 
 var fileDescriptor_e3fe94e0f094b633 = []byte{
 	// 1527 bytes of a gzipped FileDescriptorProto
