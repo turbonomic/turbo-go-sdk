@@ -14,6 +14,6 @@ github.com/gorilla/websocket
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.3.0
 github.com/stretchr/testify/assert
-# github.com/turbonomic/turbo-api v0.0.0-20200626181019-5fce6eb1eda1
+# github.com/turbonomic/turbo-api v0.0.0-20210114025310-0e31e19c3312
 github.com/turbonomic/turbo-api/pkg/api
 github.com/turbonomic/turbo-api/pkg/client
