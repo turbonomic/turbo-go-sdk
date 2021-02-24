@@ -759,6 +759,35 @@ func TestEntityDTOBuilder_NamespaceData(t *testing.T) {
 	}
 }
 
+func TestEntityDTOBuilder_ClusterData(t *testing.T) {
+	cpuOvercommitment := 0.6
+	memOvercommitment := 0.4
+	clusterData := &proto.EntityDTO_ContainerPlatformClusterData{
+		CpuOvercommitment: &cpuOvercommitment,
+		MemOvercommitment: &memOvercommitment,
+	}
+
+	base := NewEntityDTOBuilder(proto.EntityDTO_NAMESPACE, "foo")
+	base.entityDataHasSet = false
+	expectedBuilder := &EntityDTOBuilder{
+		entityType:       base.entityType,
+		id:               base.id,
+		entityDataHasSet: true,
+		clusterData:      clusterData,
+		actionEligibility: testNewActionEligibility(),
+		providerMap:       make(map[string]proto.EntityDTO_EntityType),
+	}
+	builder := base.ClusterData(clusterData)
+	if !reflect.DeepEqual(builder, expectedBuilder) {
+		t.Errorf("Test case failed. \nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+	}
+
+	base.ClusterData(clusterData)
+	if builder.err == nil {
+		t.Errorf("Test case failed. Expected error but no error was present.")
+	}
+}
+
 func TestBuildCommodityBoughtFromMap(t *testing.T) {
 	table := []struct {
 		providerCount int
