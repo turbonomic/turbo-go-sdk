@@ -760,11 +760,11 @@ func TestEntityDTOBuilder_NamespaceData(t *testing.T) {
 }
 
 func TestEntityDTOBuilder_ClusterData(t *testing.T) {
-	cpuOvercommitment := 0.6
-	memOvercommitment := 0.4
+	vcpuOvercommitment := 0.6
+	vmemOvercommitment := 0.4
 	clusterData := &proto.EntityDTO_ContainerPlatformClusterData{
-		CpuOvercommitment: &cpuOvercommitment,
-		MemOvercommitment: &memOvercommitment,
+		VcpuOvercommitment: &vcpuOvercommitment,
+		VmemOvercommitment: &vmemOvercommitment,
 	}
 
 	base := NewEntityDTOBuilder(proto.EntityDTO_NAMESPACE, "foo")
