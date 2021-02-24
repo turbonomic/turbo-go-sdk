@@ -57,7 +57,7 @@ func TestCreate(t *testing.T) {
 			powerState: rand.RandomPowerState(),
 			origin:     rand.RandomOrigin(),
 			commoditiesBoughtProviderMap: map[string][]*proto.CommodityDTO{
-				rand.String(5): []*proto.CommodityDTO{
+				rand.String(5): {
 					rand.RandomCommodityDTOBought(),
 				},
 			},
@@ -770,10 +770,10 @@ func TestEntityDTOBuilder_ClusterData(t *testing.T) {
 	base := NewEntityDTOBuilder(proto.EntityDTO_NAMESPACE, "foo")
 	base.entityDataHasSet = false
 	expectedBuilder := &EntityDTOBuilder{
-		entityType:       base.entityType,
-		id:               base.id,
-		entityDataHasSet: true,
-		clusterData:      clusterData,
+		entityType:        base.entityType,
+		id:                base.id,
+		entityDataHasSet:  true,
+		clusterData:       clusterData,
 		actionEligibility: testNewActionEligibility(),
 		providerMap:       make(map[string]proto.EntityDTO_EntityType),
 	}
