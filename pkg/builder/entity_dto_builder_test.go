@@ -57,7 +57,7 @@ func TestCreate(t *testing.T) {
 			powerState: rand.RandomPowerState(),
 			origin:     rand.RandomOrigin(),
 			commoditiesBoughtProviderMap: map[string][]*proto.CommodityDTO{
-				rand.String(5): []*proto.CommodityDTO{
+				rand.String(5): {
 					rand.RandomCommodityDTOBought(),
 				},
 			},
@@ -754,6 +754,35 @@ func TestEntityDTOBuilder_NamespaceData(t *testing.T) {
 	}
 
 	base.NamespaceData(namespaceData)
+	if builder.err == nil {
+		t.Errorf("Test case failed. Expected error but no error was present.")
+	}
+}
+
+func TestEntityDTOBuilder_ClusterData(t *testing.T) {
+	vcpuOvercommitment := 0.6
+	vmemOvercommitment := 0.4
+	clusterData := &proto.EntityDTO_ContainerPlatformClusterData{
+		VcpuOvercommitment: &vcpuOvercommitment,
+		VmemOvercommitment: &vmemOvercommitment,
+	}
+
+	base := NewEntityDTOBuilder(proto.EntityDTO_NAMESPACE, "foo")
+	base.entityDataHasSet = false
+	expectedBuilder := &EntityDTOBuilder{
+		entityType:        base.entityType,
+		id:                base.id,
+		entityDataHasSet:  true,
+		clusterData:       clusterData,
+		actionEligibility: testNewActionEligibility(),
+		providerMap:       make(map[string]proto.EntityDTO_EntityType),
+	}
+	builder := base.ClusterData(clusterData)
+	if !reflect.DeepEqual(builder, expectedBuilder) {
+		t.Errorf("Test case failed. \nExpected %+v, \ngot      %+v", expectedBuilder, builder)
+	}
+
+	base.ClusterData(clusterData)
 	if builder.err == nil {
 		t.Errorf("Test case failed. Expected error but no error was present.")
 	}
