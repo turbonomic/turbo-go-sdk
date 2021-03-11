@@ -357,6 +357,14 @@ func (eb *EntityDTOBuilder) ConsumerPolicy(cp *proto.EntityDTO_ConsumerPolicy) *
 	return eb
 }
 
+func (eb *EntityDTOBuilder) ProviderPolicy(providerPolicy *proto.EntityDTO_ProviderPolicy) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	eb.providerPolicy = providerPolicy
+	return eb
+}
+
 func (eb *EntityDTOBuilder) LayeredOver(layeredOver []string) *EntityDTOBuilder {
 	if eb.err != nil {
 		return eb

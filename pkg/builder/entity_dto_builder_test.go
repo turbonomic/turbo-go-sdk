@@ -577,6 +577,74 @@ func testCPFlag(t *testing.T, flagName string, actual bool, expected bool) {
 	}
 }
 
+func TestEntityDTOBuilder_ProviderPolicy(t *testing.T) {
+	// Ensure that there is no ProviderPolicy attached by default
+	builder := randomBaseEntityDTOBuilder()
+	base, err := builder.Create()
+	if err != nil {
+		t.Error("Cannot create a default EntityDTO")
+		return
+	}
+	providerPolicy := base.GetProviderPolicy()
+	if providerPolicy != nil {
+		t.Errorf("Default EntityDTO should not contain a ProviderPolicy")
+	}
+	// Running these tests with providerPolicy == nil to test defaults
+	checkProviderPolicyDefaults(t, providerPolicy)
+	// Create a real providerPolicy and verify that it has default values
+	providerPolicy = &proto.EntityDTO_ProviderPolicy{}
+	checkProviderPolicyDefaults(t, providerPolicy)
+	// Set some values
+	falseFlag := false
+	trueFlag := true
+	providerPolicy = &proto.EntityDTO_ProviderPolicy{
+		AvailableForPlacement: &falseFlag,
+		LocalSupported:        &trueFlag,
+	}
+	testProviderPolicyFlag(t, "AvailableForPlacement", providerPolicy.GetAvailableForPlacement(), falseFlag)
+	testProviderPolicyFlag(t, "LocalSupported", providerPolicy.GetLocalSupported(), trueFlag)
+
+	// Use Reset to revert to defautls and verify
+	providerPolicy.Reset()
+	checkProviderPolicyDefaults(t, providerPolicy)
+
+	// Try to add the ProviderPolicy to the EntityDTO in the error state
+	builder.ProviderPolicy(providerPolicy).err = fmt.Errorf("dummy error")
+	providerPolicyAttached, err := builder.ProviderPolicy(providerPolicy).Create()
+	if err == nil {
+		t.Error("EntityDTOBuilder in error state should have returned an error")
+	}
+	if providerPolicyAttached.GetProviderPolicy() != nil {
+		t.Error("Should not be able to attach a ProviderPolicy to an EntityDTOBuilder in an error state")
+	}
+	// Clear the error condition and attach
+	builder.ProviderPolicy(providerPolicy).err = nil
+	providerPolicyAttached, err = builder.ProviderPolicy(providerPolicy).Create()
+	// Verify that it is accessible
+	if providerPolicyAttached.GetProviderPolicy() != providerPolicy {
+		t.Error("Could not attach a ProviderPolicy to an EntityDTO")
+	}
+}
+
+func checkProviderPolicyDefaults(t *testing.T, providerPolicy *proto.EntityDTO_ProviderPolicy) {
+	if providerPolicy.GetAvailableForPlacement() != proto.Default_EntityDTO_ProviderPolicy_AvailableForPlacement {
+		t.Errorf("Expected default ProviderPolicy.AvailableForPlacement to be '%v', got '%v'",
+			proto.Default_EntityDTO_ProviderPolicy_AvailableForPlacement,
+			providerPolicy.GetAvailableForPlacement())
+	}
+	if providerPolicy.GetLocalSupported() != proto.Default_EntityDTO_ProviderPolicy_LocalSupported {
+		t.Errorf("Expected default ProviderPolicy.LocalSupported to be '%v', got '%v'",
+			proto.Default_EntityDTO_ProviderPolicy_LocalSupported,
+			providerPolicy.GetLocalSupported())
+	}
+}
+
+func testProviderPolicyFlag(t *testing.T, flagName string, actual bool, expected bool) {
+	if actual != expected {
+		t.Errorf("ProviderPolicy.%s is '%v', expected '%v'", flagName, actual, expected)
+	}
+}
+
 func TestEntityDTOBuilder_ContainerPodData(t *testing.T) {
 	table := []struct {
 		podData *proto.EntityDTO_ContainerPodData

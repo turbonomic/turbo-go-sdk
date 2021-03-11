@@ -160,12 +160,16 @@ func RandomContainerData() *proto.EntityDTO_ContainerData {
 	name := String(5)
 	podName := String(5)
 	port := String(rand.Intn(9999))
+	hasCpuLimitsSet := true
+	hasMemLimitsSet := true
 	return &proto.EntityDTO_ContainerData{
-		FullName:  &name,
-		Port:      &port,
-		IpAddress: &ipAddress,
-		Namespace: &namespace,
-		PodName:   &podName,
+		FullName:        &name,
+		Port:            &port,
+		IpAddress:       &ipAddress,
+		Namespace:       &namespace,
+		PodName:         &podName,
+		HasCpuLimitsSet: &hasCpuLimitsSet,
+		HasMemLimitsSet: &hasMemLimitsSet,
 	}
 }
 
