@@ -133,9 +133,7 @@ func init() {
 	proto.RegisterType((*CurrencyAmount)(nil), "common_dto.CurrencyAmount")
 }
 
-func init() {
-	proto.RegisterFile("CommonCost.proto", fileDescriptor_365fcdce97b4aba3)
-}
+func init() { proto.RegisterFile("CommonCost.proto", fileDescriptor_365fcdce97b4aba3) }
 
 var fileDescriptor_365fcdce97b4aba3 = []byte{
 	// 225 bytes of a gzipped FileDescriptorProto

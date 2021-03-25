@@ -2394,9 +2394,7 @@ func init() {
 	proto.RegisterType((*ExternalActionInfo)(nil), "common_dto.ExternalActionInfo")
 }
 
-func init() {
-	proto.RegisterFile("ActionExecution.proto", fileDescriptor_01258f62f785f2d6)
-}
+func init() { proto.RegisterFile("ActionExecution.proto", fileDescriptor_01258f62f785f2d6) }
 
 var fileDescriptor_01258f62f785f2d6 = []byte{
 	// 2470 bytes of a gzipped FileDescriptorProto

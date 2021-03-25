@@ -1398,9 +1398,7 @@ func init() {
 	proto.RegisterType((*NoChange)(nil), "common_dto.NoChange")
 }
 
-func init() {
-	proto.RegisterFile("Discovery.proto", fileDescriptor_e3fe94e0f094b633)
-}
+func init() { proto.RegisterFile("Discovery.proto", fileDescriptor_e3fe94e0f094b633) }
 
 var fileDescriptor_e3fe94e0f094b633 = []byte{
 	// 1715 bytes of a gzipped FileDescriptorProto

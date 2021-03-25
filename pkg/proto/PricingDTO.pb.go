@@ -1758,9 +1758,7 @@ func init() {
 	proto.RegisterType((*PriceTable_ReservedInstancePriceEntry)(nil), "common_dto.PriceTable.ReservedInstancePriceEntry")
 }
 
-func init() {
-	proto.RegisterFile("PricingDTO.proto", fileDescriptor_c8ca90a31766eb8f)
-}
+func init() { proto.RegisterFile("PricingDTO.proto", fileDescriptor_c8ca90a31766eb8f) }
 
 var fileDescriptor_c8ca90a31766eb8f = []byte{
 	// 1935 bytes of a gzipped FileDescriptorProto
