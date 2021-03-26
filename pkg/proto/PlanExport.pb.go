@@ -200,9 +200,7 @@ func init() {
 	proto.RegisterType((*PlanExportResponse)(nil), "common_dto.PlanExportResponse")
 }
 
-func init() {
-	proto.RegisterFile("PlanExport.proto", fileDescriptor_b584bfb073803d20)
-}
+func init() { proto.RegisterFile("PlanExport.proto", fileDescriptor_b584bfb073803d20) }
 
 var fileDescriptor_b584bfb073803d20 = []byte{
 	// 359 bytes of a gzipped FileDescriptorProto

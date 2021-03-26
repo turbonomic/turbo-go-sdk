@@ -170,9 +170,7 @@ func init() {
 	proto.RegisterType((*EntityIdentityMetadata_PropertyMetadata)(nil), "common_dto.EntityIdentityMetadata.PropertyMetadata")
 }
 
-func init() {
-	proto.RegisterFile("IdentityMetadata.proto", fileDescriptor_06b25cebe55f715e)
-}
+func init() { proto.RegisterFile("IdentityMetadata.proto", fileDescriptor_06b25cebe55f715e) }
 
 var fileDescriptor_06b25cebe55f715e = []byte{
 	// 316 bytes of a gzipped FileDescriptorProto
