@@ -160,6 +160,7 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 					WebSocketPassword: rand.String(10),
 					ConnectionRetry:   10,
 				},
+				"",
 			},
 			expectErr: true,
 		},
@@ -171,6 +172,7 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 				WebSocketConfig{
 					LocalAddress: "invalid",
 				},
+				"foo",
 			},
 			expectErr: true,
 		},
