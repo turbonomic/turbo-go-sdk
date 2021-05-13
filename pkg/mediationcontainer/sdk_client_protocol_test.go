@@ -36,3 +36,19 @@ func TestTimeoutRead2(t *testing.T) {
 		fmt.Println("received msg is different.")
 	}
 }
+
+// TestCommunicationBindingChannel tests the population of the communication binding channel and ensures the produced
+// container info has it.
+func TestCommunicationBindingChannel(t *testing.T) {
+	for _, communicationBindingChannel := range []string{"foo", ""} {
+		sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel)
+		containInfo, err := sdkClientProtocol.MakeContainerInfo()
+		if err != nil {
+			t.Fatalf("Error making container info: %v", err)
+		}
+		if *containInfo.CommunicationBindingChannel != communicationBindingChannel {
+			t.Fatalf("Binding channel in the container info %v is not the same as the original %v", containInfo,
+				communicationBindingChannel)
+		}
+	}
+}

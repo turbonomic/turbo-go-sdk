@@ -10,6 +10,7 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 		localAddress            string
 		turboServer             string
 		expectsWebSocketAddress string
+		bindingChannel          string
 
 		expectsErr bool
 	}{
@@ -17,6 +18,7 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 			turboServer:             "https://127.0.0.1",
 			localAddress:            "http://127.0.0.1",
 			expectsWebSocketAddress: "wss://127.0.0.1",
+			bindingChannel:          "foo",
 
 			expectsErr: false,
 		},
@@ -24,6 +26,7 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 			turboServer:             "http://127.0.0.1",
 			localAddress:            "http://127.0.0.1",
 			expectsWebSocketAddress: "ws://127.0.0.1",
+			bindingChannel:          "",
 
 			expectsErr: false,
 		},
@@ -31,6 +34,7 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 			turboServer:             "http://127.0.0.1",
 			localAddress:            "invalid",
 			expectsWebSocketAddress: "ws://127.0.0.1",
+			bindingChannel:          "foo",
 
 			expectsErr: true,
 		},
@@ -49,6 +53,7 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 			WebSocketConfig{
 				LocalAddress: item.localAddress,
 			},
+			item.bindingChannel,
 		}
 		wsConfig, err := CreateWebSocketConnectionConfig(containerConfig)
 		if item.expectsErr {
@@ -66,6 +71,7 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 				WebSocketConfig{
 					LocalAddress: item.localAddress,
 				},
+				item.bindingChannel,
 			}
 			if !reflect.DeepEqual(expectedWebSocketConfig, wsConfig) {
 				t.Errorf("\nExpect %v,\n got   %v", expectedWebSocketConfig, wsConfig)
