@@ -176,7 +176,7 @@ func (clientProtocol *SdkClientProtocol) MakeContainerInfo() (*proto.ContainerIn
 	}
 
 	return &proto.ContainerInfo{
-		Probes: probes,
+		Probes:                      probes,
 		CommunicationBindingChannel: &clientProtocol.communicationBindingChannel,
 	}, nil
 }
