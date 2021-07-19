@@ -1,17 +1,12 @@
 language: go
 
 go:
-  - 1.14
-  - tip
+  - 1.16
 
 go_import_path: github.com/turbonomic/turbo-go-sdk
 
 before_install:
   - go get -v github.com/mattn/goveralls
-
-matrix:
-  allow_failures:
-    - go: tip
 
 script:
   - make fmtcheck 

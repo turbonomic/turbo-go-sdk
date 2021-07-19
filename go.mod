@@ -10,5 +10,5 @@ require (
 	github.com/golang/protobuf v1.3.1
 	github.com/gorilla/websocket v1.2.0
 	github.com/stretchr/testify v1.3.0
-	github.com/turbonomic/turbo-api v0.0.0-20210513030812-aca128ea36a0
+	github.com/turbonomic/turbo-api v0.0.0-20210715215202-c125bbe789ca
 )
