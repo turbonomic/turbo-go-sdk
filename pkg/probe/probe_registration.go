@@ -2,6 +2,7 @@ package probe
 
 import (
 	"github.com/golang/glog"
+	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
@@ -151,8 +152,20 @@ func checkFullRediscoveryInterval(rediscoveryIntervalSec int32) int32 {
 
 // IActionPolicyProvider provides the policies for action types supported for
 // different entity types by the probe
+// Returns action policies defined by the probe. Each action policy is associated with an
+// EntityType and represents a list of actions with their modes (Disabled, Recommend, etc.).
 type IActionPolicyProvider interface {
 	GetActionPolicy() []*proto.ActionPolicyDTO
+}
+
+// The default action policy metadata if the probe does not support action executor.
+type DefaultActionPolicyMetadata struct {
+}
+
+func (actionMetadata *DefaultActionPolicyMetadata) GetActionPolicy() []*proto.ActionPolicyDTO {
+	actionPolicyBuilder := builder.NewActionPolicyBuilder()
+	actionPolicyBuilder.ForEntity(builder.NewEntityActionPolicyBuilder(proto.EntityDTO_UNKNOWN).RecommendOnly(proto.ActionItemDTO_NONE))
+	return actionPolicyBuilder.Create()
 }
 
 // IEntityMetadataProvider provides the metadata used to generate the unique identifier for
