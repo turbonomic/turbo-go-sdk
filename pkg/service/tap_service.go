@@ -133,7 +133,7 @@ func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommuni
 		return builder
 	}
 	config := client.NewConfigBuilder(serverAddress).
-		BasicAuthentication(commConfig.OpsManagerUsername, commConfig.OpsManagerPassword).
+		BasicAuthentication(url.QueryEscape(commConfig.OpsManagerUsername), url.QueryEscape(commConfig.OpsManagerPassword)).
 		SetProxy(commConfig.ServerMeta.Proxy).
 		Create()
 	glog.V(4).Infof("The Turbo API client config authentication is: %s, %s", commConfig.OpsManagerUsername, commConfig.OpsManagerPassword)
