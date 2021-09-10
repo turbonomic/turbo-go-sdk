@@ -17,30 +17,30 @@ func TestGroupBuilderInvalid(t *testing.T) {
 		SetProperty("Hello")
 
 	// valid entity type, no members
-	_, err := StaticGroup(id).OfType(eType).Build()
+	_, err := StaticRegularGroup(id).OfType(eType).Build()
 	fmt.Printf("******** StaticGroup Error %s\n", err)
 	assert.NotNil(t, err)
 
-	_, err = DynamicGroup(id).OfType(eType).Build()
+	_, err = DynamicRegularGroup(id).OfType(eType).Build()
 	fmt.Printf("******** DynamicGroup Error %s\n", err)
 	assert.NotNil(t, err)
 
 	// no entity type
-	_, err = StaticGroup(id).WithEntities([]string{"abc", "xyz"}).Build()
+	_, err = StaticRegularGroup(id).WithEntities([]string{"abc", "xyz"}).Build()
 	fmt.Printf("******** StaticGroup Error %s\n", err)
 	assert.NotNil(t, err)
 
-	_, err = DynamicGroup(id).MatchingEntities(SelectedBy(selectionSpec)).Build()
+	_, err = DynamicRegularGroup(id).MatchingEntities(SelectedBy(selectionSpec)).Build()
 	fmt.Printf("******** DynamicGroup Error %s\n", err)
 	assert.NotNil(t, err)
 
 	// matching criterion for static group
-	_, err = StaticGroup(id).OfType(eType).MatchingEntities(SelectedBy(selectionSpec)).WithEntities([]string{"abc", "xyz"}).Build()
+	_, err = StaticRegularGroup(id).OfType(eType).MatchingEntities(SelectedBy(selectionSpec)).WithEntities([]string{"abc", "xyz"}).Build()
 	fmt.Printf("####### StaticGroup Error %s\n", err)
 	assert.NotNil(t, err)
 
 	// member list for dynamic group
-	_, err = DynamicGroup(id).OfType(eType).WithEntities([]string{"abc", "xyz"}).MatchingEntities(SelectedBy(selectionSpec)).Build()
+	_, err = DynamicRegularGroup(id).OfType(eType).WithEntities([]string{"abc", "xyz"}).MatchingEntities(SelectedBy(selectionSpec)).Build()
 	fmt.Printf("####### DynamicGroup Error %s\n", err)
 	assert.NotNil(t, err)
 }
@@ -50,7 +50,7 @@ func TestGroupBuilderEntityType(t *testing.T) {
 	eType := proto.EntityDTO_CONTAINER
 
 	// valid entity type
-	groupBuilder := StaticGroup(id).OfType(eType).WithEntities([]string{"abc", "xyz"})
+	groupBuilder := StaticRegularGroup(id).OfType(eType).WithEntities([]string{"abc", "xyz"})
 	assert.NotNil(t, groupBuilder)
 
 	groupDTO, err := groupBuilder.Build()
@@ -60,14 +60,14 @@ func TestGroupBuilderEntityType(t *testing.T) {
 
 	// unknown entity type
 	var fakeType proto.EntityDTO_EntityType = 200
-	groupBuilder = StaticGroup(id).OfType(fakeType).WithEntities([]string{"abc", "xyz"})
+	groupBuilder = StaticRegularGroup(id).OfType(fakeType).WithEntities([]string{"abc", "xyz"})
 
 	groupDTO, err = groupBuilder.Build()
 	assert.NotNil(t, err)
 	//
 	// default entity type
 	eType = 0
-	groupBuilder3 := StaticGroup(id).OfType(eType).WithEntities([]string{"abc", "xyz"})
+	groupBuilder3 := StaticRegularGroup(id).OfType(eType).WithEntities([]string{"abc", "xyz"})
 
 	groupDTO3, err := groupBuilder3.Build()
 	assert.Nil(t, err)
@@ -95,7 +95,7 @@ func TestGroupBuilderDynamic(t *testing.T) {
 		Expression(proto.GroupDTO_SelectionSpec_EQUAL_TO).
 		SetProperty("World")
 
-	groupBuilder := DynamicGroup(id).
+	groupBuilder := DynamicRegularGroup(id).
 		OfType(eType).
 		MatchingEntities(SelectedBy(selectionSpec).and(selectionSpec2))
 
@@ -113,7 +113,7 @@ func TestGroupBuilderStatic(t *testing.T) {
 	id := "group1"
 	eType := proto.EntityDTO_CONTAINER
 
-	groupBuilder := StaticGroup(id).
+	groupBuilder := StaticRegularGroup(id).
 		OfType(eType).
 		WithEntities([]string{"abc", "xyz"})
 
@@ -125,11 +125,28 @@ func TestGroupBuilderStatic(t *testing.T) {
 	assert.Nil(t, groupDTO.GetSelectionSpecList())
 }
 
+func TestGroupBuilderStaticNodePool(t *testing.T) {
+	id := "group1"
+	eType := proto.EntityDTO_VIRTUAL_MACHINE
+
+	groupBuilder := StaticNodePool(id).
+		OfType(eType).
+		WithEntities([]string{"abc", "xyz"})
+
+	groupDTO, err := groupBuilder.Build()
+	assert.Nil(t, err)
+	assert.EqualValues(t, eType, groupDTO.GetEntityType())
+	assert.EqualValues(t, id, groupDTO.GetDisplayName())
+	assert.EqualValues(t, 2, len(groupDTO.GetMemberList().GetMember()))
+	assert.EqualValues(t, proto.GroupDTO_NODE_POOL.Type(), groupDTO.GetGroupType().Type())
+	assert.Nil(t, groupDTO.GetSelectionSpecList())
+}
+
 func TestGroupBuilderSetConsistentResize(t *testing.T) {
 	id := "group1"
 	eType := proto.EntityDTO_CONTAINER
 
-	groupBuilder := StaticGroup(id).
+	groupBuilder := StaticRegularGroup(id).
 		OfType(eType).
 		WithEntities([]string{"abc", "xyz"})
 
@@ -140,7 +157,7 @@ func TestGroupBuilderSetConsistentResize(t *testing.T) {
 
 	fmt.Printf("%++v\n", groupDTO)
 
-	groupBuilder = StaticGroup(id).
+	groupBuilder = StaticRegularGroup(id).
 		OfType(eType).
 		WithEntities([]string{"abc", "xyz"}).
 		ResizeConsistently()
@@ -157,7 +174,7 @@ func TestGroupBuilderDisplayName(t *testing.T) {
 	id := "group1"
 	eType := proto.EntityDTO_CONTAINER
 
-	groupBuilder := StaticGroup(id).
+	groupBuilder := StaticRegularGroup(id).
 		OfType(eType).
 		WithEntities([]string{"abc", "xyz"})
 

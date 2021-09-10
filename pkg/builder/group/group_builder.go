@@ -11,7 +11,7 @@ type GroupType string
 
 const (
 	REGULAR GroupType = "REGULAR"
-	RESOURCE GroupType = "RESOURCE"
+	NODE_POOL GroupType = "NODE_POOL"
 )
 
 // Builder for creating a GroupDTO
@@ -49,10 +49,38 @@ func StaticGroup(id string, groupType GroupType) *AbstractBuilder {
 	return groupBuilder
 }
 
+// Create a new instance of builder for creating REGULAR Static groups.
+// Static group contains a fixed list of entity id's
+func StaticRegularGroup(id string) *AbstractBuilder {
+	groupBuilder := newAbstractBuilder(id, REGULAR, true)
+	return groupBuilder
+}
+
+// Create a new instance of builder for creating NODE_POOL Static groups.
+// Static group contains a fixed list of entity id's
+func StaticNodePool(id string) *AbstractBuilder {
+	groupBuilder := newAbstractBuilder(id, NODE_POOL, true)
+	return groupBuilder
+}
+
 // Create a new instance of builder for creating Dynamic groups.
 // Dynamic group contains selection criteria using entity properties to select entities.
 func DynamicGroup(id string, groupType GroupType) *AbstractBuilder {
 	groupBuilder := newAbstractBuilder(id, groupType, false)
+	return groupBuilder
+}
+
+// Create a new instance of builder for creating REGULAR Dynamic groups.
+// Dynamic group contains selection criteria using entity properties to select entities.
+func DynamicRegularGroup(id string) *AbstractBuilder {
+	groupBuilder := newAbstractBuilder(id, REGULAR, false)
+	return groupBuilder
+}
+
+// Create a new instance of builder for creating NODE_POOL Dynamic groups.
+// Dynamic group contains selection criteria using entity properties to select entities.
+func DynamicNodePoolGroup(id string) *AbstractBuilder {
+	groupBuilder := newAbstractBuilder(id, NODE_POOL, false)
 	return groupBuilder
 }
 
@@ -92,7 +120,7 @@ func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
 	if groupBuilder.groupType == REGULAR {
 		regular := proto.GroupDTO_REGULAR
 		groupDTO.GroupType = &regular
-	} else if groupBuilder.groupType == RESOURCE {
+	} else if groupBuilder.groupType == NODE_POOL {
 		resource := proto.GroupDTO_NODE_POOL
 		groupDTO.GroupType = &resource
 	}
