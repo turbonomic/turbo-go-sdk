@@ -240,11 +240,11 @@ func createPolicyBuyerGroup(policyId string, displayName string, constraintType 
 	var buyerGroup *AbstractBuilder
 	entityType := *buyerData.entityTypePtr
 	if buyerData.entities != nil {
-		buyerGroup = StaticGroup(policyId,REGULAR).
+		buyerGroup = StaticGroup(policyId, REGULAR).
 			OfType(entityType).
 			WithEntities(buyerData.entities)
 	} else if buyerData.matchingBuyers != nil {
-		buyerGroup = DynamicGroup(policyId,REGULAR).
+		buyerGroup = DynamicGroup(policyId, REGULAR).
 			OfType(entityType).
 			MatchingEntities(buyerData.matchingBuyers)
 	} else {
@@ -280,11 +280,11 @@ func createPolicySellerGroup(policyId string, displayName string, constraintType
 	}
 	entityType := *sellerData.entityTypePtr
 	if sellerData.entities != nil {
-		sellerGroup = StaticGroup(policyId,REGULAR).
+		sellerGroup = StaticGroup(policyId, REGULAR).
 			OfType(entityType).
 			WithEntities(sellerData.entities)
 	} else if sellerData.matchingBuyers != nil {
-		sellerGroup = DynamicGroup(policyId,REGULAR).
+		sellerGroup = DynamicGroup(policyId, REGULAR).
 			OfType(entityType).
 			MatchingEntities(sellerData.matchingBuyers)
 	} else {

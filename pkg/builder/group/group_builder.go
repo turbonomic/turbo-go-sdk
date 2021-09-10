@@ -10,7 +10,7 @@ import (
 type GroupType string
 
 const (
-	REGULAR GroupType = "REGULAR"
+	REGULAR   GroupType = "REGULAR"
 	NODE_POOL GroupType = "NODE_POOL"
 )
 
@@ -18,7 +18,7 @@ const (
 type AbstractBuilder struct {
 	groupId          string
 	displayName      string
-	owner 			 string
+	owner            string
 	entityTypePtr    *proto.EntityDTO_EntityType
 	memberList       []string
 	matching         *Matching
@@ -26,7 +26,7 @@ type AbstractBuilder struct {
 	//groupDTO *proto.GroupDTO
 	ec        *builder.ErrorCollector
 	groupType GroupType
-	isStatic bool
+	isStatic  bool
 }
 
 // Create a new instance of AbstractBuilder.
@@ -37,7 +37,7 @@ func newAbstractBuilder(id string, groupType GroupType, isStatic bool) *Abstract
 		groupId:          id,
 		ec:               new(builder.ErrorCollector),
 		consistentResize: false,
-		isStatic: isStatic,
+		isStatic:         isStatic,
 	}
 	return groupBuilder
 }
