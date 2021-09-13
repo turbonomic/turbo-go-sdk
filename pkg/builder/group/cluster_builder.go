@@ -10,7 +10,7 @@ type ClusterBuilder struct {
 func Cluster(id string) *ClusterBuilder {
 	return &ClusterBuilder{
 		&AbstractConstraintGroupBuilder{
-			StaticGroup(id),
+			StaticGroup(id, REGULAR),
 			newConstraintBuilder(proto.GroupDTO_CLUSTER, id),
 		},
 	}
