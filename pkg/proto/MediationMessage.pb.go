@@ -2303,7 +2303,7 @@ type ProbeInfo struct {
 	// The version of the probe; this can be different for different probes of the same type.
 	Version *string `protobuf:"bytes,20,opt,name=version" json:"version,omitempty"`
 	// The display name of the probe; this can/should be different for different probes of the
-	// same type.
+	// same type.  If not specified, the system will generate one.
 	DisplayName *string `protobuf:"bytes,21,opt,name=displayName" json:"displayName,omitempty"`
 }
 
