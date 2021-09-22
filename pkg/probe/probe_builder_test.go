@@ -102,10 +102,12 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 	probeCat := "Cloud"
 	probeUICat := "Cloud"
 	targetId := "T1"
+	version := "foo"
+	displayName := "bar"
 
 	registrationClient := &TestProbeRegistrationClient{}
 	discoveryClient := &TestProbeDiscoveryClient{}
-	builder := NewProbeBuilder(probeType, probeCat, probeUICat)
+	builder := NewProbeBuilder(probeType, probeCat, probeUICat).WithVersion(version).WithDisplayName(displayName)
 	builder.RegisteredBy(registrationClient)
 	builder.DiscoversTarget(targetId, discoveryClient)
 	probe, err := builder.Create()
@@ -128,6 +130,14 @@ func TestNewProbeBuilderWithRegistrationAndDiscoveryClient(t *testing.T) {
 	dc := probe.GetTurboDiscoveryClient()
 	if !reflect.DeepEqual(discoveryClient, dc) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", discoveryClient, dc)
+	}
+
+	if version != probe.ProbeConfiguration.Version {
+		t.Errorf("Expected the version to be %v, got %v", version, probe.ProbeConfiguration.Version)
+	}
+
+	if displayName != probe.ProbeConfiguration.DisplayName {
+		t.Errorf("Expected the version to be %v, got %v", displayName, probe.ProbeConfiguration.DisplayName)
 	}
 }
 
@@ -156,6 +166,16 @@ func TestNewProbeBuilderWithActionClient(t *testing.T) {
 	}
 	if !reflect.DeepEqual(actionClient, probe.ActionClient) {
 		t.Errorf("\nExpected %+v, \ngot      %+v", actionClient, probe.ActionClient)
+	}
+
+	if probe.ProbeConfiguration.Version != "" {
+		t.Errorf("Expected the version when unspecified to be an empty string, but got %v",
+			probe.ProbeConfiguration.Version)
+	}
+
+	if probe.ProbeConfiguration.DisplayName != "" {
+		t.Errorf("Expected the display name when unspecified to be an empty string, but got %v",
+			probe.ProbeConfiguration.DisplayName)
 	}
 }
 
