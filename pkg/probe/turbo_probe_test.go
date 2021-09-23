@@ -24,12 +24,18 @@ func TestGetProbeInfoWithIllegalDiscoveryIntervals(t *testing.T) {
 	discoveryMetadata.SetPerformanceRediscoveryIntervalSeconds(-1)
 	pc, _ := NewProbeConfig("Type1", "Category1", "UICategory1")
 	pc.SetDiscoveryMetadata(discoveryMetadata)
+	version := "foo"
+	displayName := "bar"
+	pc.WithVersion(version)
+	pc.WithDisplayName(displayName)
 	theProbe, _ := newTurboProbe(pc)
 
 	probeInfo, _ := theProbe.GetProbeInfo()
 	assert.EqualValues(t, pkg.DEFAULT_MIN_DISCOVERY_IN_SECS, probeInfo.GetFullRediscoveryIntervalSeconds())
 	assert.EqualValues(t, 300.0, probeInfo.GetIncrementalRediscoveryIntervalSeconds())
 	assert.EqualValues(t, 0, probeInfo.GetPerformanceRediscoveryIntervalSeconds())
+	assert.EqualValues(t, version, pc.Version)
+	assert.EqualValues(t, displayName, pc.DisplayName)
 }
 
 func TestNewProbe(t *testing.T) {

@@ -30,7 +30,18 @@ func TestProbeConf(t *testing.T) {
 	assert.NotNil(t, pc)
 	assert.EqualValues(t, "Type1", pc.ProbeType)
 	assert.EqualValues(t, "Category1", pc.ProbeCategory)
+	assert.EqualValues(t, "", pc.Version)
+	assert.EqualValues(t, "", pc.DisplayName)
 	assert.NotNil(t, pc.discoveryMetadata)
+	assert.EqualValues(t, "", pc.Version)
+	assert.EqualValues(t, "", pc.DisplayName)
+
+	// test with specified version and display name
+	version := "foo"
+	displayName := "bar"
+	pc.WithVersion(version).WithDisplayName(displayName)
+	assert.EqualValues(t, version, pc.Version)
+	assert.EqualValues(t, displayName, pc.DisplayName)
 }
 
 func TestValidateProbeConfInvalid(t *testing.T) {

@@ -80,13 +80,15 @@ func TestProbeInfoBuilder(t *testing.T) {
 		probeType       string
 		probeCategory   string
 		probeUICategory string
+		version         string
+		displayName     string
 		full            int32
 		incremental     int32
 		performance     int32
 	}{
-		{"Type1", "Category1", "UICategory1", 200, 10, 10},
-		{"Type2", "Category2", "UICategory2", 200, 10, 10},
-		{"Type3", "Category3", "UICategory3", -1, -1, -1},
+		{"Type1", "Category1", "UICategory1", "8.3.3-SNAPSHOT", "foo", 200, 10, 10},
+		{"Type2", "Category2", "UICategory2", "8.3.2", "bar", 200, 10, 10},
+		{"Type3", "Category3", "UICategory3", "foo/kubeturbo:bar", "", -1, -1, -1},
 		{probeType: "Type4", probeCategory: "Category4", probeUICategory: "UICategory4"},
 	}
 
@@ -95,6 +97,12 @@ func TestProbeInfoBuilder(t *testing.T) {
 		builder.WithFullDiscoveryInterval(item.full)
 		builder.WithIncrementalDiscoveryInterval(item.incremental)
 		builder.WithPerformanceDiscoveryInterval(item.performance)
+		if item.version != "" {
+			builder.WithVersion(item.version)
+		}
+		if item.displayName != "" {
+			builder.WithDisplayName(item.displayName)
+		}
 		probeInfo := builder.Create()
 		assert.Equal(t, item.probeType, probeInfo.GetProbeType())
 		assert.Equal(t, item.probeCategory, probeInfo.GetProbeCategory())
@@ -115,6 +123,8 @@ func TestProbeInfoBuilder(t *testing.T) {
 		}
 		assert.Nil(t, probeInfo.GetActionPolicy())
 		assert.Nil(t, probeInfo.GetEntityMetadata())
+		assert.EqualValues(t, item.version, probeInfo.GetVersion())
+		assert.EqualValues(t, item.displayName, probeInfo.GetDisplayName())
 	}
 }
 
