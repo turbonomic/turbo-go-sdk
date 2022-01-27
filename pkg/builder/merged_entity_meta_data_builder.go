@@ -238,6 +238,7 @@ type MergedEntityMetadataBuilder struct {
 	fieldBuilders               []*fieldBuilder
 	commBoughtMetadataList      []*commodityBoughtMetadataBuilder // for different providers
 	commoditiesSoldMetadataList []*commoditySoldMetadataBuilder
+	mergePropertiesStrategy     proto.MergedEntityMetadata_MergePropertiesStrategy
 }
 
 // NewMergedEntityMetadataBuilder initializes a MergedEntityMetadataBuilder object
@@ -246,6 +247,7 @@ func NewMergedEntityMetadataBuilder() *MergedEntityMetadataBuilder {
 		metadata:                &proto.MergedEntityMetadata{},
 		matchingMetadataBuilder: newMatchingMetadataBuilder(),
 		keepStandAlone:          true,
+		mergePropertiesStrategy: proto.MergedEntityMetadata_KEEP_ONTO,
 	}
 
 	return builder
@@ -262,6 +264,7 @@ func (builder *MergedEntityMetadataBuilder) Build() (*proto.MergedEntityMetadata
 		KeepStandalone: &builder.keepStandAlone,
 		// Add the internal and external property matching metadata
 		MatchingMetadata: matchingMetadata,
+		MergePropertiesStrategy: &builder.mergePropertiesStrategy,
 	}
 
 	// Add commodities sold list
@@ -297,6 +300,18 @@ func (builder *MergedEntityMetadataBuilder) Build() (*proto.MergedEntityMetadata
 // By default (if this function is not called) an entity is kept in the topology if no stitching match is found.
 func (builder *MergedEntityMetadataBuilder) KeepInTopology(keepInTopology bool) *MergedEntityMetadataBuilder {
 	builder.keepStandAlone = keepInTopology
+	return builder
+}
+
+// WithMergePropertiesStrategy defines the merge strategy for properties for stitched entities. There are currently two supported strategies:
+//   1. KEEP_ONTO: properties of the "onto" entity are preserved and no merging is applied. This strategy should be used when we know for sure 
+//      that all targets discover the same set of properties for each shared entity.
+//   2. JOIN: the resulting property list is a union of properties from all EntityDTOs. Uniqueness of property namespace + property name is 
+//      preserved. That is if 2 EntityDTOs contain the same property it is not duplicated in the resulting list. In this case property value 
+//      is retrieved from the first (random) EntityDTO.
+// By default, the KEEP_ONTO merge strategy is used.
+func (builder *MergedEntityMetadataBuilder) WithMergePropertiesStrategy(mergePropertiesStrategy proto.MergedEntityMetadata_MergePropertiesStrategy) *MergedEntityMetadataBuilder {
+	builder.mergePropertiesStrategy = mergePropertiesStrategy
 	return builder
 }
 
