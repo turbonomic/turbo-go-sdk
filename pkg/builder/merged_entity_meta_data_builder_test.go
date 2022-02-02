@@ -142,10 +142,15 @@ func TestMergedEntityMetadataBuilderMergePropertiesStrategy(t *testing.T) {
 	builder := NewMergedEntityMetadataBuilder()
 	md, err := builder.Build()
 	assert.Nil(t, err)
-	assert.Equal(t, proto.MergedEntityMetadata_KEEP_ONTO, md.GetMergePropertiesStrategy())
+	assert.Equal(t, proto.MergedEntityMetadata_MERGE_NOTHING, md.GetMergePropertiesStrategy())
 
-	builder.WithMergePropertiesStrategy(proto.MergedEntityMetadata_JOIN)
+	builder.WithMergePropertiesStrategy(proto.MergedEntityMetadata_MERGE_IF_NOT_PRESENT)
 	md, err = builder.Build()
 	assert.Nil(t, err)
-	assert.Equal(t, proto.MergedEntityMetadata_JOIN, md.GetMergePropertiesStrategy())
+	assert.Equal(t, proto.MergedEntityMetadata_MERGE_IF_NOT_PRESENT, md.GetMergePropertiesStrategy())
+
+	builder.WithMergePropertiesStrategy(proto.MergedEntityMetadata_MERGE_AND_OVERWRITE)
+	md, err = builder.Build()
+	assert.Nil(t, err)
+	assert.Equal(t, proto.MergedEntityMetadata_MERGE_AND_OVERWRITE, md.GetMergePropertiesStrategy())
 }

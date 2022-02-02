@@ -247,7 +247,7 @@ func NewMergedEntityMetadataBuilder() *MergedEntityMetadataBuilder {
 		metadata:                &proto.MergedEntityMetadata{},
 		matchingMetadataBuilder: newMatchingMetadataBuilder(),
 		keepStandAlone:          true,
-		mergePropertiesStrategy: proto.MergedEntityMetadata_KEEP_ONTO,
+		mergePropertiesStrategy: proto.MergedEntityMetadata_MERGE_NOTHING,
 	}
 
 	return builder
