@@ -1,9 +1,9 @@
 package builder
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
+	"testing"
 )
 
 // matchingData tests
