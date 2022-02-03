@@ -2,6 +2,7 @@ package builder
 
 import (
 	"github.com/stretchr/testify/assert"
+	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"testing"
 )
 
@@ -135,4 +136,21 @@ func TestMergedEntityMetadataBuilderExternalMatching(t *testing.T) {
 		assert.Equal(t, prop1, data.GetMatchingProperty().GetPropertyName())
 		assert.Equal(t, ",", data.GetDelimiter())
 	}
+}
+
+func TestMergedEntityMetadataBuilderMergePropertiesStrategy(t *testing.T) {
+	builder := NewMergedEntityMetadataBuilder()
+	md, err := builder.Build()
+	assert.Nil(t, err)
+	assert.Equal(t, proto.MergedEntityMetadata_MERGE_NOTHING, md.GetMergePropertiesStrategy())
+
+	builder.WithMergePropertiesStrategy(proto.MergedEntityMetadata_MERGE_IF_NOT_PRESENT)
+	md, err = builder.Build()
+	assert.Nil(t, err)
+	assert.Equal(t, proto.MergedEntityMetadata_MERGE_IF_NOT_PRESENT, md.GetMergePropertiesStrategy())
+
+	builder.WithMergePropertiesStrategy(proto.MergedEntityMetadata_MERGE_AND_OVERWRITE)
+	md, err = builder.Build()
+	assert.Nil(t, err)
+	assert.Equal(t, proto.MergedEntityMetadata_MERGE_AND_OVERWRITE, md.GetMergePropertiesStrategy())
 }
