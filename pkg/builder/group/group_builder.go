@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+
 	"github.com/golang/glog"
 	"github.com/turbonomic/turbo-go-sdk/pkg/builder"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
@@ -24,9 +25,10 @@ type AbstractBuilder struct {
 	matching         *Matching
 	consistentResize bool
 	//groupDTO *proto.GroupDTO
-	ec        *builder.ErrorCollector
-	groupType GroupType
-	isStatic  bool
+	ec            *builder.ErrorCollector
+	groupType     GroupType
+	isStatic      bool
+	settingPolicy *proto.GroupDTO_SettingPolicy_
 }
 
 // Create a new instance of AbstractBuilder.
@@ -87,13 +89,8 @@ func DynamicNodePoolGroup(id string) *AbstractBuilder {
 // Return the Protobuf GroupDTO object. There is no constraint object with this group.
 // Return error if errors were collected during the building of the group properties.
 func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
-
-	groupId := &proto.GroupDTO_GroupName{
-		GroupName: groupBuilder.groupId,
-	}
 	groupDTO := &proto.GroupDTO{
 		DisplayName: &groupBuilder.groupId,
-		Info:        groupId,
 	}
 
 	if groupBuilder.displayName != "" {
@@ -131,6 +128,15 @@ func (groupBuilder *AbstractBuilder) Build() (*proto.GroupDTO, error) {
 
 	groupDTO.IsConsistentResizing = &groupBuilder.consistentResize
 
+	if groupBuilder.settingPolicy == nil {
+		groupId := &proto.GroupDTO_GroupName{
+			GroupName: groupBuilder.groupId,
+		}
+		groupDTO.Info = groupId
+	} else {
+		groupDTO.Info = groupBuilder.settingPolicy
+	}
+
 	if groupBuilder.ec.Count() > 0 {
 		glog.Errorf("%s : %s", groupBuilder.groupId, groupBuilder.ec.Error())
 		return nil, fmt.Errorf("%s: %s", groupBuilder.groupId, groupBuilder.ec.Error())
@@ -156,6 +162,11 @@ func (groupBuilder *AbstractBuilder) WithOwner(owner string) *AbstractBuilder {
 	// Setup entity type
 	groupBuilder.owner = owner
 
+	return groupBuilder
+}
+
+func (groupBuilder *AbstractBuilder) WithSettingPolicy(policy *proto.GroupDTO_SettingPolicy_) *AbstractBuilder {
+	groupBuilder.settingPolicy = policy
 	return groupBuilder
 }
 
