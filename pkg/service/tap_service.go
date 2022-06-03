@@ -43,7 +43,6 @@ func (tapService *TAPService) getJwtToken(hydraToken string) (string, error) {
 	return jwtToken, nil
 }
 
-
 func (tapService *TAPService) addTarget(isRegistered chan bool) {
 	targetInfos := tapService.GetProbeTargets()
 	if len(targetInfos) <= 0 {
