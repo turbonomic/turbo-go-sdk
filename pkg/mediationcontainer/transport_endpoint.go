@@ -3,7 +3,7 @@ package mediationcontainer
 // Transport endpoint that sends and receives raw message bytes
 type ITransport interface {
 	// Open
-	Connect() error
+	Connect(jwtToken string) error
 	GetConnectionId() string
 	GetService() string
 	// Send

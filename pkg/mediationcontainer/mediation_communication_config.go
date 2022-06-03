@@ -21,9 +21,11 @@ var (
 )
 
 type ServerMeta struct {
-	TurboServer string `json:"turboServer,omitempty"`
-	Version     string `json:"version,omitempty"`
-	Proxy       string `json:"proxy,omitempty"`
+	TurboServer  string `json:"turboServer,omitempty"`
+	Version      string `json:"version,omitempty"`
+	Proxy        string `json:"proxy,omitempty"`
+	ClientId     string `json:"clientId,omitempty"`
+	ClientSecret string `json:"clientSecret,omitempty"`
 }
 
 func (meta *ServerMeta) ValidateServerMeta() error {
