@@ -75,14 +75,14 @@ func CreateClientWebSocketTransport(connConfig *WebSocketConnectionConfig) *Clie
 }
 
 // WebSocket connection is established with the server
-func (wsTransport *ClientWebSocketTransport) Connect() error {
+func (wsTransport *ClientWebSocketTransport) Connect(jwtToken string) error {
 	// Close any previous connected WebSocket connection and set current connection to nil.
 	wsTransport.closeAndResetWebSocket()
 
 	// loop till server is up or close received
 	wsTransport.closeRequested = false
 	// TODO: give an optional timeout to wait for server in performWebSocketConnection()
-	err := wsTransport.performWebSocketConnection() // Blocks or till transport is closed
+	err := wsTransport.performWebSocketConnection(jwtToken) // Blocks or till transport is closed
 	if err != nil {
 		return err
 	}
@@ -269,12 +269,12 @@ func (wsTransport *ClientWebSocketTransport) Send(messageToSend *TransportMessag
 
 // ====================================== Websocket Connection =========================================================
 // Establish connection to server websocket until connected or until the transport endpoint is closed
-func (wsTransport *ClientWebSocketTransport) performWebSocketConnection() error {
+func (wsTransport *ClientWebSocketTransport) performWebSocketConnection(jwtToken string) error {
 	connRetryInterval := time.Second * 30 // TODO: use ConnectionRetry parameter from the connConfig or default
 	connConfig := wsTransport.connConfig
 
 	for !wsTransport.closeRequested { // only set when CloseTransportPoint() is called
-		ws, service, err := openWebSocketConn(connConfig)
+		ws, service, err := openWebSocketConn(connConfig, jwtToken)
 		if err != nil {
 			// print at debug level after some time
 			glog.V(3).Infof("Failed to open websocket connection: %v. Retry in %v.",
@@ -322,13 +322,12 @@ func setupPingPong(ws *websocket.Conn) {
 	return
 }
 
-func openWebSocketConn(connConfig *WebSocketConnectionConfig) (*websocket.Conn, string, error) {
+func openWebSocketConn(connConfig *WebSocketConnectionConfig, jwtToken string) (*websocket.Conn, string, error) {
 	//1. set up dialer
 	d := &websocket.Dialer{
 		HandshakeTimeout: handshakeTimeout,
 		TLSClientConfig:  &tls.Config{InsecureSkipVerify: true},
 	}
-
 	proxy := connConfig.Proxy
 	if proxy != "" {
 		//Check if the proxy server requires authentication or not
@@ -355,9 +354,8 @@ func openWebSocketConn(connConfig *WebSocketConnectionConfig) (*websocket.Conn, 
 			d.Proxy = http.ProxyURL(proxyURL)
 		}
 	}
-
 	//2. auth header
-	header := getAuthHeader(connConfig.WebSocketUsername, connConfig.WebSocketPassword)
+	header := getAuthHeader(connConfig.WebSocketUsername, connConfig.WebSocketPassword, jwtToken)
 
 	//3. connect it
 	for service, endpoint := range connConfig.WebSocketEndpoints {
@@ -376,10 +374,14 @@ func openWebSocketConn(connConfig *WebSocketConnectionConfig) (*websocket.Conn, 
 	return nil, "", fmt.Errorf("failed to connect to all server options")
 }
 
-func getAuthHeader(user, password string) http.Header {
+func getAuthHeader(user, password, jwtToken string) http.Header {
 	dat := []byte(fmt.Sprintf("%s:%s", user, password))
 	header := http.Header{
 		"Authorization": {"Basic " + base64.StdEncoding.EncodeToString(dat)},
+	}
+
+	if jwtToken != "" {
+		header.Add("x-auth-token", base64.StdEncoding.EncodeToString([]byte(jwtToken)))
 	}
 
 	return header

@@ -2,13 +2,12 @@ package service
 
 import (
 	"fmt"
-	"github.com/turbonomic/turbo-api/pkg/api"
-	"net/url"
-
 	"github.com/golang/glog"
+	"github.com/turbonomic/turbo-api/pkg/api"
 	"github.com/turbonomic/turbo-api/pkg/client"
 	"github.com/turbonomic/turbo-go-sdk/pkg/mediationcontainer"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
+	"net/url"
 )
 
 // Turbonomic Automation Service that will discover the environment for the Turbo server
@@ -26,6 +25,22 @@ func (tapService *TAPService) DisconnectFromTurbo() {
 	glog.V(4).Infof("[DisconnectFromTurbo] Enter *******")
 	close(tapService.disconnectFromTurbo)
 	glog.V(4).Infof("[DisconnectFromTurbo] End *********")
+}
+
+func (tapService *TAPService) getHydraToken() (string, error) {
+	hydraToken, err := tapService.turboClient.GetHydraAccessToken()
+	if err != nil {
+		return "", err
+	}
+	return hydraToken, nil
+}
+
+func (tapService *TAPService) getJwtToken(hydraToken string) (string, error) {
+	jwtToken, err := tapService.turboClient.GetJwtToken(hydraToken)
+	if err != nil {
+		return "", err
+	}
+	return jwtToken, nil
 }
 
 func (tapService *TAPService) addTarget(isRegistered chan bool) {
@@ -55,8 +70,6 @@ func (tapService *TAPService) addTarget(isRegistered chan bool) {
 }
 
 func (tapService *TAPService) ConnectToTurbo() {
-	glog.V(4).Infof("[ConnectToTurbo] Enter ******* ")
-
 	if tapService.turboClient == nil {
 		glog.V(1).Infof("TAP service cannot be started - cannot create target")
 		return
@@ -65,9 +78,19 @@ func (tapService *TAPService) ConnectToTurbo() {
 	tapService.disconnectFromTurbo = make(chan struct{})
 	isRegistered := make(chan bool, 1)
 	defer close(isRegistered)
-
+	// Get the credential from the secret
+	hydraToken, err := tapService.getHydraToken()
+	if err != nil {
+		glog.V(1).Infof("Failed to get Hydra token")
+		return
+	}
+	jwtToken, err := tapService.getJwtToken(hydraToken)
+	if err != nil {
+		glog.V(1).Infof("Failed to get JWT token")
+		return
+	}
 	// start a separate go routine to connect to the Turbo server
-	go mediationcontainer.InitMediationContainer(isRegistered, tapService.disconnectFromTurbo)
+	go mediationcontainer.InitMediationContainer(isRegistered, tapService.disconnectFromTurbo, jwtToken)
 	go tapService.addTarget(isRegistered)
 
 	// Once connected the mediation container will keep running till a disconnect message is sent to the tap service
@@ -135,6 +158,7 @@ func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommuni
 	config := client.NewConfigBuilder(serverAddress).
 		BasicAuthentication(url.QueryEscape(commConfig.OpsManagerUsername), url.QueryEscape(commConfig.OpsManagerPassword)).
 		SetProxy(commConfig.ServerMeta.Proxy).
+		SetClientId(commConfig.ServerMeta.ClientId).SetClientSecret(commConfig.ServerMeta.ClientSecret).
 		Create()
 	glog.V(4).Infof("The Turbo API client config is create successfully: %v", config)
 	builder.tapService.turboClient, err = client.NewTurboClient(config)
