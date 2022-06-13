@@ -55,7 +55,7 @@ func CreateRemoteMediationClient(allProbes map[string]*ProbeProperties,
 
 // Establish connection with the Turbo server -  Blocks till WebSocket connection is open
 // Complete the probe registration protocol with the server and then wait for server messages
-func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh chan bool, disconnectFromTurbo chan struct{}, jwtToken string) {
+func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh chan bool, disconnectFromTurbo chan struct{}, refreshTokenChannel chan struct{}, jwTokenChannel chan string) {
 	// TODO: Assert that the probes are registered before starting the handshake ??
 
 	//// --------- Create WebSocket Transport
@@ -76,7 +76,7 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 	transport := CreateClientWebSocketTransport(connConfig) //, transportClosedNotificationCh)
 	remoteMediationClient.closeWatcherCh = make(chan bool, 1)
 
-	err = transport.Connect(jwtToken) // TODO: blocks till websocket connection is open or until transport is closed
+	err = transport.Connect(refreshTokenChannel, jwTokenChannel) // TODO: blocks till websocket connection is open or until transport is closed
 
 	// handle WebSocket creation errors
 	if err != nil { //transport.ws == nil {
@@ -117,7 +117,7 @@ func (remoteMediationClient *remoteMediationClient) Init(probeRegisteredMsgCh ch
 				// stop server messages listener
 				remoteMediationClient.stopMessageHandler()
 				// Reconnect
-				err := transport.Connect(jwtToken)
+				err := transport.Connect(refreshTokenChannel, jwTokenChannel)
 				// handle WebSocket creation errors
 				if err != nil { //transport.ws == nil {
 					glog.Errorf("[Reconnect] Initialization of remote mediation client failed: %v", err)
