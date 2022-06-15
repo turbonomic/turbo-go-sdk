@@ -75,14 +75,14 @@ func CreateClientWebSocketTransport(connConfig *WebSocketConnectionConfig) *Clie
 }
 
 // WebSocket connection is established with the server
-func (wsTransport *ClientWebSocketTransport) Connect(jwtToken string) error {
+func (wsTransport *ClientWebSocketTransport) Connect(refreshTokenChannel chan struct{}, jwTokenChannel chan string) error {
 	// Close any previous connected WebSocket connection and set current connection to nil.
 	wsTransport.closeAndResetWebSocket()
 
 	// loop till server is up or close received
 	wsTransport.closeRequested = false
 	// TODO: give an optional timeout to wait for server in performWebSocketConnection()
-	err := wsTransport.performWebSocketConnection(jwtToken) // Blocks or till transport is closed
+	err := wsTransport.performWebSocketConnection(refreshTokenChannel, jwTokenChannel) // Blocks or till transport is closed
 	if err != nil {
 		return err
 	}
@@ -269,11 +269,14 @@ func (wsTransport *ClientWebSocketTransport) Send(messageToSend *TransportMessag
 
 // ====================================== Websocket Connection =========================================================
 // Establish connection to server websocket until connected or until the transport endpoint is closed
-func (wsTransport *ClientWebSocketTransport) performWebSocketConnection(jwtToken string) error {
+func (wsTransport *ClientWebSocketTransport) performWebSocketConnection(refreshTokenChannel chan struct{}, jwTokenChannel chan string) error {
 	connRetryInterval := time.Second * 30 // TODO: use ConnectionRetry parameter from the connConfig or default
 	connConfig := wsTransport.connConfig
 
 	for !wsTransport.closeRequested { // only set when CloseTransportPoint() is called
+		// blocked for jwtToken
+		refreshTokenChannel <- struct{}{}
+		jwtToken := <-jwTokenChannel
 		ws, service, err := openWebSocketConn(connConfig, jwtToken)
 		if err != nil {
 			// print at debug level after some time

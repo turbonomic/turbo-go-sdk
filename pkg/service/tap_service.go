@@ -8,6 +8,7 @@ import (
 	"github.com/turbonomic/turbo-go-sdk/pkg/mediationcontainer"
 	"github.com/turbonomic/turbo-go-sdk/pkg/probe"
 	"net/url"
+	"time"
 )
 
 // Turbonomic Automation Service that will discover the environment for the Turbo server
@@ -27,20 +28,37 @@ func (tapService *TAPService) DisconnectFromTurbo() {
 	glog.V(4).Infof("[DisconnectFromTurbo] End *********")
 }
 
-func (tapService *TAPService) getHydraToken() (string, error) {
-	hydraToken, err := tapService.turboClient.GetHydraAccessToken()
-	if err != nil {
-		return "", err
+// get the jwtToken from the auth component using client id and client secret fed from k8s secret
+// client id and secret are not provided, empty jwtToken will be sent to the channel for websocket connection
+// empty jwtToken will be ignored in websocket
+func (tapService *TAPService) getJwtToken(refreshTokenChannel chan struct{}, jwTokenChannel chan string) {
+	for {
+		// blocked by isActive
+		<-refreshTokenChannel
+		hydraToken := ""
+		jwtToken := ""
+		var err error
+		for {
+			hydraToken, err = tapService.turboClient.GetHydraAccessToken()
+			if err != nil {
+				glog.Errorf("Failed to get hydra token due to %v, retry in 30s", err)
+				time.Sleep(time.Second * 30)
+			} else {
+				break
+			}
+		}
+		for {
+			jwtToken, err = tapService.turboClient.GetJwtToken(hydraToken)
+			if err != nil {
+				glog.Errorf("Failed to get jwt token due to %v, retry in 30s", err)
+				time.Sleep(time.Second * 30)
+			} else {
+				break
+			}
+		}
+		// send jwt Token back
+		jwTokenChannel <- jwtToken
 	}
-	return hydraToken, nil
-}
-
-func (tapService *TAPService) getJwtToken(hydraToken string) (string, error) {
-	jwtToken, err := tapService.turboClient.GetJwtToken(hydraToken)
-	if err != nil {
-		return "", err
-	}
-	return jwtToken, nil
 }
 
 func (tapService *TAPService) addTarget(isRegistered chan bool) {
@@ -78,21 +96,15 @@ func (tapService *TAPService) ConnectToTurbo() {
 	tapService.disconnectFromTurbo = make(chan struct{})
 	isRegistered := make(chan bool, 1)
 	defer close(isRegistered)
-	// Get the credential from the secret
-	hydraToken, err := tapService.getHydraToken()
-	if err != nil {
-		glog.V(1).Infof("Failed to get Hydra token")
-		return
-	}
-	jwtToken, err := tapService.getJwtToken(hydraToken)
-	if err != nil {
-		glog.V(1).Infof("Failed to get JWT token")
-		return
-	}
-	// start a separate go routine to connect to the Turbo server
-	go mediationcontainer.InitMediationContainer(isRegistered, tapService.disconnectFromTurbo, jwtToken)
-	go tapService.addTarget(isRegistered)
+	shouldRefresh := make(chan struct{})
+	tokenChannel := make(chan string)
+	defer close(shouldRefresh)
+	defer close(tokenChannel)
 
+	// start a separate go routine to connect to the Turbo server
+	go mediationcontainer.InitMediationContainer(isRegistered, tapService.disconnectFromTurbo, shouldRefresh, tokenChannel)
+	go tapService.getJwtToken(shouldRefresh, tokenChannel)
+	go tapService.addTarget(isRegistered)
 	// Once connected the mediation container will keep running till a disconnect message is sent to the tap service
 	select {
 	case <-tapService.disconnectFromTurbo:
