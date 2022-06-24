@@ -82,3 +82,80 @@ func NewResizeAutomationPolicySetting(actionCapability string) *proto.GroupDTO_S
 		},
 	}
 }
+
+func NewHorizontalScaleUpAutomationPolicySetting(actionMode string) *proto.GroupDTO_Setting {
+	return &proto.GroupDTO_Setting{
+		Type: proto.GroupDTO_Setting_HORIZONTAL_SCALE_UP_AUTOMATION_MODE.Enum(),
+		SettingValueType: &proto.GroupDTO_Setting_StringSettingValueType_{
+			StringSettingValueType: &proto.GroupDTO_Setting_StringSettingValueType{
+				Value: &actionMode,
+			},
+		},
+	}
+}
+
+func NewHorizontalScaleDownAutomationPolicySetting(actionMode string) *proto.GroupDTO_Setting {
+	return &proto.GroupDTO_Setting{
+		Type: proto.GroupDTO_Setting_HORIZONTAL_SCALE_DOWN_AUTOMATION_MODE.Enum(),
+		SettingValueType: &proto.GroupDTO_Setting_StringSettingValueType_{
+			StringSettingValueType: &proto.GroupDTO_Setting_StringSettingValueType{
+				Value: &actionMode,
+			},
+		},
+	}
+}
+
+func NewMoveAutomationPolicySetting(actionMode string) *proto.GroupDTO_Setting {
+	return &proto.GroupDTO_Setting{
+		Type: proto.GroupDTO_Setting_MOVE_AUTOMATION_MODE.Enum(),
+		SettingValueType: &proto.GroupDTO_Setting_StringSettingValueType_{
+			StringSettingValueType: &proto.GroupDTO_Setting_StringSettingValueType{
+				Value: &actionMode,
+			},
+		},
+	}
+}
+
+func NewMinReplicasPolicySetting(minReplicas float32) *proto.GroupDTO_Setting {
+	return &proto.GroupDTO_Setting{
+		Type: proto.GroupDTO_Setting_MIN_REPLICAS.Enum(),
+		SettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType_{
+			NumericSettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType{
+				Value: &minReplicas,
+			},
+		},
+	}
+}
+
+func NewMaxReplicasPolicySetting(maxReplicas float32) *proto.GroupDTO_Setting {
+	return &proto.GroupDTO_Setting{
+		Type: proto.GroupDTO_Setting_MAX_REPLICAS.Enum(),
+		SettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType_{
+			NumericSettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType{
+				Value: &maxReplicas,
+			},
+		},
+	}
+}
+
+func NewResponseTimeSLOPolicySetting(responseTimeSLO float32) *proto.GroupDTO_Setting {
+	return &proto.GroupDTO_Setting{
+		Type: proto.GroupDTO_Setting_RESPONSE_TIME_SLO.Enum(),
+		SettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType_{
+			NumericSettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType{
+				Value: &responseTimeSLO,
+			},
+		},
+	}
+}
+
+func NewTransactionSLOPolicySetting(transactionSLO float32) *proto.GroupDTO_Setting {
+	return &proto.GroupDTO_Setting{
+		Type: proto.GroupDTO_Setting_TRANSACTION_SLO.Enum(),
+		SettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType_{
+			NumericSettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType{
+				Value: &transactionSLO,
+			},
+		},
+	}
+}

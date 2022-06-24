@@ -23,7 +23,7 @@ func SelectedBy(entitySpec SelectionSpecBuilder) *Matching {
 	}
 	return matching
 }
-func (matching *Matching) and(entitySpec SelectionSpecBuilder) *Matching {
+func (matching *Matching) And(entitySpec SelectionSpecBuilder) *Matching {
 	matching.selectionSpecBuilderList = append(matching.selectionSpecBuilderList, entitySpec)
 	return matching
 }
