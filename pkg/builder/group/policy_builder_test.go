@@ -294,7 +294,7 @@ func TestPlaceTogetherPolicy(t *testing.T) {
 		SetProperty("3333-")
 
 	placeTogetherPolicyBuilder := PlaceTogether(id).
-		WithBuyers(DynamicBuyers(SelectedBy(selectionSpec1).and(selectionSpec2)).OfType(eType)).
+		WithBuyers(DynamicBuyers(SelectedBy(selectionSpec1).And(selectionSpec2)).OfType(eType)).
 		OnSellerType(proto.EntityDTO_CONTAINER_POD)
 
 	groupDTOList, _ := assertPlaceTogetherPolicyConditions(t, placeTogetherPolicyBuilder)
@@ -304,7 +304,7 @@ func TestPlaceTogetherPolicy(t *testing.T) {
 
 	// Invalid buyer group
 	placeTogetherPolicyBuilder = PlaceTogether(id).
-		WithBuyers(DynamicBuyers(SelectedBy(selectionSpec1).and(selectionSpec2)))
+		WithBuyers(DynamicBuyers(SelectedBy(selectionSpec1).And(selectionSpec2)))
 
 	isValidBuyerData := assertValidBuyerData(t, placeTogetherPolicyBuilder.buyerData)
 	assert.Equal(t, false, isValidBuyerData)
