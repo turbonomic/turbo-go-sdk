@@ -34,7 +34,10 @@ func (tapService *TAPService) DisconnectFromTurbo() {
 func (tapService *TAPService) getJwtToken(refreshTokenChannel chan struct{}, jwTokenChannel chan string) {
 	for {
 		// blocked by isActive
-		<-refreshTokenChannel
+		_, ok := <-refreshTokenChannel
+		if !ok {
+			return
+		}
 		hydraToken := ""
 		jwtToken := ""
 		var err error
