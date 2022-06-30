@@ -97,7 +97,7 @@ func TestGroupBuilderDynamic(t *testing.T) {
 
 	groupBuilder := DynamicRegularGroup(id).
 		OfType(eType).
-		MatchingEntities(SelectedBy(selectionSpec).and(selectionSpec2))
+		MatchingEntities(SelectedBy(selectionSpec).And(selectionSpec2))
 
 	groupDTO, err := groupBuilder.Build()
 	assert.Nil(t, err)
