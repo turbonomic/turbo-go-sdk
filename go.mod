@@ -10,6 +10,6 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.1
 	github.com/stretchr/testify v1.3.0
-	github.com/turbonomic/turbo-api v0.0.0-20220606151638-bcdf1d7b4ab8
+	github.com/turbonomic/turbo-api v0.0.0-20220725155952-ec41db73695d
 	google.golang.org/protobuf v1.27.1
 )

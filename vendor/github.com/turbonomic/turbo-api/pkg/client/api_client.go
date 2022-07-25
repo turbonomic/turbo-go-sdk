@@ -73,6 +73,14 @@ func (c *APIClient) GetHydraAccessToken() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get hydra access token: %s", err)
 	}
+	if response.statusCode == 403 {
+		// When we receive the 403 status code, meaning the hydra service is currently not available.
+		// We are not returning error here to handle the case when customer enabled probe security in the first place then disabled
+		// In the case above, there'll be client_id and secret in the k8s secret, but we shouldn't use them in websocket connection
+		// If the hydra service is temporarily not accessible, we have retry in performWebSocketConnection in turbo-go-sdk
+		glog.Errorf("Hydra service is not accessible or disabled")
+		return "", nil
+	}
 	var hydraToken HydraTokenBody
 	err = json.Unmarshal([]byte(response.body), &hydraToken)
 	if err != nil {
