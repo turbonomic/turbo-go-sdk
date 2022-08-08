@@ -106,7 +106,7 @@ func (wsTransport *ClientWebSocketTransport) GetService() string {
 }
 
 func (wsTransport *ClientWebSocketTransport) GetConnectionId() string {
-	if wsTransport.status == Closed {
+	if wsTransport.status == Closed || wsTransport.ws == nil {
 		return ""
 	}
 	return wsTransport.ws.RemoteAddr().String() + "::" + wsTransport.ws.LocalAddr().String()
@@ -119,6 +119,8 @@ func (wsTransport *ClientWebSocketTransport) CloseTransportPoint() {
 
 // Close current WebSocket connection and set it to nil.
 func (wsTransport *ClientWebSocketTransport) closeAndResetWebSocket() {
+	wsTransport.wsMux.Lock()
+	defer wsTransport.wsMux.Unlock()
 	if wsTransport.status == Closed {
 		return
 	}
@@ -126,7 +128,8 @@ func (wsTransport *ClientWebSocketTransport) closeAndResetWebSocket() {
 	// close WebSocket
 	if wsTransport.ws != nil {
 		glog.V(1).Infof("Begin to send websocket Close frame.")
-		wsTransport.write(websocket.CloseMessage, []byte{})
+		wsTransport.ws.SetWriteDeadline(time.Now().Add(writeWaitTimeout))
+		wsTransport.ws.WriteMessage(websocket.CloseMessage, []byte{})
 		wsTransport.ws.Close()
 		wsTransport.ws = nil
 	}
