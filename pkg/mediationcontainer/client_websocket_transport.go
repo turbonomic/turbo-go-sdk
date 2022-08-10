@@ -109,6 +109,11 @@ func (wsTransport *ClientWebSocketTransport) GetConnectionId() string {
 	if wsTransport.status == Closed {
 		return ""
 	}
+	wsTransport.wsMux.Lock()
+	defer wsTransport.wsMux.Unlock()
+	if wsTransport.ws == nil {
+		return ""
+	}
 	return wsTransport.ws.RemoteAddr().String() + "::" + wsTransport.ws.LocalAddr().String()
 }
 
@@ -123,10 +128,14 @@ func (wsTransport *ClientWebSocketTransport) closeAndResetWebSocket() {
 		return
 	}
 
+	wsTransport.wsMux.Lock()
+	defer wsTransport.wsMux.Unlock()
+
 	// close WebSocket
 	if wsTransport.ws != nil {
 		glog.V(1).Infof("Begin to send websocket Close frame.")
-		wsTransport.write(websocket.CloseMessage, []byte{})
+		wsTransport.ws.SetWriteDeadline(time.Now().Add(writeWaitTimeout))
+		wsTransport.ws.WriteMessage(websocket.CloseMessage, []byte{})
 		wsTransport.ws.Close()
 		wsTransport.ws = nil
 	}
@@ -285,7 +294,9 @@ func (wsTransport *ClientWebSocketTransport) performWebSocketConnection(refreshT
 			time.Sleep(connRetryInterval)
 		} else {
 			setupPingPong(ws)
+			wsTransport.wsMux.Lock()
 			wsTransport.ws = ws
+			wsTransport.wsMux.Unlock()
 			wsTransport.status = Ready
 			wsTransport.service = service
 			glog.V(2).Infof("Connected to server " + wsTransport.GetConnectionId())
