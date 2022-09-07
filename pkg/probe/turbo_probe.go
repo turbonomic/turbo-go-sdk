@@ -272,7 +272,7 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	}
 
 	// 9. default secure target
-	if (registrationClient.ISecureProbeTargetProvider != nil) {
+	if registrationClient.ISecureProbeTargetProvider != nil {
 		probeInfoBuilder.WithSecureTarget(registrationClient.GetSecureProbeTarget())
 	}
 

@@ -116,7 +116,7 @@ func (pb *ProbeBuilder) Create() (*TurboProbe, error) {
 		turboProbe.RegistrationClient.IEntityMetadataProvider = pb.entityMetadataProvider
 	}
 
-	if (pb.secureProbeTargetProvider != nil) {
+	if pb.secureProbeTargetProvider != nil {
 		turboProbe.RegistrationClient.ISecureProbeTargetProvider = pb.secureProbeTargetProvider
 	}
 
@@ -227,7 +227,7 @@ func (pb *ProbeBuilder) DiscoversTarget(targetId string, discoveryClient TurboDi
 func (pb *ProbeBuilder) WithSecureTargetProvider(targetProvider ISecureProbeTargetProvider) *ProbeBuilder {
 
 	if targetProvider == nil {
-		pb.builderError =  errors.New("Null secure target provider")
+		pb.builderError = errors.New("Null secure target provider")
 		return pb
 	}
 
