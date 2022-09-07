@@ -138,27 +138,6 @@ func (builder *ActionPolicyBuilder) Create() []*proto.ActionPolicyDTO {
 	return policies
 }
 
-// Probe Target data
-type ProbeTargetBuilder struct {
-	probeTarget *proto.ProbeTargetInfo
-}
-
-func NewProbeTargetBuilder(accountValues []*proto.AccountValue, commChannel string) *ProbeTargetBuilder {
-	probeTarget := &proto.ProbeTargetInfo{
-		InputValues:  accountValues,
-		CommunicationBindingChannel: &commChannel,
-	}
-
-	return &ProbeTargetBuilder{
-		probeTarget: probeTarget,
-	}
-}
-
-func (builder *ProbeTargetBuilder) Create() *proto.ProbeTargetInfo {
-	return builder.probeTarget
-}
-
-
 // A ProbeInfoBuilder builds a ProbeInfo instance.
 // ProbeInfo structure stores the data necessary to register the Probe with the Turbonomic server.
 type ProbeInfoBuilder struct {

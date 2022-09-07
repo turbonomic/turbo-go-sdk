@@ -225,28 +225,6 @@ func (theProbe *TurboProbe) GetProbeTargets() []*TurboTargetInfo {
 	return targets
 }
 
-// TODO: Not sure if this is necessary anymore - The Secure Target associated with this probe type
-func (theProbe *TurboProbe) GetSecureTarget(communicationBindingChannel string) *ProbeTargetInfo {
-	//TODO: ensure that the discovery client is configured
-	if theProbe.DiscoveryClient.TurboDiscoveryClient == nil {
-		return nil
-	}
-
-	// Iterate over the discovery client map and send requests to the server
-	var targetInfo *TurboTargetInfo
-	for targetId := range theProbe.TargetsToAdd {
-
-		targetInfo := theProbe.DiscoveryClient.GetAccountValues()
-		targetInfo.targetType = theProbe.ProbeConfiguration.ProbeType
-		targetInfo.targetIdentifierField = targetId
-	}
-
-	return &ProbeTargetInfo{
-		communicationBindingChannel: communicationBindingChannel,
-		TurboTargetInfo: targetInfo,
-	}
-}
-
 // GetProbeInfo produces a ProbeInfo to be used to register the probe.
 func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 	// 1. construct the basic probe info.
