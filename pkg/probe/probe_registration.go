@@ -165,3 +165,7 @@ type IEntityMetadataProvider interface {
 type IActionMergePolicyProvider interface {
 	GetActionMergePolicy() []*proto.ActionMergePolicyDTO
 }
+
+type ISecureProbeTargetProvider interface {
+	GetSecureProbeTarget() *proto.ProbeTargetInfo
+}

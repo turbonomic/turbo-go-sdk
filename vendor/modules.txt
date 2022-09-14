@@ -1,6 +1,6 @@
-# github.com/avast/retry-go v2.6.0+incompatible
+# github.com/avast/retry-go v3.0.0+incompatible
 github.com/avast/retry-go
-# github.com/davecgh/go-spew v1.1.1
+# github.com/davecgh/go-spew v1.1.0
 github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.7.1
 github.com/deckarep/golang-set
@@ -12,7 +12,7 @@ github.com/golang/protobuf/proto
 github.com/gorilla/websocket
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/stretchr/testify v1.3.0
+# github.com/stretchr/testify v1.6.1
 github.com/stretchr/testify/assert
 # github.com/turbonomic/turbo-api v0.0.0-20220725155952-ec41db73695d
 github.com/turbonomic/turbo-api/pkg/api
@@ -45,3 +45,5 @@ google.golang.org/protobuf/reflect/protoregistry
 google.golang.org/protobuf/runtime/protoiface
 google.golang.org/protobuf/runtime/protoimpl
 google.golang.org/protobuf/types/descriptorpb
+# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+gopkg.in/yaml.v3
