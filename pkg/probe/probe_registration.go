@@ -167,5 +167,6 @@ type IActionMergePolicyProvider interface {
 }
 
 type ISecureProbeTargetProvider interface {
+	GetTargetIdentifier() string
 	GetSecureProbeTarget() *proto.ProbeTargetInfo
 }

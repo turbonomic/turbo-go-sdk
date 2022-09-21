@@ -271,9 +271,11 @@ func (theProbe *TurboProbe) GetProbeInfo() (*proto.ProbeInfo, error) {
 		probeInfoBuilder.WithActionMergePolicySet(registrationClient.GetActionMergePolicy())
 	}
 
-	// 9. default secure target
+	// 9. default secure target - only if the target identifier is provided
 	if registrationClient.ISecureProbeTargetProvider != nil {
-		probeInfoBuilder.WithSecureTarget(registrationClient.GetSecureProbeTarget())
+		if len(registrationClient.GetTargetIdentifier()) > 0 {
+			probeInfoBuilder.WithSecureTarget(registrationClient.GetSecureProbeTarget())
+		}
 	}
 
 	probeInfo := probeInfoBuilder.Create()
