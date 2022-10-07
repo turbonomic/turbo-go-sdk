@@ -151,7 +151,8 @@ func (wsTransport *ClientWebSocketTransport) write(mtype int, payload []byte) er
 
 // keep sending Ping msg to make sure the websocket connection is alive
 // If don't send Ping msg, *some times* the ws.ReadMessage() won't be able to
-//    know that the connection has gone.
+//
+//	know that the connection has gone.
 func (wsTransport *ClientWebSocketTransport) startPing() {
 	ticker := time.NewTicker(pingPeriod)
 	defer ticker.Stop()
@@ -172,7 +173,7 @@ func (wsTransport *ClientWebSocketTransport) startPing() {
 }
 
 // ================================================= Message Listener =============================================
-//TODO: avoid close a closed channel
+// TODO: avoid close a closed channel
 func (wsTransport *ClientWebSocketTransport) stopListenForMessages() {
 	if wsTransport.stopListenerCh != nil {
 		glog.V(4).Infof("[StopListenForMessages] closing stopListenerCh %+v", wsTransport.stopListenerCh)
@@ -184,7 +185,6 @@ func (wsTransport *ClientWebSocketTransport) stopListenForMessages() {
 // Routine to listen for messages on the websocket.
 // The websocket is continuously checked for messages and queued on the clientTransport.inputStream channel
 // Routine exits when a message is sent on clientTransport.stopListenerCh.
-//
 func (wsTransport *ClientWebSocketTransport) ListenForMessages() {
 	glog.V(3).Infof("[ListenForMessages]: ENTER  ")
 	defer close(wsTransport.inputStreamCh) //notify the receiver that websocket stop feeding data
@@ -286,6 +286,9 @@ func (wsTransport *ClientWebSocketTransport) performWebSocketConnection(refreshT
 		// blocked for jwtToken
 		refreshTokenChannel <- struct{}{}
 		jwtToken := <-jwTokenChannel
+		if len(jwtToken) > 0 {
+			glog.Infof("Trying to establish secure websocket connection...")
+		}
 		ws, service, err := openWebSocketConn(connConfig, jwtToken)
 		if err != nil {
 			// print at debug level after some time

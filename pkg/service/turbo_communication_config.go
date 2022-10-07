@@ -48,6 +48,20 @@ func (turboCommConfig *TurboCommunicationConfig) ValidateTurboCommunicationConfi
 	return nil
 }
 
+func (turboCommConfig *TurboCommunicationConfig) SecureModeCredentialsProvided() bool {
+	if len(turboCommConfig.ClientSecret) > 0 && len(turboCommConfig.ClientSecret) > 0 {
+		return true
+	}
+	return false
+}
+
+func (turboCommConfig *TurboCommunicationConfig) TurboAPICredentialsProvided() bool {
+	if len(turboCommConfig.OpsManagerPassword) > 0 && len(turboCommConfig.OpsManagerPassword) > 0 {
+		return true
+	}
+	return false
+}
+
 func ParseTurboCommunicationConfig(configFile string) (*TurboCommunicationConfig, error) {
 	// load the config
 	turboCommConfig, err := readTurboCommunicationConfig(configFile)
