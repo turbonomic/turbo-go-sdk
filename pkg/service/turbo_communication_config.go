@@ -49,14 +49,14 @@ func (turboCommConfig *TurboCommunicationConfig) ValidateTurboCommunicationConfi
 }
 
 func (turboCommConfig *TurboCommunicationConfig) SecureModeCredentialsProvided() bool {
-	if len(turboCommConfig.ClientSecret) > 0 && len(turboCommConfig.ClientSecret) > 0 {
+	if len(turboCommConfig.ClientSecret) > 0 && len(turboCommConfig.ClientId) > 0 {
 		return true
 	}
 	return false
 }
 
 func (turboCommConfig *TurboCommunicationConfig) TurboAPICredentialsProvided() bool {
-	if len(turboCommConfig.OpsManagerPassword) > 0 && len(turboCommConfig.OpsManagerPassword) > 0 {
+	if len(turboCommConfig.OpsManagerUsername) > 0 && len(turboCommConfig.OpsManagerPassword) > 0 {
 		return true
 	}
 	return false
