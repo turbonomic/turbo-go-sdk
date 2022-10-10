@@ -20,6 +20,8 @@ type TAPService struct {
 	turboClient                 *client.TurboClient
 	disconnectFromTurbo         chan struct{}
 	communicationBindingChannel string
+	secureConnectCredentials    bool
+	turboAPICredentials         bool
 }
 
 func (tapService *TAPService) DisconnectFromTurbo() {
@@ -28,9 +30,23 @@ func (tapService *TAPService) DisconnectFromTurbo() {
 	glog.V(4).Infof("[DisconnectFromTurbo] End *********")
 }
 
-// get the jwtToken from the auth component using client id and client secret fed from k8s secret
-// client id and secret are not provided, empty jwtToken will be sent to the channel for websocket connection
-// empty jwtToken will be ignored in websocket
+// Get the jwtToken from the auth component using client id and client secret fed from k8s secret.
+// If client id and secret are not provided, empty jwtToken will be sent to the channel for websocket connection.
+// ConnectToTurbo() will attempt to establish a non-secure websocket connection.
+// Empty jwtToken will be ignored in websocket
+//
+// In order to establish a secure websocket connection with the server,
+// 1. First, a token is obtained by sending a http request to the Hydra service (OAuth Client) using the client id
+// and secret configured for the probe.
+// 2. Then, the hydra token is exchanged for a JWT token by sending a request to the auth service.
+//
+// If the Hydra service returns errors, 401 (invalid credentials) or 502 (unavailable), this request is re-tried
+// until a valid token is returned, websocket connection is not established with the server.
+// If the Auth service returns errors, 401 (invalid credentials) or 502 (unavailable), this request is re-tried
+// until a valid token is returned, websocket connection is not established with the server.
+//
+// If the Hydra service is inaccessible (403) when the server is not in secure mode, empty token is returned, so ConnectToTurbo() can attempt
+// to establish a non-secure websocket connection.
 func (tapService *TAPService) getJwtToken(refreshTokenChannel chan struct{}, jwTokenChannel chan string) {
 	for {
 		// blocked by isActive
@@ -44,7 +60,7 @@ func (tapService *TAPService) getJwtToken(refreshTokenChannel chan struct{}, jwT
 		for {
 			hydraToken, err = tapService.turboClient.GetHydraAccessToken()
 			if err != nil {
-				glog.Errorf("Failed to get hydra token due to %v, retry in 30s", err)
+				glog.Errorf("Failed to get hydra token: [%v], retry in 30s", err)
 				time.Sleep(time.Second * 30)
 			} else {
 				break
@@ -53,11 +69,15 @@ func (tapService *TAPService) getJwtToken(refreshTokenChannel chan struct{}, jwT
 		for {
 			jwtToken, err = tapService.turboClient.GetJwtToken(hydraToken)
 			if err != nil {
-				glog.Errorf("Failed to get jwt token due to %v, retry in 30s", err)
+				glog.Errorf("Failed to get jwt token: [%v], retry in 30s", err)
 				time.Sleep(time.Second * 30)
 			} else {
+
 				break
 			}
+		}
+		if len(jwtToken) > 0 {
+			glog.V(3).Infof("Obtained jwt auth token")
 		}
 		// send jwt Token back
 		jwTokenChannel <- jwtToken
@@ -78,14 +98,31 @@ func (tapService *TAPService) addTarget(isRegistered chan bool) {
 		return
 	}
 
+	// Since the Turbo API credentials are not available, TAP service cannot connect to add target
+	if !tapService.turboAPICredentials {
+		glog.Errorf("Turbo API credentials are not provided, " +
+			"cannot connect to turbo api to query target information")
+		// Since the probe is configured with secure server connection credentials
+		// and if the server is running in secure mode, target was automatically added during probe registration
+		if tapService.secureConnectCredentials {
+			// Target is added during probe registration
+			glog.Infof("Target %s could be auto-registered if the server is running in secure mode",
+				tapService.TurboProbe.RegistrationClient.ISecureProbeTargetProvider.GetTargetIdentifier())
+		} else {
+			// Target needs to be manually added
+			glog.Infof("Need to manually add target via UI for target type %s",
+				tapService.TurboProbe.ProbeConfiguration.ProbeType)
+		}
+		return
+	}
+
 	for _, targetInfo := range targetInfos {
 		target := targetInfo.GetTargetInstance()
 		target.InputFields = append(target.InputFields, &api.InputField{
 			Name: api.CommunicationBindingChannel, Value: tapService.communicationBindingChannel})
 		service := mediationcontainer.GetMediationService()
 		if err := tapService.turboClient.AddTarget(target, service); err != nil {
-			glog.Errorf("Failed to add target %v: %v",
-				targetInfo, err)
+			glog.Errorf("Target %v not added via api: %v", targetInfo, err)
 		}
 	}
 }
@@ -163,6 +200,9 @@ func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommuni
 		CommunicationBindingChannel: builder.tapService.communicationBindingChannel,
 	}
 	mediationcontainer.CreateMediationContainer(containerConfig)
+
+	builder.tapService.secureConnectCredentials = commConfig.SecureModeCredentialsProvided()
+	builder.tapService.turboAPICredentials = commConfig.TurboAPICredentialsProvided()
 
 	// The RestAPI Handler
 	serverAddress, err := url.Parse(commConfig.TurboServer)
