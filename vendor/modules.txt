@@ -14,7 +14,7 @@ github.com/gorilla/websocket
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.6.1
 github.com/stretchr/testify/assert
-# github.com/turbonomic/turbo-api v0.0.0-20221007151326-a98fd06c7a91
+# github.com/turbonomic/turbo-api v0.0.0-20221010190534-55b48bb97b1a
 github.com/turbonomic/turbo-api/pkg/api
 github.com/turbonomic/turbo-api/pkg/client
 # google.golang.org/protobuf v1.27.1

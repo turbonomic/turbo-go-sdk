@@ -44,11 +44,23 @@ func (c *APIClient) GetJwtToken(hydraToken string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("request to exchange for auth token %v failed: %s", request, err)
 	}
-	if response.statusCode == 502 || response.statusCode == 403 {
-		// When we receive the 502 or 403 status code, meaning the auth service is currently not available.
+	if response.statusCode == 401 {
+		// When we receive the 401 status code, means that the credentials are not valid.
+		// We return error, so getJwtToken() method in tap_service will continue
+		// to retry authentication until the credentials are corrected
+		return "", fmt.Errorf("Auth service authentication failed using the given client_id and secret")
+	}
+	if response.statusCode == 403 {
+		// When we receive the 403 status code, meaning the security feature is currently not available.
 		// We will retry websocket connection without the JWTToken
 		glog.Errorf("Auth service is not accessible or disabled [%v:%s]", response.statusCode, response.status)
 		return "", nil
+	}
+	if response.statusCode == 502 {
+		// When we receive the 502 status code, meaning the auth service is currently not available.
+		// We return error, so getJwtToken() method in tap_service will continue
+		// to retry authentication until the service is restored
+		return "", fmt.Errorf("Auth service is not available [%v:%s]", response.statusCode, response.status)
 	}
 	return response.body, nil
 }
@@ -85,8 +97,15 @@ func (c *APIClient) GetHydraAccessToken() (string, error) {
 		// to retry authentication until the credentials are corrected
 		return "", fmt.Errorf("Hydra service authentication failed using the given client_id and secret")
 	}
-	if response.statusCode == 403 || response.statusCode == 502 {
-		// When we receive the 403 status code, meaning the hydra service is currently not available.
+	if response.statusCode == 502 {
+		// When we receive the 502 status code, meaning the hydra service is currently not available.
+		// We return error, so getJwtToken() method in tap_service will continue
+		// to retry authentication until the service is restored
+		return "", fmt.Errorf("Hydra service is not available [%v:%s]", response.statusCode, response.status)
+	}
+	if response.statusCode == 403 {
+		// When we receive the 403 status code, means that the hydra service is currently not available,
+		// This is when the security feature is not available.
 		// We are not returning error here to handle the case when customer enabled probe security in the first place then disabled
 		// In the case above, there'll be client_id and secret in the k8s secret, but we shouldn't use them in websocket connection
 		// If the hydra service is temporarily not accessible, we have retry in performWebSocketConnection in turbo-go-sdk
