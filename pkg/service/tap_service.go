@@ -40,16 +40,12 @@ func (tapService *TAPService) DisconnectFromTurbo() {
 // and secret configured for the probe.
 // 2. Then, the hydra token is exchanged for a JWT token by sending a request to the auth service.
 //
-// If the Hydra service returns errors or 401 (invalid credentials), this request is re-tried
+// If the Hydra service returns errors, 401 (invalid credentials) or 502 (unavailable), this request is re-tried
+// until a valid token is returned, websocket connection is not established with the server.
+// If the Auth service returns errors, 401 (invalid credentials) or 502 (unavailable), this request is re-tried
 // until a valid token is returned, websocket connection is not established with the server.
 //
-// If the Auth service returns errors, this request is re-tried
-// until a valid token is returned, websocket connection is not established with the server.
-//
-// If the Hydra service is unavailable or down (502 or 403), empty token is returned, so ConnectToTurbo() can attempt
-// to establish a non-secure websocket connection.
-//
-// If the Auth service is unavailable or down (502 or 403), empty token is returned, so ConnectToTurbo() can attempt
+// If the Hydra service is inaccessible (403) when the server is not in secure mode, empty token is returned, so ConnectToTurbo() can attempt
 // to establish a non-secure websocket connection.
 func (tapService *TAPService) getJwtToken(refreshTokenChannel chan struct{}, jwTokenChannel chan string) {
 	for {
