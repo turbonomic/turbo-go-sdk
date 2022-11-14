@@ -23,7 +23,7 @@ const (
 	handshakeTimeout                 = 60 * time.Second
 	wsReadLimit                      = 33554432 // 32 MB
 	writeWaitTimeout                 = 120 * time.Second
-	pingPeriod                       = 60 * time.Second
+	pingPeriod                       = 30 * time.Second
 )
 
 type TransportStatus string
