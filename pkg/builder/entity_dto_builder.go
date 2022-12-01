@@ -91,21 +91,21 @@ type EntityDTOBuilder struct {
 	// map of provider and the list of commodities bought from it
 	commoditiesBoughtProviderMap map[string][]*proto.CommodityDTO
 
-	storageData            *proto.EntityDTO_StorageData
-	diskArrayData          *proto.EntityDTO_DiskArrayData
-	applicationData        *proto.EntityDTO_ApplicationData
-	virtualMachineData     *proto.EntityDTO_VirtualMachineData
-	physicalMachineData    *proto.EntityDTO_PhysicalMachineData
-	virtualDataCenterData  *proto.EntityDTO_VirtualDatacenterData
-	storageControllerData  *proto.EntityDTO_StorageControllerData
-	logicalPoolData        *proto.EntityDTO_LogicalPoolData
-	serviceData            *proto.EntityDTO_ServiceData
-	containerPodData       *proto.EntityDTO_ContainerPodData
-	containerData          *proto.EntityDTO_ContainerData
-	workloadControllerData *proto.EntityDTO_WorkloadControllerData
-	namespaceData          *proto.EntityDTO_NamespaceData
-	clusterData            *proto.EntityDTO_ContainerPlatformClusterData
-
+	storageData                  *proto.EntityDTO_StorageData
+	diskArrayData                *proto.EntityDTO_DiskArrayData
+	applicationData              *proto.EntityDTO_ApplicationData
+	virtualMachineData           *proto.EntityDTO_VirtualMachineData
+	physicalMachineData          *proto.EntityDTO_PhysicalMachineData
+	virtualDataCenterData        *proto.EntityDTO_VirtualDatacenterData
+	storageControllerData        *proto.EntityDTO_StorageControllerData
+	logicalPoolData              *proto.EntityDTO_LogicalPoolData
+	serviceData                  *proto.EntityDTO_ServiceData
+	containerPodData             *proto.EntityDTO_ContainerPodData
+	containerData                *proto.EntityDTO_ContainerData
+	workloadControllerData       *proto.EntityDTO_WorkloadControllerData
+	namespaceData                *proto.EntityDTO_NamespaceData
+	clusterData                  *proto.EntityDTO_ContainerPlatformClusterData
+	containerSpecData            *proto.EntityDTO_ContainerSpecData
 	virtualMachineRelatedData    *proto.EntityDTO_VirtualMachineRelatedData
 	physicalMachineRelatedData   *proto.EntityDTO_PhysicalMachineRelatedData
 	storageControllerRelatedData *proto.EntityDTO_StorageControllerRelatedData
@@ -493,6 +493,20 @@ func (eb *EntityDTOBuilder) ContainerData(containerData *proto.EntityDTO_Contain
 		return eb
 	}
 	eb.containerData = containerData
+	eb.entityDataHasSet = true
+	return eb
+}
+
+func (eb *EntityDTOBuilder) ContainerSpecData(containerSpecData *proto.EntityDTO_ContainerSpecData) *EntityDTOBuilder {
+	if eb.err != nil {
+		return eb
+	}
+	if eb.entityDataHasSet {
+		eb.err = fmt.Errorf("EntityData has already been set. Cannot use %v as entity data.", containerSpecData)
+
+		return eb
+	}
+	eb.containerSpecData = containerSpecData
 	eb.entityDataHasSet = true
 	return eb
 }
