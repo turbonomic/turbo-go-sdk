@@ -179,7 +179,7 @@ func (eb *EntityDTOBuilder) Create() (*proto.EntityDTO, error) {
 		entityDTO.EntityData = &proto.EntityDTO_NamespaceData_{eb.namespaceData}
 	} else if eb.clusterData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_ContainerPlatformClusterData_{eb.clusterData}
-	} else if eb.ContainerSpecData != nil {
+	} else if eb.containerSpecData != nil {
 		entityDTO.EntityData = &proto.EntityDTO_ContainerSpecData_{eb.containerSpecData}
 	}
 
