@@ -159,3 +159,37 @@ func NewTransactionSLOPolicySetting(transactionSLO float32) *proto.GroupDTO_Sett
 		},
 	}
 }
+
+func NewPolicySetting(settingType proto.GroupDTO_Setting_SettingType, value interface{}) *proto.GroupDTO_Setting {
+	switch v := value.(type) {
+	case string:
+		return &proto.GroupDTO_Setting{
+			Type: settingType.Enum(),
+			SettingValueType: &proto.GroupDTO_Setting_StringSettingValueType_{
+				StringSettingValueType: &proto.GroupDTO_Setting_StringSettingValueType{
+					Value: &v,
+				},
+			},
+		}
+	case bool:
+		return &proto.GroupDTO_Setting{
+			Type: settingType.Enum(),
+			SettingValueType: &proto.GroupDTO_Setting_BooleanSettingValueType_{
+				BooleanSettingValueType: &proto.GroupDTO_Setting_BooleanSettingValueType{
+					Value: &v,
+				},
+			},
+		}
+	case float32:
+		return &proto.GroupDTO_Setting{
+			Type: settingType.Enum(),
+			SettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType_{
+				NumericSettingValueType: &proto.GroupDTO_Setting_NumericSettingValueType{
+					Value: &v,
+				},
+			},
+		}
+	default:
+		panic(fmt.Sprintf("unsupported value type: %T", value))
+	}
+}
