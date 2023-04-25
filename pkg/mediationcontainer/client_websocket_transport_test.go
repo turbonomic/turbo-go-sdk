@@ -55,8 +55,8 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 			},
 			item.bindingChannel,
 			SdkProtocolConfig{
-				RegistrationTimeoutSec: 30,
-				ExitOnProtocolTimeout:  false,
+				RegistrationTimeoutSec:        30,
+				ExitProbePodOnProtocolTimeout: false,
 			},
 		}
 		wsConfig, err := CreateWebSocketConnectionConfig(containerConfig)
@@ -77,8 +77,8 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 				},
 				item.bindingChannel,
 				SdkProtocolConfig{
-					RegistrationTimeoutSec: 30,
-					ExitOnProtocolTimeout:  false,
+					RegistrationTimeoutSec:        30,
+					ExitProbePodOnProtocolTimeout: false,
 				},
 			}
 			if !reflect.DeepEqual(expectedWebSocketConfig, wsConfig) {

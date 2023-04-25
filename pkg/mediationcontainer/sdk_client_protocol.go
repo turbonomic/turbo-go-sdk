@@ -18,37 +18,37 @@ const (
 )
 
 type SdkClientProtocol struct {
-	allProbes                         map[string]*ProbeProperties
-	version                           string
-	communicationBindingChannel       string
-	waitRegistrationResponseTimeOut   time.Duration
-	exitOnRegistrationResponseTimeOut bool
+	allProbes                              map[string]*ProbeProperties
+	version                                string
+	communicationBindingChannel            string
+	waitRegistrationResponseTimeOut        time.Duration
+	exitProbeOnRegistrationResponseTimeOut bool
 	//TransportReady chan bool
 }
 
 func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties, version, communicationBindingChannel string,
 	sdkProtocolConfig *SdkProtocolConfig) *SdkClientProtocol {
 	var defaultResponseTimeOut time.Duration
-	var exitOnRegistrationResponseTimeOut bool
+	var exitProbeOnRegistrationResponseTimeOut bool
 
 	if sdkProtocolConfig == nil {
 		defaultResponseTimeOut = waitRegistrationResponseTimeOut
-		exitOnRegistrationResponseTimeOut = true
+		exitProbeOnRegistrationResponseTimeOut = false
 	} else {
 		var timeout time.Duration
 		timeout = time.Duration(sdkProtocolConfig.RegistrationTimeoutSec)
 
 		defaultResponseTimeOut = time.Second * timeout
-		exitOnRegistrationResponseTimeOut = sdkProtocolConfig.ExitOnProtocolTimeout
+		exitProbeOnRegistrationResponseTimeOut = sdkProtocolConfig.ExitProbePodOnProtocolTimeout
 	}
 	glog.Infof("**** SDK Protocol timeout related config [%++v]", sdkProtocolConfig)
 
 	return &SdkClientProtocol{
-		allProbes:                         allProbes,
-		version:                           version,
-		communicationBindingChannel:       communicationBindingChannel,
-		waitRegistrationResponseTimeOut:   defaultResponseTimeOut,
-		exitOnRegistrationResponseTimeOut: exitOnRegistrationResponseTimeOut,
+		allProbes:                              allProbes,
+		version:                                version,
+		communicationBindingChannel:            communicationBindingChannel,
+		waitRegistrationResponseTimeOut:        defaultResponseTimeOut,
+		exitProbeOnRegistrationResponseTimeOut: exitProbeOnRegistrationResponseTimeOut,
 		//TransportReady: done,
 	}
 }
@@ -68,7 +68,7 @@ func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITranspo
 	if !status {
 		glog.Errorf("Failure during Registration, cannot receive server messages")
 		// panic here ... so Kubernetes can restart the probe pod
-		if clientProtocol.exitOnRegistrationResponseTimeOut {
+		if clientProtocol.exitProbeOnRegistrationResponseTimeOut {
 			panic("********* PANIC: Failure during Registration **********")
 			os.Exit(1)
 		}

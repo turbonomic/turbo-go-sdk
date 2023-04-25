@@ -74,8 +74,8 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					APIPath:            rand.String(10),
 				},
 				mediationcontainer.SdkProtocolConfig{
-					RegistrationTimeoutSec: 30,
-					ExitOnProtocolTimeout:  false,
+					RegistrationTimeoutSec:        30,
+					ExitProbePodOnProtocolTimeout: false,
 				},
 			},
 			expectErr: true,
@@ -94,8 +94,8 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					APIPath:            rand.String(10),
 				},
 				mediationcontainer.SdkProtocolConfig{
-					RegistrationTimeoutSec: 30,
-					ExitOnProtocolTimeout:  false,
+					RegistrationTimeoutSec:        30,
+					ExitProbePodOnProtocolTimeout: false,
 				},
 			},
 			expectErr: true,

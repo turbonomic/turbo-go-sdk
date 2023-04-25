@@ -70,8 +70,8 @@ func (wsc *WebSocketConfig) ValidateWebSocketConfig() error {
 }
 
 type SdkProtocolConfig struct {
-	RegistrationTimeoutSec int
-	ExitOnProtocolTimeout  bool
+	RegistrationTimeoutSec        int
+	ExitProbePodOnProtocolTimeout bool
 }
 
 type MediationContainerConfig struct {

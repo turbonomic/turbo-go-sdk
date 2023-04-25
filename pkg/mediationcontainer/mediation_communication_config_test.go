@@ -162,8 +162,8 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 				},
 				"",
 				SdkProtocolConfig{
-					RegistrationTimeoutSec: 30,
-					ExitOnProtocolTimeout:  false,
+					RegistrationTimeoutSec:        30,
+					ExitProbePodOnProtocolTimeout: false,
 				},
 			},
 			expectErr: true,
@@ -178,8 +178,8 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 				},
 				"foo",
 				SdkProtocolConfig{
-					RegistrationTimeoutSec: 30,
-					ExitOnProtocolTimeout:  false,
+					RegistrationTimeoutSec:        30,
+					ExitProbePodOnProtocolTimeout: false,
 				},
 			},
 			expectErr: true,
