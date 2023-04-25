@@ -69,7 +69,7 @@ func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITranspo
 		glog.Errorf("Failure during Registration, cannot receive server messages")
 		// panic here ... so Kubernetes can restart the probe pod
 		if clientProtocol.exitProbeOnRegistrationResponseTimeOut {
-			panic("********* PANIC: Failure during Registration **********")
+			panic("********* Failure during Registration **********")
 			os.Exit(1)
 		}
 		transportReady <- false
@@ -123,18 +123,18 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 	endpoint.Send(endMsg)
 
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
-	negotitatonStartTime := time.Now()
+	negotiationStartTime := time.Now()
 	serverMsg, err := timeOutRead(endpoint.GetName(), clientProtocol.waitRegistrationResponseTimeOut, endpoint.MessageReceiver())
 	if err != nil {
 		glog.V(2).Infof("[%s] : Error during version negotiation: %+v, disconnecting from server", endpoint.GetName(), err)
 		glog.Errorf("[%s] : read VersionNegotiation response from channel failed: %v", endpoint.GetName(), err)
 		return false
 	}
-	negotitatonEndTime := time.Now()
-	negotitatonTime := negotitatonEndTime.Sub(negotitatonStartTime)
+	negotiationEndTime := time.Now()
+	negotiationTime := negotiationEndTime.Sub(negotiationStartTime)
 
 	glog.V(2).Infof("[%s] : Received VersionNegotiation response after %v ",
-		endpoint.GetName(), negotitatonTime)
+		endpoint.GetName(), negotiationTime)
 
 	glog.V(4).Infof("[%s] : Received: %+v", endpoint.GetName(), serverMsg)
 

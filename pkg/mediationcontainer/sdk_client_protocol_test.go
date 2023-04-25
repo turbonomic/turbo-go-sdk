@@ -2,9 +2,17 @@ package mediationcontainer
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
+
+func TestCreateSdkClientProtocolHandler(t *testing.T) {
+	communicationBindingChannel := "foo"
+	sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel, nil)
+	assert.Equal(t, time.Duration(300000000000), sdkClientProtocol.waitRegistrationResponseTimeOut)
+	assert.Equal(t, false, sdkClientProtocol.exitProbeOnRegistrationResponseTimeOut)
+}
 
 func TestTimeoutRead(t *testing.T) {
 	du := time.Second * 3
