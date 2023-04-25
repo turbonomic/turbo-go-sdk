@@ -69,10 +69,16 @@ func (wsc *WebSocketConfig) ValidateWebSocketConfig() error {
 	return nil
 }
 
+type SdkProtocolConfig struct {
+	RegistrationTimeoutSec int
+	ExitOnProtocolTimeout  bool
+}
+
 type MediationContainerConfig struct {
 	ServerMeta
 	WebSocketConfig
 	CommunicationBindingChannel string
+	SdkProtocolConfig
 }
 
 // Validate the mediation container config and set default value if necessary.

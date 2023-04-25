@@ -73,6 +73,10 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					OpsManagerPassword: rand.String(20),
 					APIPath:            rand.String(10),
 				},
+				mediationcontainer.SdkProtocolConfig{
+					RegistrationTimeoutSec: 30,
+					ExitOnProtocolTimeout:  false,
+				},
 			},
 			expectErr: true,
 		},
@@ -88,6 +92,10 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					OpsManagerUsername: rand.String(20),
 					OpsManagerPassword: rand.String(20),
 					APIPath:            rand.String(10),
+				},
+				mediationcontainer.SdkProtocolConfig{
+					RegistrationTimeoutSec: 30,
+					ExitOnProtocolTimeout:  false,
 				},
 			},
 			expectErr: true,

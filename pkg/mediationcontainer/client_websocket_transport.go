@@ -227,7 +227,7 @@ func (wsTransport *ClientWebSocketTransport) ListenForMessages() {
 				//notify upper module that this connection is closed
 				wsTransport.connClosedNotificationCh <- true // Note: this will block till the message is received
 
-				glog.V(1).Infof("[ListenForMessages] websocket error notified, stop lisening for messages.")
+				glog.V(1).Infof("[ListenForMessages] websocket error notified, stop listening for messages.")
 				return
 			}
 			// write the message on the channel

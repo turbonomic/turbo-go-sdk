@@ -4,6 +4,7 @@ import (
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 	"github.com/turbonomic/turbo-go-sdk/pkg/version"
+	"os"
 
 	"fmt"
 	"time"
@@ -12,21 +13,42 @@ import (
 )
 
 const (
-	waitResponseTimeOut = time.Second * 30
+	waitRegistrationResponseTimeOut = time.Second * 300
+	waitResponseTimeOut             = time.Second * 300
 )
 
 type SdkClientProtocol struct {
-	allProbes                   map[string]*ProbeProperties
-	version                     string
-	communicationBindingChannel string
+	allProbes                         map[string]*ProbeProperties
+	version                           string
+	communicationBindingChannel       string
+	waitRegistrationResponseTimeOut   time.Duration
+	exitOnRegistrationResponseTimeOut bool
 	//TransportReady chan bool
 }
 
-func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties, version, communicationBindingChannel string) *SdkClientProtocol {
+func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties, version, communicationBindingChannel string,
+	sdkProtocolConfig *SdkProtocolConfig) *SdkClientProtocol {
+	var defaultResponseTimeOut time.Duration
+	var exitOnRegistrationResponseTimeOut bool
+
+	if sdkProtocolConfig == nil {
+		defaultResponseTimeOut = waitRegistrationResponseTimeOut
+		exitOnRegistrationResponseTimeOut = true
+	} else {
+		var timeout time.Duration
+		timeout = time.Duration(sdkProtocolConfig.RegistrationTimeoutSec)
+
+		defaultResponseTimeOut = time.Second * timeout
+		exitOnRegistrationResponseTimeOut = sdkProtocolConfig.ExitOnProtocolTimeout
+	}
+	glog.Infof("**** SDK Protocol timeout related config [%++v]", sdkProtocolConfig)
+
 	return &SdkClientProtocol{
-		allProbes:                   allProbes,
-		version:                     version,
-		communicationBindingChannel: communicationBindingChannel,
+		allProbes:                         allProbes,
+		version:                           version,
+		communicationBindingChannel:       communicationBindingChannel,
+		waitRegistrationResponseTimeOut:   defaultResponseTimeOut,
+		exitOnRegistrationResponseTimeOut: exitOnRegistrationResponseTimeOut,
 		//TransportReady: done,
 	}
 }
@@ -45,6 +67,11 @@ func (clientProtocol *SdkClientProtocol) handleClientProtocol(transport ITranspo
 	status = clientProtocol.HandleRegistration(transport)
 	if !status {
 		glog.Errorf("Failure during Registration, cannot receive server messages")
+		// panic here ... so Kubernetes can restart the probe pod
+		if clientProtocol.exitOnRegistrationResponseTimeOut {
+			panic("********* PANIC: Failure during Registration **********")
+			os.Exit(1)
+		}
 		transportReady <- false
 		// clientProtocol.TransportReady <- false
 		return
@@ -71,6 +98,7 @@ func timeOutRead(name string, du time.Duration, ch chan *ParsedMessage) (*Parsed
 		}
 		return msg, nil
 	case <-timer.C:
+		glog.Infof("[%s]: timeout during version negotiation/registration after %v seconds", name, du.Seconds())
 		err := fmt.Errorf("[%s]: wait for message from channel timeout(%v seconds)", name, du.Seconds())
 		glog.Error(err.Error())
 		return nil, err
@@ -95,11 +123,19 @@ func (clientProtocol *SdkClientProtocol) NegotiateVersion(transport ITransport) 
 	endpoint.Send(endMsg)
 
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
-	serverMsg, err := timeOutRead(endpoint.GetName(), waitResponseTimeOut, endpoint.MessageReceiver())
+	negotitatonStartTime := time.Now()
+	serverMsg, err := timeOutRead(endpoint.GetName(), clientProtocol.waitRegistrationResponseTimeOut, endpoint.MessageReceiver())
 	if err != nil {
+		glog.V(2).Infof("[%s] : Error during version negotiation: %+v, disconnecting from server", endpoint.GetName(), err)
 		glog.Errorf("[%s] : read VersionNegotiation response from channel failed: %v", endpoint.GetName(), err)
 		return false
 	}
+	negotitatonEndTime := time.Now()
+	negotitatonTime := negotitatonEndTime.Sub(negotitatonStartTime)
+
+	glog.V(2).Infof("[%s] : Received VersionNegotiation response after %v ",
+		endpoint.GetName(), negotitatonTime)
+
 	glog.V(4).Infof("[%s] : Received: %+v", endpoint.GetName(), serverMsg)
 
 	// Handler response
@@ -142,12 +178,21 @@ func (clientProtocol *SdkClientProtocol) HandleRegistration(transport ITransport
 	endpoint.Send(endMsg)
 
 	// Wait for the response to be received by the transport and then parsed and put on the endpoint's message channel
-	serverMsg, err := timeOutRead(endpoint.GetName(), waitResponseTimeOut, endpoint.MessageReceiver())
+
+	registrationStartTime := time.Now()
+	serverMsg, err := timeOutRead(endpoint.GetName(), clientProtocol.waitRegistrationResponseTimeOut, endpoint.MessageReceiver())
 	if err != nil {
+		glog.V(2).Infof("[%s] : Error during registration: %+v, disconnecting from server", endpoint.GetName(), err)
 		glog.Errorf("[%s] : read Registration response from channel failed: %v", endpoint.GetName(), err)
 		return false
 	}
-	glog.V(4).Infof("[%s] : Received: %+v", endpoint.GetName(), serverMsg.RegistrationMsg)
+	registrationEndTime := time.Now()
+	registrationTime := registrationEndTime.Sub(registrationStartTime)
+
+	glog.V(2).Infof("[%s] : Received registration response after %v seconds",
+		endpoint.GetName(), registrationTime)
+
+	glog.V(4).Infof("[%s] : Received registration response: %+v", endpoint.GetName(), serverMsg)
 
 	// Handler response
 	registrationResponse := protoMsg.RegistrationMsg

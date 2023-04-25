@@ -161,6 +161,10 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 					ConnectionRetry:   10,
 				},
 				"",
+				SdkProtocolConfig{
+					RegistrationTimeoutSec: 30,
+					ExitOnProtocolTimeout:  false,
+				},
 			},
 			expectErr: true,
 		},
@@ -173,6 +177,10 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 					LocalAddress: "invalid",
 				},
 				"foo",
+				SdkProtocolConfig{
+					RegistrationTimeoutSec: 30,
+					ExitOnProtocolTimeout:  false,
+				},
 			},
 			expectErr: true,
 		},

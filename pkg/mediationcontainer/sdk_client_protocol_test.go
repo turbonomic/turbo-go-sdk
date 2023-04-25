@@ -41,7 +41,7 @@ func TestTimeoutRead2(t *testing.T) {
 // container info has it.
 func TestCommunicationBindingChannel(t *testing.T) {
 	for _, communicationBindingChannel := range []string{"foo", ""} {
-		sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel)
+		sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel, nil)
 		containInfo, err := sdkClientProtocol.MakeContainerInfo()
 		if err != nil {
 			t.Fatalf("Error making container info: %v", err)

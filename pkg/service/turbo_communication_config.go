@@ -32,6 +32,7 @@ type TurboCommunicationConfig struct {
 	mediationcontainer.ServerMeta      `json:"serverMeta,omitempty"`
 	mediationcontainer.WebSocketConfig `json:"websocketConfig,omitempty"`
 	RestAPIConfig                      `json:"restAPIConfig,omitempty"`
+	mediationcontainer.SdkProtocolConfig
 }
 
 func (turboCommConfig *TurboCommunicationConfig) ValidateTurboCommunicationConfig() error {
