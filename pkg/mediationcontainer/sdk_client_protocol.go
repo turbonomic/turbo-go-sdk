@@ -12,10 +12,6 @@ import (
 	"github.com/golang/glog"
 )
 
-const (
-	waitRegistrationResponseTimeOut = time.Second * 300
-)
-
 type SdkClientProtocol struct {
 	allProbes                    map[string]*ProbeProperties
 	version                      string
@@ -27,11 +23,11 @@ type SdkClientProtocol struct {
 func CreateSdkClientProtocolHandler(allProbes map[string]*ProbeProperties, version, communicationBindingChannel string,
 	sdkProtocolConfig *SdkProtocolConfig) *SdkClientProtocol {
 
-	registrationResponseTimeout := waitRegistrationResponseTimeOut
+	registrationResponseTimeout := time.Second * DefaultRegistrationTimeOut
 	restartOnRegistrationTimeout := false
 
 	if sdkProtocolConfig != nil {
-		if sdkProtocolConfig.RegistrationTimeoutSec >= 60 {
+		if sdkProtocolConfig.RegistrationTimeoutSec >= DefaultRegistrationTimeoutThreshold {
 			var timeout time.Duration
 			timeout = time.Duration(sdkProtocolConfig.RegistrationTimeoutSec)
 			registrationResponseTimeout = time.Second * timeout

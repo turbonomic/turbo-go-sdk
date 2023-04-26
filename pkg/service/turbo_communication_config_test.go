@@ -73,10 +73,7 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					OpsManagerPassword: rand.String(20),
 					APIPath:            rand.String(10),
 				},
-				mediationcontainer.SdkProtocolConfig{
-					RegistrationTimeoutSec:       60,
-					RestartOnRegistrationTimeout: false,
-				},
+				mediationcontainer.SdkProtocolConfig{},
 			},
 			expectErr: true,
 		},
