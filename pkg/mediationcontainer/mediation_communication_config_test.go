@@ -162,8 +162,27 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 				},
 				"",
 				SdkProtocolConfig{
-					RegistrationTimeoutSec:        30,
-					ExitProbePodOnProtocolTimeout: false,
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: false,
+				},
+			},
+			expectErr: true,
+		},
+		{
+			containerConfig: &MediationContainerConfig{
+				ServerMeta{
+					TurboServer: "invalid",
+				},
+				WebSocketConfig{
+					LocalAddress:      "http://127.0.0.1",
+					WebSocketUsername: rand.String(10),
+					WebSocketPassword: rand.String(10),
+					ConnectionRetry:   10,
+				},
+				"",
+				SdkProtocolConfig{
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: true,
 				},
 			},
 			expectErr: true,
@@ -178,8 +197,8 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 				},
 				"foo",
 				SdkProtocolConfig{
-					RegistrationTimeoutSec:        30,
-					ExitProbePodOnProtocolTimeout: false,
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: false,
 				},
 			},
 			expectErr: true,

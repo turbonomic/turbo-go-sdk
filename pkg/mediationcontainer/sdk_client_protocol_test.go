@@ -10,8 +10,19 @@ import (
 func TestCreateSdkClientProtocolHandler(t *testing.T) {
 	communicationBindingChannel := "foo"
 	sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel, nil)
-	assert.Equal(t, time.Duration(300000000000), sdkClientProtocol.waitRegistrationResponseTimeOut)
-	assert.Equal(t, false, sdkClientProtocol.exitProbeOnRegistrationResponseTimeOut)
+	assert.Equal(t, time.Duration(300000000000), sdkClientProtocol.registrationResponseTimeout)
+	assert.Equal(t, false, sdkClientProtocol.restartOnRegistrationTimeout)
+}
+
+func TestCreateSdkClientProtocolHandlerInvalidTimeout(t *testing.T) {
+	communicationBindingChannel := "foo"
+	sdkProtocolConfig := &SdkProtocolConfig{
+		RegistrationTimeoutSec:       10,
+		RestartOnRegistrationTimeout: true,
+	}
+	sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel, sdkProtocolConfig)
+	assert.Equal(t, time.Duration(300000000000), sdkClientProtocol.registrationResponseTimeout)
+	assert.Equal(t, true, sdkClientProtocol.restartOnRegistrationTimeout)
 }
 
 func TestTimeoutRead(t *testing.T) {

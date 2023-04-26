@@ -69,9 +69,12 @@ func (wsc *WebSocketConfig) ValidateWebSocketConfig() error {
 	return nil
 }
 
+// Configuration options used when establishing sdk protocol connection with the server
 type SdkProtocolConfig struct {
-	RegistrationTimeoutSec        int
-	ExitProbePodOnProtocolTimeout bool
+	// Probe registration response timeout
+	RegistrationTimeoutSec int
+	// If the probe container should exit if there is timeout during probe registration
+	RestartOnRegistrationTimeout bool
 }
 
 type MediationContainerConfig struct {
