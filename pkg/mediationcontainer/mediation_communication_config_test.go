@@ -1,6 +1,7 @@
 package mediationcontainer
 
 import (
+	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 
@@ -161,6 +162,29 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 					ConnectionRetry:   10,
 				},
 				"",
+				SdkProtocolConfig{
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: false,
+				},
+			},
+			expectErr: true,
+		},
+		{
+			containerConfig: &MediationContainerConfig{
+				ServerMeta{
+					TurboServer: "invalid",
+				},
+				WebSocketConfig{
+					LocalAddress:      "http://127.0.0.1",
+					WebSocketUsername: rand.String(10),
+					WebSocketPassword: rand.String(10),
+					ConnectionRetry:   10,
+				},
+				"",
+				SdkProtocolConfig{
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: true,
+				},
 			},
 			expectErr: true,
 		},
@@ -173,6 +197,10 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 					LocalAddress: "invalid",
 				},
 				"foo",
+				SdkProtocolConfig{
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: false,
+				},
 			},
 			expectErr: true,
 		},
@@ -195,6 +223,48 @@ func TestMediationContainerConfig_ValidateMediationContainerConfig(t *testing.T)
 			if err != nil {
 				t.Errorf("Unexpected error: %v", err)
 			}
+		}
+	}
+}
+
+func TestValidateSdkProtocolConfig(t *testing.T) {
+	table := []struct {
+		config   *SdkProtocolConfig
+		expected *SdkProtocolConfig
+	}{
+		{
+			config: &SdkProtocolConfig{},
+			expected: &SdkProtocolConfig{
+				RegistrationTimeoutSec:       DefaultRegistrationTimeOut,
+				RestartOnRegistrationTimeout: false,
+			},
+		},
+		{
+			config: &SdkProtocolConfig{
+				RegistrationTimeoutSec:       30,
+				RestartOnRegistrationTimeout: true,
+			},
+			expected: &SdkProtocolConfig{
+				RegistrationTimeoutSec:       DefaultRegistrationTimeOut,
+				RestartOnRegistrationTimeout: true,
+			},
+		},
+		{
+			config: &SdkProtocolConfig{
+				RegistrationTimeoutSec: 600,
+			},
+			expected: &SdkProtocolConfig{
+				RegistrationTimeoutSec:       600,
+				RestartOnRegistrationTimeout: false,
+			},
+		},
+	}
+	for _, item := range table {
+		item.config.ValidateSdkProtocolConfig()
+
+		if item.expected != nil {
+			assert.Equal(t, item.expected.RegistrationTimeoutSec, item.config.RegistrationTimeoutSec)
+			assert.Equal(t, item.expected.RestartOnRegistrationTimeout, item.config.RestartOnRegistrationTimeout)
 		}
 	}
 }

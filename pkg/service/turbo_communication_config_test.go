@@ -73,6 +73,7 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					OpsManagerPassword: rand.String(20),
 					APIPath:            rand.String(10),
 				},
+				mediationcontainer.SdkProtocolConfig{},
 			},
 			expectErr: true,
 		},
@@ -88,6 +89,10 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					OpsManagerUsername: rand.String(20),
 					OpsManagerPassword: rand.String(20),
 					APIPath:            rand.String(10),
+				},
+				mediationcontainer.SdkProtocolConfig{
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: true,
 				},
 			},
 			expectErr: true,
@@ -114,6 +119,27 @@ func TestValidateTurboCommunicationConfig(t *testing.T) {
 					OpsManagerUsername: rand.String(20),
 					OpsManagerPassword: rand.String(20),
 					APIPath:            rand.String(10),
+				},
+				SdkProtocolConfig: mediationcontainer.SdkProtocolConfig{
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: true,
+				},
+			},
+			expectErr: false,
+		},
+		{
+			config: &TurboCommunicationConfig{
+				ServerMeta: mediationcontainer.ServerMeta{
+					TurboServer: "http:/127.0.0.1",
+				},
+				RestAPIConfig: RestAPIConfig{
+					OpsManagerUsername: rand.String(20),
+					OpsManagerPassword: rand.String(20),
+					APIPath:            rand.String(10),
+				},
+				SdkProtocolConfig: mediationcontainer.SdkProtocolConfig{
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: false,
 				},
 			},
 			expectErr: false,

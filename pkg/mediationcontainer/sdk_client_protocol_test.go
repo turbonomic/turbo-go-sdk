@@ -2,9 +2,28 @@ package mediationcontainer
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
+
+func TestCreateSdkClientProtocolHandler(t *testing.T) {
+	communicationBindingChannel := "foo"
+	sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel, nil)
+	assert.Equal(t, time.Duration(300000000000), sdkClientProtocol.registrationResponseTimeout)
+	assert.Equal(t, false, sdkClientProtocol.restartOnRegistrationTimeout)
+}
+
+func TestCreateSdkClientProtocolHandlerInvalidTimeout(t *testing.T) {
+	communicationBindingChannel := "foo"
+	sdkProtocolConfig := &SdkProtocolConfig{
+		RegistrationTimeoutSec:       10,
+		RestartOnRegistrationTimeout: true,
+	}
+	sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel, sdkProtocolConfig)
+	assert.Equal(t, time.Duration(300000000000), sdkClientProtocol.registrationResponseTimeout)
+	assert.Equal(t, true, sdkClientProtocol.restartOnRegistrationTimeout)
+}
 
 func TestTimeoutRead(t *testing.T) {
 	du := time.Second * 3
@@ -41,7 +60,7 @@ func TestTimeoutRead2(t *testing.T) {
 // container info has it.
 func TestCommunicationBindingChannel(t *testing.T) {
 	for _, communicationBindingChannel := range []string{"foo", ""} {
-		sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel)
+		sdkClientProtocol := CreateSdkClientProtocolHandler(nil, "1.0", communicationBindingChannel, nil)
 		containInfo, err := sdkClientProtocol.MakeContainerInfo()
 		if err != nil {
 			t.Fatalf("Error making container info: %v", err)

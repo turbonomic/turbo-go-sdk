@@ -54,6 +54,10 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 				LocalAddress: item.localAddress,
 			},
 			item.bindingChannel,
+			SdkProtocolConfig{
+				RegistrationTimeoutSec:       60,
+				RestartOnRegistrationTimeout: false,
+			},
 		}
 		wsConfig, err := CreateWebSocketConnectionConfig(containerConfig)
 		if item.expectsErr {
@@ -72,6 +76,10 @@ func TestCreateClientWebSocketTransport(t *testing.T) {
 					LocalAddress: item.localAddress,
 				},
 				item.bindingChannel,
+				SdkProtocolConfig{
+					RegistrationTimeoutSec:       60,
+					RestartOnRegistrationTimeout: false,
+				},
 			}
 			if !reflect.DeepEqual(expectedWebSocketConfig, wsConfig) {
 				t.Errorf("\nExpect %v,\n got   %v", expectedWebSocketConfig, wsConfig)

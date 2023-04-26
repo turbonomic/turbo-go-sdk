@@ -29,9 +29,10 @@ func (rc *RestAPIConfig) ValidRestAPIConfig() error {
 
 // Configuration parameters for communicating with the Turbo server
 type TurboCommunicationConfig struct {
-	mediationcontainer.ServerMeta      `json:"serverMeta,omitempty"`
-	mediationcontainer.WebSocketConfig `json:"websocketConfig,omitempty"`
-	RestAPIConfig                      `json:"restAPIConfig,omitempty"`
+	mediationcontainer.ServerMeta        `json:"serverMeta,omitempty"`
+	mediationcontainer.WebSocketConfig   `json:"websocketConfig,omitempty"`
+	RestAPIConfig                        `json:"restAPIConfig,omitempty"`
+	mediationcontainer.SdkProtocolConfig `json:"sdkProtocolConfig,omitempty"`
 }
 
 func (turboCommConfig *TurboCommunicationConfig) ValidateTurboCommunicationConfig() error {
@@ -43,6 +44,9 @@ func (turboCommConfig *TurboCommunicationConfig) ValidateTurboCommunicationConfi
 		return err
 	}
 	if err := turboCommConfig.ValidRestAPIConfig(); err != nil {
+		return err
+	}
+	if err := turboCommConfig.ValidateSdkProtocolConfig(); err != nil {
 		return err
 	}
 	return nil
@@ -69,7 +73,7 @@ func ParseTurboCommunicationConfig(configFile string) (*TurboCommunicationConfig
 		return nil, err
 	}
 	glog.V(3).Infof("TurboCommunicationConfig Config: %v", turboCommConfig)
-
+	glog.Infof("TurboCommunicationConfig Config: %v", turboCommConfig)
 	if err := turboCommConfig.ValidateTurboCommunicationConfig(); err != nil {
 		return nil, err
 	}

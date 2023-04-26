@@ -198,6 +198,7 @@ func (builder *TAPServiceBuilder) WithTurboCommunicator(commConfig *TurboCommuni
 		ServerMeta:                  commConfig.ServerMeta,
 		WebSocketConfig:             commConfig.WebSocketConfig,
 		CommunicationBindingChannel: builder.tapService.communicationBindingChannel,
+		SdkProtocolConfig:           commConfig.SdkProtocolConfig,
 	}
 	mediationcontainer.CreateMediationContainer(containerConfig)
 
