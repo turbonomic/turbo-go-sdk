@@ -145,8 +145,15 @@ func (wsTransport *ClientWebSocketTransport) closeAndResetWebSocket() {
 func (wsTransport *ClientWebSocketTransport) write(mtype int, payload []byte) error {
 	wsTransport.wsMux.Lock()
 	defer wsTransport.wsMux.Unlock()
-	wsTransport.ws.SetWriteDeadline(time.Now().Add(writeWaitTimeout))
-	return wsTransport.ws.WriteMessage(mtype, payload)
+
+	ws := wsTransport.ws
+	if ws == nil {
+		return errors.New("websocket connection unavailable")
+	}
+	if err := ws.SetWriteDeadline(time.Now().Add(writeWaitTimeout)); err != nil {
+		return err
+	}
+	return ws.WriteMessage(mtype, payload)
 }
 
 // keep sending Ping msg to make sure the websocket connection is alive
