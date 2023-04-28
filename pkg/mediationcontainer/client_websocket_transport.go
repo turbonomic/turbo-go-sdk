@@ -150,9 +150,7 @@ func (wsTransport *ClientWebSocketTransport) write(mtype int, payload []byte) er
 	if ws == nil {
 		return errors.New("websocket connection unavailable")
 	}
-	if err := ws.SetWriteDeadline(time.Now().Add(writeWaitTimeout)); err != nil {
-		return err
-	}
+	ws.SetWriteDeadline(time.Now().Add(writeWaitTimeout))
 	return ws.WriteMessage(mtype, payload)
 }
 
