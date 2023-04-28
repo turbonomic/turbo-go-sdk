@@ -142,6 +142,8 @@ func (wsTransport *ClientWebSocketTransport) closeAndResetWebSocket() {
 	wsTransport.status = Closed
 }
 
+// write sends a WebSocket message with the given type and payload data.
+// It returns an error if the WebSocket connection is unavailable or the write operation fails.
 func (wsTransport *ClientWebSocketTransport) write(mtype int, payload []byte) error {
 	wsTransport.wsMux.Lock()
 	defer wsTransport.wsMux.Unlock()
