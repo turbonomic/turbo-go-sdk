@@ -101,6 +101,13 @@ func (d *DiscoveryResponseSender) chunkDiscoveryResponse(dr *proto.DiscoveryResp
 		chunks = append(chunks, chunk)
 	}
 
+	if len(dr.ActionPolicies) > 0 {
+		chunk := &proto.DiscoveryResponse{
+			ActionPolicies: dr.ActionPolicies,
+		}
+		chunks = append(chunks, chunk)
+	}
+
 	// Send an empty response to signal completion of discovery
 	chunks = append(chunks, &proto.DiscoveryResponse{})
 
