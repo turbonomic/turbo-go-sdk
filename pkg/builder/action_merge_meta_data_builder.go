@@ -188,16 +188,12 @@ func (rb *ResizeMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error)
 	return mergeSpec, nil
 }
 
-
-
-
 // Horizontal Scale Merge Policy DTO builder
 type HorizontalScaleMergePolicyBuilder struct {
 	entityType                *proto.EntityDTO_EntityType
-	aggregationTargets        []*ActionAggregationTargetBuilder
 	chainedAggregationTargets []*ActionDeDuplicateAndAggregationTargetBuilder
 	commTypes                 []*CommodityMergeData
-	entityFilters              []*proto.EntityDTO_WorkloadControllerData
+	entityFilters             []*proto.EntityDTO_ContainerPodData
 }
 
 func NewHorizontalScaleMergeSpecBuilder() *HorizontalScaleMergePolicyBuilder {
@@ -209,22 +205,17 @@ func (hsb *HorizontalScaleMergePolicyBuilder) ForEntityType(entityType proto.Ent
 	return hsb
 }
 
-func (hsb *HorizontalScaleMergePolicyBuilder) AggregateBy(mergeTarget *ActionAggregationTargetBuilder) *HorizontalScaleMergePolicyBuilder {
-	hsb.aggregationTargets = append(hsb.aggregationTargets, mergeTarget)
-	return hsb
-}
-
 func (hsb *HorizontalScaleMergePolicyBuilder) DeDuplicateAndAggregateBy(mergeTarget *ActionDeDuplicateAndAggregationTargetBuilder) *HorizontalScaleMergePolicyBuilder {
 	hsb.chainedAggregationTargets = append(hsb.chainedAggregationTargets, mergeTarget)
 	return hsb
 }
 
-func (hsb *HorizontalScaleMergePolicyBuilder) ForWorkloadControllerDataFilter(controllerData proto.EntityDTO_WorkloadControllerData) *HorizontalScaleMergePolicyBuilder  {
-	hsb.entityFilters = append(hsb.entityFilters , &controllerData)
+func (hsb *HorizontalScaleMergePolicyBuilder) ForContainerPodDataFilter(podData proto.EntityDTO_ContainerPodData) *HorizontalScaleMergePolicyBuilder {
+	hsb.entityFilters = append(hsb.entityFilters, &podData)
 	return hsb
 }
 
-func (hsb *HorizontalScaleMergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *HorizontalScaleMergePolicyBuilder  {
+func (hsb *HorizontalScaleMergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *HorizontalScaleMergePolicyBuilder {
 	comm := &CommodityMergeData{
 		commType: commType,
 	}
@@ -248,12 +239,16 @@ func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyD
 		return nil, fmt.Errorf("Entity type required for horizontal scale merge policy")
 	}
 
-	if len(hsb.aggregationTargets) == 0 && len(hsb.chainedAggregationTargets) == 0 {
+	if len(hsb.chainedAggregationTargets) == 0 {
 		return nil, fmt.Errorf("Target type required for horizontal scale merge merge policy")
 	}
 
 	if len(hsb.commTypes) == 0 {
 		return nil, fmt.Errorf("Commodity types required for horizontal scale merge merge policy")
+	}
+
+	if len(hsb.entityFilters) == 0 {
+		return nil, fmt.Errorf("Entity flters required for horizontal scale merge merge policy")
 	}
 
 	commMergeDataList := []*proto.HorizontalScaleMergeSpec_CommodityMergeData{}
@@ -277,14 +272,6 @@ func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyD
 	}
 
 	var executionTargetList []*proto.ActionMergeExecutionTarget
-	for _, targetData := range hsb.aggregationTargets {
-		executionTarget := &proto.ActionMergeExecutionTarget{
-			ExecutionTarget: &proto.ActionMergeExecutionTarget_MergeTarget{
-				MergeTarget: targetData.Create(),
-			},
-		}
-		executionTargetList = append(executionTargetList, executionTarget)
-	}
 
 	for _, targetData := range hsb.chainedAggregationTargets {
 		chainedTarget := targetData.Create()
@@ -299,8 +286,18 @@ func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyD
 		}
 		executionTargetList = append(executionTargetList, executionTarget)
 	}
-
 	mergeSpec.ExecutionTargets = executionTargetList
+
+	var filterList []*proto.ActionMergePolicyDTO_EntityFilter
+	for _, filter := range hsb.entityFilters {
+		entityFilter := &proto.ActionMergePolicyDTO_EntityFilter{
+			EntityFilterProps: &proto.ActionMergePolicyDTO_EntityFilter_ContainerPodData{
+				ContainerPodData: filter,
+			},
+		}
+		filterList = append(filterList, entityFilter)
+	}
+	mergeSpec.EntityFilters = filterList
+
 	return mergeSpec, nil
 }
-
