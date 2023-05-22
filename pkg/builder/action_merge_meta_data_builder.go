@@ -187,3 +187,117 @@ func (rb *ResizeMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error)
 	mergeSpec.ExecutionTargets = executionTargetList
 	return mergeSpec, nil
 }
+
+// Horizontal Scale Merge Policy DTO builder
+type HorizontalScaleMergePolicyBuilder struct {
+	entityType                *proto.EntityDTO_EntityType
+	chainedAggregationTargets []*ActionDeDuplicateAndAggregationTargetBuilder
+	commTypes                 []*CommodityMergeData
+	entityFilters             []*proto.EntityDTO_ContainerPodData
+}
+
+func NewHorizontalScaleMergeSpecBuilder() *HorizontalScaleMergePolicyBuilder {
+	return &HorizontalScaleMergePolicyBuilder{}
+}
+
+func (hsb *HorizontalScaleMergePolicyBuilder) ForEntityType(entityType proto.EntityDTO_EntityType) *HorizontalScaleMergePolicyBuilder {
+	hsb.entityType = &entityType
+	return hsb
+}
+
+func (hsb *HorizontalScaleMergePolicyBuilder) DeDuplicateAndAggregateBy(mergeTarget *ActionDeDuplicateAndAggregationTargetBuilder) *HorizontalScaleMergePolicyBuilder {
+	hsb.chainedAggregationTargets = append(hsb.chainedAggregationTargets, mergeTarget)
+	return hsb
+}
+
+func (hsb *HorizontalScaleMergePolicyBuilder) ForContainerPodDataFilter(podData proto.EntityDTO_ContainerPodData) *HorizontalScaleMergePolicyBuilder {
+	hsb.entityFilters = append(hsb.entityFilters, &podData)
+	return hsb
+}
+
+func (hsb *HorizontalScaleMergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *HorizontalScaleMergePolicyBuilder {
+	comm := &CommodityMergeData{
+		commType: commType,
+	}
+	hsb.commTypes = append(hsb.commTypes, comm)
+	return hsb
+}
+
+func (hsb *HorizontalScaleMergePolicyBuilder) ForCommodityAndAttribute(commType proto.CommodityDTO_CommodityType,
+	changedAttr proto.ActionItemDTO_CommodityAttribute) *HorizontalScaleMergePolicyBuilder {
+	comm := &CommodityMergeData{
+		commType:    commType,
+		changedAttr: changedAttr,
+	}
+	hsb.commTypes = append(hsb.commTypes, comm)
+	return hsb
+}
+
+// Create the ActionMergePolicyDTO for Horizontal Scale actions.
+func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error) {
+	if hsb.entityType == nil {
+		return nil, fmt.Errorf("Entity type required for horizontal scale merge policy")
+	}
+
+	if len(hsb.chainedAggregationTargets) == 0 {
+		return nil, fmt.Errorf("Target type required for horizontal scale merge merge policy")
+	}
+
+	if len(hsb.commTypes) == 0 {
+		return nil, fmt.Errorf("Commodity types required for horizontal scale merge merge policy")
+	}
+
+	if len(hsb.entityFilters) == 0 {
+		return nil, fmt.Errorf("Entity flters required for horizontal scale merge merge policy")
+	}
+
+	commMergeDataList := []*proto.HorizontalScaleMergeSpec_CommodityMergeData{}
+	for _, commData := range hsb.commTypes {
+		commMergeData := &proto.HorizontalScaleMergeSpec_CommodityMergeData{
+			CommodityType: &commData.commType,
+			ChangedAttr:   &commData.changedAttr,
+		}
+		commMergeDataList = append(commMergeDataList, commMergeData)
+	}
+	horizontalScaleSpec := &proto.HorizontalScaleMergeSpec{
+		CommodityData: commMergeDataList,
+	}
+
+	mergeSpec := &proto.ActionMergePolicyDTO{
+		EntityType: hsb.entityType,
+
+		ActionSpec: &proto.ActionMergePolicyDTO_HorizontalScaleSpec{
+			HorizontalScaleSpec: horizontalScaleSpec,
+		},
+	}
+
+	var executionTargetList []*proto.ActionMergeExecutionTarget
+
+	for _, targetData := range hsb.chainedAggregationTargets {
+		chainedTarget := targetData.Create()
+		if len(chainedTarget.TargetLinks) == 0 {
+			glog.Errorf("Invalid chained merge target")
+			continue
+		}
+		executionTarget := &proto.ActionMergeExecutionTarget{
+			ExecutionTarget: &proto.ActionMergeExecutionTarget_ChainedMergeTarget{
+				ChainedMergeTarget: chainedTarget,
+			},
+		}
+		executionTargetList = append(executionTargetList, executionTarget)
+	}
+	mergeSpec.ExecutionTargets = executionTargetList
+
+	var filterList []*proto.ActionMergePolicyDTO_EntityFilter
+	for _, filter := range hsb.entityFilters {
+		entityFilter := &proto.ActionMergePolicyDTO_EntityFilter{
+			EntityFilterProps: &proto.ActionMergePolicyDTO_EntityFilter_ContainerPodData{
+				ContainerPodData: filter,
+			},
+		}
+		filterList = append(filterList, entityFilter)
+	}
+	mergeSpec.EntityFilters = filterList
+
+	return mergeSpec, nil
+}
