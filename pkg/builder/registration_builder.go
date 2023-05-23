@@ -73,6 +73,23 @@ func (builder *ActionMergePolicyBuilder) ForResizeAction(entityType proto.Entity
 	return builder
 }
 
+func (builder *ActionMergePolicyBuilder) ForHorizontalScaleAction(entityType proto.EntityDTO_EntityType,
+	horizontalScaleMergePolicy *HorizontalScaleMergePolicyBuilder) *ActionMergePolicyBuilder {
+	_, exists := builder.ActionMergePolicyMap[entityType]
+	if !exists {
+		builder.ActionMergePolicyMap[entityType] = make(map[proto.ActionItemDTO_ActionType]*proto.ActionMergePolicyDTO)
+	}
+	entityPolicies, _ := builder.ActionMergePolicyMap[entityType]
+
+	horizontalScalePolicy, err := horizontalScaleMergePolicy.Build()
+	if err != nil {
+		fmt.Errorf("%v", err)
+	}
+	entityPolicies[proto.ActionItemDTO_HORIZONTAL_SCALE] = horizontalScalePolicy
+
+	return builder
+}
+
 func (builder *ActionMergePolicyBuilder) Create() []*proto.ActionMergePolicyDTO {
 	var policies []*proto.ActionMergePolicyDTO
 
