@@ -76,8 +76,7 @@ func (builder *ActionDeDuplicateAndAggregationTargetBuilder) Create() *proto.Cha
 	return chainedMergeTarget
 }
 
-// Resize Merge Policy DTO builder
-type ResizeMergePolicyBuilder struct {
+type MergePolicyBuilder struct {
 	entityType                *proto.EntityDTO_EntityType
 	aggregationTargets        []*ActionAggregationTargetBuilder
 	chainedAggregationTargets []*ActionDeDuplicateAndAggregationTargetBuilder
@@ -89,23 +88,23 @@ type CommodityMergeData struct {
 	changedAttr proto.ActionItemDTO_CommodityAttribute
 }
 
-func NewResizeMergeSpecBuilder() *ResizeMergePolicyBuilder {
-	return &ResizeMergePolicyBuilder{}
+func NewMergePolicyBuilder() *MergePolicyBuilder {
+	return &MergePolicyBuilder{}
 }
 
-func (rb *ResizeMergePolicyBuilder) ForEntityType(entityType proto.EntityDTO_EntityType) *ResizeMergePolicyBuilder {
-	rb.entityType = &entityType
-	return rb
+func (mpb *MergePolicyBuilder) ForEntityType(entityType proto.EntityDTO_EntityType) *MergePolicyBuilder {
+	mpb.entityType = &entityType
+	return mpb
 }
 
-func (rb *ResizeMergePolicyBuilder) AggregateBy(mergeTarget *ActionAggregationTargetBuilder) *ResizeMergePolicyBuilder {
-	rb.aggregationTargets = append(rb.aggregationTargets, mergeTarget)
-	return rb
+func (mpb *MergePolicyBuilder) AggregateBy(mergeTarget *ActionAggregationTargetBuilder) *MergePolicyBuilder {
+	mpb.aggregationTargets = append(mpb.aggregationTargets, mergeTarget)
+	return mpb
 }
 
-func (rb *ResizeMergePolicyBuilder) DeDuplicateAndAggregateBy(mergeTarget *ActionDeDuplicateAndAggregationTargetBuilder) *ResizeMergePolicyBuilder {
-	rb.chainedAggregationTargets = append(rb.chainedAggregationTargets, mergeTarget)
-	return rb
+func (mpb *MergePolicyBuilder) DeDuplicateAndAggregateBy(mergeTarget *ActionDeDuplicateAndAggregationTargetBuilder) *MergePolicyBuilder {
+	mpb.chainedAggregationTargets = append(mpb.chainedAggregationTargets, mergeTarget)
+	return mpb
 }
 
 func (rb *ResizeMergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *ResizeMergePolicyBuilder {
@@ -116,14 +115,25 @@ func (rb *ResizeMergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_Com
 	return rb
 }
 
-func (rb *ResizeMergePolicyBuilder) ForCommodityAndAttribute(commType proto.CommodityDTO_CommodityType,
-	changedAttr proto.ActionItemDTO_CommodityAttribute) *ResizeMergePolicyBuilder {
+func (mpb *MergePolicyBuilder) ForCommodityAndAttribute(commType proto.CommodityDTO_CommodityType,
+	changedAttr proto.ActionItemDTO_CommodityAttribute) *MergePolicyBuilder {
 	comm := &CommodityMergeData{
 		commType:    commType,
 		changedAttr: changedAttr,
 	}
-	rb.commTypes = append(rb.commTypes, comm)
-	return rb
+	mpb.commTypes = append(mpb.commTypes, comm)
+	return mpb
+}
+
+// Resize Merge Policy DTO builder
+type ResizeMergePolicyBuilder struct {
+	*MergePolicyBuilder
+}
+
+func NewResizeMergePolicyBuilder() *ResizeMergePolicyBuilder {
+	return &ResizeMergePolicyBuilder{
+		MergePolicyBuilder: NewMergePolicyBuilder(),
+	}
 }
 
 // Create the ActionMergePolicyDTO for merging resize actions.
@@ -190,47 +200,19 @@ func (rb *ResizeMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error)
 
 // Horizontal Scale Merge Policy DTO builder
 type HorizontalScaleMergePolicyBuilder struct {
-	entityType                *proto.EntityDTO_EntityType
-	chainedAggregationTargets []*ActionDeDuplicateAndAggregationTargetBuilder
-	commTypes                 []*CommodityMergeData
-	entityFilters             []*proto.EntityDTO_ContainerPodData
+	*MergePolicyBuilder
+	entityFilters []*proto.EntityDTO_ContainerPodData
 }
 
-func NewHorizontalScaleMergeSpecBuilder() *HorizontalScaleMergePolicyBuilder {
-	return &HorizontalScaleMergePolicyBuilder{}
-}
-
-func (hsb *HorizontalScaleMergePolicyBuilder) ForEntityType(entityType proto.EntityDTO_EntityType) *HorizontalScaleMergePolicyBuilder {
-	hsb.entityType = &entityType
-	return hsb
-}
-
-func (hsb *HorizontalScaleMergePolicyBuilder) DeDuplicateAndAggregateBy(mergeTarget *ActionDeDuplicateAndAggregationTargetBuilder) *HorizontalScaleMergePolicyBuilder {
-	hsb.chainedAggregationTargets = append(hsb.chainedAggregationTargets, mergeTarget)
-	return hsb
-}
-
-func (hsb *HorizontalScaleMergePolicyBuilder) ForContainerPodDataFilter(podData proto.EntityDTO_ContainerPodData) *HorizontalScaleMergePolicyBuilder {
-	hsb.entityFilters = append(hsb.entityFilters, &podData)
-	return hsb
-}
-
-func (hsb *HorizontalScaleMergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *HorizontalScaleMergePolicyBuilder {
-	comm := &CommodityMergeData{
-		commType: commType,
+func NewHorizontalScaleMergePolicyBuilder() *HorizontalScaleMergePolicyBuilder {
+	return &HorizontalScaleMergePolicyBuilder{
+		MergePolicyBuilder: NewMergePolicyBuilder(),
 	}
-	hsb.commTypes = append(hsb.commTypes, comm)
-	return hsb
 }
 
-func (hsb *HorizontalScaleMergePolicyBuilder) ForCommodityAndAttribute(commType proto.CommodityDTO_CommodityType,
-	changedAttr proto.ActionItemDTO_CommodityAttribute) *HorizontalScaleMergePolicyBuilder {
-	comm := &CommodityMergeData{
-		commType:    commType,
-		changedAttr: changedAttr,
-	}
-	hsb.commTypes = append(hsb.commTypes, comm)
-	return hsb
+func (hsmb *HorizontalScaleMergePolicyBuilder) ForContainerPodDataFilter(podData proto.EntityDTO_ContainerPodData) *HorizontalScaleMergePolicyBuilder {
+	hsmb.entityFilters = append(hsmb.entityFilters, &podData)
+	return hsmb
 }
 
 // Create the ActionMergePolicyDTO for Horizontal Scale actions.
@@ -239,7 +221,7 @@ func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyD
 		return nil, fmt.Errorf("Entity type required for horizontal scale merge policy")
 	}
 
-	if len(hsb.chainedAggregationTargets) == 0 {
+	if len(hsb.aggregationTargets) == 0 {
 		return nil, fmt.Errorf("Target type required for horizontal scale merge merge policy")
 	}
 
@@ -272,16 +254,10 @@ func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyD
 	}
 
 	var executionTargetList []*proto.ActionMergeExecutionTarget
-
-	for _, targetData := range hsb.chainedAggregationTargets {
-		chainedTarget := targetData.Create()
-		if len(chainedTarget.TargetLinks) == 0 {
-			glog.Errorf("Invalid chained merge target")
-			continue
-		}
+	for _, targetData := range hsb.aggregationTargets {
 		executionTarget := &proto.ActionMergeExecutionTarget{
-			ExecutionTarget: &proto.ActionMergeExecutionTarget_ChainedMergeTarget{
-				ChainedMergeTarget: chainedTarget,
+			ExecutionTarget: &proto.ActionMergeExecutionTarget_MergeTarget{
+				MergeTarget: targetData.Create(),
 			},
 		}
 		executionTargetList = append(executionTargetList, executionTarget)
