@@ -81,6 +81,7 @@ type MergePolicyBuilder struct {
 	aggregationTargets        []*ActionAggregationTargetBuilder
 	chainedAggregationTargets []*ActionDeDuplicateAndAggregationTargetBuilder
 	commTypes                 []*CommodityMergeData
+	entityExclusionFilters    []*proto.ActionMergePolicyDTO_EntityFilter
 }
 
 type CommodityMergeData struct {
@@ -122,6 +123,16 @@ func (mpb *MergePolicyBuilder) ForCommodityAndAttribute(commType proto.Commodity
 		changedAttr: changedAttr,
 	}
 	mpb.commTypes = append(mpb.commTypes, comm)
+	return mpb
+}
+
+func (mpb *MergePolicyBuilder) ForContainerPodDataExclusionFilter(podData proto.EntityDTO_ContainerPodData) *MergePolicyBuilder {
+	entityFilter := &proto.ActionMergePolicyDTO_EntityFilter{
+		EntityFilterProps: &proto.ActionMergePolicyDTO_EntityFilter_ContainerPodData{
+			ContainerPodData: &podData,
+		},
+	}
+	mpb.entityExclusionFilters = append(mpb.entityExclusionFilters, entityFilter)
 	return mpb
 }
 
@@ -201,18 +212,12 @@ func (rb *ResizeMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error)
 // Horizontal Scale Merge Policy DTO builder
 type HorizontalScaleMergePolicyBuilder struct {
 	*MergePolicyBuilder
-	entityFilters []*proto.EntityDTO_ContainerPodData
 }
 
 func NewHorizontalScaleMergePolicyBuilder() *HorizontalScaleMergePolicyBuilder {
 	return &HorizontalScaleMergePolicyBuilder{
 		MergePolicyBuilder: NewMergePolicyBuilder(),
 	}
-}
-
-func (hsmb *HorizontalScaleMergePolicyBuilder) ForContainerPodDataFilter(podData proto.EntityDTO_ContainerPodData) *HorizontalScaleMergePolicyBuilder {
-	hsmb.entityFilters = append(hsmb.entityFilters, &podData)
-	return hsmb
 }
 
 // Create the ActionMergePolicyDTO for Horizontal Scale actions.
@@ -229,7 +234,7 @@ func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyD
 		return nil, fmt.Errorf("Commodity types required for horizontal scale merge merge policy")
 	}
 
-	if len(hsb.entityFilters) == 0 {
+	if len(hsb.entityExclusionFilters) == 0 {
 		return nil, fmt.Errorf("Entity flters required for horizontal scale merge merge policy")
 	}
 
@@ -265,14 +270,20 @@ func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyD
 	mergeSpec.ExecutionTargets = executionTargetList
 
 	var filterList []*proto.ActionMergePolicyDTO_EntityFilter
-	for _, filter := range hsb.entityFilters {
+	for _, filter := range hsb.entityExclusionFilters {
+		podData := filter.GetContainerPodData()
+		if podData == nil {
+			glog.Warningf("Skipping invalid filter with nil ContainerPodData")
+			continue
+		}
 		entityFilter := &proto.ActionMergePolicyDTO_EntityFilter{
 			EntityFilterProps: &proto.ActionMergePolicyDTO_EntityFilter_ContainerPodData{
-				ContainerPodData: filter,
+				ContainerPodData: podData,
 			},
 		}
 		filterList = append(filterList, entityFilter)
 	}
+
 	mergeSpec.EntityFilters = filterList
 
 	return mergeSpec, nil
