@@ -108,7 +108,7 @@ func (mpb *MergePolicyBuilder) DeDuplicateAndAggregateBy(mergeTarget *ActionDeDu
 	return mpb
 }
 
-func (rb *ResizeMergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *ResizeMergePolicyBuilder {
+func (rb *MergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *MergePolicyBuilder {
 	comm := &CommodityMergeData{
 		commType: commType,
 	}
