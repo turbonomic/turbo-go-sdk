@@ -108,7 +108,7 @@ func (mpb *MergePolicyBuilder) DeDuplicateAndAggregateBy(mergeTarget *ActionDeDu
 	return mpb
 }
 
-func (rb *ResizeMergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *ResizeMergePolicyBuilder {
+func (rb *MergePolicyBuilder) ForCommodity(commType proto.CommodityDTO_CommodityType) *MergePolicyBuilder {
 	comm := &CommodityMergeData{
 		commType: commType,
 	}
@@ -136,19 +136,8 @@ func (mpb *MergePolicyBuilder) ForContainerPodDataExclusionFilter(podData proto.
 	return mpb
 }
 
-// Resize Merge Policy DTO builder
-type ResizeMergePolicyBuilder struct {
-	*MergePolicyBuilder
-}
-
-func NewResizeMergePolicyBuilder() *ResizeMergePolicyBuilder {
-	return &ResizeMergePolicyBuilder{
-		MergePolicyBuilder: NewMergePolicyBuilder(),
-	}
-}
-
 // Create the ActionMergePolicyDTO for merging resize actions.
-func (rb *ResizeMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error) {
+func (rb *MergePolicyBuilder) BuildResizeMergePolicy() (*proto.ActionMergePolicyDTO, error) {
 	if rb.entityType == nil {
 		return nil, fmt.Errorf("Entity type required for action merge policy")
 	}
@@ -209,19 +198,8 @@ func (rb *ResizeMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error)
 	return mergeSpec, nil
 }
 
-// Horizontal Scale Merge Policy DTO builder
-type HorizontalScaleMergePolicyBuilder struct {
-	*MergePolicyBuilder
-}
-
-func NewHorizontalScaleMergePolicyBuilder() *HorizontalScaleMergePolicyBuilder {
-	return &HorizontalScaleMergePolicyBuilder{
-		MergePolicyBuilder: NewMergePolicyBuilder(),
-	}
-}
-
 // Create the ActionMergePolicyDTO for Horizontal Scale actions.
-func (hsb *HorizontalScaleMergePolicyBuilder) Build() (*proto.ActionMergePolicyDTO, error) {
+func (hsb *MergePolicyBuilder) BuildHorizontalScaleMergePolicy() (*proto.ActionMergePolicyDTO, error) {
 	if hsb.entityType == nil {
 		return nil, fmt.Errorf("Entity type required for horizontal scale merge policy")
 	}
