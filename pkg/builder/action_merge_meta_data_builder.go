@@ -126,10 +126,10 @@ func (mpb *MergePolicyBuilder) ForCommodityAndAttribute(commType proto.Commodity
 	return mpb
 }
 
-func (mpb *MergePolicyBuilder) ForContainerPodDataExclusionFilter(podData proto.EntityDTO_ContainerPodData) *MergePolicyBuilder {
+func (mpb *MergePolicyBuilder) ForContainerPodDataExclusionFilter(podData *proto.EntityDTO_ContainerPodData) *MergePolicyBuilder {
 	entityFilter := &proto.ActionMergePolicyDTO_EntityFilter{
 		EntityFilterProps: &proto.ActionMergePolicyDTO_EntityFilter_ContainerPodData{
-			ContainerPodData: &podData,
+			ContainerPodData: podData,
 		},
 	}
 	mpb.entityExclusionFilters = append(mpb.entityExclusionFilters, entityFilter)
