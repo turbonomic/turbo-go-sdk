@@ -221,12 +221,35 @@ func (eb *EntityDTOBuilder) DisplayName(displayName string) *EntityDTOBuilder {
 	return eb
 }
 
+// remove duplicate commodities from the given commodity list
+func PurifyCommodities(commDTOs []*proto.CommodityDTO) []*proto.CommodityDTO {
+	commodityMap := make(map[string]*proto.CommodityDTO)
+	for _, commodity := range commDTOs {
+		mapKey := string(*commodity.CommodityType)
+		if commodity.Key != nil {
+			mapKey = mapKey + "_" + string(*commodity.Key)
+		}
+
+		if _, found := commodityMap[mapKey]; !found {
+			commodityMap[mapKey] = commodity
+		}
+	}
+
+	filteredCommodities := []*proto.CommodityDTO{}
+	for _, commodity := range commodityMap {
+		filteredCommodities = append(filteredCommodities, commodity)
+	}
+
+	return filteredCommodities
+}
+
 // Add a list of commodities to entity commodities sold list.
 func (eb *EntityDTOBuilder) SellsCommodities(commDTOs []*proto.CommodityDTO) *EntityDTOBuilder {
 	if eb.err != nil {
 		return eb
 	}
-	eb.commoditiesSold = append(eb.commoditiesSold, commDTOs...)
+	newCommoditiesSold := append(eb.commoditiesSold, commDTOs...)
+	eb.commoditiesSold = PurifyCommodities(newCommoditiesSold)
 	return eb
 }
 
@@ -238,7 +261,8 @@ func (eb *EntityDTOBuilder) SellsCommodity(commDTO *proto.CommodityDTO) *EntityD
 	if eb.commoditiesSold == nil {
 		eb.commoditiesSold = []*proto.CommodityDTO{}
 	}
-	eb.commoditiesSold = append(eb.commoditiesSold, commDTO)
+	newCommoditiesSold := append(eb.commoditiesSold, commDTO)
+	eb.commoditiesSold = PurifyCommodities(newCommoditiesSold)
 	return eb
 }
 
@@ -288,7 +312,7 @@ func (eb *EntityDTOBuilder) BuysCommodity(commDTO *proto.CommodityDTO) *EntityDT
 		commoditiesSoldByCurrentProvider = []*proto.CommodityDTO{}
 	}
 	commoditiesSoldByCurrentProvider = append(commoditiesSoldByCurrentProvider, commDTO)
-	eb.commoditiesBoughtProviderMap[eb.currentProvider.id] = commoditiesSoldByCurrentProvider
+	eb.commoditiesBoughtProviderMap[eb.currentProvider.id] = PurifyCommodities(commoditiesSoldByCurrentProvider)
 
 	return eb
 }
