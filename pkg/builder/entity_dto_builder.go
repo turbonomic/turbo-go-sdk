@@ -225,14 +225,14 @@ func (eb *EntityDTOBuilder) DisplayName(displayName string) *EntityDTOBuilder {
 func PurifyCommodities(commDTOs []*proto.CommodityDTO) []*proto.CommodityDTO {
 	commodityMap := make(map[string]*proto.CommodityDTO)
 	for _, commodity := range commDTOs {
-		mapKey := string(*commodity.CommodityType)
+		mapKey := "undifined"
+		if commodity.CommodityType != nil {
+			mapKey = string(*commodity.CommodityType)
+		}
 		if commodity.Key != nil {
 			mapKey = mapKey + "_" + string(*commodity.Key)
 		}
-
-		if _, found := commodityMap[mapKey]; !found {
-			commodityMap[mapKey] = commodity
-		}
+		commodityMap[mapKey] = commodity
 	}
 
 	filteredCommodities := []*proto.CommodityDTO{}
