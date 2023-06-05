@@ -166,12 +166,6 @@ func TestEntityDTOBuilder_SellsCommodities(t *testing.T) {
 			base.err = item.err
 		}
 		builder := base.SellsCommodities(item.commDTOs)
-		// append commodities twice to DTO to verify if duplicate commodities scenario occurs
-		expectedCommoditiesSold := len(builder.commoditiesSold)
-		builder = base.SellsCommodities(item.commDTOs)
-		if len(builder.commoditiesSold) != expectedCommoditiesSold {
-			t.Errorf("\nDuplicated commodities found in commoditiesSold")
-		}
 		expectedBuilder := &EntityDTOBuilder{
 			entityType:        base.entityType,
 			id:                base.id,
@@ -182,6 +176,12 @@ func TestEntityDTOBuilder_SellsCommodities(t *testing.T) {
 		}
 		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected: %++v, \ngot %++v", expectedBuilder, builder)
+		}
+		// append commodities twice to DTO to verify if duplicate commodities scenario occurs
+		expectedCommoditiesSold := len(builder.commoditiesSold)
+		builder = base.SellsCommodities(item.commDTOs)
+		if len(builder.commoditiesSold) != expectedCommoditiesSold {
+			t.Errorf("\nDuplicated commodities found in commoditiesSold")
 		}
 	}
 }
@@ -205,12 +205,6 @@ func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 			base.err = item.err
 		}
 		builder := base.SellsCommodity(item.commDTO)
-		// append a commodity twice to DTO to verify if duplicate commodities scenario occurs
-		expectedCommoditiesSold := len(builder.commoditiesSold)
-		builder = base.SellsCommodity(item.commDTO)
-		if len(builder.commoditiesSold) != expectedCommoditiesSold {
-			t.Errorf("\nDuplicated commodities found in commoditiesSold")
-		}
 		var comms []*proto.CommodityDTO
 		if item.commDTO != nil {
 			comms = append(comms, item.commDTO)
@@ -225,6 +219,12 @@ func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 		}
 		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected:\n %++v, \ngot\n %++v", expectedBuilder, builder)
+		}
+		// append a commodity twice to DTO to verify if duplicate commodities scenario occurs
+		expectedCommoditiesSold := len(builder.commoditiesSold)
+		builder = base.SellsCommodity(item.commDTO)
+		if len(builder.commoditiesSold) != expectedCommoditiesSold {
+			t.Errorf("\nDuplicated commodities found in commoditiesSold")
 		}
 	}
 }
