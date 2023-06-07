@@ -177,6 +177,12 @@ func TestEntityDTOBuilder_SellsCommodities(t *testing.T) {
 		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected: %++v, \ngot %++v", expectedBuilder, builder)
 		}
+		// append commodities twice to DTO to verify if duplicate commodities scenario occurs
+		expectedCommoditiesSold := len(builder.commoditiesSold)
+		builder = base.SellsCommodities(item.commDTOs)
+		if len(builder.commoditiesSold) != expectedCommoditiesSold {
+			t.Errorf("\nDuplicated commodities found in commoditiesSold")
+		}
 	}
 }
 
@@ -213,6 +219,12 @@ func TestEntityDTOBuilder_SellsCommodity(t *testing.T) {
 		}
 		if !reflect.DeepEqual(expectedBuilder, builder) {
 			t.Errorf("\nExpected:\n %++v, \ngot\n %++v", expectedBuilder, builder)
+		}
+		// append a commodity twice to DTO to verify if duplicate commodities scenario occurs
+		expectedCommoditiesSold := len(builder.commoditiesSold)
+		builder = base.SellsCommodity(item.commDTO)
+		if len(builder.commoditiesSold) != expectedCommoditiesSold {
+			t.Errorf("\nDuplicated commodities found in commoditiesSold")
 		}
 	}
 }
