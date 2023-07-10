@@ -12,5 +12,5 @@ fmtcheck:
 	@gofmt -l $(SOURCE_DIRS) | grep ".*\.go"; if [ "$$?" = "0" ]; then exit 1; fi
 
 .PHONY: vet
- vet:
+vet:
 	@go vet $(shell $(PACKAGES))

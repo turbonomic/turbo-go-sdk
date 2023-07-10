@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/golang/glog"
-	"github.com/turbonomic/turbo-api/pkg/api"
 	"mime/multipart"
 	"net/http"
 	"strings"
+
+	"github.com/golang/glog"
+	"github.com/turbonomic/turbo-api/pkg/api"
 )
 
 // APIClient connects to api service through ingress
@@ -228,7 +229,16 @@ func (c *APIClient) login() (*Result, error) {
 	return &response, nil
 }
 
+func (c *APIClient) printTarget(description string, target *api.Target) {
+	glog.V(4).Infof("%s %+v", description, target)
+	for _, inputField := range target.InputFields {
+		glog.V(4).Infof("Input field: %+v", inputField)
+	}
+}
+
 func (c *APIClient) findTarget(target *api.Target) (*api.Target, error) {
+	c.printTarget("Find target", target)
+
 	// Get a list of targets from the Turbo server
 	request := c.Get().Resource(api.Resource_Type_Targets).
 		Header("Content-Type", "application/json").
@@ -261,12 +271,14 @@ func (c *APIClient) findTarget(target *api.Target) (*api.Target, error) {
 	// by comparing the category, target type and identifier fields
 	// target type is regarded the same if the old one only differs by an extra suffix
 	for _, tgt := range targetList {
+		c.printTarget("Trying to match with target", &tgt)
 		// array of InputFields
 		for _, inputField := range tgt.InputFields {
 			if inputField.Name == "targetIdentifier" &&
 				inputField.Value == targetId &&
 				tgt.Category == target.Category &&
 				strings.HasPrefix(tgt.Type, target.Type) {
+				glog.V(4).Infof("Found target match")
 				return &tgt, nil
 			}
 		}
