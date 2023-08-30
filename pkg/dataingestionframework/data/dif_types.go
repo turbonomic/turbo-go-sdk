@@ -2,10 +2,11 @@ package data
 
 import (
 	"fmt"
+
 	set "github.com/deckarep/golang-set"
 )
 
-//Data ingestion framework topology entity
+// Data ingestion framework topology entity
 type DIFEntity struct {
 	UID                 string                     `json:"uniqueId"`
 	Type                string                     `json:"type"`
@@ -115,26 +116,28 @@ func (e *DIFEntity) Matching(id string) *DIFEntity {
 	return e
 }
 
-/**
- Add a metric with certain type, kind, value and key to the DIF entity.
- This function makes it easier to add a metric of the same type (e.g., memory) but
- different kind (e.g., average, or capacity) to a DIF entity, because they can be
- discovered at different times.
- The DIFEntity.Metrics is a map where the key is the metric type, and the value is
- a list of DIFMetricVal. We need a list of DIFMetricVal to hold metrics with the same
- type but different keys, for example:
-	kpi: [
-		{
-			average: 123,
-			capacity: 1000,
-			key: "total_messages_in_queue"
-		},
-		{
-			average: 104.44444444444444,
-			capacity: 1000,
-			key: "total_waiting_time_in_queue"
-		}
-	],
+/*
+*
+
+	 Add a metric with certain type, kind, value and key to the DIF entity.
+	 This function makes it easier to add a metric of the same type (e.g., memory) but
+	 different kind (e.g., average, or capacity) to a DIF entity, because they can be
+	 discovered at different times.
+	 The DIFEntity.Metrics is a map where the key is the metric type, and the value is
+	 a list of DIFMetricVal. We need a list of DIFMetricVal to hold metrics with the same
+	 type but different keys, for example:
+		kpi: [
+			{
+				average: 123,
+				capacity: 1000,
+				key: "total_messages_in_queue"
+			},
+			{
+				average: 104.44444444444444,
+				capacity: 1000,
+				key: "total_waiting_time_in_queue"
+			}
+		],
 */
 func (e *DIFEntity) AddMetric(metricType string, kind DIFMetricValKind, value float64, key string) {
 	var metricVal *DIFMetricVal

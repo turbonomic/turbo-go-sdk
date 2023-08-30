@@ -2,7 +2,7 @@ package data
 
 import "time"
 
-//Data injection framework topology
+// Data injection framework topology
 type Topology struct {
 	Version    string       `json:"version"`
 	Updatetime int64        `json:"updateTime"`

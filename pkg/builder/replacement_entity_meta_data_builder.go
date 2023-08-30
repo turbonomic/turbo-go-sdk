@@ -68,7 +68,8 @@ func (builder *ReplacementEntityMetaDataBuilder) PatchBuyingWithProperty(commTyp
 }
 
 // Set the commodity type whose metric values will be transferred to the entity
-//  builder DTO will be replaced by.
+//
+//	builder DTO will be replaced by.
 func (builder *ReplacementEntityMetaDataBuilder) PatchSelling(commType proto.CommodityDTO_CommodityType) *ReplacementEntityMetaDataBuilder {
 	return builder.PatchSellingWithProperty(commType, defaultPropertyNames)
 }

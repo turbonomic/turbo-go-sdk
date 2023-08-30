@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+
 	"github.com/turbonomic/turbo-go-sdk/pkg/proto"
 )
 
@@ -179,7 +180,7 @@ func (doNotPlaceTogether *DoNotPlaceTogetherPolicyBuilder) Build() ([]*proto.Gro
 	return buildBuyerBuyerPolicyGroup(doNotPlaceTogether.buyerBuyerPolicyData)
 }
 
-////========================================================================
+// //========================================================================
 func buildBuyerSellerPolicyGroup(policyData *buyerSellerPolicyData) ([]*proto.GroupDTO, error) {
 	if policyData.buyerData == nil {
 		return nil, fmt.Errorf("[buildBuyerSellerPolicyGroup] Buyer group data not set")
