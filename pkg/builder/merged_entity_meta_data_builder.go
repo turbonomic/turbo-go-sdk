@@ -24,6 +24,7 @@ type matchingData struct {
 // In some cases, we encode a List of Strings as a single string.
 // In that case, one can specify a delimiter that separates different strings in the value.
 // For example, we have a PM_UUID_LIST property where we have a comma separated list of UUIDs in a single string.
+//
 //	message MatchingData {
 //		oneof matching_data {
 //			EntityPropertyName matching_property = 100;
@@ -305,14 +306,15 @@ func (builder *MergedEntityMetadataBuilder) KeepInTopology(keepInTopology bool) 
 
 // WithMergePropertiesStrategy defines the merge strategy for properties for stitched entities. We currntly support
 // the following strategies:
-//   1. MERGE_NOTHING: properties of the "onto" entity are preserved and no property merging is applied. This
-//      strategy should be used when we know for sure that all targets discover the same set of properties for
-//      each shared entity.
-//   2. MERGE_IF_NOT_PRESENT: the resulting property list is a union of all properties from all EntityDTOs. When a
-//      property exists in both the "from" and "onto" entities, the "onto" entity values will be preserved.
-//   3. MERGE_AND_OVERWRITE: The resulting property list is a union of all properties from all EntityDTOs. When a
-//      property exists in both the "from" and "onto" entities, the "from" entity values will overwrite those
-//      of the "onto" entity.
+//  1. MERGE_NOTHING: properties of the "onto" entity are preserved and no property merging is applied. This
+//     strategy should be used when we know for sure that all targets discover the same set of properties for
+//     each shared entity.
+//  2. MERGE_IF_NOT_PRESENT: the resulting property list is a union of all properties from all EntityDTOs. When a
+//     property exists in both the "from" and "onto" entities, the "onto" entity values will be preserved.
+//  3. MERGE_AND_OVERWRITE: The resulting property list is a union of all properties from all EntityDTOs. When a
+//     property exists in both the "from" and "onto" entities, the "from" entity values will overwrite those
+//     of the "onto" entity.
+//
 // By default, the MERGE_NOTHING merge strategy is used.
 func (builder *MergedEntityMetadataBuilder) WithMergePropertiesStrategy(mergePropertiesStrategy proto.MergedEntityMetadata_MergePropertiesStrategy) *MergedEntityMetadataBuilder {
 	builder.mergePropertiesStrategy = mergePropertiesStrategy
